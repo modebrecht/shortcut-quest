@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tastenkürzel Trainer – Windows / Ctrl</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1f2937;
+      --accent: #22d3ee;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --text: #e2e8f0;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: rgba(15,23,42,0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      padding: 0.6rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    #topbar-left { display:flex; gap:0.5rem; align-items:center; }
+    #topbar-title { font-weight: 600; }
+    .top-link {
+      background: rgba(226,232,240,0.03);
+      border: 1px solid transparent;
+      color: var(--text);
+      padding: 0.25rem 0.7rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .top-link.active {
+      background: rgba(34,211,238,0.12);
+      border-color: rgba(34,211,238,0.4);
+    }
+    #topbar-right { display:flex; gap:0.5rem; align-items:center; }
+    .top-badge {
+      background: rgba(34,211,238,0.1);
+      border: 1px solid rgba(34,211,238,0.4);
+      border-radius: 9999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.75rem;
+    }
+    #learnView, #gameView {
+      padding: 1.2rem;
+      display: none;
+    }
+    #learnView.active, #gameView.active { display: block; }
+    #learnGrid {
+      display: grid;
+      gap: 1.2rem;
+    }
+    @media (min-width: 980px) {
+      #learnGrid { grid-template-columns: 2fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .small { font-size: 0.8rem; opacity: 0.8; }
+    .section { display: none; gap: 1rem; flex-direction: column; }
+    .section.active { display: flex; }
+    .nav-row { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .nav-btn {
+      background: rgba(226,232,240,0.05);
+      border: 1px solid transparent;
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+    .nav-btn.active {
+      background: rgba(34,211,238,0.12);
+      border-color: rgba(34,211,238,0.4);
+    }
+    label { display: block; margin-bottom: 0.4rem; }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(15,23,42,0.4);
+      color: var(--text);
+    }
+    button {
+      background: var(--accent);
+      border: none;
+      color: #082f49;
+      padding: 0.5rem 1rem;
+      border-radius: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .correct {
+      border: 2px solid var(--good) !important;
+      background: rgba(22,163,74,0.15) !important;
+    }
+    .incorrect {
+      border: 2px solid var(--bad) !important;
+      background: rgba(220,38,38,0.1) !important;
+    }
+    /* Dropdowns sollen auch im Fehlerzustand lesbar bleiben */
+    select.incorrect {
+      background: rgba(15,23,42,0.4) !important;
+    }
+    /* Drag & Drop */
+    .dnd-source {
+      background: rgba(34,211,238,0.12);
+      border: 1px solid rgba(34,211,238,0.35);
+      padding: 0.35rem 0.7rem;
+      border-radius: 0.4rem;
+      cursor: grab;
+      user-select: none;
+    }
+    .task-field {
+      position: relative;
+      display: block;
+    }
+    .task-field.correct::after {
+      content: "✓";
+      position: absolute;
+      right: 0.4rem;
+      top: 0.4rem;
+      color: var(--good);
+      font-weight: 700;
+    }
+    .task-field.incorrect::after {
+      content: "✗";
+      position: absolute;
+      right: 0.4rem;
+      top: 0.4rem;
+      color: var(--bad);
+      font-weight: 700;
+    }
+    .dnd-target {
+      background: rgba(15,23,42,0.3);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 0.7rem;
+      padding: 0.4rem 0.5rem;
+      min-width: 160px;
+      font-size: 0.8rem;
+    }
+    .dnd-target .drop-slot {
+      margin-top: 0.4rem;
+      min-height: 30px;
+      background: rgba(15,23,42,0.25);
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 0.35rem;
+      padding: 0.2rem;
+      font-weight: 600;
+    }
+    .dnd-target.over {
+      outline: 2px dashed rgba(34,211,238,0.9);
+    }
+    /* Game view cards */
+    #gameFlex { display:flex; gap:1rem; flex-wrap:wrap; }
+    #gameFlex .card { flex:1 1 280px; }
+  </style>
+</head>
+<body>
+  <div id="topbar">
+    <div id="topbar-left">
+      <div id="topbar-title">🎮 Tastenkürzel-Quest</div>
+      <button class="top-link active" data-view="learn">Lernseite</button>
+      <button class="top-link" data-view="game">Charakter & Gacha</button>
+    </div>
+    <div id="topbar-right">
+      <span class="top-badge" id="coinTop">💰 0</span>
+    </div>
+  </div>
+
+  <!-- Lernseite -->
+  <div id="learnView" class="active">
+    <div class="nav-row">
+      <button class="nav-btn active" data-goto="1">&lt; Abschnitt 1 &gt;</button>
+      <button class="nav-btn" data-goto="2">&lt; Abschnitt 2 &gt;</button>
+      <button class="nav-btn" data-goto="3">&lt; Abschnitt 3 &gt;</button>
+      <button class="nav-btn" data-goto="4">&lt; Abschnitt 4 &gt;</button>
+    </div>
+
+    <!-- Abschnitt 1 -->
+    <div class="section active" data-section="1">
+      <div class="card" id="ex1">
+        <h2>1. Grundlagen</h2>
+        <p class="small">Wähle das passende Kürzel.</p>
+        <label class="task-field">
+          1. Kopieren
+          <select data-answer="Ctrl+C">
+            <option value="">-- wählen --</option>
+            <option>Ctrl+V</option>
+            <option>Ctrl+C</option>
+            <option>Ctrl+X</option>
+          </select>
+        </label>
+        <label class="task-field">
+          2. Einfügen
+          <select data-answer="Ctrl+V">
+            <option value="">-- wählen --</option>
+            <option>Ctrl+S</option>
+            <option>Ctrl+V</option>
+            <option>Ctrl+Z</option>
+          </select>
+        </label>
+        <label class="task-field">
+          3. Alles markieren
+          <select data-answer="Ctrl+A">
+            <option value="">-- wählen --</option>
+            <option>Ctrl+P</option>
+            <option>Ctrl+A</option>
+            <option>Ctrl+F</option>
+          </select>
+        </label>
+      </div>
+      <div class="card">
+        <button class="check-section" data-check-section="1">Abschnitt 1 überprüfen ✅</button>
+        <button class="reset-section" data-reset-section="1" style="background:#1f2937;border:1px solid rgba(226,232,240,0.08);color:#e2e8f0;margin-left:0.4rem;">Zurücksetzen</button>
+        <p id="result-1" class="small" style="margin-top:0.5rem;"></p>
+      </div>
+    </div>
+
+    <!-- Abschnitt 2 -->
+    <div class="section" data-section="2">
+      <div class="card" id="ex2">
+        <h2>2. Beschreibungen</h2>
+        <p class="small">Wähle das Kürzel zur Aufgabe.</p>
+        <label class="task-field">
+          4. Dokument speichern
+          <select data-answer="Ctrl+S">
+            <option value="">-- wählen --</option>
+            <option>Ctrl+S</option>
+            <option>Ctrl+Z</option>
+            <option>Ctrl+X</option>
+          </select>
+        </label>
+        <label class="task-field">
+          5. Rückgängig machen
+          <select data-answer="Ctrl+Z">
+            <option value="">-- wählen --</option>
+            <option>Ctrl+Z</option>
+            <option>Ctrl+Y</option>
+            <option>Ctrl+P</option>
+          </select>
+        </label>
+        <label class="task-field">
+          6. Im Text etwas suchen
+          <select data-answer="Ctrl+F">
+            <option value="">-- wählen --</option>
+            <option>Ctrl+F</option>
+            <option>Ctrl+P</option>
+            <option>Ctrl+Shift+F</option>
+          </select>
+        </label>
+      </div>
+      <div class="card">
+        <button class="check-section" data-check-section="2">Abschnitt 2 überprüfen ✅</button>
+        <button class="reset-section" data-reset-section="2" style="background:#1f2937;border:1px solid rgba(226,232,240,0.08);color:#e2e8f0;margin-left:0.4rem;">Zurücksetzen</button>
+        <p id="result-2" class="small" style="margin-top:0.5rem;"></p>
+      </div>
+    </div>
+
+    <!-- Abschnitt 3 -->
+    <div class="section" data-section="3">
+      <div class="card" id="ex3">
+        <h2>3. Eingeben</h2>
+        <p class="small">Schreibe das Kürzel genau so hin.</p>
+        <label class="task-field">
+          7. Drucken
+          <input type="text" placeholder="z.B. Ctrl+P" data-answer="Ctrl+P" />
+        </label>
+        <label class="task-field">
+          8. Wiederholen (umgekehrtes Rückgängig)
+          <input type="text" placeholder="z.B. Ctrl+Y" data-answer="Ctrl+Y" />
+        </label>
+        <label class="task-field">
+          9. Neues Dokument / neuer Tab (häufig)
+          <input type="text" placeholder="z.B. Ctrl+N" data-answer="Ctrl+N" />
+        </label>
+      </div>
+      <div class="card">
+        <button class="check-section" data-check-section="3">Abschnitt 3 überprüfen ✅</button>
+        <button class="reset-section" data-reset-section="3" style="background:#1f2937;border:1px solid rgba(226,232,240,0.08);color:#e2e8f0;margin-left:0.4rem;">Zurücksetzen</button>
+        <p id="result-3" class="small" style="margin-top:0.5rem;"></p>
+      </div>
+    </div>
+
+    <!-- Abschnitt 4 -->
+    <div class="section" data-section="4">
+      <div class="card" id="ex4">
+        <h2>4. Drag & Drop</h2>
+        <p class="small">Ziehe das richtige Tastenkürzel auf die passende Beschreibung.</p>
+        <div class="flex" style="gap:0.5rem; margin-bottom:0.7rem;">
+          <div class="dnd-source" draggable="true" data-value="Ctrl+C">Ctrl+C</div>
+          <div class="dnd-source" draggable="true" data-value="Ctrl+V">Ctrl+V</div>
+          <div class="dnd-source" draggable="true" data-value="Ctrl+Z">Ctrl+Z</div>
+          <div class="dnd-source" draggable="true" data-value="Ctrl+F">Ctrl+F</div>
+          <div class="dnd-source" draggable="true" data-value="Ctrl+S">Ctrl+S</div>
+        </div>
+        <div class="flex" style="gap:1rem; flex-wrap:wrap;">
+          <div class="dnd-target" data-answer="Ctrl+Z">
+            Rückgängig machen
+            <div class="drop-slot"></div>
+          </div>
+          <div class="dnd-target" data-answer="Ctrl+F">
+            Im Dokument suchen
+            <div class="drop-slot"></div>
+          </div>
+          <div class="dnd-target" data-answer="Ctrl+S">
+            Dokument speichern
+            <div class="drop-slot"></div>
+          </div>
+          <div class="dnd-target" data-answer="Ctrl+C">
+            Markiertes kopieren
+            <div class="drop-slot"></div>
+          </div>
+          <div class="dnd-target" data-answer="Ctrl+V">
+            Markiertes einfügen
+            <div class="drop-slot"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <button class="check-section" data-check-section="4">Abschnitt 4 überprüfen ✅</button>
+        <button class="reset-section" data-reset-section="4" style="background:#1f2937;border:1px solid rgba(226,232,240,0.08);color:#e2e8f0;margin-left:0.4rem;">Zurücksetzen</button>
+        <p id="result-4" class="small" style="margin-top:0.5rem;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game-Seite -->
+  <div id="gameView">
+    <div id="gameFlex">
+      <div class="card" id="playerCard">
+        <h2>🧑 Charakter</h2>
+        <div class="statline">
+          <span class="badge" id="coinDisplay">💰 0</span>
+          <span class="badge" id="atkDisplay">ATK 1</span>
+          <span class="badge" id="defDisplay">DEF 0</span>
+          <span class="badge" id="itemsDisplay">Items: 0</span>
+        </div>
+        <p class="small" id="progressInfo">Noch nichts gelöst.</p>
+      </div>
+
+      <div class="card" id="gacha">
+        <h2>🎁 Gacha (10 Coins)</h2>
+        <p class="small">Zieh ein zufälliges Item, erhöht ATK oder DEF.</p>
+        <button id="gachaBtn">Gacha ziehen</button>
+        <p id="gachaMsg" class="small"></p>
+      </div>
+
+      <div class="card" id="battle">
+        <h2>⚔️ Kampf</h2>
+        <p class="small">Teste, ob deine Tastenkürzel-Power reicht 😎</p>
+        <button data-enemy="1" class="battleBtn">Kämpfen vs. Lv1 „Vergesslicher Schüler“</button>
+        <button data-enemy="2" class="battleBtn">Kämpfen vs. Lv2 "Strenger Teacher"</button>
+        <div class="enemy-log" id="battleLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "shortcutGamification_v1";
+    const state = {
+      coins: 0,
+      atk: 1,
+      def: 0,
+      items: [],
+      solvedOnce: {}, // bleibt drin, aber wir belohnen nun abschnittsweise
+      sectionClears: {}, // key: Abschnittsnummer -> wie oft komplett richtig gelöst
+      sectionResets: {} // key: Abschnittsnummer -> wie oft zurückgesetzt
+    };
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+      } catch (e) {
+        console.warn("Konnte State nicht laden", e);
+      }
+    }
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    loadState();
+
+    const coinTop = document.getElementById("coinTop");
+    
+    
+    const coinDisplay = document.getElementById("coinDisplay");
+    const atkDisplay = document.getElementById("atkDisplay");
+    const defDisplay = document.getElementById("defDisplay");
+    const itemsDisplay = document.getElementById("itemsDisplay");
+    const progressInfo = document.getElementById("progressInfo");
+
+    function updateUI(extraText) {
+      coinTop.textContent = "💰 " + state.coins;
+      
+      if (coinDisplay) coinDisplay.textContent = "💰 " + state.coins;
+      if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
+      if (defDisplay) defDisplay.textContent = "DEF " + state.def;
+      if (itemsDisplay) itemsDisplay.textContent = "Items: " + state.items.length;
+      if (progressInfo) progressInfo.textContent = extraText || "Weiter üben für mehr Coins!";
+    }
+    updateUI();
+
+    // ----- View Switch -----
+    const learnView = document.getElementById("learnView");
+    const gameView = document.getElementById("gameView");
+    const topLinks = document.querySelectorAll(".top-link");
+    topLinks.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        topLinks.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        if (view === "learn") {
+          learnView.classList.add("active");
+          gameView.classList.remove("active");
+        } else {
+          learnView.classList.remove("active");
+          gameView.classList.add("active");
+        }
+      });
+    });
+
+    // Drag & Drop init
+    let draggedValue = null;
+    document.querySelectorAll(".dnd-source").forEach(src => {
+      src.addEventListener("dragstart", (e) => {
+        draggedValue = src.getAttribute("data-value");
+        e.dataTransfer.setData("text/plain", draggedValue);
+      });
+    });
+    document.querySelectorAll(".dnd-target .drop-slot").forEach(slot => {
+      const target = slot.parentElement;
+      slot.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        target.classList.add("over");
+      });
+      slot.addEventListener("dragleave", () => {
+        target.classList.remove("over");
+      });
+      slot.addEventListener("drop", (e) => {
+        e.preventDefault();
+        target.classList.remove("over");
+        const data = e.dataTransfer.getData("text/plain") || draggedValue;
+        if (!data) return;
+        slot.textContent = data;
+        slot.setAttribute("data-value", data);
+      });
+    });
+
+    // Navigation zwischen Abschnitten
+    const sections = document.querySelectorAll(".section");
+    const navBtns = document.querySelectorAll(".nav-btn");
+    function showSection(num) {
+      sections.forEach(sec => {
+        sec.classList.toggle("active", sec.getAttribute("data-section") === String(num));
+      });
+      navBtns.forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-goto") === String(num));
+      });
+    }
+    navBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        showSection(btn.getAttribute("data-goto"));
+      });
+    });
+
+    // Fragen durchnummerieren
+    const allCheckables = document.querySelectorAll("[data-answer], .dnd-target");
+    allCheckables.forEach((el, idx) => {
+      el.dataset.qid = "q" + idx;
+    });
+
+    function checkSection(sectionNum) {
+      const sectionEl = document.querySelector(`.section[data-section="${sectionNum}"]`);
+      if (!sectionEl) return;
+      const fields = sectionEl.querySelectorAll("[data-answer], .dnd-target");
+        fields.forEach(el => {
+          el.classList.remove("correct", "incorrect");
+          const wrapper = el.closest('.task-field');
+          if (wrapper) wrapper.classList.remove('correct', 'incorrect');
+          if (el.tagName === "SELECT") {
+            el.value = "";
+          } else if (el.tagName === "INPUT") {
+            el.value = "";
+          } else if (el.classList.contains("dnd-target")) {
+            const slot = el.querySelector(".drop-slot");
+            slot.textContent = "";
+            slot.removeAttribute("data-value");
+          }
+        });
+        const resEl = document.getElementById(`result-${secNum}`);
+        if (resEl) resEl.textContent = "Abschnitt zurückgesetzt. Löse ihn nochmal!";
+        state.sectionResets[secNum] = (state.sectionResets[secNum] || 0) + 1;
+        saveState();
+    }
+
+    document.querySelectorAll(".check-section").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const secNum = btn.getAttribute("data-check-section");
+        checkSection(secNum);
+      });
+    });
+
+    // Abschnitt zurücksetzen
+    document.querySelectorAll(".reset-section").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const secNum = btn.getAttribute("data-reset-section");
+        const sectionEl = document.querySelector(`.section[data-section="${secNum}"]`);
+        if (!sectionEl) return;
+        const fields = sectionEl.querySelectorAll("[data-answer], .dnd-target");
+        fields.forEach(el => {
+          el.classList.remove("correct", "incorrect");
+          if (el.tagName === "SELECT") {
+            el.value = "";
+          } else if (el.tagName === "INPUT") {
+            el.value = "";
+          } else if (el.classList.contains("dnd-target")) {
+            const slot = el.querySelector(".drop-slot");
+            slot.textContent = "";
+            slot.removeAttribute("data-value");
+          }
+        });
+        const resEl = document.getElementById(`result-${secNum}`);
+        if (resEl) resEl.textContent = "Abschnitt zurückgesetzt. Löse ihn nochmal!";
+        // Reset zählen, damit wir beim nächsten perfekten Durchlauf +5 geben können
+        state.sectionResets[secNum] = (state.sectionResets[secNum] || 0) + 1;
+        saveState();
+      });
+    });
+
+    // Gacha
+    const gachaBtn = document.getElementById("gachaBtn");
+    const gachaMsg = document.getElementById("gachaMsg");
+    const possibleItems = [
+      { name: "Schnelle Finger (ATK+1)", atk: 1, def: 0 },
+      { name: "Shortcut-Spickzettel (DEF+1)", atk: 0, def: 1 },
+      { name: "Gaming-Tastatur (ATK+2)", atk: 2, def: 0 },
+      { name: "Cheat-Tabellenordner (DEF+2)", atk: 0, def: 2 }
+    ];
+    gachaBtn.addEventListener("click", () => {
+      if (state.coins < 10) {
+        gachaMsg.textContent = "Nicht genug Coins (10 nötig).";
+        return;
+      }
+      state.coins -= 10;
+      const item = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+      state.items.push(item);
+      state.atk += item.atk;
+      state.def += item.def;
+      gachaMsg.textContent = "Du hast erhalten: " + item.name;
+      updateUI("Neues Item gezogen!");
+      saveState();
+    });
+
+    // Kampf
+    const battleLog = document.getElementById("battleLog");
+    document.querySelectorAll(".battleBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const enemyLv = parseInt(btn.getAttribute("data-enemy"), 10);
+        fightEnemy(enemyLv);
+      });
+    });
+    function fightEnemy(lv) {
+      const enemies = {
+        1: { name: "Vergesslicher Schüler", hp: 5, def: 0 },
+        2: { name: "Strenger Teacher", hp: 10, def: 2 },
+      };
+      const enemy = enemies[lv];
+      if (!enemy) return;
+      let dmg = Math.max(1, state.atk - enemy.def);
+      const turns = Math.ceil(enemy.hp / dmg);
+      let log = `🛡️ Kampf gegen ${enemy.name} (Lv${lv})
+`;
+      log += `Deine ATK: ${state.atk}, dein DEF: ${state.def}
+`;
+      log += `Du machst pro Runde ${dmg} Schaden.
+`;
+      log += `Du besiegst den Gegner in ${turns} Runden.
+`;
+      if (lv === 2 && state.atk < 3) {
+        log += `⚠️ Hinweis: Für Lv2 ist etwas Ausrüstung sinnvoll – zieh mehr im Gacha!
+`;
+      } else {
+        log += `🎉 Sieg! Du bist shortcut-pro!`;
+      }
+      battleLog.textContent = log;
+    }
+  </script>
+</body>
+</html>

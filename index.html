@@ -1,0 +1,985 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Shortcut Ritter-Akademie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1d273b;
+      --border: rgba(148,163,184,0.25);
+      --accent: #f59e0b;
+      --accent-soft: rgba(245,158,11,0.18);
+      --good: #22c55e;
+      --good-soft: rgba(34,197,94,0.15);
+      --bad: #f87171;
+      --bad-soft: rgba(248,113,113,0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,22,41,0.85);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .top-nav { display: flex; gap: 0.5rem; }
+    .nav-toggle {
+      padding: 0.35rem 0.9rem;
+      border-radius: 0.75rem;
+      border: 1px solid transparent;
+      background: rgba(148,163,184,0.12);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .nav-toggle.active {
+      border-color: rgba(245,158,11,0.5);
+      background: var(--accent-soft);
+    }
+    .badge {
+      border-radius: 999px;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(15,23,42,0.4);
+    }
+    main {
+      flex: 1;
+      width: min(1100px, 95%);
+      margin: 0.8rem auto 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .view { display: none; flex-direction: column; gap: 1rem; }
+    .view.active { display: flex; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.2rem 1.4rem;
+      box-shadow: 0 18px 36px rgba(8,15,30,0.35);
+    }
+    .nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .section-tab {
+      padding: 0.4rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid transparent;
+      background: rgba(148,163,184,0.12);
+      color: var(--text);
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .section-tab.active {
+      border-color: rgba(245,158,11,0.45);
+      background: var(--accent-soft);
+    }
+    .section {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .section.active { display: flex; }
+    h2 { margin: 0; font-size: 1.2rem; }
+    .small { font-size: 0.85rem; color: var(--muted); }
+    .task-field {
+      display: block;
+      border: 1px solid rgba(148,163,184,0.18);
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      margin-top: 0.75rem;
+      position: relative;
+      background: rgba(15,23,42,0.3);
+    }
+    .task-field.correct {
+      border-color: var(--good);
+      background: var(--good-soft);
+    }
+    .task-field.incorrect {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+    }
+    .task-field span.question-text {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.45);
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+    select:focus, input[type="text"]:focus {
+      outline: 2px solid rgba(245,158,11,0.45);
+      outline-offset: 2px;
+    }
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 0.75rem;
+      border: none;
+      font-weight: 600;
+    }
+    .action-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .action-card button {
+      padding: 0.55rem 1.1rem;
+      background: var(--accent);
+      color: #1f2937;
+    }
+    .reset-section {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .result-text { flex: 1 1 100%; margin: 0; }
+    .dnd-pool, .dnd-targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.9rem;
+    }
+    .dnd-token {
+      padding: 0.3rem 0.7rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(148,163,184,0.15);
+      cursor: grab;
+      user-select: none;
+    }
+    .dnd-target {
+      padding: 0.6rem;
+      border-radius: 0.75rem;
+      border: 1px dashed rgba(148,163,184,0.4);
+      min-width: 170px;
+      background: rgba(15,23,42,0.3);
+      position: relative;
+    }
+    .dnd-target.over {
+      border-color: var(--accent);
+    }
+    .drop-slot {
+      margin-top: 0.45rem;
+      min-height: 34px;
+      border-radius: 0.45rem;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: rgba(10,20,40,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    #overviewCard { margin-top: 0.5rem; }
+    .hero-wrapper { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+    .hero-avatar {
+      --atk-low: #5b6ff5;
+      --atk-mid: #f59e0b;
+      --atk-high: #facc15;
+      --def-low: #38bdf8;
+      --def-mid: #0ea5e9;
+      --def-high: #22c55e;
+      width: 150px;
+      height: 180px;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: linear-gradient(155deg, rgba(26,35,58,0.95), rgba(12,19,34,0.8));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 16px rgba(8,15,30,0.7);
+    }
+    .hero-svg { width: 120px; height: 160px; }
+    .hero-avatar[data-atk-tier="1"] .sword-blade { stroke: var(--atk-low); }
+    .hero-avatar[data-atk-tier="2"] .sword-blade { stroke: var(--atk-mid); }
+    .hero-avatar[data-atk-tier="3"] .sword-blade { stroke: var(--atk-high); }
+    .hero-avatar[data-def-tier="1"] .shield-outline { stroke: var(--def-low); }
+    .hero-avatar[data-def-tier="2"] .shield-outline { stroke: var(--def-mid); }
+    .hero-avatar[data-def-tier="3"] .shield-outline { stroke: var(--def-high); }
+    .inventory {
+      flex: 1 1 240px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .inventory h3 { margin: 0; font-size: 1rem; }
+    .inventory-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .inventory-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.45);
+    }
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1;
+    }
+    .item-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(148,163,184,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item-text { display: flex; flex-direction: column; gap: 0.2rem; }
+    .item-text strong { font-size: 0.85rem; }
+    .item-text span { font-size: 0.75rem; color: var(--muted); }
+    .item-stats { display: flex; gap: 0.4rem; }
+    .badge.atk { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.45); color: #fecaca; }
+    .badge.def { background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.45); color: #bfdbfe; }
+    .inventory-empty { font-size: 0.8rem; color: var(--muted); }
+    .game-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .game-grid .card { flex: 1 1 280px; }
+    .statline { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    #gachaBtn {
+      padding: 0.6rem 1.2rem;
+      background: var(--accent);
+      color: #1f2937;
+    }
+    .battle-btn {
+      width: 100%;
+      margin-top: 0.6rem;
+      padding: 0.6rem 1rem;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.4);
+      color: var(--text);
+    }
+    .battle-btn:first-of-type { margin-top: 0; }
+    .gacha-msg { min-height: 1.2rem; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+    .battle-log {
+      margin-top: 0.75rem;
+      background: rgba(15,23,42,0.4);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-height: 4.5rem;
+      white-space: pre-wrap;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    @media (max-width: 720px) {
+      header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .hero-avatar { width: 130px; height: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <span class="title">Shortcut Ritter-Akademie</span>
+      <div class="top-nav">
+        <button class="nav-toggle active" data-view="learn">Training</button>
+        <button class="nav-toggle" data-view="game">Ritterlager</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge" id="coinTop">Coins: 0</span>
+    </div>
+  </header>
+  <main>
+    <section id="learnView" class="view active">
+      <div class="card nav-card">
+        <div class="nav-row">
+          <button class="section-tab active" data-goto="1">Abschnitt 1</button>
+          <button class="section-tab" data-goto="2">Abschnitt 2</button>
+          <button class="section-tab" data-goto="3">Abschnitt 3</button>
+          <button class="section-tab" data-goto="4">Abschnitt 4</button>
+        </div>
+        <p class="small">Perfekte Loesungen bringen 20 Coins. Nach Zuruecksetzen und erneuter Perfektloesung gibt es 5 Coins.</p>
+      </div>
+      <div class="section active" data-section="1">
+        <div class="card">
+          <h2>1. Grundschlaege</h2>
+          <p class="small">Waehle das passende Tastenkuerzel fuer die Aktion.</p>
+          <label class="task-field">
+            <span class="question-text">1. Kopieren</span>
+            <select data-answer="Ctrl+C">
+              <option value="">-- waehlen --</option>
+              <option>Ctrl+X</option>
+              <option>Ctrl+C</option>
+              <option>Ctrl+V</option>
+            </select>
+          </label>
+          <label class="task-field">
+            <span class="question-text">2. Einfuegen</span>
+            <select data-answer="Ctrl+V">
+              <option value="">-- waehlen --</option>
+              <option>Ctrl+S</option>
+              <option>Ctrl+V</option>
+              <option>Ctrl+Z</option>
+            </select>
+          </label>
+          <label class="task-field">
+            <span class="question-text">3. Alles markieren</span>
+            <select data-answer="Ctrl+A">
+              <option value="">-- waehlen --</option>
+              <option>Ctrl+P</option>
+              <option>Ctrl+A</option>
+              <option>Ctrl+F</option>
+            </select>
+          </label>
+        </div>
+        <div class="card action-card">
+          <button class="check-section" data-check-section="1">Abschnitt pruefen</button>
+          <button class="reset-section" data-reset-section="1">Zuruecksetzen</button>
+          <p class="small result-text" id="result-1"></p>
+        </div>
+      </div>
+      <div class="section" data-section="2">
+        <div class="card">
+          <h2>2. Werkzeuge</h2>
+          <p class="small">Welches Tastenkuerzel passt zur Beschreibung?</p>
+          <label class="task-field">
+            <span class="question-text">4. Dokument speichern</span>
+            <select data-answer="Ctrl+S">
+              <option value="">-- waehlen --</option>
+              <option>Ctrl+S</option>
+              <option>Ctrl+O</option>
+              <option>Ctrl+Shift+S</option>
+            </select>
+          </label>
+          <label class="task-field">
+            <span class="question-text">5. Rueckgaengig</span>
+            <select data-answer="Ctrl+Z">
+              <option value="">-- waehlen --</option>
+              <option>Ctrl+Z</option>
+              <option>Ctrl+Y</option>
+              <option>Ctrl+R</option>
+            </select>
+          </label>
+          <label class="task-field">
+            <span class="question-text">6. Im Text suchen</span>
+            <select data-answer="Ctrl+F">
+              <option value="">-- waehlen --</option>
+              <option>Ctrl+F</option>
+              <option>Ctrl+P</option>
+              <option>Ctrl+Shift+F</option>
+            </select>
+          </label>
+        </div>
+        <div class="card action-card">
+          <button class="check-section" data-check-section="2">Abschnitt pruefen</button>
+          <button class="reset-section" data-reset-section="2">Zuruecksetzen</button>
+          <p class="small result-text" id="result-2"></p>
+        </div>
+      </div>
+      <div class="section" data-section="3">
+        <div class="card">
+          <h2>3. Selber tippen</h2>
+          <p class="small">Schreibe das Tastenkuerzel exakt in das Feld.</p>
+          <label class="task-field">
+            <span class="question-text">7. Drucken</span>
+            <input type="text" placeholder="z. B. Ctrl+P" data-answer="Ctrl+P">
+          </label>
+          <label class="task-field">
+            <span class="question-text">8. Wiederholen</span>
+            <input type="text" placeholder="z. B. Ctrl+Y" data-answer="Ctrl+Y">
+          </label>
+          <label class="task-field">
+            <span class="question-text">9. Neuer Tab</span>
+            <input type="text" placeholder="z. B. Ctrl+N" data-answer="Ctrl+N">
+          </label>
+        </div>
+        <div class="card action-card">
+          <button class="check-section" data-check-section="3">Abschnitt pruefen</button>
+          <button class="reset-section" data-reset-section="3">Zuruecksetzen</button>
+          <p class="small result-text" id="result-3"></p>
+        </div>
+      </div>
+      <div class="section" data-section="4">
+        <div class="card">
+          <h2>4. Drag und Drop</h2>
+          <p class="small">Ziehe jedes Tastenkuerzel auf die passende Beschreibung.</p>
+          <div class="dnd-pool">
+            <div class="dnd-token" draggable="true" data-value="Ctrl+C">Ctrl+C</div>
+            <div class="dnd-token" draggable="true" data-value="Ctrl+V">Ctrl+V</div>
+            <div class="dnd-token" draggable="true" data-value="Ctrl+X">Ctrl+X</div>
+            <div class="dnd-token" draggable="true" data-value="Ctrl+F">Ctrl+F</div>
+            <div class="dnd-token" draggable="true" data-value="Ctrl+S">Ctrl+S</div>
+          </div>
+          <div class="dnd-targets">
+            <div class="dnd-target" data-answer="Ctrl+C">
+              <span class="question-text">Markiertes kopieren</span>
+              <div class="drop-slot"></div>
+            </div>
+            <div class="dnd-target" data-answer="Ctrl+V">
+              <span class="question-text">Markiertes einfuegen</span>
+              <div class="drop-slot"></div>
+            </div>
+            <div class="dnd-target" data-answer="Ctrl+X">
+              <span class="question-text">Markiertes ausschneiden</span>
+              <div class="drop-slot"></div>
+            </div>
+            <div class="dnd-target" data-answer="Ctrl+F">
+              <span class="question-text">Inhalt durchsuchen</span>
+              <div class="drop-slot"></div>
+            </div>
+            <div class="dnd-target" data-answer="Ctrl+S">
+              <span class="question-text">Datei speichern</span>
+              <div class="drop-slot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card action-card">
+          <button class="check-section" data-check-section="4">Abschnitt pruefen</button>
+          <button class="reset-section" data-reset-section="4">Zuruecksetzen</button>
+          <p class="small result-text" id="result-4"></p>
+        </div>
+      </div>
+      <div class="card" id="overviewCard">
+        <h2>Gesamtuebersicht</h2>
+        <p class="small" id="overallSummary">Noch keine Ergebnisse.</p>
+      </div>
+    </section>
+    <section id="gameView" class="view">
+      <div class="game-grid">
+        <div class="card" id="playerCard">
+          <h2>Ritterlager</h2>
+          <div class="statline">
+            <span class="badge" id="coinDisplay">Coins: 0</span>
+            <span class="badge" id="atkDisplay">ATK 1</span>
+            <span class="badge" id="defDisplay">DEF 0</span>
+            <span class="badge" id="itemsDisplay">Gear: 0</span>
+          </div>
+          <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
+          <div class="hero-wrapper">
+            <div class="hero-avatar" id="heroAvatar" data-atk-tier="1" data-def-tier="1">
+              <svg class="hero-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="armorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#94a3b8"></stop>
+                    <stop offset="100%" stop-color="#475569"></stop>
+                  </linearGradient>
+                  <linearGradient id="capeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#1d4ed8"></stop>
+                    <stop offset="100%" stop-color="#0f172a"></stop>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
+                <path d="M48 32 h24 l4 12 v10 h-32 v-10 z" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></path>
+                <rect x="44" y="54" width="32" height="42" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
+                <rect x="50" y="60" width="8" height="8" rx="2" fill="#0f172a"></rect>
+                <rect x="62" y="60" width="8" height="8" rx="2" fill="#0f172a"></rect>
+                <path d="M60 54 v-10" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
+                <path d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
+                <path d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
+                <g transform="translate(18,72)">
+                  <path class="shield-outline" d="M18 0 L36 8 v16 c0 12-18 24-18 24S0 36 0 24V8z" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="2"></path>
+                  <path d="M18 4 L32 10 v12 c0 8-14 16-14 16S8 30 8 22V10z" fill="rgba(59,130,246,0.35)"></path>
+                </g>
+                <g transform="translate(72,64)">
+                  <rect x="12" y="0" width="4" height="44" rx="2" fill="#e2e8f0" class="sword-blade" stroke="#94a3b8" stroke-width="1.5"></rect>
+                  <rect x="8" y="38" width="12" height="4" rx="2" fill="#fcd34d"></rect>
+                  <rect x="9.5" y="42" width="9" height="6" rx="2" fill="#b45309"></rect>
+                  <circle cx="14" cy="44" r="2" fill="#1f2937"></circle>
+                </g>
+              </svg>
+            </div>
+            <div class="inventory">
+              <h3>Ruestungskammer</h3>
+              <div id="inventoryList" class="inventory-list"></div>
+              <div id="inventoryEmpty" class="inventory-empty">Ziehe Ausruestung im Gacha, um sie hier zu sehen.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Ritter-Gacha (10 Coins)</h2>
+          <p class="small">Ziehe zufaellige Ausruestung mit ATK oder DEF Bonus.</p>
+          <button id="gachaBtn">Gacha ziehen</button>
+          <p class="gacha-msg" id="gachaMsg"></p>
+        </div>
+        <div class="card">
+          <h2>Trainingskampf</h2>
+          <p class="small">Teste deine Staerke gegen Trainingsgegner.</p>
+          <button class="battle-btn" data-enemy="1">Sparring vs. Lv1 Uebungspuppe</button>
+          <button class="battle-btn" data-enemy="2">Duell vs. Lv2 Turniermeister</button>
+          <pre class="battle-log" id="battleLog">Noch kein Kampf gestartet.</pre>
+        </div>
+      </div>
+    </section>
+  <script>
+    const STORAGE_KEY = "shortcutRitter_v1";
+    const BASE_ATK = 1;
+    const BASE_DEF = 0;
+    const state = {
+      coins: 0,
+      atk: BASE_ATK,
+      def: BASE_DEF,
+      items: [],
+      sectionClears: {},
+      sectionResets: {}
+    };
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+      } catch (err) {
+        console.warn("State konnte nicht geladen werden", err);
+      }
+      if (!Array.isArray(state.items)) state.items = [];
+      if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
+      if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
+    }
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    loadState();
+
+    const coinTop = document.getElementById("coinTop");
+    const coinDisplay = document.getElementById("coinDisplay");
+    const atkDisplay = document.getElementById("atkDisplay");
+    const defDisplay = document.getElementById("defDisplay");
+    const itemsDisplay = document.getElementById("itemsDisplay");
+    const progressInfo = document.getElementById("progressInfo");
+    const heroAvatar = document.getElementById("heroAvatar");
+    const inventoryList = document.getElementById("inventoryList");
+    const inventoryEmpty = document.getElementById("inventoryEmpty");
+    const overallSummary = document.getElementById("overallSummary");
+    const gachaBtn = document.getElementById("gachaBtn");
+    const gachaMsg = document.getElementById("gachaMsg");
+    const battleLog = document.getElementById("battleLog");
+
+    const learnView = document.getElementById("learnView");
+    const gameView = document.getElementById("gameView");
+    const navToggles = document.querySelectorAll(".nav-toggle");
+    navToggles.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        navToggles.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        if (view === "game") {
+          learnView.classList.remove("active");
+          gameView.classList.add("active");
+        } else {
+          gameView.classList.remove("active");
+          learnView.classList.add("active");
+        }
+      });
+    });
+
+    const sections = document.querySelectorAll(".section");
+    const sectionTabs = document.querySelectorAll(".section-tab");
+    function showSection(id) {
+      sections.forEach(sec => {
+        sec.classList.toggle("active", sec.dataset.section === String(id));
+      });
+      sectionTabs.forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.goto === String(id));
+      });
+    }
+    sectionTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        showSection(tab.dataset.goto);
+      });
+    });
+    showSection("1");
+
+    const allCheckables = document.querySelectorAll("[data-answer], .dnd-target");
+    let draggedValue = "";
+    document.querySelectorAll(".dnd-token").forEach(token => {
+      token.addEventListener("dragstart", event => {
+        draggedValue = token.dataset.value;
+        event.dataTransfer.setData("text/plain", draggedValue);
+      });
+    });
+    document.querySelectorAll(".dnd-target").forEach(target => {
+      const slot = target.querySelector(".drop-slot");
+      slot.addEventListener("dragover", event => {
+        event.preventDefault();
+        target.classList.add("over");
+      });
+      slot.addEventListener("dragleave", () => {
+        target.classList.remove("over");
+      });
+      slot.addEventListener("drop", event => {
+        event.preventDefault();
+        target.classList.remove("over");
+        const value = event.dataTransfer.getData("text/plain") || draggedValue;
+        if (!value) return;
+        slot.textContent = value;
+        slot.dataset.value = value;
+        target.classList.remove("correct", "incorrect");
+        const wrap = target.closest(".task-field");
+        if (wrap) wrap.classList.remove("correct", "incorrect");
+        updateOverallSummary();
+      });
+    });
+
+    allCheckables.forEach(el => {
+      const wrap = el.closest(".task-field");
+      const clear = () => {
+        el.classList.remove("correct", "incorrect");
+        if (wrap) wrap.classList.remove("correct", "incorrect");
+        updateOverallSummary();
+      };
+      if (el.tagName === "SELECT") {
+        el.addEventListener("change", clear);
+      } else if (el.tagName === "INPUT") {
+        el.addEventListener("input", clear);
+      }
+    });
+
+    const KNIGHT_POOL = [
+      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", description: "Verstaerkt deine Angriffskraft.", theme: "knight" },
+      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight" },
+      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", description: "Blockt Fehler beim Tippen.", theme: "knight" },
+      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight" },
+      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight" },
+      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "cape", description: "Mehr Tempo beim Merken.", theme: "knight" }
+    ];
+    const ITEM_ART = {
+      sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></svg>',
+      shield: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L26 7 v10 c0 9-10 13-10 13S6 26 6 17V7z" fill="rgba(14,165,233,0.25)" stroke="#38bdf8" stroke-width="1.8"></path><path d="M16 6 L23 9 v8 c0 6-7 9-7 9s-7-3-7-9V9z" fill="rgba(14,116,144,0.45)"></path></svg>',
+      helm: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M8 18 v-4 c0-6 4-11 8-11s8 5 8 11v4z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6"></path><rect x="10" y="12" width="12" height="4" rx="1.5" fill="#0f172a"></rect><path d="M16 7 v6" stroke="#e2e8f0" stroke-width="2"></path></svg>',
+      cape: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M10 4 q6 4 12 0 l2 20 q-8 4-16 0z" fill="rgba(59,130,246,0.45)" stroke="#2563eb" stroke-width="1.4"></path><circle cx="16" cy="6" r="2.4" fill="#1d4ed8"></circle></svg>',
+      default: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="6" width="14" height="18" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.4"></rect><circle cx="16" cy="12" r="3" fill="#e2e8f0"></circle><path d="M12 22 h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></svg>'
+    };
+    function cloneItem(template) {
+      return {
+        id: `${template.key}-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
+        name: template.name,
+        atk: template.atk,
+        def: template.def,
+        icon: template.icon,
+        description: template.description,
+        theme: template.theme || "knight"
+      };
+    }
+    function upgradeLegacyItem(item, index) {
+      if (!item || typeof item !== "object") {
+        return cloneItem(KNIGHT_POOL[index % KNIGHT_POOL.length]);
+      }
+      if (item.theme === "knight") {
+        if (!item.id) {
+          item.id = `knight-${index}-${Date.now()}`;
+        }
+        return item;
+      }
+      const atk = Math.max(0, Number(item.atk || 0));
+      const def = Math.max(0, Number(item.def || 0));
+      let icon = "sword";
+      let name = "Trainingsklinge";
+      if (def > atk) {
+        icon = "shield";
+        name = "Trainingsschild";
+      } else if (def === atk && def > 0) {
+        icon = "helm";
+        name = "Trainingshelm";
+      }
+      return {
+        id: `legacy-${index}-${Date.now()}`,
+        name,
+        atk,
+        def,
+        icon,
+        description: "Umgeschmiedet aus frueheren Belohnungen.",
+        theme: "knight"
+      };
+    }
+    function ensureKnightInventory() {
+      if (!Array.isArray(state.items)) {
+        state.items = [];
+        return;
+      }
+      state.items = state.items.map((item, index) => upgradeLegacyItem(item, index));
+    }
+    function recalcStats() {
+      let atk = BASE_ATK;
+      let def = BASE_DEF;
+      state.items.forEach(item => {
+        if (!item) return;
+        atk += Number(item.atk || 0);
+        def += Number(item.def || 0);
+      });
+      state.atk = atk;
+      state.def = def;
+    }
+    function getItemIcon(iconKey) {
+      return ITEM_ART[iconKey] || ITEM_ART.default;
+    }
+    function renderInventory() {
+      if (!inventoryList) return;
+      inventoryList.innerHTML = "";
+      if (!state.items.length) {
+        if (inventoryEmpty) inventoryEmpty.style.display = "block";
+        return;
+      }
+      if (inventoryEmpty) inventoryEmpty.style.display = "none";
+      state.items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "inventory-item";
+        const left = document.createElement("div");
+        left.className = "item-left";
+        const icon = document.createElement("div");
+        icon.className = "item-icon";
+        icon.innerHTML = getItemIcon(item.icon);
+        const text = document.createElement("div");
+        text.className = "item-text";
+        const nameEl = document.createElement("strong");
+        nameEl.textContent = item.name;
+        text.appendChild(nameEl);
+        if (item.description) {
+          const desc = document.createElement("span");
+          desc.textContent = item.description;
+          text.appendChild(desc);
+        }
+        left.appendChild(icon);
+        left.appendChild(text);
+        row.appendChild(left);
+        const stats = document.createElement("div");
+        stats.className = "item-stats";
+        if (Number(item.atk) > 0) {
+          const atkBadge = document.createElement("span");
+          atkBadge.className = "badge atk";
+          atkBadge.textContent = `ATK +${item.atk}`;
+          stats.appendChild(atkBadge);
+        }
+        if (Number(item.def) > 0) {
+          const defBadge = document.createElement("span");
+          defBadge.className = "badge def";
+          defBadge.textContent = `DEF +${item.def}`;
+          stats.appendChild(defBadge);
+        }
+        row.appendChild(stats);
+        inventoryList.appendChild(row);
+      });
+    }
+    function updateHeroAvatar() {
+      if (!heroAvatar) return;
+      const atkBonus = Math.max(0, state.atk - BASE_ATK);
+      const defBonus = Math.max(0, state.def - BASE_DEF);
+      const atkTier = atkBonus >= 5 ? 3 : atkBonus >= 2 ? 2 : 1;
+      const defTier = defBonus >= 5 ? 3 : defBonus >= 2 ? 2 : 1;
+      heroAvatar.setAttribute("data-atk-tier", String(atkTier));
+      heroAvatar.setAttribute("data-def-tier", String(defTier));
+    }
+    function updateUI(extraText) {
+      if (coinTop) coinTop.textContent = "Coins: " + state.coins;
+      if (coinDisplay) coinDisplay.textContent = "Coins: " + state.coins;
+      if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
+      if (defDisplay) defDisplay.textContent = "DEF " + state.def;
+      if (itemsDisplay) itemsDisplay.textContent = "Gear: " + state.items.length;
+      if (progressInfo) progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
+      updateHeroAvatar();
+      renderInventory();
+    }
+    function updateOverallSummary() {
+      if (!overallSummary) return;
+      const total = allCheckables.length;
+      let correctCount = 0;
+      allCheckables.forEach(el => {
+        if (el.classList.contains("correct")) {
+          correctCount += 1;
+        }
+      });
+      const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+      overallSummary.textContent = `${correctCount}/${total} Aufgaben aktuell richtig (${percent}%)`;
+    }
+    function gradeSection(sectionId) {
+      const section = document.querySelector(`.section[data-section="${sectionId}"]`);
+      if (!section) return;
+      const fields = section.querySelectorAll("[data-answer], .dnd-target");
+      let correctCount = 0;
+      const total = fields.length;
+      fields.forEach(field => {
+        const wrap = field.closest(".task-field");
+        field.classList.remove("correct", "incorrect");
+        if (wrap) wrap.classList.remove("correct", "incorrect");
+        const solution = (field.getAttribute("data-answer") || "").trim();
+        let userValue = "";
+        if (field.classList.contains("dnd-target")) {
+          const slot = field.querySelector(".drop-slot");
+          userValue = slot ? (slot.dataset.value || slot.textContent || "").trim() : "";
+        } else if (field.tagName === "SELECT") {
+          userValue = field.value.trim();
+        } else if (field.tagName === "INPUT") {
+          userValue = field.value.trim();
+        }
+        let isCorrect = false;
+        if (field.tagName === "INPUT") {
+          isCorrect = userValue.toUpperCase() === solution.toUpperCase();
+        } else {
+          isCorrect = userValue === solution;
+        }
+        if (isCorrect) {
+          correctCount += 1;
+          field.classList.add("correct");
+          if (wrap) wrap.classList.add("correct");
+        } else {
+          field.classList.add("incorrect");
+          if (wrap) wrap.classList.add("incorrect");
+        }
+      });
+      const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+      let resultMsg = `${correctCount}/${total} richtig (${percent}%)`;
+      let infoMsg = `Abschnitt ${sectionId}: ${resultMsg}`;
+      if (correctCount === total) {
+        const clears = state.sectionClears[sectionId] || 0;
+        const resets = state.sectionResets[sectionId] || 0;
+        let reward = 0;
+        if (clears === 0) {
+          reward = 20;
+        } else if (resets > 0) {
+          reward = 5;
+          state.sectionResets[sectionId] = resets - 1;
+        }
+        state.sectionClears[sectionId] = clears + 1;
+        if (reward > 0) {
+          state.coins += reward;
+          resultMsg += ` | +${reward} Coins`;
+          infoMsg += ` | +${reward} Coins`;
+        } else if (clears > 0) {
+          resultMsg += " | fuer mehr Coins erst zuruecksetzen.";
+        }
+      } else {
+        resultMsg += " | versuche es erneut.";
+      }
+      const resultEl = document.getElementById(`result-${sectionId}`);
+      if (resultEl) resultEl.textContent = resultMsg;
+      updateUI(infoMsg);
+      updateOverallSummary();
+      recalcStats();
+      saveState();
+    }
+    function resetSection(sectionId) {
+      const section = document.querySelector(`.section[data-section="${sectionId}"]`);
+      if (!section) return;
+      const fields = section.querySelectorAll("[data-answer], .dnd-target");
+      fields.forEach(field => {
+        const wrap = field.closest(".task-field");
+        field.classList.remove("correct", "incorrect");
+        if (wrap) wrap.classList.remove("correct", "incorrect");
+        if (field.tagName === "SELECT") {
+          field.value = "";
+        } else if (field.tagName === "INPUT") {
+          field.value = "";
+        } else if (field.classList.contains("dnd-target")) {
+          const slot = field.querySelector(".drop-slot");
+          if (slot) {
+            slot.textContent = "";
+            delete slot.dataset.value;
+          }
+        }
+      });
+      const resultEl = document.getElementById(`result-${sectionId}`);
+      if (resultEl) resultEl.textContent = "Abschnitt wurde zurueckgesetzt.";
+      state.sectionResets[sectionId] = (state.sectionResets[sectionId] || 0) + 1;
+      updateUI(`Abschnitt ${sectionId} wurde zurueckgesetzt.`);
+      updateOverallSummary();
+      saveState();
+    }
+    document.querySelectorAll(".check-section").forEach(btn => {
+      btn.addEventListener("click", () => {
+        gradeSection(btn.dataset.checkSection);
+      });
+    });
+    document.querySelectorAll(".reset-section").forEach(btn => {
+      btn.addEventListener("click", () => {
+        resetSection(btn.dataset.resetSection);
+      });
+    });
+
+    gachaBtn.addEventListener("click", () => {
+      if (state.coins < 10) {
+        gachaMsg.textContent = "Nicht genug Coins (10 noetig).";
+        return;
+      }
+      state.coins -= 10;
+      const blueprint = KNIGHT_POOL[Math.floor(Math.random() * KNIGHT_POOL.length)];
+      const item = cloneItem(blueprint);
+      state.items.push(item);
+      recalcStats();
+      gachaMsg.textContent = "Neu: " + item.name + " (ATK +" + item.atk + ", DEF +" + item.def + ")";
+      updateUI("Neue Ausruestung: " + item.name);
+      saveState();
+    });
+
+    const ENEMIES = {
+      1: { name: "Uebungspuppe", hp: 5, def: 0 },
+      2: { name: "Turniermeister", hp: 12, def: 2 }
+    };
+    document.querySelectorAll(".battle-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const lv = Number(btn.dataset.enemy || "0");
+        fightEnemy(lv);
+      });
+    });
+    function fightEnemy(level) {
+      const enemy = ENEMIES[level];
+      if (!enemy) return;
+      const dmg = Math.max(1, state.atk - enemy.def);
+      const turns = Math.max(1, Math.ceil(enemy.hp / dmg));
+      let log = "Kampf gegen " + enemy.name + " (Lv" + level + ")\n";
+      log += "Deine ATK: " + state.atk + " | Deine DEF: " + state.def + "\n";
+      log += "Du verursachst " + dmg + " Schaden pro Runde.\n";
+      log += "Sieg nach " + turns + " Runde(n).\n";
+      if (level === 2 && state.atk < 4) {
+        log += "Tipp: Mehr Ausruestung hilft gegen den Turniermeister.";
+      } else {
+        log += "Starker Sieg! Weiter so.";
+      }
+      battleLog.textContent = log;
+    }
+
+    ensureKnightInventory();
+    recalcStats();
+    updateUI();
+    updateOverallSummary();
+    battleLog.textContent = "Noch kein Kampf gestartet.";
+  </script>
+</body>
+</html>

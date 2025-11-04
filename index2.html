@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Shortcut Quest - Interaktive Tastaturkürzel</title>
+    <style>
+        :root {
+            --primary: #2c5f9e;
+            --accent: #f5a623;
+            --success: #2e8b57;
+            --danger: #b22222;
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #1f2a44;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #1b3866);
+            color: #fff;
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.9rem;
+        }
+
+        #coinDisplay {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            padding: 0.5rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        #coinDisplay span {
+            font-size: 1.5rem;
+        }
+
+        main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem 4rem;
+        }
+
+        section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 18px 40px rgba(33, 61, 120, 0.08);
+            border: 1px solid rgba(33, 61, 120, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .intro p {
+            margin: 0.4rem 0;
+        }
+
+        .exercise {
+            position: relative;
+        }
+
+        .exercise h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .question {
+            margin-bottom: 1.25rem;
+            border-left: 4px solid transparent;
+            padding-left: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .question.correct {
+            border-color: var(--success);
+            background: rgba(46, 139, 87, 0.08);
+        }
+
+        .question.incorrect {
+            border-color: var(--danger);
+            background: rgba(178, 34, 34, 0.05);
+        }
+
+        .question legend {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .question label {
+            display: block;
+            cursor: pointer;
+            margin: 0.25rem 0;
+        }
+
+        .feedback {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feedback.success {
+            color: var(--success);
+        }
+
+        .feedback.error {
+            color: var(--danger);
+        }
+
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(33, 61, 120, 0.2);
+        }
+
+        button.secondary {
+            background: #fff;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 0.55rem;
+            border-radius: 8px;
+            border: 1px solid rgba(33, 61, 120, 0.2);
+            margin-top: 0.35rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            background: rgba(44, 95, 158, 0.12);
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .result-banner {
+            margin-top: 0.85rem;
+            padding: 0.65rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .result-banner.success {
+            background: rgba(46, 139, 87, 0.12);
+            color: var(--success);
+        }
+
+        .result-banner.error {
+            background: rgba(178, 34, 34, 0.12);
+            color: var(--danger);
+        }
+
+        .gacha-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .inventory-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0;
+        }
+
+        .inventory-list li {
+            padding: 0.45rem 0.75rem;
+            border-radius: 10px;
+            background: rgba(44, 95, 158, 0.08);
+            margin-bottom: 0.4rem;
+        }
+
+        .enemy-card {
+            border-radius: 12px;
+            background: rgba(33, 61, 120, 0.08);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(33, 61, 120, 0.15);
+            overflow: hidden;
+            margin-top: 0.35rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .overall-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 720px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            #coinDisplay {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Shortcut Quest – Meistere Tastaturkürzel</h1>
+        <div id="coinDisplay" aria-live="polite">💰 Münzen: <span id="coinCount">0</span></div>
+    </header>
+    <main>
+        <section class="intro">
+            <span class="badge">Didaktischer Einstieg</span>
+            <p>Starte mit klaren Zielsetzungen: Jede Lernstation legt den Fokus zuerst auf Verstehen, dann Anwenden, anschließend Transfer. Leite Lernende dazu an, ihre Strategien gegenseitig zu erklären und Rückfragen zu stellen.</p>
+            <p>Empfehlung für den Unterricht: Warm-up mit bekannten Shortcuts, Partnerarbeit in Abschnitt&nbsp;1, Lerntandems für Abschnitt&nbsp;2 und Challenge-Teams für Abschnitt&nbsp;3. Reflexion zum Abschluss mithilfe der Gesamtübersicht.</p>
+            <p>Gamification-Hinweis: Die Münzen motivieren zum Wiederholen und Transfer; betont werden sollte, dass Verbesserungen auch in mehreren Versuchen zählen.</p>
+        </section>
+
+        <section class="exercise" data-section="section1">
+            <span class="badge">Level 1 · Grundlagen</span>
+            <h2>Abschnitt 1 – Multiple Choice zu Standard-Shortcuts</h2>
+            <form>
+                <fieldset class="question" data-question-id="s1q1" data-answer="strg+c">
+                    <legend>Wie kopierst du markierten Text unter Windows?</legend>
+                    <label><input type="radio" name="s1q1" value="strg+v"> Strg+V</label>
+                    <label><input type="radio" name="s1q1" value="strg+c"> Strg+C</label>
+                    <label><input type="radio" name="s1q1" value="strg+x"> Strg+X</label>
+                </fieldset>
+                <fieldset class="question" data-question-id="s1q2" data-answer="strg+s">
+                    <legend>Welches Kürzel speichert dein Dokument?</legend>
+                    <label><input type="radio" name="s1q2" value="strg+p"> Strg+P</label>
+                    <label><input type="radio" name="s1q2" value="strg+z"> Strg+Z</label>
+                    <label><input type="radio" name="s1q2" value="strg+s"> Strg+S</label>
+                </fieldset>
+            </form>
+            <button class="check-btn" data-section="section1">Überprüfen</button>
+            <button class="reset-btn secondary" data-section="section1">Zurücksetzen</button>
+            <div class="feedback" id="feedback-section1" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="exercise" data-section="section2">
+            <span class="badge">Level 2 · Anwendung</span>
+            <h2>Abschnitt 2 – Kurzantworten für Problemlagen</h2>
+            <div class="question" data-question-id="s2q1" data-answer="strg+z|ctrl+z">
+                <label>Fehler gemacht? Trag ein, mit welchem Shortcut du ihn rückgängig machst.</label>
+                <input type="text" placeholder="z. B. Strg+Z">
+            </div>
+            <div class="question" data-question-id="s2q2" data-answer="strg+shift+esc|ctrl+shift+esc">
+                <label>Du willst den Taskmanager blitzschnell öffnen. Welches Kürzel hilft?</label>
+                <input type="text" placeholder="z. B. Strg+Shift+Esc">
+            </div>
+            <div class="question" data-question-id="s2q3" data-answer="alt+tab">
+                <label>Mit welchem Shortcut wechselst du schnell zwischen zwei offenen Fenstern?</label>
+                <input type="text" placeholder="z. B. Alt+Tab">
+            </div>
+            <button class="check-btn" data-section="section2">Überprüfen</button>
+            <button class="reset-btn secondary" data-section="section2">Zurücksetzen</button>
+            <div class="feedback" id="feedback-section2" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="exercise" data-section="section3">
+            <span class="badge">Level 3 · Transfer und Strategie</span>
+            <h2>Abschnitt 3 – Ordne Aufgaben passenden Shortcuts zu</h2>
+            <p>Ziehe Nutzen aus deinem Shortcut-Wissen, indem du Situationen analysierst. Wähle für jede Aufgabe den sinnvollsten Shortcut:</p>
+            <div class="question" data-question-id="s3q1" data-answer="strg+shift+n">
+                <label>Neuen Ordner im Explorer erstellen</label>
+                <select>
+                    <option value="">Bitte auswählen …</option>
+                    <option value="strg+shift+n">Strg+Shift+N</option>
+                    <option value="f2">F2</option>
+                    <option value="strg+l">Strg+L</option>
+                </select>
+            </div>
+            <div class="question" data-question-id="s3q2" data-answer="windows+punkt|win+.">
+                <label>Emojis in einen Text einfügen</label>
+                <select>
+                    <option value="">Bitte auswählen …</option>
+                    <option value="windows+punkt">Windows+Punkt</option>
+                    <option value="strg+b">Strg+B</option>
+                    <option value="alt+f4">Alt+F4</option>
+                </select>
+            </div>
+            <div class="question" data-question-id="s3q3" data-answer="strg+alt+entf">
+                <label>Sicherheitsbildschirm (Sperren, Benutzer wechseln) öffnen</label>
+                <select>
+                    <option value="">Bitte auswählen …</option>
+                    <option value="windows+l">Windows+L</option>
+                    <option value="strg+alt+entf">Strg+Alt+Entf</option>
+                    <option value="strg+shift+esc">Strg+Shift+Esc</option>
+                </select>
+            </div>
+            <button class="check-btn" data-section="section3">Überprüfen</button>
+            <button class="reset-btn secondary" data-section="section3">Zurücksetzen</button>
+            <div class="feedback" id="feedback-section3" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="exercise">
+            <span class="badge">Gamification · Belohnung</span>
+            <h2>Ausrüstung & Gacha</h2>
+            <p>Jede erste fehlerfreie Lösung eines Abschnitts bringt +20 Münzen. Nach einem Zurücksetzen erhältst du für erneute Erfolgskontrolle +5 Münzen. Investiere 40 Münzen in ein Gacha-Los und stärke deinen Charakter!</p>
+            <div class="gacha-container">
+                <div>
+                    <h3>Inventar</h3>
+                    <ul class="inventory-list" id="inventoryList">
+                        <li>Noch keine Ausrüstung – sammle Münzen!</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Gacha ziehen</h3>
+                    <button id="gachaButton">Gacha-Los (40 Münzen)</button>
+                    <div class="feedback" id="gachaFeedback" aria-live="polite"></div>
+                </div>
+                <div>
+                    <h3>Charakterstatus</h3>
+                    <p id="characterLevel">Level 1 – Shortcut-Lehrling</p>
+                    <div class="progress-bar" aria-hidden="true">
+                        <div class="progress-fill" id="powerFill"></div>
+                    </div>
+                    <p id="powerInfo">Ausrüstungs-Power: 0</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="exercise">
+            <span class="badge">Challenge · Bosskampf</span>
+            <h2>Bestreite Kämpfe</h2>
+            <div class="enemy-card">
+                <h3>Gegner Level 1 – Shortcut-Novize</h3>
+                <p>Benötigte Power: 10</p>
+                <button class="battle-btn" data-power="10">Angreifen</button>
+                <div class="feedback" id="battleFeedback1"></div>
+            </div>
+            <div class="enemy-card">
+                <h3>Gegner Level 2 – Shortcut-Meister</h3>
+                <p>Benötigte Power: 25</p>
+                <button class="battle-btn" data-power="25">Angreifen</button>
+                <div class="feedback" id="battleFeedback2"></div>
+            </div>
+        </section>
+
+        <section class="exercise">
+            <span class="badge">Reflexion</span>
+            <h2>Gesamtergebnis prüfen</h2>
+            <p>Sobald du alle Abschnitte überprüft hast, kannst du hier die Gesamtübersicht aktualisieren.</p>
+            <button id="overallCheckBtn">Gesamtergebnis anzeigen</button>
+            <div class="overall-summary" id="overallSummary">
+                <div class="result-banner">Noch keine Auswertung durchgeführt.</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const sections = {
+            section1: {
+                solved: false,
+                firstRewardGiven: false,
+                resetSinceLastSolve: false
+            },
+            section2: {
+                solved: false,
+                firstRewardGiven: false,
+                resetSinceLastSolve: false
+            },
+            section3: {
+                solved: false,
+                firstRewardGiven: false,
+                resetSinceLastSolve: false
+            }
+        };
+
+        const gachaPool = [
+            { name: "Ergonomische Tastatur", power: 8 },
+            { name: "Makro-Tastatur", power: 10 },
+            { name: "Shortcut-Handbuch", power: 6 },
+            { name: "Gaming-Maus", power: 7 },
+            { name: "Mentorenpass", power: 12 },
+            { name: "Leuchtende Tastenkappen", power: 5 },
+            { name: "Zeit-Talisman", power: 9 },
+            { name: "Shortcut-Briefing", power: 4 }
+        ];
+
+        let coins = 0;
+        let totalPower = 0;
+        const inventory = [];
+
+        const coinCountEl = document.getElementById("coinCount");
+        const inventoryListEl = document.getElementById("inventoryList");
+        const gachaFeedbackEl = document.getElementById("gachaFeedback");
+        const characterLevelEl = document.getElementById("characterLevel");
+        const powerFillEl = document.getElementById("powerFill");
+        const powerInfoEl = document.getElementById("powerInfo");
+
+        function normalizeShortcut(value) {
+            return value
+                .toLowerCase()
+                .replace(/\s/g, "")
+                .replace("ctrl", "strg")
+                .replace("win+", "windows+")
+                .replace("windows.", "windows+punkt");
+        }
+
+        function updateCoins(amount) {
+            coins += amount;
+            coinCountEl.textContent = coins;
+        }
+
+        function evaluateSection(sectionId) {
+            const sectionEl = document.querySelector(`.exercise[data-section="${sectionId}"]`);
+            const questions = sectionEl.querySelectorAll(".question");
+            let allCorrect = true;
+
+            questions.forEach((question) => {
+                const answer = question.dataset.answer.split("|");
+                let isCorrect = false;
+
+                if (question.querySelector("input[type='radio']")) {
+                    const selected = question.querySelector("input[type='radio']:checked");
+                    if (selected) {
+                        isCorrect = answer.includes(selected.value);
+                    } else {
+                        isCorrect = false;
+                    }
+                } else if (question.querySelector("input[type='text']")) {
+                    const value = question.querySelector("input[type='text']").value;
+                    const normalizedValue = normalizeShortcut(value);
+                    isCorrect = answer.some(ans => normalizedValue === normalizeShortcut(ans));
+                } else if (question.querySelector("select")) {
+                    const selectedValue = question.querySelector("select").value;
+                    if (selectedValue) {
+                        isCorrect = answer.includes(selectedValue);
+                    }
+                }
+
+                question.classList.remove("correct", "incorrect");
+                if (isCorrect) {
+                    question.classList.add("correct");
+                } else {
+                    question.classList.add("incorrect");
+                    allCorrect = false;
+                }
+            });
+
+            handleFeedback(sectionId, allCorrect);
+        }
+
+        function handleFeedback(sectionId, allCorrect) {
+            const feedbackEl = document.getElementById(`feedback-${sectionId}`);
+            if (!feedbackEl) return;
+
+            feedbackEl.classList.remove("success", "error");
+
+            if (allCorrect) {
+                feedbackEl.textContent = "Alles korrekt! Münzen eingesackt.";
+                feedbackEl.classList.add("success");
+                applyCoinLogic(sectionId);
+                sections[sectionId].solved = true;
+                sections[sectionId].resetSinceLastSolve = false;
+            } else {
+                feedbackEl.textContent = "Noch nicht ganz richtig – prüfe deine Antworten.";
+                feedbackEl.classList.add("error");
+                sections[sectionId].solved = false;
+            }
+        }
+
+        function applyCoinLogic(sectionId) {
+            const status = sections[sectionId];
+            if (!status.firstRewardGiven) {
+                updateCoins(20);
+                status.firstRewardGiven = true;
+            } else if (status.resetSinceLastSolve) {
+                updateCoins(5);
+                status.resetSinceLastSolve = false;
+            }
+        }
+
+        function resetSection(sectionId) {
+            const sectionEl = document.querySelector(`.exercise[data-section="${sectionId}"]`);
+            const questions = sectionEl.querySelectorAll(".question");
+            questions.forEach((question) => {
+                question.classList.remove("correct", "incorrect");
+                const inputRadio = question.querySelectorAll("input[type='radio']");
+                inputRadio.forEach(radio => radio.checked = false);
+                const inputText = question.querySelector("input[type='text']");
+                if (inputText) {
+                    inputText.value = "";
+                }
+                const select = question.querySelector("select");
+                if (select) {
+                    select.value = "";
+                }
+            });
+            const feedbackEl = document.getElementById(`feedback-${sectionId}`);
+            if (feedbackEl) {
+                feedbackEl.textContent = "Zurückgesetzt – versuch es erneut!";
+                feedbackEl.classList.remove("success");
+                feedbackEl.classList.add("error");
+            }
+            sections[sectionId].resetSinceLastSolve = true;
+            sections[sectionId].solved = false;
+        }
+
+        function updateInventoryDisplay() {
+            inventoryListEl.innerHTML = "";
+            inventory.forEach((item, index) => {
+                const li = document.createElement("li");
+                li.textContent = `${item.name} (+${item.power} Power)`;
+                li.setAttribute("data-index", index);
+                inventoryListEl.appendChild(li);
+            });
+            if (inventory.length === 0) {
+                const emptyLi = document.createElement("li");
+                emptyLi.textContent = "Noch keine Ausrüstung – sammle Münzen!";
+                inventoryListEl.appendChild(emptyLi);
+            }
+        }
+
+        function updateCharacterStatus() {
+            totalPower = inventory.reduce((sum, item) => sum + item.power, 0);
+            powerInfoEl.textContent = `Ausrüstungs-Power: ${totalPower}`;
+            powerFillEl.style.width = Math.min(totalPower * 2, 100) + "%";
+
+            let levelLabel = "Level 1 – Shortcut-Lehrling";
+            if (totalPower >= 40) {
+                levelLabel = "Level 4 – Shortcut-Champion";
+            } else if (totalPower >= 25) {
+                levelLabel = "Level 3 – Shortcut-Profi";
+            } else if (totalPower >= 12) {
+                levelLabel = "Level 2 – Shortcut-Taktiker";
+            }
+            characterLevelEl.textContent = levelLabel;
+        }
+
+        function handleGacha() {
+            if (coins < 40) {
+                gachaFeedbackEl.textContent = "Nicht genügend Münzen für ein Gacha-Los.";
+                gachaFeedbackEl.classList.remove("success");
+                gachaFeedbackEl.classList.add("error");
+                return;
+            }
+            updateCoins(-40);
+            const item = gachaPool[Math.floor(Math.random() * gachaPool.length)];
+            inventory.push(item);
+            gachaFeedbackEl.textContent = `Du hast ${item.name} erhalten! (+${item.power} Power)`;
+            gachaFeedbackEl.classList.remove("error");
+            gachaFeedbackEl.classList.add("success");
+            updateInventoryDisplay();
+            updateCharacterStatus();
+        }
+
+        function handleBattle(targetPower, feedbackElement) {
+            feedbackElement.classList.remove("success", "error");
+            if (totalPower >= targetPower) {
+                feedbackElement.textContent = "Sieg! Deine Shortcut-Power war überlegen.";
+                feedbackElement.classList.add("success");
+                updateCoins(10);
+            } else {
+                feedbackElement.textContent = "Niederlage – sammle mehr Ausrüstung oder wiederhole Übungen.";
+                feedbackElement.classList.add("error");
+            }
+        }
+
+        function collectOverallResult() {
+            const summaryEl = document.getElementById("overallSummary");
+            summaryEl.innerHTML = "";
+            const sectionsEntries = Object.entries(sections);
+            const solvedCount = sectionsEntries.filter(([, data]) => data.solved).length;
+            const percentage = Math.round((solvedCount / sectionsEntries.length) * 100);
+
+            const banner = document.createElement("div");
+            banner.classList.add("result-banner");
+            if (solvedCount === sectionsEntries.length) {
+                banner.classList.add("success");
+                banner.textContent = `Top! Du hast alle Abschnitte gemeistert (${percentage} %).`;
+            } else {
+                banner.classList.add("error");
+                banner.textContent = `Aktueller Fortschritt: ${percentage} % richtig. Arbeite fehlende Bereiche nach.`;
+            }
+
+            summaryEl.appendChild(banner);
+
+            sectionsEntries.forEach(([sectionId, data], index) => {
+                const detail = document.createElement("p");
+                detail.textContent = `Abschnitt ${index + 1}: ${data.solved ? "✔️ bestanden" : "❌ offen"}`;
+                summaryEl.appendChild(detail);
+            });
+        }
+
+        document.querySelectorAll(".check-btn").forEach((button) => {
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                const sectionId = button.dataset.section;
+                evaluateSection(sectionId);
+            });
+        });
+
+        document.querySelectorAll(".reset-btn").forEach((button) => {
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                const sectionId = button.dataset.section;
+                resetSection(sectionId);
+            });
+        });
+
+        document.getElementById("gachaButton").addEventListener("click", (event) => {
+            event.preventDefault();
+            handleGacha();
+        });
+
+        document.querySelectorAll(".battle-btn").forEach((button, index) => {
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                const targetPower = parseInt(button.dataset.power, 10);
+                const feedbackElement = document.getElementById(`battleFeedback${index + 1}`);
+                handleBattle(targetPower, feedbackElement);
+            });
+        });
+
+        document.getElementById("overallCheckBtn").addEventListener("click", (event) => {
+            event.preventDefault();
+            collectOverallResult();
+        });
+    </script>
+</body>
+</html>
