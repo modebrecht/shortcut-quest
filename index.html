@@ -307,6 +307,32 @@
     }
     .battle-btn:first-of-type { margin-top: 0; }
     .gacha-msg { min-height: 1.2rem; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+    .gacha-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .gacha-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.35);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text);
+      transition: border 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+    .gacha-option input { display: none; }
+    .gacha-option.active {
+      border-color: rgba(245,158,11,0.6);
+      background: rgba(245,158,11,0.18);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245,158,11,0.15);
+    }
     .battle-log {
       margin-top: 0.75rem;
       background: rgba(15,23,42,0.4);
@@ -718,7 +744,25 @@
         </div>
         <div class="card">
           <h2>Ritter-Gacha (20 Coins)</h2>
-          <p class="small">Ziehe zufaellige Ausruestung mit ATK oder DEF Bonus. Kostet 20 Coins.</p>
+          <p class="small">Waehle die Kategorie deiner Belohnung, jede Ziehung kostet 20 Coins.</p>
+          <div class="gacha-options" role="radiogroup" aria-label="Gacha Kategorie">
+            <label class="gacha-option active">
+              <input type="radio" name="gachaType" value="weapon" checked>
+              <span>Waffe</span>
+            </label>
+            <label class="gacha-option">
+              <input type="radio" name="gachaType" value="armor">
+              <span>Ausruestung</span>
+            </label>
+            <label class="gacha-option">
+              <input type="radio" name="gachaType" value="accessory">
+              <span>Accessoire</span>
+            </label>
+            <label class="gacha-option">
+              <input type="radio" name="gachaType" value="any">
+              <span>Zufall</span>
+            </label>
+          </div>
           <button id="gachaBtn">Gacha ziehen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
         </div>
@@ -741,7 +785,8 @@
       def: BASE_DEF,
       items: [],
       sectionClears: {},
-      sectionResets: {}
+      sectionResets: {},
+      gachaPreference: "weapon"
     };
     function loadState() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -749,6 +794,7 @@
       try {
         const saved = JSON.parse(raw);
         Object.assign(state, saved);
+        if (!state.gachaPreference) state.gachaPreference = "weapon";
       } catch (err) {
         console.warn("State konnte nicht geladen werden", err);
       }
@@ -774,6 +820,7 @@
     const coinAnimationLayer = document.getElementById("coinAnimationLayer");
     const gachaBtn = document.getElementById("gachaBtn");
     const gachaMsg = document.getElementById("gachaMsg");
+    const gachaTypeInputs = document.querySelectorAll("input[name='gachaType']");
     const battleLog = document.getElementById("battleLog");
     const testAnimationBtn = document.getElementById("testAnimationBtn");
 
@@ -794,6 +841,19 @@
         }
       });
     });
+
+    if (gachaTypeInputs && gachaTypeInputs.length) {
+      gachaTypeInputs.forEach(input => {
+        input.addEventListener("change", () => {
+          if (!input.checked) return;
+          state.gachaPreference = input.value;
+          updateGachaOptionStyles();
+          saveState();
+        });
+      });
+    }
+
+    applyGachaPreference(state.gachaPreference);
 
     const sections = document.querySelectorAll(".section");
     const sectionTabs = document.querySelectorAll(".section-tab");
@@ -858,18 +918,27 @@
     });
 
     const KNIGHT_POOL = [
-      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", description: "Verstaerkt deine Angriffskraft.", theme: "knight" },
-      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight" },
-      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", description: "Blockt Fehler beim Tippen.", theme: "knight" },
-      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight" },
-      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight" },
-      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "cape", description: "Mehr Tempo beim Merken.", theme: "knight" }
+      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
+    const GACHA_CATEGORY_LABELS = {
+      weapon: "Waffe",
+      armor: "Ausruestung",
+      accessory: "Accessoire",
+      any: "Zufall"
+    };
+      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
+      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
+      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", description: "Blockt Fehler beim Tippen.", theme: "knight", category: "armor" },
+      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight", category: "armor" },
+      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight", category: "armor" },
+      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "cape", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
+      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" }
     ];
     const ITEM_ART = {
       sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></svg>',
       shield: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L26 7 v10 c0 9-10 13-10 13S6 26 6 17V7z" fill="rgba(14,165,233,0.25)" stroke="#38bdf8" stroke-width="1.8"></path><path d="M16 6 L23 9 v8 c0 6-7 9-7 9s-7-3-7-9V9z" fill="rgba(14,116,144,0.45)"></path></svg>',
       helm: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M8 18 v-4 c0-6 4-11 8-11s8 5 8 11v4z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6"></path><rect x="10" y="12" width="12" height="4" rx="1.5" fill="#0f172a"></rect><path d="M16 7 v6" stroke="#e2e8f0" stroke-width="2"></path></svg>',
       cape: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M10 4 q6 4 12 0 l2 20 q-8 4-16 0z" fill="rgba(59,130,246,0.45)" stroke="#2563eb" stroke-width="1.4"></path><circle cx="16" cy="6" r="2.4" fill="#1d4ed8"></circle></svg>',
+      talisman: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="9" fill="rgba(254,243,199,0.9)" stroke="#fbbf24" stroke-width="1.6"></circle><path d="M16 8 L18 14 L24 16 L18 18 L16 24 L14 18 L8 16 L14 14 Z" fill="rgba(250,204,21,0.8)" stroke="#92400e" stroke-width="0.8" stroke-linejoin="round"></path><circle cx="16" cy="16" r="2.4" fill="#f97316"></circle></svg>',
       default: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="6" width="14" height="18" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.4"></rect><circle cx="16" cy="12" r="3" fill="#e2e8f0"></circle><path d="M12 22 h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></svg>'
     };
     function cloneItem(template) {
@@ -880,7 +949,8 @@
         def: template.def,
         icon: template.icon,
         description: template.description,
-        theme: template.theme || "knight"
+        theme: template.theme || "knight",
+        category: template.category || "accessory"
       };
     }
     function upgradeLegacyItem(item, index) {
@@ -891,18 +961,39 @@
         if (!item.id) {
           item.id = `knight-${index}-${Date.now()}`;
         }
+        if (!item.category) {
+          const atk = Number(item.atk || 0);
+          const def = Number(item.def || 0);
+          if (atk > def) {
+            item.category = "weapon";
+          } else if (def > atk) {
+            item.category = "armor";
+          } else {
+            item.category = "accessory";
+          }
+        }
+        if (!item.icon) {
+          item.icon = item.category === "weapon" ? "sword" : item.category === "armor" ? "shield" : "talisman";
+        }
         return item;
       }
       const atk = Math.max(0, Number(item.atk || 0));
       const def = Math.max(0, Number(item.def || 0));
       let icon = "sword";
       let name = "Trainingsklinge";
+      let category = "weapon";
       if (def > atk) {
         icon = "shield";
         name = "Trainingsschild";
+        category = "armor";
       } else if (def === atk && def > 0) {
         icon = "helm";
         name = "Trainingshelm";
+        category = "armor";
+      } else if (atk === 0 && def === 0) {
+        icon = "talisman";
+        name = "Trainingstalisman";
+        category = "accessory";
       }
       return {
         id: `legacy-${index}-${Date.now()}`,
@@ -911,7 +1002,8 @@
         def,
         icon,
         description: "Umgeschmiedet aus frueheren Belohnungen.",
-        theme: "knight"
+        theme: "knight",
+        category
       };
     }
     function ensureKnightInventory() {
@@ -956,9 +1048,11 @@
         const nameEl = document.createElement("strong");
         nameEl.textContent = item.name;
         text.appendChild(nameEl);
-        if (item.description) {
+        const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category;
+        if (item.description || categoryLabel) {
           const desc = document.createElement("span");
-          desc.textContent = item.description;
+          const baseText = item.description ? item.description : "Besonderes Item";
+          desc.textContent = categoryLabel ? `${baseText} · ${categoryLabel}` : baseText;
           text.appendChild(desc);
         }
         left.appendChild(icon);
@@ -981,6 +1075,40 @@
         row.appendChild(stats);
         inventoryList.appendChild(row);
       });
+    }
+    function updateGachaOptionStyles() {
+      if (!gachaTypeInputs) return;
+      gachaTypeInputs.forEach(input => {
+        const wrapper = input.closest(".gacha-option");
+        if (wrapper) wrapper.classList.toggle("active", input.checked);
+      });
+    }
+    function applyGachaPreference(pref) {
+      if (!gachaTypeInputs || !gachaTypeInputs.length) return;
+      const target = pref || state.gachaPreference || "weapon";
+      let found = false;
+      gachaTypeInputs.forEach((input, idx) => {
+        const match = input.value === target;
+        input.checked = match;
+        if (match) found = true;
+        if (!found && idx === gachaTypeInputs.length - 1 && !match) {
+          input.checked = false;
+        }
+      });
+      if (!found) {
+        gachaTypeInputs[0].checked = true;
+        state.gachaPreference = gachaTypeInputs[0].value;
+      } else {
+        state.gachaPreference = target;
+      }
+      updateGachaOptionStyles();
+    }
+    function getSelectedGachaType() {
+      if (!gachaTypeInputs || !gachaTypeInputs.length) {
+        return state.gachaPreference || "weapon";
+      }
+      const selected = Array.from(gachaTypeInputs).find(input => input.checked);
+      return selected ? selected.value : state.gachaPreference || "weapon";
     }
     let displayedCoins = state.coins;
     let pendingCoinAnimation = null;
@@ -1201,14 +1329,23 @@
         return;
       }
       state.coins -= cost;
+      const type = getSelectedGachaType();
+      state.gachaPreference = type;
       pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
-      const blueprint = KNIGHT_POOL[Math.floor(Math.random() * KNIGHT_POOL.length)];
+      let pool = KNIGHT_POOL;
+      if (type && type !== "any") {
+        const filtered = KNIGHT_POOL.filter(item => item.category === type);
+        if (filtered.length) pool = filtered;
+      }
+      const blueprint = pool[Math.floor(Math.random() * pool.length)];
       const item = cloneItem(blueprint);
       state.items.push(item);
       recalcStats();
-      gachaMsg.textContent = "Neu: " + item.name + " (ATK +" + item.atk + ", DEF +" + item.def + ") -20 Coins";
+      const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "Item";
+      gachaMsg.textContent = "Neu: " + item.name + " [" + categoryLabel + "] (ATK +" + item.atk + ", DEF +" + item.def + ") -20 Coins";
       updateUI("Gacha gezogen: " + item.name);
       saveState();
+      updateGachaOptionStyles();
     });
 
     const ENEMIES = {
