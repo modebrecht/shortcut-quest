@@ -856,7 +856,9 @@
       <span class="title">Shortcut Ritter-Akademie</span>
       <div class="top-nav">
         <button class="nav-toggle active" data-view="learn">Training</button>
-        <button class="nav-toggle" data-view="game">Ritterlager</button>
+        <button class="nav-toggle" data-view="inventory">Inventar</button>
+        <button class="nav-toggle" data-view="shop">Shop</button>
+        <button class="nav-toggle" data-view="battle">Battle</button>
       </div>
     </div>
     <div class="header-right">
@@ -1019,10 +1021,10 @@
         <p class="small" id="overallSummary">Noch keine Ergebnisse.</p>
       </div>
     </section>
-    <section id="gameView" class="view">
+    <section id="inventoryView" class="view">
       <div class="game-grid">
         <div class="card" id="playerCard">
-          <h2>Ritterlager</h2>
+          <h2>Inventar</h2>
         <div class="statline">
           <span class="badge" id="coinDisplay">Coins: 0</span>
           <span class="badge" id="atkDisplay">ATK 1</span>
@@ -1079,8 +1081,12 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+    <section id="shopView" class="view">
+      <div class="game-grid">
         <div class="card">
-          <h2>Ritter-Gacha (20 Coins)</h2>
+          <h2>Shop</h2>
           <p class="small">Waehle die Kategorie deiner Belohnung, jede Ziehung kostet 20 Coins.</p>
           <div class="gacha-options" role="radiogroup" aria-label="Gacha Kategorie">
             <label class="gacha-option active">
@@ -1103,6 +1109,10 @@
           <button id="gachaBtn">Gacha ziehen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
         </div>
+      </div>
+    </section>
+    <section id="battleView" class="view">
+      <div class="game-grid">
         <div class="card battle-card">
           <h2>Goblin-Scharmuetzel</h2>
           <p class="small">Fordere die Goblins heraus. Siege schalten das naechste Level frei.</p>
@@ -1228,22 +1238,45 @@
     });
 
     const learnView = document.getElementById("learnView");
-    const gameView = document.getElementById("gameView");
+    const inventoryView = document.getElementById("inventoryView");
+    const shopView = document.getElementById("shopView");
+    const battleView = document.getElementById("battleView");
+    const viewRegistry = {
+      learn: learnView,
+      inventory: inventoryView,
+      shop: shopView,
+      battle: battleView
+    };
     const navToggles = document.querySelectorAll(".nav-toggle");
+    function setActiveView(viewKey) {
+      Object.values(viewRegistry).forEach(section => {
+        if (section) section.classList.remove("active");
+      });
+      const targetSection = viewRegistry[viewKey] || learnView;
+      if (targetSection) targetSection.classList.add("active");
+    }
+    function setActiveNav(viewKey) {
+      navToggles.forEach(btn => {
+        const matches = btn.dataset.view === viewKey;
+        btn.classList.toggle("active", matches);
+      });
+    }
+    function activateView(viewKey) {
+      setActiveNav(viewKey);
+      setActiveView(viewKey);
+    }
     navToggles.forEach(btn => {
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
-        navToggles.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        if (view === "game") {
-          learnView.classList.remove("active");
-          gameView.classList.add("active");
-        } else {
-          gameView.classList.remove("active");
-          learnView.classList.add("active");
-        }
+        activateView(view);
       });
     });
+    const defaultNav = Array.from(navToggles).find(btn => btn.classList.contains("active"));
+    if (defaultNav) {
+      setActiveView(defaultNav.dataset.view);
+    } else {
+      activateView("learn");
+    }
 
     if (gachaTypeInputs && gachaTypeInputs.length) {
       gachaTypeInputs.forEach(input => {
