@@ -234,6 +234,16 @@
     .hero-avatar[data-def-tier="1"] .shield-outline { stroke: var(--def-low); }
     .hero-avatar[data-def-tier="2"] .shield-outline { stroke: var(--def-mid); }
     .hero-avatar[data-def-tier="3"] .shield-outline { stroke: var(--def-high); }
+    .hero-avatar.no-gear .sword-group,
+    .hero-avatar.no-gear .shield-group,
+    .hero-avatar.no-gear .cape-shape {
+      opacity: 0;
+    }
+    .hero-avatar.no-gear .armor-core,
+    .hero-avatar.no-gear .leg-piece {
+      opacity: 0.35;
+      filter: grayscale(0.6);
+    }
     .inventory {
       flex: 1 1 240px;
       display: flex;
@@ -322,7 +332,7 @@
       flex-direction: column;
       align-items: center;
       transform: translate(-50%, -50%);
-      animation: coinCelebrationRise 2.25s ease-out forwards;
+      animation: coinCelebrationRise 2.95s ease-out forwards;
     }
     .coin-main {
       width: 120px;
@@ -334,7 +344,7 @@
       justify-content: center;
       box-shadow: 0 0 32px rgba(245,158,11,0.8), 0 0 70px rgba(245,158,11,0.4);
       border: 3px solid rgba(255,248,220,0.4);
-      animation: coinMainPulse 2.16s ease-out forwards;
+      animation: coinMainPulse 2.81s ease-out forwards;
       position: relative;
       overflow: hidden;
     }
@@ -345,13 +355,13 @@
       background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
       mix-blend-mode: screen;
       transform: translateX(-120%);
-      animation: coinShine 2.16s ease-out forwards;
+      animation: coinShine 2.81s ease-out forwards;
     }
     .coin-symbol {
       font-size: 48px;
       color: #1f2937;
       text-shadow: 0 4px 12px rgba(0,0,0,0.35);
-      animation: coinSymbolPop 1.8s ease-out forwards;
+      animation: coinSymbolPop 2.34s ease-out forwards;
     }
     .coin-amount {
       margin-top: 0.6rem;
@@ -360,7 +370,7 @@
       letter-spacing: 0.02em;
       color: #fef3c7;
       text-shadow: 0 0 10px rgba(245,158,11,0.8);
-      animation: coinAmountRise 2.1s ease-out forwards;
+      animation: coinAmountRise 2.73s ease-out forwards;
     }
     .coin-spark {
       --targetX: 0px;
@@ -375,7 +385,7 @@
       border: 2px solid rgba(255,255,255,0.55);
       box-shadow: 0 0 16px rgba(245,158,11,0.6);
       opacity: 0;
-      animation: coinSparkFly 1.8s ease-out forwards;
+      animation: coinSparkFly 2.34s ease-out forwards;
     }
     .coin-spark::after {
       content: "💰";
@@ -388,7 +398,32 @@
       color: #1f2937;
     }
     .coin-badge-boost {
-      animation: coinBadgePulse 2s ease-out;
+      animation: coinBadgePulse 2.6s ease-out;
+    }
+    .coin-celebration.loss .coin-main {
+      background: radial-gradient(circle at 30% 30%, rgba(254,205,211,0.95), rgba(248,113,113,0.95) 55%, rgba(127,29,29,0.95));
+      box-shadow: 0 0 32px rgba(248,113,113,0.8), 0 0 70px rgba(248,113,113,0.35);
+      border-color: rgba(254,226,226,0.5);
+    }
+    .coin-celebration.loss .coin-symbol {
+      color: #7f1d1d;
+      text-shadow: 0 4px 12px rgba(127,29,29,0.55);
+    }
+    .coin-celebration.loss .coin-amount {
+      color: #fecaca;
+      text-shadow: 0 0 12px rgba(248,113,113,0.7);
+    }
+    .coin-celebration.loss .coin-spark {
+      background: radial-gradient(circle at 30% 30%, rgba(254,226,226,1), rgba(248,113,113,0.95));
+      border-color: rgba(254,226,226,0.65);
+      box-shadow: 0 0 16px rgba(248,113,113,0.6);
+    }
+    .coin-celebration.loss .coin-spark::after {
+      content: "💸";
+      color: #7f1d1d;
+    }
+    .coin-badge-loss {
+      animation: coinBadgeLoss 2.6s ease-out;
     }
     @keyframes coinCelebrationRise {
       0% {
@@ -439,6 +474,12 @@
       35% { transform: scale(1.2); box-shadow: 0 0 32px 10px rgba(245,158,11,0.35); }
       70% { transform: scale(1.05); box-shadow: 0 0 12px 4px rgba(245,158,11,0.2); }
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
+    @keyframes coinBadgeLoss {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(248,113,113,0.55); }
+      35% { transform: scale(1.18); box-shadow: 0 0 32px 10px rgba(248,113,113,0.3); }
+      70% { transform: scale(0.96); box-shadow: 0 0 12px 4px rgba(248,113,113,0.18); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(248,113,113,0); }
     }
     @media (max-width: 720px) {
       header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
@@ -640,24 +681,32 @@
                     <stop offset="100%" stop-color="#0f172a"></stop>
                   </linearGradient>
                 </defs>
-                <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
-                <path d="M48 32 h24 l4 12 v10 h-32 v-10 z" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></path>
-                <rect x="44" y="54" width="32" height="42" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
-                <rect x="50" y="60" width="8" height="8" rx="2" fill="#0f172a"></rect>
-                <rect x="62" y="60" width="8" height="8" rx="2" fill="#0f172a"></rect>
-                <path d="M60 54 v-10" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
-                <path d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
-                <path d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
-                <g transform="translate(18,72)">
+              <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
+              <circle class="armor-core head-shell" cx="60" cy="41" r="15" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></circle>
+              <rect class="armor-core neck-piece" x="52" y="56" width="16" height="10" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.6"></rect>
+              <rect class="armor-core" x="44" y="62" width="32" height="40" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
+              <rect x="51" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
+              <rect x="62" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
+              <path d="M49 44 h22" stroke="#0f172a" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M60 33 v-6" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
+              <path class="cape-shape" d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
+              <path class="cape-shape" d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
+              <g class="shield-group" transform="translate(18,72)">
                   <path class="shield-outline" d="M18 0 L36 8 v16 c0 12-18 24-18 24S0 36 0 24V8z" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="2"></path>
                   <path d="M18 4 L32 10 v12 c0 8-14 16-14 16S8 30 8 22V10z" fill="rgba(59,130,246,0.35)"></path>
                 </g>
-                <g transform="translate(72,64)">
+                <g class="sword-group" transform="translate(72,64)">
                   <rect x="12" y="0" width="4" height="44" rx="2" fill="#e2e8f0" class="sword-blade" stroke="#94a3b8" stroke-width="1.5"></rect>
                   <rect x="8" y="38" width="12" height="4" rx="2" fill="#fcd34d"></rect>
                   <rect x="9.5" y="42" width="9" height="6" rx="2" fill="#b45309"></rect>
                   <circle cx="14" cy="44" r="2" fill="#1f2937"></circle>
                 </g>
+              <g class="leg-group">
+                <rect class="leg-piece" x="48" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
+                <rect class="leg-piece" x="61" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
+                <rect class="leg-piece" x="46" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
+                <rect class="leg-piece" x="61" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
+              </g>
               </svg>
             </div>
             <div class="inventory">
@@ -668,8 +717,8 @@
           </div>
         </div>
         <div class="card">
-          <h2>Ritter-Gacha (10 Coins)</h2>
-          <p class="small">Ziehe zufaellige Ausruestung mit ATK oder DEF Bonus.</p>
+          <h2>Ritter-Gacha (20 Coins)</h2>
+          <p class="small">Ziehe zufaellige Ausruestung mit ATK oder DEF Bonus. Kostet 20 Coins.</p>
           <button id="gachaBtn">Gacha ziehen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
         </div>
@@ -936,37 +985,41 @@
     let displayedCoins = state.coins;
     let pendingCoinAnimation = null;
 
-    function spawnCoinAnimation(amount, anchor) {
+    function spawnCoinAnimation(amount, anchor, variant = "gain") {
       const anchorEl = anchor || coinTop;
       if (!coinAnimationLayer || !anchorEl) return;
+      const isLoss = variant === "loss" || amount < 0;
+      const displayAmount = Math.abs(Math.round(amount));
       const rect = anchorEl.getBoundingClientRect();
       const celebration = document.createElement("div");
-      celebration.className = "coin-celebration";
+      celebration.className = `coin-celebration ${isLoss ? "loss" : "gain"}`;
       celebration.style.left = `${rect.left + rect.width / 2}px`;
       celebration.style.top = `${rect.top + rect.height / 2}px`;
       celebration.innerHTML = `
         <div class="coin-main">
-          <div class="coin-symbol">💰</div>
+          <div class="coin-symbol">${isLoss ? "💸" : "💰"}</div>
         </div>
-        <div class="coin-amount">+${amount} Coins</div>
+        <div class="coin-amount">${isLoss ? "-" : "+"}${displayAmount} Coins</div>
       `;
-      for (let i = 0; i < 5; i++) {
+      const sparkCount = isLoss ? 8 : 12;
+      for (let i = 0; i < sparkCount; i++) {
         const spark = document.createElement("span");
         spark.className = "coin-spark";
-        const angle = (Math.PI * 2 * (i / 5)) + (Math.random() * 0.6 - 0.3);
+        const angle = (Math.PI * 2 * (i / sparkCount)) + (Math.random() * 0.6 - 0.3);
         const radius = 140 + Math.random() * 45;
         const targetX = Math.cos(angle) * radius;
         const targetY = Math.sin(angle) * radius - 40;
         spark.style.setProperty("--targetX", `${targetX}px`);
         spark.style.setProperty("--targetY", `${targetY}px`);
-        spark.style.animationDelay = `${0.09 * i}s`;
+        spark.style.animationDelay = `${0.12 * i}s`;
         celebration.appendChild(spark);
       }
       coinAnimationLayer.appendChild(celebration);
-      setTimeout(() => celebration.remove(), 2400);
-      coinTop.classList.add("coin-badge-boost");
+      setTimeout(() => celebration.remove(), 4000);
+      const badgeClass = isLoss ? "coin-badge-loss" : "coin-badge-boost";
+      coinTop.classList.add(badgeClass);
       coinTop.addEventListener("animationend", () => {
-        coinTop.classList.remove("coin-badge-boost");
+        coinTop.classList.remove(badgeClass);
       }, { once: true });
     }
     function updateHeroAvatar() {
@@ -975,15 +1028,20 @@
       const defBonus = Math.max(0, state.def - BASE_DEF);
       const atkTier = atkBonus >= 5 ? 3 : atkBonus >= 2 ? 2 : 1;
       const defTier = defBonus >= 5 ? 3 : defBonus >= 2 ? 2 : 1;
+      const hasGear = state.items.length > 0;
       heroAvatar.setAttribute("data-atk-tier", String(atkTier));
       heroAvatar.setAttribute("data-def-tier", String(defTier));
+      heroAvatar.classList.toggle("no-gear", !hasGear);
+      heroAvatar.classList.toggle("has-gear", hasGear);
     }
     function updateUI(extraText) {
       const diff = state.coins - displayedCoins;
-      if (diff > 0) {
-        const info = pendingCoinAnimation || { amount: diff, anchor: null };
-        spawnCoinAnimation(info.amount, info.anchor);
+      if (pendingCoinAnimation) {
+        const info = pendingCoinAnimation;
+        spawnCoinAnimation(info.amount, info.anchor, info.variant || (info.amount < 0 ? "loss" : "gain"));
         pendingCoinAnimation = null;
+      } else if (diff !== 0) {
+        spawnCoinAnimation(diff, null, diff < 0 ? "loss" : "gain");
       }
       displayedCoins = state.coins;
       if (coinTop) coinTop.textContent = "Coins: " + state.coins;
@@ -1058,7 +1116,7 @@
         state.sectionClears[sectionId] = clears + 1;
         if (reward > 0) {
           state.coins += reward;
-          pendingCoinAnimation = { amount: reward, anchor: triggerBtn || null };
+          pendingCoinAnimation = { amount: reward, anchor: triggerBtn || null, variant: "gain" };
           resultMsg += ` | +${reward} Coins`;
           infoMsg += ` | +${reward} Coins`;
         } else if (clears > 0) {
@@ -1114,22 +1172,42 @@
 
     if (testAnimationBtn) {
       testAnimationBtn.addEventListener("click", () => {
-        spawnCoinAnimation(20, testAnimationBtn);
+        state.coins += 20;
+        pendingCoinAnimation = { amount: 20, anchor: testAnimationBtn, variant: "gain" };
+        updateUI("Testanimation: +20 Coins");
+        saveState();
       });
     }
 
+    function clearLocalProgress() {
+      const message = "Lokale Fortschrittsdaten wirklich loeschen? (Taste: Ctrl + Delete)";
+      if (confirm(message)) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && (event.key === "Delete" || event.key === "Del")) {
+        event.preventDefault();
+        clearLocalProgress();
+      }
+    });
+
     gachaBtn.addEventListener("click", () => {
-      if (state.coins < 10) {
-        gachaMsg.textContent = "Nicht genug Coins (10 noetig).";
+      const cost = 20;
+      if (state.coins < cost) {
+        gachaMsg.textContent = "Nicht genug Coins (20 noetig).";
         return;
       }
-      state.coins -= 10;
+      state.coins -= cost;
+      pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
       const blueprint = KNIGHT_POOL[Math.floor(Math.random() * KNIGHT_POOL.length)];
       const item = cloneItem(blueprint);
       state.items.push(item);
       recalcStats();
-      gachaMsg.textContent = "Neu: " + item.name + " (ATK +" + item.atk + ", DEF +" + item.def + ")";
-      updateUI("Neue Ausruestung: " + item.name);
+      gachaMsg.textContent = "Neu: " + item.name + " (ATK +" + item.atk + ", DEF +" + item.def + ") -20 Coins";
+      updateUI("Gacha gezogen: " + item.name);
       saveState();
     });
 
@@ -1168,3 +1246,4 @@
   </script>
 </body>
 </html>
+
