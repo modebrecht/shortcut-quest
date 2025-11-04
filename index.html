@@ -392,6 +392,31 @@
       gap: 0.5rem;
       margin-top: 0.75rem;
     }
+    .shop-mode {
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+    }
+    .shop-mode-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.35);
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--text);
+      transition: border 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+    .shop-mode-option input { display: none; }
+    .shop-mode-option.active {
+      border-color: rgba(59,130,246,0.55);
+      background: rgba(59,130,246,0.18);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(59,130,246,0.2);
+    }
     .gacha-option {
       display: inline-flex;
       align-items: center;
@@ -422,6 +447,25 @@
       color: var(--muted);
       min-height: 4.5rem;
       white-space: pre-wrap;
+    }
+    .skill-section {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .skill-section h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    .skill-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .skill-empty {
+      font-size: 0.8rem;
+      color: var(--muted);
     }
     .shop-latest {
       margin-top: 1.2rem;
@@ -630,6 +674,63 @@
       font-size: 0.9rem;
       color: var(--muted);
     }
+    .battle-skill-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.6rem 0;
+      border-top: 1px solid rgba(148,163,184,0.2);
+      border-bottom: 1px solid rgba(148,163,184,0.2);
+      margin: 0.4rem 0;
+    }
+    .battle-skill {
+      flex: 1 1 180px;
+      min-width: 160px;
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.65rem;
+      background: rgba(59,130,246,0.18);
+      border: 1px solid rgba(59,130,246,0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .battle-skill.headline {
+      flex: 1 1 100%;
+      border: none;
+      background: transparent;
+      padding: 0;
+      min-width: 100%;
+    }
+    .battle-skill button {
+      all: unset;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .battle-skill button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .battle-skill-hotkey {
+      background: rgba(148,163,184,0.2);
+      color: var(--text);
+      border-radius: 0.55rem;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .battle-skill-desc {
+      font-size: 0.78rem;
+      color: rgba(226,232,240,0.75);
+    }
+    .battle-skill.used {
+      background: rgba(71,85,105,0.25);
+      border-color: rgba(71,85,105,0.55);
+    }
     .battle-next {
       align-self: flex-end;
       padding: 0.55rem 1.1rem;
@@ -663,6 +764,30 @@
     .damage-float.crit {
       color: #fde68a;
       text-shadow: 0 0 12px rgba(250,204,21,0.9);
+    }
+    .damage-float.heal {
+      color: #34d399;
+      text-shadow: 0 2px 8px rgba(16,185,129,0.4);
+    }
+    .status-float {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      transform: translate(-50%, -10px);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: #e2e8f0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+      animation: damageFloat 1s ease-out forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-float.buff {
+      color: #4ade80;
+    }
+    .status-float.debuff {
+      color: #fbbf24;
     }
     @keyframes damageFloat {
       0% {
@@ -1093,6 +1218,11 @@
               <div id="inventoryList" class="inventory-list"></div>
               <div id="inventoryEmpty" class="inventory-empty">Ziehe Ausruestung im Gacha, um sie hier zu sehen.</div>
             </div>
+            <div class="skill-section">
+              <h3>Skills</h3>
+              <div id="skillList" class="skill-list"></div>
+              <div id="skillEmpty" class="skill-empty">Kaufe Skills im Shop, um sie hier zu sehen.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1102,6 +1232,16 @@
         <div class="card">
           <h2>Shop</h2>
           <p class="small">Waehle die Kategorie deiner Belohnung, jede Ziehung kostet 20 Coins.</p>
+          <div class="shop-mode" role="radiogroup" aria-label="Shop Modus">
+            <label class="shop-mode-option active">
+              <input type="radio" name="shopMode" value="item" checked>
+              <span>Items</span>
+            </label>
+            <label class="shop-mode-option">
+              <input type="radio" name="shopMode" value="skill">
+              <span>Skills</span>
+            </label>
+          </div>
           <div class="gacha-options" role="radiogroup" aria-label="Gacha Kategorie">
             <label class="gacha-option active">
               <input type="radio" name="gachaType" value="weapon" checked>
@@ -1153,6 +1293,7 @@
           <div class="fighter-name" id="battleEnemyName">Goblin</div>
         </div>
       </div>
+      <div class="battle-skill-bar" id="battleSkillBar"></div>
       <div class="battle-bars">
         <div class="hp-row">
           <span>Ritter</span>
@@ -1185,11 +1326,14 @@
       atk: BASE_ATK,
       def: BASE_DEF,
       items: [],
+      skills: [],
       sectionClears: {},
       sectionResets: {},
       gachaPreference: "weapon",
+      shopMode: "item",
       battleUnlocked: 1,
-      battleClears: {}
+      battleClears: {},
+      lastShopPurchase: null
     };
     function loadState() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -1202,6 +1346,7 @@
         console.warn("State konnte nicht geladen werden", err);
       }
       if (!Array.isArray(state.items)) state.items = [];
+      if (!Array.isArray(state.skills)) state.skills = [];
       if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
@@ -1209,6 +1354,12 @@
         state.battleUnlocked = 1;
       } else {
         state.battleUnlocked = Math.max(1, Math.floor(state.battleUnlocked));
+      }
+      if (state.shopMode !== "item" && state.shopMode !== "skill") {
+        state.shopMode = "item";
+      }
+      if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
+        state.lastShopPurchase = null;
       }
     }
     function saveState() {
@@ -1227,16 +1378,20 @@
     const heroAvatar = document.getElementById("heroAvatar");
     const inventoryList = document.getElementById("inventoryList");
     const inventoryEmpty = document.getElementById("inventoryEmpty");
+    const skillList = document.getElementById("skillList");
+    const skillEmpty = document.getElementById("skillEmpty");
     const overallSummary = document.getElementById("overallSummary");
     const coinAnimationLayer = document.getElementById("coinAnimationLayer");
     const gachaBtn = document.getElementById("gachaBtn");
     const gachaMsg = document.getElementById("gachaMsg");
     const gachaTypeInputs = document.querySelectorAll("input[name='gachaType']");
+    const shopModeInputs = document.querySelectorAll("input[name='shopMode']");
     const battleLog = document.getElementById("battleLog");
     const battleModal = document.getElementById("battleModal");
     const battleTitle = document.getElementById("battleTitle");
     const battleCloseBtn = document.getElementById("battleCloseBtn");
     const battleArena = document.getElementById("battleArena");
+    const battleSkillBar = document.getElementById("battleSkillBar");
     const battleKnight = document.getElementById("battleKnight");
     const battleEnemy = document.getElementById("battleEnemy");
     const battleEnemyName = document.getElementById("battleEnemyName");
@@ -1250,15 +1405,20 @@
     const testAnimationBtn = document.getElementById("testAnimationBtn");
     const battleButtonContainer = document.getElementById("battleButtons");
     let battleButtons = [];
-    if (inventoryList) {
-      inventoryList.addEventListener("click", event => {
+    let battleSkillStates = [];
+    let currentBattleContext = null;
+    function handleUpgradeClick(container, upgradeFn) {
+      if (!container) return;
+      container.addEventListener("click", event => {
         const btn = event.target.closest(".item-upgrade");
         if (!btn || btn.disabled) return;
-        const key = btn.dataset.itemKey;
+        const key = btn.dataset.itemKey || btn.dataset.skillKey;
         if (!key) return;
-        triggerItemUpgrade(key);
+        upgradeFn(key);
       });
     }
+    handleUpgradeClick(inventoryList, triggerItemUpgrade);
+    handleUpgradeClick(skillList, triggerSkillUpgrade);
 
     const learnView = document.getElementById("learnView");
     const inventoryView = document.getElementById("inventoryView");
@@ -1313,6 +1473,18 @@
     }
 
     applyGachaPreference(state.gachaPreference);
+    if (shopModeInputs && shopModeInputs.length) {
+      shopModeInputs.forEach(input => {
+        input.addEventListener("change", () => {
+          if (!input.checked) return;
+          state.shopMode = input.value;
+          updateShopModeStyles();
+          updateShopButtonLabel();
+          saveState();
+        });
+      });
+    }
+    applyShopMode(state.shopMode);
 
     const sections = document.querySelectorAll(".section");
     const sectionTabs = document.querySelectorAll(".section-tab");
@@ -1393,6 +1565,16 @@
       KNIGHT_BY_KEY[entry.key] = entry;
       KNIGHT_BY_NAME[entry.name] = entry;
     });
+    const SKILL_POOL = [
+      { key: "sturm_hieb", name: "Sturm-Hieb", icon: "skill_power", description: "Fuegt sofort zusaetzlichen Schaden zu.", effect: "damage", basePower: 6, powerPerTier: 4 },
+      { key: "schutzwall", name: "Schutzwall", icon: "skill_guard", description: "Stellt Lebenspunkte wieder her.", effect: "heal", basePower: 10, powerPerTier: 6 },
+      { key: "kampfrausch", name: "Kampfrausch", icon: "skill_focus", description: "Erhoeht dauerhaft deine ATK im Kampf.", effect: "buff_atk", basePower: 2, powerPerTier: 2 },
+      { key: "schattenschritt", name: "Schattenschritt", icon: "skill_shadow", description: "Schwaecht die ATK des Gegners.", effect: "debuff_enemy", basePower: 2, powerPerTier: 2 }
+    ];
+    const SKILL_BY_KEY = Object.create(null);
+    SKILL_POOL.forEach(entry => {
+      SKILL_BY_KEY[entry.key] = entry;
+    });
     const GACHA_CATEGORY_LABELS = {
       weapon: "Waffe",
       armor: "Ausruestung",
@@ -1405,6 +1587,10 @@
       helm: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M8 18 v-4 c0-6 4-11 8-11s8 5 8 11v4z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6"></path><rect x="10" y="12" width="12" height="4" rx="1.5" fill="#0f172a"></rect><path d="M16 7 v6" stroke="#e2e8f0" stroke-width="2"></path></svg>',
       cape: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M10 4 q6 4 12 0 l2 20 q-8 4-16 0z" fill="rgba(59,130,246,0.45)" stroke="#2563eb" stroke-width="1.4"></path><circle cx="16" cy="6" r="2.4" fill="#1d4ed8"></circle></svg>',
       talisman: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="9" fill="rgba(254,243,199,0.9)" stroke="#fbbf24" stroke-width="1.6"></circle><path d="M16 8 L18 14 L24 16 L18 18 L16 24 L14 18 L8 16 L14 14 Z" fill="rgba(250,204,21,0.8)" stroke="#92400e" stroke-width="0.8" stroke-linejoin="round"></path><circle cx="16" cy="16" r="2.4" fill="#f97316"></circle></svg>',
+      skill_power: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="rgba(239,68,68,0.18)" stroke="#f87171" stroke-width="1.8"></circle><path d="M16 6 L10 18 h6 l-2 8 8-12h-6z" fill="#facc15" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
+      skill_guard: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 4 L26 9 v11 c0 9-10 13-10 13S6 29 6 20V9z" fill="rgba(59,130,246,0.18)" stroke="#60a5fa" stroke-width="1.8"></path><path d="M16 8 L23 11 v8 c0 6-7 9-7 9s-7-3-7-9v-8z" fill="rgba(96,165,250,0.28)"></path><path d="M16 12 v10" stroke="#e2e8f0" stroke-width="1.6"></path></svg>',
+      skill_focus: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="1.6"></circle><circle cx="16" cy="16" r="6.5" fill="rgba(14,165,233,0.25)" stroke="#0ea5e9" stroke-width="1.4"></circle><circle cx="16" cy="16" r="2.4" fill="#e0f2fe"></circle><path d="M16 4v4M16 24v4M4 16h4M24 16h4" stroke="#bae6fd" stroke-width="1.4" stroke-linecap="round"></path></svg>',
+      skill_shadow: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="rgba(79,70,229,0.2)" stroke="#6366f1" stroke-width="1.6"></circle><path d="M12 20 q4 4 8 0 q-2 -3 -1 -6 q1 -3 5 -5 q-4 -3 -8 0 q-4 -3 -8 0 q4 2 5 5 q1 3 -1 6z" fill="rgba(129,140,248,0.35)" stroke="#c4b5fd" stroke-width="1.2"></path></svg>',
       default: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="6" width="14" height="18" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.4"></rect><circle cx="16" cy="12" r="3" fill="#e2e8f0"></circle><path d="M12 22 h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></svg>'
     };
     function cloneItem(template) {
@@ -1501,6 +1687,102 @@
         lastObtainedAt
       };
       return normalized;
+    }
+    function cloneSkill(template) {
+      const now = Date.now();
+      return {
+        id: `${template.key}-${now}-${Math.random().toString(16).slice(2, 6)}`,
+        key: template.key,
+        name: template.name,
+        icon: template.icon || "skill_power",
+        description: template.description || "Aktivierbarer Kampf-Skill.",
+        effect: template.effect || "damage",
+        basePower: Number(template.basePower || 4),
+        powerPerTier: Number(template.powerPerTier || 2),
+        tier: 1,
+        totalCopies: 1,
+        createdAt: now,
+        lastObtainedAt: now
+      };
+    }
+    function updateSkillDerivedStats(skill) {
+      if (!skill) return skill;
+      const safeTier = Math.max(1, Math.min(MAX_ITEM_TIER, Math.floor(skill.tier || 1)));
+      const safeCopies = Math.max(1, Math.floor(skill.totalCopies || 1));
+      const maxTier = maxTierFromCopies(safeCopies);
+      const tier = Math.min(safeTier, maxTier);
+      skill.tier = tier;
+      skill.totalCopies = safeCopies;
+      skill.basePower = Number(skill.basePower || 0);
+      skill.powerPerTier = Number(skill.powerPerTier || 0);
+      if (!skill.createdAt) skill.createdAt = Date.now();
+      if (!skill.lastObtainedAt) skill.lastObtainedAt = skill.createdAt;
+      return skill;
+    }
+    function upgradeLegacySkill(skill, index) {
+      const now = Date.now();
+      if (!skill || typeof skill !== "object") {
+        return cloneSkill(SKILL_POOL[index % SKILL_POOL.length]);
+      }
+      const template = skill.key ? SKILL_BY_KEY[skill.key] : null;
+      const key = (template && template.key) || skill.key || `legacy-skill-${index}`;
+      const basePower = Number(skill.basePower ?? (template ? template.basePower : 4) ?? 4);
+      const powerPerTier = Number(skill.powerPerTier ?? (template ? template.powerPerTier : 2) ?? 2);
+      const effect = skill.effect || (template ? template.effect : "damage");
+      const tier = Math.max(1, Math.min(MAX_ITEM_TIER, Number(skill.tier || 1)));
+      const copiesSource = Number(skill.totalCopies || skill.copies || 0);
+      const totalCopies = copiesSource > 0 ? copiesSource : 1;
+      const createdAt = Number(skill.createdAt || skill.obtainedAt || now);
+      const lastObtainedAt = Number(skill.lastObtainedAt || skill.updatedAt || createdAt);
+      const name = skill.name || (template ? template.name : `Skill ${index + 1}`);
+      const description = skill.description || (template ? template.description : "Aktivierter Kampfspruch.");
+      const icon = skill.icon || (template ? template.icon : "skill_power");
+      const normalized = {
+        id: skill.id || `${key}-${createdAt}-${Math.random().toString(16).slice(2, 6)}`,
+        key,
+        name,
+        icon,
+        description,
+        effect,
+        basePower,
+        powerPerTier,
+        tier,
+        totalCopies,
+        createdAt,
+        lastObtainedAt
+      };
+      return updateSkillDerivedStats(normalized);
+    }
+    function ensureSkillInventory() {
+      if (!Array.isArray(state.skills)) {
+        state.skills = [];
+        return;
+      }
+      const upgraded = state.skills.map((skill, index) => upgradeLegacySkill(skill, index));
+      const merged = new Map();
+      upgraded.forEach(skill => {
+        if (!skill) return;
+        const key = skill.key || skill.name || skill.id;
+        if (!merged.has(key)) {
+          merged.set(key, { ...skill });
+        } else {
+          const existing = merged.get(key);
+          const existingCopies = Math.max(1, Math.floor(existing.totalCopies || 1));
+          const incomingCopies = Math.max(1, Math.floor(skill.totalCopies || 1));
+          existing.totalCopies = existingCopies + incomingCopies;
+          existing.lastObtainedAt = Math.max(
+            Number(existing.lastObtainedAt || existing.createdAt || 0),
+            Number(skill.lastObtainedAt || skill.createdAt || Date.now())
+          );
+          existing.createdAt = Math.min(
+            Number(existing.createdAt || existing.lastObtainedAt || Date.now()),
+            Number(skill.createdAt || skill.lastObtainedAt || Date.now())
+          );
+          existing.tier = Math.max(Number(existing.tier || 1), Number(skill.tier || 1));
+        }
+      });
+      state.skills = Array.from(merged.values()).map(updateSkillDerivedStats);
+      sortSkillsByNewest();
     }
     function ensureKnightInventory() {
       if (!Array.isArray(state.items)) {
@@ -1616,6 +1898,79 @@
       row.appendChild(controls);
       return row;
     }
+    function createSkillRow(skill, options = {}) {
+      const { showUpgrade = true } = options;
+      if (!skill) return null;
+      updateSkillDerivedStats(skill);
+      const row = document.createElement("div");
+      row.className = `inventory-item tier-${skill.tier}`;
+      row.dataset.skillKey = skill.key || skill.name;
+      const left = document.createElement("div");
+      left.className = "item-left";
+      const icon = document.createElement("div");
+      icon.className = "item-icon";
+      icon.innerHTML = getItemIcon(skill.icon);
+      const text = document.createElement("div");
+      text.className = "item-text";
+      const nameEl = document.createElement("strong");
+      nameEl.textContent = skill.name;
+      text.appendChild(nameEl);
+      if (skill.description) {
+        const desc = document.createElement("span");
+        desc.textContent = skill.description;
+        text.appendChild(desc);
+      }
+      const requirement = getNextTierRequirement(skill);
+      const meta = document.createElement("span");
+      meta.className = "item-meta";
+      if (skill.tier >= MAX_ITEM_TIER) {
+        meta.textContent = `Tier ${skill.tier} | x${skill.totalCopies} | Maximum erreicht`;
+      } else {
+        const progress = Math.min(skill.totalCopies, requirement);
+        meta.textContent = `Tier ${skill.tier} | x${skill.totalCopies} | Fortschritt: ${progress}/${requirement}`;
+      }
+      text.appendChild(meta);
+      left.appendChild(icon);
+      left.appendChild(text);
+      row.appendChild(left);
+      const controls = document.createElement("div");
+      controls.className = "item-controls";
+      const stats = document.createElement("div");
+      stats.className = "item-stats";
+      const badge = document.createElement("span");
+      badge.className = "badge atk";
+      switch (skill.effect) {
+        case "damage":
+          badge.textContent = `Schaden +${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          break;
+        case "heal":
+          badge.className = "badge def";
+          badge.textContent = `Heilung +${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          break;
+        case "buff_atk":
+          badge.textContent = `ATK Buff +${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          break;
+        case "debuff_enemy":
+          badge.className = "badge def";
+          badge.textContent = `Enemy ATK -${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          break;
+        default:
+          badge.textContent = `Tier ${skill.tier}`;
+      }
+      stats.appendChild(badge);
+      controls.appendChild(stats);
+      if (showUpgrade && skill.tier < MAX_ITEM_TIER) {
+        const requirementText = requirement === Infinity ? "-" : requirement;
+        const upgradeBtn = document.createElement("button");
+        upgradeBtn.className = "item-upgrade";
+        upgradeBtn.dataset.skillKey = skill.key || skill.name;
+        upgradeBtn.textContent = `Upgrade Tier ${skill.tier + 1} (${skill.totalCopies}/${requirementText})`;
+        upgradeBtn.disabled = !canUpgradeItem(skill);
+        controls.appendChild(upgradeBtn);
+      }
+      row.appendChild(controls);
+      return row;
+    }
     function renderInventory() {
       if (!inventoryList) return;
       inventoryList.innerHTML = "";
@@ -1634,25 +1989,69 @@
         if (row) inventoryList.appendChild(row);
       });
     }
-    function renderShopLatest() {
-      if (!shopLatest) return;
-      shopLatest.querySelectorAll(".inventory-item").forEach(el => el.remove());
-      if (!state.items.length) {
-        if (shopLatestEmpty) shopLatestEmpty.style.display = "block";
+    function renderSkills() {
+      if (!skillList) return;
+      skillList.innerHTML = "";
+      if (!state.skills.length) {
+        if (skillEmpty) skillEmpty.style.display = "block";
         return;
       }
-      if (shopLatestEmpty) shopLatestEmpty.style.display = "none";
-      const sorted = [...state.items].sort((a, b) => {
+      if (skillEmpty) skillEmpty.style.display = "none";
+      const sorted = [...state.skills].sort((a, b) => {
         const left = b.lastObtainedAt || b.createdAt || 0;
         const right = a.lastObtainedAt || a.createdAt || 0;
         return left - right;
       });
-      const newest = sorted[0];
-      const row = createInventoryRow(newest, { showUpgrade: false });
-      if (row) shopLatest.appendChild(row);
+      sorted.forEach(skill => {
+        const row = createSkillRow(skill, { showUpgrade: true });
+        if (row) skillList.appendChild(row);
+      });
+    }
+    function renderShopLatest() {
+      if (!shopLatest) return;
+      shopLatest.querySelectorAll(".inventory-item").forEach(el => el.remove());
+      let record = state.lastShopPurchase;
+      if (!record) {
+        let latestItem = null;
+        if (state.items.length) {
+          latestItem = [...state.items].sort((a, b) => (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0))[0];
+        }
+        let latestSkill = null;
+        if (state.skills.length) {
+          latestSkill = [...state.skills].sort((a, b) => (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0))[0];
+        }
+        if (latestItem || latestSkill) {
+          if (latestItem && latestSkill) {
+            const itemTime = latestItem.lastObtainedAt || latestItem.createdAt || 0;
+            const skillTime = latestSkill.lastObtainedAt || latestSkill.createdAt || 0;
+            record = itemTime >= skillTime ? { type: "item", key: latestItem.key } : { type: "skill", key: latestSkill.key };
+          } else if (latestItem) {
+            record = { type: "item", key: latestItem.key };
+          } else if (latestSkill) {
+            record = { type: "skill", key: latestSkill.key };
+          }
+        }
+      }
+      let row = null;
+      if (record.type === "item") {
+        const item = state.items.find(entry => entry.key === record.key);
+        if (item) row = createInventoryRow(item, { showUpgrade: false });
+      } else if (record.type === "skill") {
+        const skill = state.skills.find(entry => entry.key === record.key);
+        if (skill) row = createSkillRow(skill, { showUpgrade: false });
+      }
+      if (!row) {
+        if (shopLatestEmpty) shopLatestEmpty.style.display = "block";
+        return;
+      }
+      if (shopLatestEmpty) shopLatestEmpty.style.display = "none";
+      shopLatest.appendChild(row);
     }
     function sortInventoryByNewest() {
       state.items.sort((a, b) => (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0));
+    }
+    function sortSkillsByNewest() {
+      state.skills.sort((a, b) => (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0));
     }
     function triggerItemUpgrade(key) {
       const item = state.items.find(entry => (entry.key || entry.name) === key);
@@ -1664,6 +2063,16 @@
       saveState();
       sortInventoryByNewest();
       updateUI(`${item.name} erreicht Tier ${item.tier}.`);
+    }
+    function triggerSkillUpgrade(key) {
+      const skill = state.skills.find(entry => (entry.key || entry.name) === key);
+      if (!skill || !canUpgradeItem(skill)) return;
+      skill.tier = Math.min(MAX_ITEM_TIER, skill.tier + 1);
+      skill.lastUpgradeAt = Date.now();
+      updateSkillDerivedStats(skill);
+      saveState();
+      sortSkillsByNewest();
+      updateUI(`${skill.name} erreicht Tier ${skill.tier}.`);
     }
     function addItemToInventory(template) {
       const now = Date.now();
@@ -1682,6 +2091,24 @@
       state.items.push(fresh);
       sortInventoryByNewest();
       return { item: fresh, isNew: true };
+    }
+    function addSkillToCollection(template) {
+      const now = Date.now();
+      const key = template.key;
+      const existing = state.skills.find(entry => entry.key === key);
+      if (existing) {
+        existing.totalCopies = Math.max(1, Math.floor(existing.totalCopies || 1)) + 1;
+        existing.lastObtainedAt = now;
+        updateSkillDerivedStats(existing);
+        sortSkillsByNewest();
+        return { skill: existing, isNew: false };
+      }
+      const fresh = cloneSkill(template);
+      fresh.createdAt = now;
+      fresh.lastObtainedAt = now;
+      state.skills.push(fresh);
+      sortSkillsByNewest();
+      return { skill: fresh, isNew: true };
     }
     function updateGachaOptionStyles() {
       if (!gachaTypeInputs) return;
@@ -1709,6 +2136,50 @@
         state.gachaPreference = target;
       }
       updateGachaOptionStyles();
+    }
+    function updateShopModeStyles() {
+      if (!shopModeInputs) return;
+      shopModeInputs.forEach(input => {
+        const wrapper = input.closest(".shop-mode-option");
+        if (wrapper) wrapper.classList.toggle("active", input.checked);
+      });
+    }
+    function applyShopMode(mode) {
+      if (!shopModeInputs || !shopModeInputs.length) {
+        state.shopMode = mode || state.shopMode || "item";
+        updateShopButtonLabel();
+        return;
+      }
+      const target = mode || state.shopMode || "item";
+      let found = false;
+      shopModeInputs.forEach((input, idx) => {
+        const match = input.value === target;
+        input.checked = match;
+        if (match) found = true;
+        if (!found && idx === shopModeInputs.length - 1 && !match) {
+          input.checked = false;
+        }
+      });
+      if (!found) {
+        shopModeInputs[0].checked = true;
+        state.shopMode = shopModeInputs[0].value;
+      } else {
+        state.shopMode = target;
+      }
+      updateShopModeStyles();
+      updateShopButtonLabel();
+    }
+    function getSelectedShopMode() {
+      if (!shopModeInputs || !shopModeInputs.length) {
+        return state.shopMode || "item";
+      }
+      const selected = Array.from(shopModeInputs).find(input => input.checked);
+      return selected ? selected.value : state.shopMode || "item";
+    }
+    function updateShopButtonLabel() {
+      if (!gachaBtn) return;
+      const mode = getSelectedShopMode();
+      gachaBtn.textContent = mode === "skill" ? "Skill kaufen" : "Item kaufen";
     }
     function getSelectedGachaType() {
       if (!gachaTypeInputs || !gachaTypeInputs.length) {
@@ -1790,7 +2261,11 @@
       if (progressInfo) progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
       updateHeroAvatar();
       renderInventory();
+      renderSkills();
       renderShopLatest();
+      renderBattleSkillBar();
+      updateShopModeStyles();
+      updateShopButtonLabel();
     }
     function updateOverallSummary() {
       if (!overallSummary) return;
@@ -1940,32 +2415,51 @@
         return;
       }
       state.coins -= cost;
+      const shopMode = getSelectedShopMode();
       const type = getSelectedGachaType();
       state.gachaPreference = type;
       pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
-      let pool = KNIGHT_POOL;
-      if (type && type !== "any") {
-        const filtered = KNIGHT_POOL.filter(item => item.category === type);
-        if (filtered.length) pool = filtered;
-      }
-      const blueprint = pool[Math.floor(Math.random() * pool.length)];
-      const { item, isNew } = addItemToInventory(blueprint);
-      recalcStats();
-      const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "Item";
       let message = "";
-      if (isNew) {
-        message = "Neu: " + item.name + " [" + categoryLabel + "] Tier " + item.tier + " (ATK +" + item.baseAtk + ", DEF +" + item.baseDef + ") -20 Coins";
-      } else if (item.tier >= MAX_ITEM_TIER) {
-        message = item.name + " erweitert! x" + item.totalCopies + " Kopien | Tier " + item.tier + " (Max) -20 Coins";
+      if (shopMode === "skill") {
+        const blueprint = SKILL_POOL[Math.floor(Math.random() * SKILL_POOL.length)];
+        const { skill, isNew } = addSkillToCollection(blueprint);
+        state.lastShopPurchase = { type: "skill", key: skill.key, timestamp: Date.now() };
+        if (isNew) {
+          message = "Neuer Skill: " + skill.name + " (Tier " + skill.tier + ") freigeschaltet! -20 Coins";
+        } else if (skill.tier >= MAX_ITEM_TIER) {
+          message = skill.name + " ausgebaut! x" + skill.totalCopies + " Kopien | Tier " + skill.tier + " (Max) -20 Coins";
+        } else {
+          const requirement = getNextTierRequirement(skill);
+          const progress = Math.min(skill.totalCopies, requirement);
+          message = skill.name + " +1 Kopie (Tier " + skill.tier + ") | Fortschritt " + progress + "/" + requirement + " fuer Tier " + (skill.tier + 1) + " -20 Coins";
+        }
+        updateUI("Skill erhalten: " + skill.name);
       } else {
-        const requirement = getNextTierRequirement(item);
-        const progress = Math.min(item.totalCopies, requirement);
-        message = item.name + " +1 Kopie (Tier " + item.tier + ") | Fortschritt " + progress + "/" + requirement + " fuer Tier " + (item.tier + 1) + " -20 Coins";
+        let pool = KNIGHT_POOL;
+        if (type && type !== "any") {
+          const filtered = KNIGHT_POOL.filter(item => item.category === type);
+          if (filtered.length) pool = filtered;
+        }
+        const blueprint = pool[Math.floor(Math.random() * pool.length)];
+        const { item, isNew } = addItemToInventory(blueprint);
+        state.lastShopPurchase = { type: "item", key: item.key, timestamp: Date.now() };
+        recalcStats();
+        const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "Item";
+        if (isNew) {
+          message = "Neu: " + item.name + " [" + categoryLabel + "] Tier " + item.tier + " (ATK +" + item.baseAtk + ", DEF +" + item.baseDef + ") -20 Coins";
+        } else if (item.tier >= MAX_ITEM_TIER) {
+          message = item.name + " erweitert! x" + item.totalCopies + " Kopien | Tier " + item.tier + " (Max) -20 Coins";
+        } else {
+          const requirement = getNextTierRequirement(item);
+          const progress = Math.min(item.totalCopies, requirement);
+          message = item.name + " +1 Kopie (Tier " + item.tier + ") | Fortschritt " + progress + "/" + requirement + " fuer Tier " + (item.tier + 1) + " -20 Coins";
+        }
+        updateUI("Gacha gezogen: " + item.name);
       }
       gachaMsg.textContent = message;
-      updateUI("Gacha gezogen: " + item.name);
       saveState();
       updateGachaOptionStyles();
+      updateShopModeStyles();
     });
 
     const ENEMY_VARIANTS = ["goblin", "goblin-army", "goblin-king"];
@@ -2016,6 +2510,150 @@
       updateBattleButtons();
     }
 
+    function getOwnedBattleSkills() {
+      return state.skills
+        .map(skill => updateSkillDerivedStats({ ...skill }))
+        .filter(skill => skill && skill.tier > 0)
+        .sort((a, b) => {
+          if (b.tier !== a.tier) return b.tier - a.tier;
+          const timeDiff = (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0);
+          if (timeDiff !== 0) return timeDiff;
+          return a.name.localeCompare(b.name);
+        });
+    }
+
+    function setupBattleSkills(hero, enemy) {
+      const owned = getOwnedBattleSkills().slice(0, 9);
+      battleSkillStates = owned.map((skill, index) => ({
+        key: skill.key,
+        skill,
+        hotkey: index + 1,
+        used: false
+      }));
+      currentBattleContext = { hero, enemy };
+      renderBattleSkillBar();
+    }
+
+    function renderBattleSkillBar() {
+      if (!battleSkillBar) return;
+      battleSkillBar.innerHTML = "";
+      if (!battleSkillStates.length) {
+        const info = document.createElement("span");
+        info.className = "battle-skill-desc";
+        info.textContent = state.skills.length ? "Skills bereit - starte einen Kampf und nutze 1-9." : "Noch keine Skills freigeschaltet.";
+        battleSkillBar.appendChild(info);
+        return;
+      }
+      battleSkillStates.forEach(entry => {
+        const card = document.createElement("div");
+        card.className = "battle-skill";
+        if (entry.used) card.classList.add("used");
+        const button = document.createElement("button");
+        button.disabled = entry.used || !battleInProgress || !currentBattleContext;
+        const hotkeyBadge = document.createElement("span");
+        hotkeyBadge.className = "battle-skill-hotkey";
+        hotkeyBadge.textContent = entry.hotkey;
+        const label = document.createElement("span");
+        label.textContent = `${entry.skill.name} (Tier ${entry.skill.tier})`;
+        button.appendChild(hotkeyBadge);
+        button.appendChild(label);
+        button.addEventListener("click", () => {
+          useBattleSkill(entry.hotkey);
+        });
+        card.appendChild(button);
+        const effectValue = entry.skill.basePower + entry.skill.powerPerTier * (entry.skill.tier - 1);
+        const desc = document.createElement("span");
+        desc.className = "battle-skill-desc";
+        switch (entry.skill.effect) {
+          case "damage":
+            desc.textContent = `Fuegt sofort ${effectValue} Schaden zu.`;
+            break;
+          case "heal":
+            desc.textContent = `Heilt ${effectValue} HP.`;
+            break;
+          case "buff_atk":
+            desc.textContent = `Erhoeht ATK um ${effectValue} fuer den Kampf.`;
+            break;
+          case "debuff_enemy":
+            desc.textContent = `Senkt Gegner-ATK um ${effectValue}.`;
+            break;
+          default:
+            desc.textContent = entry.skill.description || "Aktivierter Skill.";
+        }
+        card.appendChild(desc);
+        battleSkillBar.appendChild(card);
+      });
+    }
+
+    function clearBattleSkills() {
+      battleSkillStates = [];
+      currentBattleContext = null;
+      renderBattleSkillBar();
+    }
+
+    function useBattleSkill(hotkey) {
+      if (!battleInProgress || !currentBattleContext) return;
+      const entry = battleSkillStates.find(state => state.hotkey === hotkey);
+      if (!entry || entry.used) return;
+      const { hero, enemy } = currentBattleContext;
+      const power = Math.max(1, Math.round(entry.skill.basePower + entry.skill.powerPerTier * (entry.skill.tier - 1)));
+      let resultText = entry.skill.name + " aktiviert.";
+      switch (entry.skill.effect) {
+        case "damage": {
+          applyDamage(enemy, power);
+          spawnDamageNumber(battleEnemy, power, "enemy", false);
+          updateHpUi(hero, enemy);
+          resultText = entry.skill.name + " verursacht " + power + " zusaetzlichen Schaden.";
+          break;
+        }
+        case "heal": {
+          const missing = Math.max(0, hero.maxHp - hero.hp);
+          const healAmount = Math.min(power, missing);
+          hero.hp = Math.min(hero.maxHp, hero.hp + power);
+          updateHpUi(hero, enemy);
+          if (healAmount > 0) {
+            spawnDamageNumber(battleKnight, healAmount, "hero", false, "heal");
+          } else {
+            spawnStatusText(battleKnight, "HP voll", "buff");
+          }
+          resultText = entry.skill.name + " heilt " + healAmount + " HP.";
+          break;
+        }
+        case "buff_atk": {
+          hero.atk = Math.max(1, hero.atk + power);
+          hero.variance = Math.max(1, hero.variance || 1);
+          spawnStatusText(battleKnight, "+ATK " + power, "buff");
+          resultText = entry.skill.name + " erhoeht deine ATK um " + power + " fuer diesen Kampf.";
+          break;
+        }
+        case "debuff_enemy": {
+          const before = enemy.atk;
+          enemy.atk = Math.max(1, enemy.atk - power);
+          const reduced = before - enemy.atk;
+          spawnStatusText(battleEnemy, "-ATK " + reduced, "debuff");
+          resultText = entry.skill.name + " senkt die ATK des Gegners um " + reduced + ".";
+          break;
+        }
+        default: {
+          spawnStatusText(battleKnight, entry.skill.name, "buff");
+          break;
+        }
+      }
+      entry.used = true;
+      renderBattleSkillBar();
+      if (battleResult) battleResult.textContent = resultText;
+    }
+
+    function handleBattleHotkeys(event) {
+      if (!battleModal || !battleModal.classList.contains("active")) return;
+      if (!currentBattleContext) return;
+      if (event.repeat) return;
+      const keyNum = Number(event.key);
+      if (!Number.isInteger(keyNum) || keyNum < 1 || keyNum > 9) return;
+      event.preventDefault();
+      useBattleSkill(keyNum);
+    }
+
     if (battleCloseBtn) {
       battleCloseBtn.addEventListener("click", () => {
         closeBattleModal();
@@ -2041,6 +2679,7 @@
         closeBattleModal();
       }
     });
+    document.addEventListener("keydown", handleBattleHotkeys);
 
     async function startBattle(level) {
       if (battleInProgress) return;
@@ -2051,6 +2690,7 @@
       prepareBattleModal(enemyBlueprint, level);
       const hero = createHeroState();
       const enemy = createEnemyState(enemyBlueprint);
+      setupBattleSkills(hero, enemy);
       updateHpUi(hero, enemy);
       battleLog.textContent = "Kampf gegen " + enemy.name + " (Rang " + level + ") gestartet.";
       let heroWon = false;
@@ -2095,6 +2735,7 @@
       if (battleInProgress) return;
       battleModal.classList.remove("active");
       battleModal.setAttribute("aria-hidden", "true");
+      clearBattleSkills();
     }
 
     function resetBattleArena() {
@@ -2177,10 +2818,12 @@
           battleNextBtn.classList.add("hidden");
           battleNextBtn.removeAttribute("data-target-level");
         }
+        }
+        updateBattleButtons();
+        currentBattleContext = null;
+        renderBattleSkillBar();
+        saveState();
       }
-      updateBattleButtons();
-      saveState();
-    }
 
     function updateBattleButtons() {
       if (!battleButtons || !battleButtons.length) return;
@@ -2245,12 +2888,15 @@
       setTimeout(() => defenderEl.classList.remove("hit"), 420);
     }
 
-    function spawnDamageNumber(targetEl, amount, targetType, crit) {
+    function spawnDamageNumber(targetEl, amount, targetType, crit, effect = "damage") {
       if (!battleArena || !targetEl) return;
       const float = document.createElement("div");
       float.className = "damage-float";
       float.classList.add(targetType === "hero" ? "hero-hit" : "enemy-hit");
-      if (crit) {
+      if (effect === "heal") {
+        float.classList.add("heal");
+        float.textContent = "+" + amount;
+      } else if (crit) {
         float.classList.add("crit");
         float.textContent = "-" + amount + "!";
       } else {
@@ -2266,12 +2912,30 @@
       setTimeout(() => float.remove(), 950);
     }
 
+    function spawnStatusText(targetEl, text, variant = "buff") {
+      if (!battleArena || !targetEl) return;
+      const float = document.createElement("div");
+      float.className = "status-float";
+      float.classList.add(variant);
+      float.textContent = text;
+      const arenaRect = battleArena.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const offsetX = (targetRect.left + targetRect.width / 2) - arenaRect.left + (Math.random() * 24 - 12);
+      const offsetY = (targetRect.top + targetRect.height / 2) - arenaRect.top - 16 + (Math.random() * 10 - 5);
+      float.style.left = `${offsetX}px`;
+      float.style.top = `${offsetY}px`;
+      battleArena.appendChild(float);
+      setTimeout(() => float.remove(), 950);
+    }
+
     function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    ensureSkillInventory();
     ensureKnightInventory();
     renderBattleButtons();
+    clearBattleSkills();
     updateBattleButtons();
     recalcStats();
     updateUI();
