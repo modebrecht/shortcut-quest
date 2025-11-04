@@ -1120,7 +1120,7 @@
               <span>Zufall</span>
             </label>
           </div>
-          <button id="gachaBtn">Item kaufen</button>
+          <button id="gachaBtn">Gacha ziehen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
           <div class="shop-latest" id="shopLatest">
             <h3>Neueste Belohnung</h3>
@@ -1133,12 +1133,8 @@
       <div class="game-grid">
         <div class="card battle-card">
           <h2>Goblin-Scharmuetzel</h2>
-          <p class="small">Fordere die Goblins heraus. Siege schalten das naechste Level frei.</p>
-          <div class="battle-buttons">
-            <button class="battle-btn" data-enemy="1">Lv1 Goblin</button>
-            <button class="battle-btn" data-enemy="2">Lv2 Goblin-Armee</button>
-            <button class="battle-btn" data-enemy="3">Lv3 Goblin-Koenig</button>
-          </div>
+          <p class="small">Fordere die Goblins vom Rang 1 (Kobold) bis Rang 11 (Goblinkoenig) heraus. Jeder Sieg schaltet den naechsten Rang frei.</p>
+          <div class="battle-buttons" id="battleButtons"></div>
           <pre class="battle-log" id="battleLog">Waehle einen Kampf um die Simulation zu starten.</pre>
         </div>
       </div>
@@ -1252,10 +1248,8 @@
     const battleResult = document.getElementById("battleResult");
     const battleNextBtn = document.getElementById("battleNextBtn");
     const testAnimationBtn = document.getElementById("testAnimationBtn");
-    const battleButtons = Array.from(document.querySelectorAll(".battle-btn"));
-    battleButtons.forEach(btn => {
-      if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim();
-    });
+    const battleButtonContainer = document.getElementById("battleButtons");
+    let battleButtons = [];
     if (inventoryList) {
       inventoryList.addEventListener("click", event => {
         const btn = event.target.closest(".item-upgrade");
@@ -1975,20 +1969,52 @@
     });
 
     const ENEMY_VARIANTS = ["goblin", "goblin-army", "goblin-king"];
-    const ENEMIES = {
-      1: { name: "Goblin", hp: 18, atk: 3, def: 0, variance: 1, crit: 0.08, variant: "goblin" },
-      2: { name: "Goblin-Armee", hp: 30, atk: 4, def: 1, variance: 2, crit: 0.1, variant: "goblin-army" },
-      3: { name: "Goblin-Koenig", hp: 44, atk: 5, def: 2, variance: 2, crit: 0.14, variant: "goblin-king" }
-    };
-    let battleInProgress = false;
-
-    battleButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const lv = Number(btn.dataset.enemy || "0");
-        if (!lv) return;
-        startBattle(lv);
-      });
+    const ENEMY_DATA = [
+      { name: "Kobold", hp: 16, atk: 2, def: 0, variance: 1, crit: 0.06, variant: "goblin" },
+      { name: "Gruener Goblin", hp: 20, atk: 3, def: 0, variance: 1, crit: 0.07, variant: "goblin" },
+      { name: "Hobgoblin", hp: 24, atk: 4, def: 1, variance: 1, crit: 0.08, variant: "goblin" },
+      { name: "Waldgoblin", hp: 26, atk: 4, def: 2, variance: 2, crit: 0.09, variant: "goblin" },
+      { name: "Hoehlengoblin", hp: 30, atk: 5, def: 2, variance: 2, crit: 0.1, variant: "goblin" },
+      { name: "Bergtroll", hp: 34, atk: 6, def: 2, variance: 2, crit: 0.11, variant: "goblin-army" },
+      { name: "Dunkelgoblin", hp: 38, atk: 6, def: 3, variance: 2, crit: 0.12, variant: "goblin-army" },
+      { name: "Kriegsgoblin", hp: 42, atk: 7, def: 3, variance: 3, crit: 0.13, variant: "goblin-army" },
+      { name: "Schattengoblin", hp: 46, atk: 7, def: 4, variance: 3, crit: 0.14, variant: "goblin-army" },
+      { name: "Daemonengoblin", hp: 52, atk: 8, def: 4, variance: 3, crit: 0.15, variant: "goblin-army" },
+      { name: "Goblinkoenig", hp: 60, atk: 9, def: 5, variance: 3, crit: 0.18, variant: "goblin-king" }
+    ];
+    const ENEMIES = {};
+    ENEMY_DATA.forEach((enemy, index) => {
+      const level = index + 1;
+      ENEMIES[level] = { ...enemy, level };
     });
+    state.battleUnlocked = Math.min(ENEMY_DATA.length, Math.max(1, Math.floor(state.battleUnlocked || 1)));
+    Object.keys(state.battleClears || {}).forEach(key => {
+      const level = Number(key);
+      if (!level || level > ENEMY_DATA.length) {
+        delete state.battleClears[key];
+      }
+    });
+    let battleInProgress = false;
+    function renderBattleButtons() {
+      if (!battleButtonContainer) return;
+      battleButtonContainer.innerHTML = "";
+      battleButtons = [];
+      ENEMY_DATA.forEach((enemy, index) => {
+        const level = index + 1;
+        const btn = document.createElement("button");
+        btn.className = "battle-btn";
+        btn.dataset.enemy = String(level);
+        const label = `Rang ${level} ${enemy.name}`;
+        btn.dataset.label = label;
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+          startBattle(level);
+        });
+        battleButtonContainer.appendChild(btn);
+        battleButtons.push(btn);
+      });
+      updateBattleButtons();
+    }
 
     if (battleCloseBtn) {
       battleCloseBtn.addEventListener("click", () => {
@@ -2026,7 +2052,7 @@
       const hero = createHeroState();
       const enemy = createEnemyState(enemyBlueprint);
       updateHpUi(hero, enemy);
-      battleLog.textContent = "Kampf gegen " + enemy.name + " (Lv" + level + ") gestartet.";
+      battleLog.textContent = "Kampf gegen " + enemy.name + " (Rang " + level + ") gestartet.";
       let heroWon = false;
       try {
         heroWon = await runBattleLoop(hero, enemy);
@@ -2047,7 +2073,7 @@
         battleNextBtn.classList.add("hidden");
         battleNextBtn.removeAttribute("data-target-level");
       }
-      if (battleTitle) battleTitle.textContent = "Kampf gegen " + enemy.name + " (Lv" + level + ")";
+      if (battleTitle) battleTitle.textContent = "Kampf gegen " + enemy.name + " (Rang " + level + ")";
       if (battleEnemyName) battleEnemyName.textContent = enemy.name;
       if (enemyHpLabel) enemyHpLabel.textContent = enemy.name;
       if (battleKnight) battleKnight.classList.remove("attacking-left", "attacking-right", "hit");
@@ -2135,7 +2161,7 @@
           }
           if (battleNextBtn) {
             battleNextBtn.dataset.targetLevel = String(nextLevel);
-            battleNextBtn.textContent = "Lv" + nextLevel + " " + ENEMIES[nextLevel].name + " starten";
+            battleNextBtn.textContent = "Rang " + nextLevel + " " + ENEMIES[nextLevel].name + " starten";
             battleNextBtn.classList.remove("hidden");
           }
         } else if (battleNextBtn) {
@@ -2143,10 +2169,10 @@
           battleNextBtn.removeAttribute("data-target-level");
         }
         if (battleResult) battleResult.textContent = "Sieg! Der Ritter besiegt " + enemy.name + "." + unlockText;
-        battleLog.textContent = "Sieg gegen " + enemy.name + " (Lv" + level + "). Verbleibende HP: " + remainingHeroHp + ".";
+        battleLog.textContent = "Sieg gegen " + enemy.name + " (Rang " + level + "). Verbleibende HP: " + remainingHeroHp + ".";
       } else {
         if (battleResult) battleResult.textContent = "Niederlage gegen " + enemy.name + ". Versuche es erneut.";
-        battleLog.textContent = "Niederlage gegen " + enemy.name + " (Lv" + level + ").";
+        battleLog.textContent = "Niederlage gegen " + enemy.name + " (Rang " + level + ").";
         if (battleNextBtn) {
           battleNextBtn.classList.add("hidden");
           battleNextBtn.removeAttribute("data-target-level");
@@ -2245,6 +2271,7 @@
     }
 
     ensureKnightInventory();
+    renderBattleButtons();
     updateBattleButtons();
     recalcStats();
     updateUI();
@@ -2253,7 +2280,3 @@
   </script>
 </body>
 </html>
-
-
-
-
