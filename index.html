@@ -375,7 +375,7 @@
       overflow: hidden;
     }
     .coin-main::after {
-      content: ";
+      content: "";
       position: absolute;
       inset: 0;
       background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
@@ -873,7 +873,7 @@
     showSection("1");
 
     const allCheckables = document.querySelectorAll("[data-answer], .dnd-target");
-    let draggedValue = ";
+    let draggedValue = "";
     document.querySelectorAll(".dnd-token").forEach(token => {
       token.addEventListener("dragstart", event => {
         draggedValue = token.dataset.value;
@@ -1270,13 +1270,13 @@
         field.classList.remove("correct", "incorrect");
         if (wrap) wrap.classList.remove("correct", "incorrect");
         if (field.tagName === "SELECT") {
-          field.value = ";
+          field.value = "";
         } else if (field.tagName === "INPUT") {
-          field.value = ";
+          field.value = "";
         } else if (field.classList.contains("dnd-target")) {
           const slot = field.querySelector(".drop-slot");
           if (slot) {
-            slot.textContent = ";
+            slot.textContent = "";
             delete slot.dataset.value;
           }
         }
@@ -1364,14 +1364,10 @@
       if (!enemy) return;
       const dmg = Math.max(1, state.atk - enemy.def);
       const turns = Math.max(1, Math.ceil(enemy.hp / dmg));
-      let log = "Kampf gegen " + enemy.name + " (Lv" + level + ")
-";
-      log += "Deine ATK: " + state.atk + " | Deine DEF: " + state.def + "
-";
-      log += "Du verursachst " + dmg + " Schaden pro Runde.
-";
-      log += "Sieg nach " + turns + " Runde(n).
-";
+      let log = "Kampf gegen " + enemy.name + " (Lv" + level + ")";
+      log += "Deine ATK: " + state.atk + " | Deine DEF: " + state.def + "";
+      log += "Du verursachst " + dmg + " Schaden pro Runde.";
+      log += "Sieg nach " + turns + " Runde(n).";
       if (level === 2 && state.atk < 4) {
         log += "Tipp: Mehr Ausruestung hilft gegen den Turniermeister.";
       } else {
