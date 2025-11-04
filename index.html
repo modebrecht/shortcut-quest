@@ -375,7 +375,7 @@
       overflow: hidden;
     }
     .coin-main::after {
-      content: "";
+      content: ";
       position: absolute;
       inset: 0;
       background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
@@ -545,7 +545,7 @@
           <label class="task-field">
             <span class="question-text">1. Kopieren</span>
             <select data-answer="Ctrl+C">
-              <option value="">-- waehlen --</option>
+              <option value=">-- waehlen --</option>
               <option>Ctrl+X</option>
               <option>Ctrl+C</option>
               <option>Ctrl+V</option>
@@ -554,7 +554,7 @@
           <label class="task-field">
             <span class="question-text">2. Einfuegen</span>
             <select data-answer="Ctrl+V">
-              <option value="">-- waehlen --</option>
+              <option value=">-- waehlen --</option>
               <option>Ctrl+S</option>
               <option>Ctrl+V</option>
               <option>Ctrl+Z</option>
@@ -563,7 +563,7 @@
           <label class="task-field">
             <span class="question-text">3. Alles markieren</span>
             <select data-answer="Ctrl+A">
-              <option value="">-- waehlen --</option>
+              <option value=">-- waehlen --</option>
               <option>Ctrl+P</option>
               <option>Ctrl+A</option>
               <option>Ctrl+F</option>
@@ -583,7 +583,7 @@
           <label class="task-field">
             <span class="question-text">4. Dokument speichern</span>
             <select data-answer="Ctrl+S">
-              <option value="">-- waehlen --</option>
+              <option value=">-- waehlen --</option>
               <option>Ctrl+S</option>
               <option>Ctrl+O</option>
               <option>Ctrl+Shift+S</option>
@@ -592,7 +592,7 @@
           <label class="task-field">
             <span class="question-text">5. Rueckgaengig</span>
             <select data-answer="Ctrl+Z">
-              <option value="">-- waehlen --</option>
+              <option value=">-- waehlen --</option>
               <option>Ctrl+Z</option>
               <option>Ctrl+Y</option>
               <option>Ctrl+R</option>
@@ -601,7 +601,7 @@
           <label class="task-field">
             <span class="question-text">6. Im Text suchen</span>
             <select data-answer="Ctrl+F">
-              <option value="">-- waehlen --</option>
+              <option value=">-- waehlen --</option>
               <option>Ctrl+F</option>
               <option>Ctrl+P</option>
               <option>Ctrl+Shift+F</option>
@@ -873,7 +873,7 @@
     showSection("1");
 
     const allCheckables = document.querySelectorAll("[data-answer], .dnd-target");
-    let draggedValue = "";
+    let draggedValue = ";
     document.querySelectorAll(".dnd-token").forEach(token => {
       token.addEventListener("dragstart", event => {
         draggedValue = token.dataset.value;
@@ -919,12 +919,7 @@
 
     const KNIGHT_POOL = [
       { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
-    const GACHA_CATEGORY_LABELS = {
-      weapon: "Waffe",
-      armor: "Ausruestung",
-      accessory: "Accessoire",
-      any: "Zufall"
-    };
+
       { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
       { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
       { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", description: "Blockt Fehler beim Tippen.", theme: "knight", category: "armor" },
@@ -933,6 +928,12 @@
       { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "cape", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
       { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" }
     ];
+    const GACHA_CATEGORY_LABELS = {
+      weapon: "Waffe",
+      armor: "Ausruestung",
+      accessory: "Accessoire",
+      any: "Zufall"
+    };
     const ITEM_ART = {
       sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></svg>',
       shield: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L26 7 v10 c0 9-10 13-10 13S6 26 6 17V7z" fill="rgba(14,165,233,0.25)" stroke="#38bdf8" stroke-width="1.8"></path><path d="M16 6 L23 9 v8 c0 6-7 9-7 9s-7-3-7-9V9z" fill="rgba(14,116,144,0.45)"></path></svg>',
@@ -1052,7 +1053,7 @@
         if (item.description || categoryLabel) {
           const desc = document.createElement("span");
           const baseText = item.description ? item.description : "Besonderes Item";
-          desc.textContent = categoryLabel ? `${baseText} · ${categoryLabel}` : baseText;
+          desc.textContent = categoryLabel ? `${baseText} - ${categoryLabel}` : baseText;
           text.appendChild(desc);
         }
         left.appendChild(icon);
@@ -1269,13 +1270,13 @@
         field.classList.remove("correct", "incorrect");
         if (wrap) wrap.classList.remove("correct", "incorrect");
         if (field.tagName === "SELECT") {
-          field.value = "";
+          field.value = ";
         } else if (field.tagName === "INPUT") {
-          field.value = "";
+          field.value = ";
         } else if (field.classList.contains("dnd-target")) {
           const slot = field.querySelector(".drop-slot");
           if (slot) {
-            slot.textContent = "";
+            slot.textContent = ";
             delete slot.dataset.value;
           }
         }
@@ -1363,10 +1364,14 @@
       if (!enemy) return;
       const dmg = Math.max(1, state.atk - enemy.def);
       const turns = Math.max(1, Math.ceil(enemy.hp / dmg));
-      let log = "Kampf gegen " + enemy.name + " (Lv" + level + ")\n";
-      log += "Deine ATK: " + state.atk + " | Deine DEF: " + state.def + "\n";
-      log += "Du verursachst " + dmg + " Schaden pro Runde.\n";
-      log += "Sieg nach " + turns + " Runde(n).\n";
+      let log = "Kampf gegen " + enemy.name + " (Lv" + level + ")
+";
+      log += "Deine ATK: " + state.atk + " | Deine DEF: " + state.def + "
+";
+      log += "Du verursachst " + dmg + " Schaden pro Runde.
+";
+      log += "Sieg nach " + turns + " Runde(n).
+";
       if (level === 2 && state.atk < 4) {
         log += "Tipp: Mehr Ausruestung hilft gegen den Turniermeister.";
       } else {
@@ -1383,4 +1388,7 @@
   </script>
 </body>
 </html>
+
+
+
 
