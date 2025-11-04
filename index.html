@@ -297,15 +297,33 @@
       background: var(--accent);
       color: #1f2937;
     }
-    .battle-btn {
-      width: 100%;
-      margin-top: 0.6rem;
-      padding: 0.6rem 1rem;
-      background: rgba(245,158,11,0.15);
-      border: 1px solid rgba(245,158,11,0.4);
-      color: var(--text);
+    .battle-card { position: relative; }
+    .battle-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.85rem;
     }
-    .battle-btn:first-of-type { margin-top: 0; }
+    .battle-btn {
+      flex: 1 1 150px;
+      padding: 0.6rem 1rem;
+      background: rgba(245,158,11,0.18);
+      border: 1px solid rgba(245,158,11,0.45);
+      color: var(--text);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
+    }
+    .battle-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(245,158,11,0.22);
+      border-color: rgba(245,158,11,0.7);
+    }
+    .battle-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+      border-color: rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.35);
+    }
     .gacha-msg { min-height: 1.2rem; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
     .gacha-options {
       display: flex;
@@ -343,6 +361,264 @@
       color: var(--muted);
       min-height: 4.5rem;
       white-space: pre-wrap;
+    }
+    .battle-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,10,22,0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 90;
+    }
+    .battle-modal.active { display: flex; }
+    .battle-window {
+      width: min(520px, 95%);
+      background: rgba(15,23,42,0.96);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      box-shadow: 0 22px 60px rgba(8,15,30,0.65);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .battle-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .battle-header h3 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .battle-close {
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.35);
+      color: var(--muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+    .battle-close:hover {
+      color: var(--text);
+      border-color: rgba(245,158,11,0.6);
+    }
+    .battle-arena {
+      position: relative;
+      height: 220px;
+      background: radial-gradient(circle at 50% 20%, rgba(248,250,252,0.09), transparent 65%);
+      border: 1px solid rgba(148,163,184,0.25);
+      border-radius: 0.9rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      overflow: hidden;
+    }
+    .battle-arena::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 80px;
+      background: linear-gradient(180deg, rgba(30,41,59,0.2), rgba(15,23,42,0.85));
+    }
+    .fighter {
+      position: relative;
+      width: 92px;
+      height: 92px;
+      border-radius: 0.6rem;
+      background: rgba(30,41,59,0.8);
+      border: 2px solid rgba(148,163,184,0.45);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 0.4rem;
+      overflow: visible;
+    }
+    .fighter::before {
+      content: "";
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      image-rendering: pixelated;
+    }
+    .fighter::after {
+      content: "";
+      position: absolute;
+      width: 32px;
+      height: 12px;
+      top: 34px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 4px;
+    }
+    .fighter.knight::before {
+      background: linear-gradient(180deg, #9ca3af 0%, #64748b 65%, #334155 100%);
+      border-radius: 6px;
+      box-shadow:
+        0 -16px 0 0 #cbd5f5 inset,
+        0 -30px 0 0 #475569 inset;
+    }
+    .fighter.knight::after {
+      background: linear-gradient(90deg, #0f172a 0 24%, #38bdf8 24% 76%, #0f172a 76% 100%);
+      box-shadow: 0 6px 0 0 #1f2937;
+    }
+    .fighter.enemy::before {
+      background: linear-gradient(180deg, #047857 0%, #065f46 58%, #064e3b 100%);
+      border-radius: 6px;
+      box-shadow:
+        0 -14px 0 0 #34d399 inset,
+        0 -28px 0 0 #0f766e inset;
+    }
+    .fighter.enemy::after {
+      background: linear-gradient(90deg, #111827 0 30%, #bef264 30% 70%, #111827 70% 100%);
+      border-radius: 3px;
+      box-shadow:
+        -12px 0 0 -4px rgba(255,255,255,0.08),
+        12px 0 0 -4px rgba(255,255,255,0.08);
+    }
+    .fighter.enemy.goblin-army::before {
+      background: linear-gradient(180deg, #059669 0%, #047857 55%, #065f46 100%);
+      box-shadow:
+        0 -14px 0 0 #6ee7b7 inset,
+        0 -28px 0 0 #047857 inset;
+    }
+    .fighter.enemy.goblin-king::before {
+      background: linear-gradient(180deg, #d97706 0 18%, #10b981 18% 62%, #047857 62% 100%);
+      box-shadow:
+        0 -18px 0 0 #fcd34d inset,
+        0 -34px 0 0 #047857 inset;
+    }
+    .fighter-name {
+      position: absolute;
+      bottom: -1.6rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+    .fighter.attacking-left { animation: attackLeft 0.5s ease-out; }
+    .fighter.attacking-right { animation: attackRight 0.5s ease-out; }
+    .fighter.hit { animation: hitFlash 0.42s ease-out; }
+    .battle-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .hp-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+    }
+    .hp-track {
+      flex: 1;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(148,163,184,0.35);
+      overflow: hidden;
+    }
+    .hp-fill {
+      height: 100%;
+      width: 100%;
+      transition: width 0.25s ease;
+    }
+    .hp-fill.hero {
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+    }
+    .hp-fill.enemy {
+      background: linear-gradient(90deg, #f97316, #ef4444);
+    }
+    .hp-value {
+      width: 74px;
+      text-align: right;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .battle-foot {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .battle-result {
+      margin: 0;
+      min-height: 1.4rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .battle-next {
+      align-self: flex-end;
+      padding: 0.55rem 1.1rem;
+      background: var(--accent);
+      color: #1f2937;
+      border-radius: 0.75rem;
+      border: none;
+      font-weight: 600;
+      box-shadow: 0 12px 28px rgba(245,158,11,0.28);
+    }
+    .battle-next.hidden { display: none; }
+    .damage-float {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      transform: translate(-50%, -10px);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f87171;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      animation: damageFloat 1s ease-out forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .damage-float.hero-hit {
+      color: #38bdf8;
+    }
+    .damage-float.enemy-hit {
+      color: #f87171;
+    }
+    .damage-float.crit {
+      color: #fde68a;
+      text-shadow: 0 0 12px rgba(250,204,21,0.9);
+    }
+    @keyframes damageFloat {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -10px) scale(0.85);
+      }
+      15% {
+        opacity: 1;
+        transform: translate(-50%, -24px) scale(1.05);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -80px) scale(1.1);
+      }
+    }
+    @keyframes attackLeft {
+      0% { transform: translateX(0); }
+      40% { transform: translateX(60px); }
+      60% { transform: translateX(60px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes attackRight {
+      0% { transform: translateX(0); }
+      40% { transform: translateX(-60px); }
+      60% { transform: translateX(-60px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes hitFlash {
+      0% { filter: brightness(1); transform: translateY(0); }
+      25% { filter: brightness(1.8); transform: translateY(-6px); }
+      100% { filter: brightness(1); transform: translateY(0); }
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     #coinAnimationLayer {
@@ -766,15 +1042,54 @@
           <button id="gachaBtn">Gacha ziehen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
         </div>
-        <div class="card">
-          <h2>Trainingskampf</h2>
-          <p class="small">Teste deine Staerke gegen Trainingsgegner.</p>
-          <button class="battle-btn" data-enemy="1">Sparring vs. Lv1 Uebungspuppe</button>
-          <button class="battle-btn" data-enemy="2">Duell vs. Lv2 Turniermeister</button>
-          <pre class="battle-log" id="battleLog">Noch kein Kampf gestartet.</pre>
+        <div class="card battle-card">
+          <h2>Goblin-Scharmuetzel</h2>
+          <p class="small">Fordere die Goblins heraus. Siege schalten das naechste Level frei.</p>
+          <div class="battle-buttons">
+            <button class="battle-btn" data-enemy="1">Lv1 Goblin</button>
+            <button class="battle-btn" data-enemy="2">Lv2 Goblin-Armee</button>
+            <button class="battle-btn" data-enemy="3">Lv3 Goblin-Koenig</button>
+          </div>
+          <pre class="battle-log" id="battleLog">Waehle einen Kampf um die Simulation zu starten.</pre>
         </div>
       </div>
     </section>
+  <div class="battle-modal" id="battleModal" aria-hidden="true">
+    <div class="battle-window" role="dialog" aria-modal="true" aria-labelledby="battleTitle">
+      <div class="battle-header">
+        <h3 id="battleTitle">Goblin-Schlacht</h3>
+        <button type="button" class="battle-close" id="battleCloseBtn" aria-label="Schliessen">&#x2715;</button>
+      </div>
+      <div class="battle-arena" id="battleArena">
+        <div class="fighter knight" id="battleKnight">
+          <div class="fighter-name">Ritter</div>
+        </div>
+        <div class="fighter enemy goblin" id="battleEnemy">
+          <div class="fighter-name" id="battleEnemyName">Goblin</div>
+        </div>
+      </div>
+      <div class="battle-bars">
+        <div class="hp-row">
+          <span>Ritter</span>
+          <div class="hp-track">
+            <div class="hp-fill hero" id="heroHpFill"></div>
+          </div>
+          <span class="hp-value" id="heroHpValue"></span>
+        </div>
+        <div class="hp-row">
+          <span id="enemyHpLabel">Gegner</span>
+          <div class="hp-track">
+            <div class="hp-fill enemy" id="enemyHpFill"></div>
+          </div>
+          <span class="hp-value" id="enemyHpValue"></span>
+        </div>
+      </div>
+      <div class="battle-foot">
+        <p class="battle-result" id="battleResult"></p>
+        <button type="button" class="battle-next hidden" id="battleNextBtn">Naechstes Level starten</button>
+      </div>
+    </div>
+  </div>
   <script>
     const STORAGE_KEY = "shortcutRitter_v1";
     const BASE_ATK = 1;
@@ -786,7 +1101,9 @@
       items: [],
       sectionClears: {},
       sectionResets: {},
-      gachaPreference: "weapon"
+      gachaPreference: "weapon",
+      battleUnlocked: 1,
+      battleClears: {}
     };
     function loadState() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -801,6 +1118,12 @@
       if (!Array.isArray(state.items)) state.items = [];
       if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
+      if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
+      if (typeof state.battleUnlocked !== "number" || !Number.isFinite(state.battleUnlocked)) {
+        state.battleUnlocked = 1;
+      } else {
+        state.battleUnlocked = Math.max(1, Math.floor(state.battleUnlocked));
+      }
     }
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -822,7 +1145,25 @@
     const gachaMsg = document.getElementById("gachaMsg");
     const gachaTypeInputs = document.querySelectorAll("input[name='gachaType']");
     const battleLog = document.getElementById("battleLog");
+    const battleModal = document.getElementById("battleModal");
+    const battleTitle = document.getElementById("battleTitle");
+    const battleCloseBtn = document.getElementById("battleCloseBtn");
+    const battleArena = document.getElementById("battleArena");
+    const battleKnight = document.getElementById("battleKnight");
+    const battleEnemy = document.getElementById("battleEnemy");
+    const battleEnemyName = document.getElementById("battleEnemyName");
+    const enemyHpLabel = document.getElementById("enemyHpLabel");
+    const heroHpFill = document.getElementById("heroHpFill");
+    const enemyHpFill = document.getElementById("enemyHpFill");
+    const heroHpValue = document.getElementById("heroHpValue");
+    const enemyHpValue = document.getElementById("enemyHpValue");
+    const battleResult = document.getElementById("battleResult");
+    const battleNextBtn = document.getElementById("battleNextBtn");
     const testAnimationBtn = document.getElementById("testAnimationBtn");
+    const battleButtons = Array.from(document.querySelectorAll(".battle-btn"));
+    battleButtons.forEach(btn => {
+      if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim();
+    });
 
     const learnView = document.getElementById("learnView");
     const gameView = document.getElementById("gameView");
@@ -1349,38 +1690,282 @@
       updateGachaOptionStyles();
     });
 
+    const ENEMY_VARIANTS = ["goblin", "goblin-army", "goblin-king"];
     const ENEMIES = {
-      1: { name: "Uebungspuppe", hp: 5, def: 0 },
-      2: { name: "Turniermeister", hp: 12, def: 2 }
+      1: { name: "Goblin", hp: 18, atk: 3, def: 0, variance: 1, crit: 0.08, variant: "goblin" },
+      2: { name: "Goblin-Armee", hp: 30, atk: 4, def: 1, variance: 2, crit: 0.1, variant: "goblin-army" },
+      3: { name: "Goblin-Koenig", hp: 44, atk: 5, def: 2, variance: 2, crit: 0.14, variant: "goblin-king" }
     };
-    document.querySelectorAll(".battle-btn").forEach(btn => {
+    let battleInProgress = false;
+
+    battleButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const lv = Number(btn.dataset.enemy || "0");
-        fightEnemy(lv);
+        if (!lv) return;
+        startBattle(lv);
       });
     });
-    function fightEnemy(level) {
-      const enemy = ENEMIES[level];
-      if (!enemy) return;
-      const dmg = Math.max(1, state.atk - enemy.def);
-      const turns = Math.max(1, Math.ceil(enemy.hp / dmg));
-      let log = "Kampf gegen " + enemy.name + " (Lv" + level + ")";
-      log += "Deine ATK: " + state.atk + " | Deine DEF: " + state.def + "";
-      log += "Du verursachst " + dmg + " Schaden pro Runde.";
-      log += "Sieg nach " + turns + " Runde(n).";
-      if (level === 2 && state.atk < 4) {
-        log += "Tipp: Mehr Ausruestung hilft gegen den Turniermeister.";
-      } else {
-        log += "Starker Sieg! Weiter so.";
+
+    if (battleCloseBtn) {
+      battleCloseBtn.addEventListener("click", () => {
+        closeBattleModal();
+      });
+    }
+    if (battleModal) {
+      battleModal.addEventListener("click", event => {
+        if (event.target === battleModal) {
+          closeBattleModal();
+        }
+      });
+    }
+    if (battleNextBtn) {
+      battleNextBtn.addEventListener("click", () => {
+        if (battleInProgress) return;
+        const targetLevel = Number(battleNextBtn.dataset.targetLevel || "0");
+        if (!targetLevel) return;
+        startBattle(targetLevel);
+      });
+    }
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && battleModal && battleModal.classList.contains("active")) {
+        closeBattleModal();
       }
-      battleLog.textContent = log;
+    });
+
+    async function startBattle(level) {
+      if (battleInProgress) return;
+      if (level > state.battleUnlocked) return;
+      const enemyBlueprint = ENEMIES[level];
+      if (!enemyBlueprint) return;
+      battleInProgress = true;
+      prepareBattleModal(enemyBlueprint, level);
+      const hero = createHeroState();
+      const enemy = createEnemyState(enemyBlueprint);
+      updateHpUi(hero, enemy);
+      battleLog.textContent = "Kampf gegen " + enemy.name + " (Lv" + level + ") gestartet.";
+      let heroWon = false;
+      try {
+        heroWon = await runBattleLoop(hero, enemy);
+      } finally {
+        battleInProgress = false;
+        if (battleCloseBtn) battleCloseBtn.disabled = false;
+      }
+      finishBattle(hero, enemy, level, heroWon);
+    }
+
+    function prepareBattleModal(enemy, level) {
+      if (!battleModal) return;
+      openBattleModal();
+      battleModal.setAttribute("aria-hidden", "false");
+      if (battleCloseBtn) battleCloseBtn.disabled = true;
+      if (battleResult) battleResult.textContent = "Der Kampf beginnt!";
+      if (battleNextBtn) {
+        battleNextBtn.classList.add("hidden");
+        battleNextBtn.removeAttribute("data-target-level");
+      }
+      if (battleTitle) battleTitle.textContent = "Kampf gegen " + enemy.name + " (Lv" + level + ")";
+      if (battleEnemyName) battleEnemyName.textContent = enemy.name;
+      if (enemyHpLabel) enemyHpLabel.textContent = enemy.name;
+      if (battleKnight) battleKnight.classList.remove("attacking-left", "attacking-right", "hit");
+      if (battleEnemy) {
+        battleEnemy.classList.remove("attacking-left", "attacking-right", "hit");
+        ENEMY_VARIANTS.forEach(variant => battleEnemy.classList.remove(variant));
+        if (enemy.variant) battleEnemy.classList.add(enemy.variant);
+      }
+      resetBattleArena();
+    }
+
+    function openBattleModal() {
+      if (!battleModal) return;
+      battleModal.classList.add("active");
+    }
+
+    function closeBattleModal() {
+      if (!battleModal) return;
+      if (battleInProgress) return;
+      battleModal.classList.remove("active");
+      battleModal.setAttribute("aria-hidden", "true");
+    }
+
+    function resetBattleArena() {
+      if (!battleArena) return;
+      battleArena.querySelectorAll(".damage-float").forEach(el => el.remove());
+    }
+
+    function createHeroState() {
+      const baseHp = 28 + (Math.max(0, state.def) * 6);
+      return {
+        name: "Ritter",
+        maxHp: baseHp,
+        hp: baseHp,
+        atk: Math.max(1, state.atk),
+        def: Math.max(0, state.def),
+        variance: Math.max(1, Math.floor(Math.max(1, state.atk) / 4)),
+        crit: 0.18
+      };
+    }
+
+    function createEnemyState(blueprint) {
+      return {
+        name: blueprint.name,
+        maxHp: blueprint.hp,
+        hp: blueprint.hp,
+        atk: blueprint.atk,
+        def: blueprint.def,
+        variance: blueprint.variance || 1,
+        crit: blueprint.crit || 0.1,
+        variant: blueprint.variant || "goblin"
+      };
+    }
+
+    async function runBattleLoop(hero, enemy) {
+      let attacker = hero;
+      let defender = enemy;
+      let attackerEl = battleKnight;
+      let defenderEl = battleEnemy;
+      while (hero.hp > 0 && enemy.hp > 0) {
+        const { amount, crit } = calculateDamage(attacker, defender);
+        playAttack(attackerEl, defenderEl);
+        applyDamage(defender, amount);
+        spawnDamageNumber(defenderEl, amount, defender === hero ? "hero" : "enemy", crit);
+        updateHpUi(hero, enemy);
+        await delay(680);
+        if (defender.hp <= 0) break;
+        [attacker, defender] = attacker === hero ? [enemy, hero] : [hero, enemy];
+        [attackerEl, defenderEl] = attackerEl === battleKnight ? [battleEnemy, battleKnight] : [battleKnight, battleEnemy];
+        await delay(220);
+      }
+      return enemy.hp <= 0;
+    }
+
+    function finishBattle(hero, enemy, level, heroWon) {
+      const remainingHeroHp = Math.max(0, Math.round(hero.hp));
+      if (heroWon) {
+        state.battleClears[level] = true;
+        const nextLevel = level + 1;
+        let unlockText = "";
+        if (ENEMIES[nextLevel]) {
+          if (state.battleUnlocked < nextLevel) {
+            state.battleUnlocked = nextLevel;
+            unlockText = " Naechstes Level freigeschaltet.";
+          }
+          if (battleNextBtn) {
+            battleNextBtn.dataset.targetLevel = String(nextLevel);
+            battleNextBtn.textContent = "Lv" + nextLevel + " " + ENEMIES[nextLevel].name + " starten";
+            battleNextBtn.classList.remove("hidden");
+          }
+        } else if (battleNextBtn) {
+          battleNextBtn.classList.add("hidden");
+          battleNextBtn.removeAttribute("data-target-level");
+        }
+        if (battleResult) battleResult.textContent = "Sieg! Der Ritter besiegt " + enemy.name + "." + unlockText;
+        battleLog.textContent = "Sieg gegen " + enemy.name + " (Lv" + level + "). Verbleibende HP: " + remainingHeroHp + ".";
+      } else {
+        if (battleResult) battleResult.textContent = "Niederlage gegen " + enemy.name + ". Versuche es erneut.";
+        battleLog.textContent = "Niederlage gegen " + enemy.name + " (Lv" + level + ").";
+        if (battleNextBtn) {
+          battleNextBtn.classList.add("hidden");
+          battleNextBtn.removeAttribute("data-target-level");
+        }
+      }
+      updateBattleButtons();
+      saveState();
+    }
+
+    function updateBattleButtons() {
+      if (!battleButtons || !battleButtons.length) return;
+      battleButtons.forEach(btn => {
+        const base = btn.dataset.label || btn.textContent;
+        const level = Number(btn.dataset.enemy || "0");
+        if (!level) return;
+        const locked = level > state.battleUnlocked;
+        const cleared = Boolean(state.battleClears && state.battleClears[level]);
+        let label = base;
+        if (locked) {
+          label += " (gesperrt)";
+        } else if (cleared) {
+          label += " (gewonnen)";
+        }
+        btn.textContent = label;
+        btn.disabled = locked;
+      });
+    }
+
+    function updateHpUi(hero, enemy) {
+      updateBar(heroHpFill, heroHpValue, hero.hp, hero.maxHp);
+      updateBar(enemyHpFill, enemyHpValue, enemy.hp, enemy.maxHp);
+    }
+
+    function updateBar(fillEl, valueEl, hp, max) {
+      if (!fillEl || !valueEl || !max) return;
+      const clampedHp = Math.max(0, Math.round(hp));
+      const clampedMax = Math.max(1, Math.round(max));
+      const pct = Math.max(0, Math.min(1, clampedHp / clampedMax));
+      fillEl.style.width = (pct * 100).toFixed(0) + "%";
+      valueEl.textContent = clampedHp + " / " + clampedMax;
+    }
+
+    function calculateDamage(attacker, defender) {
+      const variance = attacker.variance || 0;
+      const spread = variance ? (Math.floor(Math.random() * (variance * 2 + 1)) - variance) : 0;
+      let amount = attacker.atk + spread - defender.def;
+      let crit = false;
+      if (attacker.crit && Math.random() < attacker.crit) {
+        crit = true;
+        amount = Math.round(amount * 1.5) + 1;
+      }
+      amount = Math.max(1, amount);
+      return { amount, crit };
+    }
+
+    function applyDamage(target, amount) {
+      target.hp = Math.max(0, target.hp - amount);
+    }
+
+    function playAttack(attackerEl, defenderEl) {
+      if (!attackerEl || !defenderEl) return;
+      const attackClass = attackerEl === battleKnight ? "attacking-left" : "attacking-right";
+      attackerEl.classList.remove("attacking-left", "attacking-right");
+      defenderEl.classList.remove("hit");
+      void attackerEl.offsetWidth;
+      void defenderEl.offsetWidth;
+      attackerEl.classList.add(attackClass);
+      defenderEl.classList.add("hit");
+      setTimeout(() => attackerEl.classList.remove("attacking-left", "attacking-right"), 520);
+      setTimeout(() => defenderEl.classList.remove("hit"), 420);
+    }
+
+    function spawnDamageNumber(targetEl, amount, targetType, crit) {
+      if (!battleArena || !targetEl) return;
+      const float = document.createElement("div");
+      float.className = "damage-float";
+      float.classList.add(targetType === "hero" ? "hero-hit" : "enemy-hit");
+      if (crit) {
+        float.classList.add("crit");
+        float.textContent = "-" + amount + "!";
+      } else {
+        float.textContent = "-" + amount;
+      }
+      const arenaRect = battleArena.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const offsetX = (targetRect.left + targetRect.width / 2) - arenaRect.left + (Math.random() * 30 - 15);
+      const offsetY = (targetRect.top + targetRect.height / 2) - arenaRect.top - 10 + (Math.random() * 12 - 6);
+      float.style.left = `${offsetX}px`;
+      float.style.top = `${offsetY}px`;
+      battleArena.appendChild(float);
+      setTimeout(() => float.remove(), 950);
+    }
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     ensureKnightInventory();
+    updateBattleButtons();
     recalcStats();
     updateUI();
     updateOverallSummary();
-    battleLog.textContent = "Noch kein Kampf gestartet.";
+    battleLog.textContent = "Waehle einen Kampf um die Simulation zu starten.";
   </script>
 </body>
 </html>
