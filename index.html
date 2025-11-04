@@ -423,6 +423,20 @@
       min-height: 4.5rem;
       white-space: pre-wrap;
     }
+    .shop-latest {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .shop-latest h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    .shop-latest-empty {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
     .battle-modal {
       position: fixed;
       inset: 0;
@@ -1106,8 +1120,12 @@
               <span>Zufall</span>
             </label>
           </div>
-          <button id="gachaBtn">Gacha ziehen</button>
+          <button id="gachaBtn">Item kaufen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
+          <div class="shop-latest" id="shopLatest">
+            <h3>Neueste Belohnung</h3>
+            <p class="shop-latest-empty" id="shopLatestEmpty">Noch keine Belohnung gezogen.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -1208,6 +1226,8 @@
     const defDisplay = document.getElementById("defDisplay");
     const itemsDisplay = document.getElementById("itemsDisplay");
     const progressInfo = document.getElementById("progressInfo");
+    const shopLatest = document.getElementById("shopLatest");
+    const shopLatestEmpty = document.getElementById("shopLatestEmpty");
     const heroAvatar = document.getElementById("heroAvatar");
     const inventoryList = document.getElementById("inventoryList");
     const inventoryEmpty = document.getElementById("inventoryEmpty");
@@ -1236,6 +1256,15 @@
     battleButtons.forEach(btn => {
       if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim();
     });
+    if (inventoryList) {
+      inventoryList.addEventListener("click", event => {
+        const btn = event.target.closest(".item-upgrade");
+        if (!btn || btn.disabled) return;
+        const key = btn.dataset.itemKey;
+        if (!key) return;
+        triggerItemUpgrade(key);
+      });
+    }
 
     const learnView = document.getElementById("learnView");
     const inventoryView = document.getElementById("inventoryView");
@@ -1525,6 +1554,74 @@
     function getItemIcon(iconKey) {
       return ITEM_ART[iconKey] || ITEM_ART.default;
     }
+    function createInventoryRow(item, options = {}) {
+      const { showUpgrade = true } = options;
+      if (!item) return null;
+      updateItemDerivedStats(item);
+      const row = document.createElement("div");
+      row.className = `inventory-item tier-${item.tier}`;
+      row.dataset.itemKey = item.key || item.name;
+
+      const left = document.createElement("div");
+      left.className = "item-left";
+      const icon = document.createElement("div");
+      icon.className = "item-icon";
+      icon.innerHTML = getItemIcon(item.icon);
+      const text = document.createElement("div");
+      text.className = "item-text";
+      const nameEl = document.createElement("strong");
+      nameEl.textContent = item.name;
+      text.appendChild(nameEl);
+      const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "";
+      const descText = item.description ? item.description : (categoryLabel ? `Kategorie: ${categoryLabel}` : "");
+      if (descText) {
+        const desc = document.createElement("span");
+        desc.textContent = descText;
+        text.appendChild(desc);
+      }
+      const requirement = getNextTierRequirement(item);
+      const meta = document.createElement("span");
+      meta.className = "item-meta";
+      if (item.tier >= MAX_ITEM_TIER) {
+        meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Maximum erreicht`;
+      } else {
+        const progress = Math.min(item.totalCopies, requirement);
+        meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Fortschritt: ${progress}/${requirement}`;
+      }
+      text.appendChild(meta);
+      left.appendChild(icon);
+      left.appendChild(text);
+      row.appendChild(left);
+
+      const controls = document.createElement("div");
+      controls.className = "item-controls";
+      const stats = document.createElement("div");
+      stats.className = "item-stats";
+      if (Number(item.atk) > 0) {
+        const atkBadge = document.createElement("span");
+        atkBadge.className = "badge atk";
+        atkBadge.textContent = `ATK +${item.atk}`;
+        stats.appendChild(atkBadge);
+      }
+      if (Number(item.def) > 0) {
+        const defBadge = document.createElement("span");
+        defBadge.className = "badge def";
+        defBadge.textContent = `DEF +${item.def}`;
+        stats.appendChild(defBadge);
+      }
+      controls.appendChild(stats);
+      if (showUpgrade && item.tier < MAX_ITEM_TIER) {
+        const upgradeBtn = document.createElement("button");
+        const requirementText = requirement === Infinity ? "—" : requirement;
+        upgradeBtn.className = "item-upgrade";
+        upgradeBtn.dataset.itemKey = item.key || item.name;
+        upgradeBtn.textContent = `Upgrade Tier ${item.tier + 1} (${item.totalCopies}/${requirementText})`;
+        upgradeBtn.disabled = !canUpgradeItem(item);
+        controls.appendChild(upgradeBtn);
+      }
+      row.appendChild(controls);
+      return row;
+    }
     function renderInventory() {
       if (!inventoryList) return;
       inventoryList.innerHTML = "";
@@ -1539,76 +1636,26 @@
         return left - right;
       });
       sorted.forEach(item => {
-        const row = document.createElement("div");
-        updateItemDerivedStats(item);
-        row.className = `inventory-item tier-${item.tier}`;
-        row.dataset.itemKey = item.key || item.name;
-        const left = document.createElement("div");
-        left.className = "item-left";
-        const icon = document.createElement("div");
-        icon.className = "item-icon";
-        icon.innerHTML = getItemIcon(item.icon);
-        const text = document.createElement("div");
-        text.className = "item-text";
-        const nameEl = document.createElement("strong");
-        nameEl.textContent = item.name;
-        text.appendChild(nameEl);
-        const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "";
-        const descText = item.description ? item.description : (categoryLabel ? `Kategorie: ${categoryLabel}` : "");
-        if (descText) {
-          const desc = document.createElement("span");
-          desc.textContent = descText;
-          text.appendChild(desc);
-        }
-        const requirement = getNextTierRequirement(item);
-        const meta = document.createElement("span");
-        meta.className = "item-meta";
-        if (item.tier >= MAX_ITEM_TIER) {
-          meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Maximum erreicht`;
-        } else {
-          const progress = Math.min(item.totalCopies, requirement);
-          meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Fortschritt: ${progress}/${requirement}`;
-        }
-        text.appendChild(meta);
-        left.appendChild(icon);
-        left.appendChild(text);
-        row.appendChild(left);
-        const controls = document.createElement("div");
-        controls.className = "item-controls";
-        const stats = document.createElement("div");
-        stats.className = "item-stats";
-        if (Number(item.atk) > 0) {
-          const atkBadge = document.createElement("span");
-          atkBadge.className = "badge atk";
-          atkBadge.textContent = `ATK +${item.atk}`;
-          stats.appendChild(atkBadge);
-        }
-        if (Number(item.def) > 0) {
-          const defBadge = document.createElement("span");
-          defBadge.className = "badge def";
-          defBadge.textContent = `DEF +${item.def}`;
-          stats.appendChild(defBadge);
-        }
-        controls.appendChild(stats);
-        if (item.tier < MAX_ITEM_TIER) {
-          const upgradeBtn = document.createElement("button");
-          const requirementText = requirement === Infinity ? "—" : requirement;
-          upgradeBtn.className = "item-upgrade";
-          upgradeBtn.dataset.itemKey = item.key || item.name;
-          upgradeBtn.textContent = `Upgrade Tier ${item.tier + 1} (${item.totalCopies}/${requirementText})`;
-          upgradeBtn.disabled = !canUpgradeItem(item);
-          controls.appendChild(upgradeBtn);
-        }
-        row.appendChild(controls);
-        inventoryList.appendChild(row);
+        const row = createInventoryRow(item, { showUpgrade: true });
+        if (row) inventoryList.appendChild(row);
       });
-      inventoryList.querySelectorAll(".item-upgrade").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const key = btn.dataset.itemKey;
-          if (!key) return;
-          triggerItemUpgrade(key);
-        });
+    }
+    function renderShopLatest() {
+      if (!shopLatest) return;
+      shopLatest.querySelectorAll(".inventory-item").forEach(el => el.remove());
+      if (!state.items.length) {
+        if (shopLatestEmpty) shopLatestEmpty.style.display = "block";
+        return;
+      }
+      if (shopLatestEmpty) shopLatestEmpty.style.display = "none";
+      const sorted = [...state.items].sort((a, b) => {
+        const left = b.lastObtainedAt || b.createdAt || 0;
+        const right = a.lastObtainedAt || a.createdAt || 0;
+        return left - right;
       });
+      const newest = sorted[0];
+      const row = createInventoryRow(newest, { showUpgrade: false });
+      if (row) shopLatest.appendChild(row);
     }
     function sortInventoryByNewest() {
       state.items.sort((a, b) => (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0));
@@ -1749,6 +1796,7 @@
       if (progressInfo) progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
       updateHeroAvatar();
       renderInventory();
+      renderShopLatest();
     }
     function updateOverallSummary() {
       if (!overallSummary) return;
