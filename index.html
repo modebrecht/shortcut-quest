@@ -322,7 +322,7 @@
       flex-direction: column;
       align-items: center;
       transform: translate(-50%, -50%);
-      animation: coinCelebrationRise 1.25s ease-out forwards;
+      animation: coinCelebrationRise 2.25s ease-out forwards;
     }
     .coin-main {
       width: 120px;
@@ -334,7 +334,7 @@
       justify-content: center;
       box-shadow: 0 0 32px rgba(245,158,11,0.8), 0 0 70px rgba(245,158,11,0.4);
       border: 3px solid rgba(255,248,220,0.4);
-      animation: coinMainPulse 1.2s ease-out forwards;
+      animation: coinMainPulse 2.16s ease-out forwards;
       position: relative;
       overflow: hidden;
     }
@@ -345,13 +345,13 @@
       background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
       mix-blend-mode: screen;
       transform: translateX(-120%);
-      animation: coinShine 1.2s ease-out forwards;
+      animation: coinShine 2.16s ease-out forwards;
     }
     .coin-symbol {
       font-size: 48px;
       color: #1f2937;
       text-shadow: 0 4px 12px rgba(0,0,0,0.35);
-      animation: coinSymbolPop 1s ease-out forwards;
+      animation: coinSymbolPop 1.8s ease-out forwards;
     }
     .coin-amount {
       margin-top: 0.6rem;
@@ -360,7 +360,7 @@
       letter-spacing: 0.02em;
       color: #fef3c7;
       text-shadow: 0 0 10px rgba(245,158,11,0.8);
-      animation: coinAmountRise 1.15s ease-out forwards;
+      animation: coinAmountRise 2.1s ease-out forwards;
     }
     .coin-spark {
       --targetX: 0px;
@@ -375,7 +375,7 @@
       border: 2px solid rgba(255,255,255,0.55);
       box-shadow: 0 0 16px rgba(245,158,11,0.6);
       opacity: 0;
-      animation: coinSparkFly 1s ease-out forwards;
+      animation: coinSparkFly 1.8s ease-out forwards;
     }
     .coin-spark::after {
       content: "💰";
@@ -388,7 +388,7 @@
       color: #1f2937;
     }
     .coin-badge-boost {
-      animation: coinBadgePulse 1.1s ease-out;
+      animation: coinBadgePulse 2s ease-out;
     }
     @keyframes coinCelebrationRise {
       0% {
@@ -934,10 +934,12 @@
       });
     }
     let displayedCoins = state.coins;
+    let pendingCoinAnimation = null;
 
-    function spawnCoinAnimation(amount) {
-      if (!coinAnimationLayer || !coinTop) return;
-      const rect = coinTop.getBoundingClientRect();
+    function spawnCoinAnimation(amount, anchor) {
+      const anchorEl = anchor || coinTop;
+      if (!coinAnimationLayer || !anchorEl) return;
+      const rect = anchorEl.getBoundingClientRect();
       const celebration = document.createElement("div");
       celebration.className = "coin-celebration";
       celebration.style.left = `${rect.left + rect.width / 2}px`;
@@ -957,11 +959,11 @@
         const targetY = Math.sin(angle) * radius - 40;
         spark.style.setProperty("--targetX", `${targetX}px`);
         spark.style.setProperty("--targetY", `${targetY}px`);
-        spark.style.animationDelay = `${0.05 * i}s`;
+        spark.style.animationDelay = `${0.09 * i}s`;
         celebration.appendChild(spark);
       }
       coinAnimationLayer.appendChild(celebration);
-      setTimeout(() => celebration.remove(), 1300);
+      setTimeout(() => celebration.remove(), 2400);
       coinTop.classList.add("coin-badge-boost");
       coinTop.addEventListener("animationend", () => {
         coinTop.classList.remove("coin-badge-boost");
@@ -979,7 +981,9 @@
     function updateUI(extraText) {
       const diff = state.coins - displayedCoins;
       if (diff > 0) {
-        spawnCoinAnimation(diff);
+        const info = pendingCoinAnimation || { amount: diff, anchor: null };
+        spawnCoinAnimation(info.amount, info.anchor);
+        pendingCoinAnimation = null;
       }
       displayedCoins = state.coins;
       if (coinTop) coinTop.textContent = "Coins: " + state.coins;
@@ -1003,7 +1007,7 @@
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
       overallSummary.textContent = `${correctCount}/${total} Aufgaben aktuell richtig (${percent}%)`;
     }
-    function gradeSection(sectionId) {
+    function gradeSection(sectionId, triggerBtn) {
       const section = document.querySelector(`.section[data-section="${sectionId}"]`);
       if (!section) return;
       const fields = section.querySelectorAll("[data-answer], .dnd-target");
@@ -1054,6 +1058,7 @@
         state.sectionClears[sectionId] = clears + 1;
         if (reward > 0) {
           state.coins += reward;
+          pendingCoinAnimation = { amount: reward, anchor: triggerBtn || null };
           resultMsg += ` | +${reward} Coins`;
           infoMsg += ` | +${reward} Coins`;
         } else if (clears > 0) {
@@ -1098,7 +1103,7 @@
     }
     document.querySelectorAll(".check-section").forEach(btn => {
       btn.addEventListener("click", () => {
-        gradeSection(btn.dataset.checkSection);
+        gradeSection(btn.dataset.checkSection, btn);
       });
     });
     document.querySelectorAll(".reset-section").forEach(btn => {
@@ -1109,7 +1114,7 @@
 
     if (testAnimationBtn) {
       testAnimationBtn.addEventListener("click", () => {
-        spawnCoinAnimation(20);
+        spawnCoinAnimation(20, testAnimationBtn);
       });
     }
 
