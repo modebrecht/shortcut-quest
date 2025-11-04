@@ -996,6 +996,7 @@
       <div class="top-nav">
         <button class="nav-toggle active" data-view="learn">Training</button>
         <button class="nav-toggle" data-view="inventory">Inventar</button>
+        <button class="nav-toggle" data-view="skills">Skills</button>
         <button class="nav-toggle" data-view="shop">Shop</button>
         <button class="nav-toggle" data-view="battle">Battle</button>
       </div>
@@ -1218,11 +1219,18 @@
               <div id="inventoryList" class="inventory-list"></div>
               <div id="inventoryEmpty" class="inventory-empty">Ziehe Ausruestung im Gacha, um sie hier zu sehen.</div>
             </div>
-            <div class="skill-section">
-              <h3>Skills</h3>
-              <div id="skillList" class="skill-list"></div>
-              <div id="skillEmpty" class="skill-empty">Kaufe Skills im Shop, um sie hier zu sehen.</div>
-            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="skillsView" class="view">
+      <div class="game-grid">
+        <div class="card">
+          <h2>Skills</h2>
+          <p class="small">Uebersicht deiner freigeschalteten Skills. Kaufe weitere im Shop, um sie zu verbessern.</p>
+          <div class="skill-section">
+            <div id="skillList" class="skill-list"></div>
+            <div id="skillEmpty" class="skill-empty">Noch keine Skills vorhanden. Wechsle in den Shop, um welche zu kaufen.</div>
           </div>
         </div>
       </div>
@@ -1422,11 +1430,13 @@
 
     const learnView = document.getElementById("learnView");
     const inventoryView = document.getElementById("inventoryView");
+    const skillsView = document.getElementById("skillsView");
     const shopView = document.getElementById("shopView");
     const battleView = document.getElementById("battleView");
     const viewRegistry = {
       learn: learnView,
       inventory: inventoryView,
+      skills: skillsView,
       shop: shopView,
       battle: battleView
     };
