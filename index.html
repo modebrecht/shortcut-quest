@@ -309,6 +309,137 @@
       white-space: pre-wrap;
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #coinAnimationLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 120;
+    }
+    .coin-celebration {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translate(-50%, -50%);
+      animation: coinCelebrationRise 1.25s ease-out forwards;
+    }
+    .coin-main {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,241,179,0.95), rgba(245,158,11,0.95) 55%, rgba(161,98,7,0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 32px rgba(245,158,11,0.8), 0 0 70px rgba(245,158,11,0.4);
+      border: 3px solid rgba(255,248,220,0.4);
+      animation: coinMainPulse 1.2s ease-out forwards;
+      position: relative;
+      overflow: hidden;
+    }
+    .coin-main::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
+      mix-blend-mode: screen;
+      transform: translateX(-120%);
+      animation: coinShine 1.2s ease-out forwards;
+    }
+    .coin-symbol {
+      font-size: 48px;
+      color: #1f2937;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      animation: coinSymbolPop 1s ease-out forwards;
+    }
+    .coin-amount {
+      margin-top: 0.6rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #fef3c7;
+      text-shadow: 0 0 10px rgba(245,158,11,0.8);
+      animation: coinAmountRise 1.15s ease-out forwards;
+    }
+    .coin-spark {
+      --targetX: 0px;
+      --targetY: -120px;
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      left: 50%;
+      top: 45%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fef3c7, #f59e0b);
+      border: 2px solid rgba(255,255,255,0.55);
+      box-shadow: 0 0 16px rgba(245,158,11,0.6);
+      opacity: 0;
+      animation: coinSparkFly 1s ease-out forwards;
+    }
+    .coin-spark::after {
+      content: "💰";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #1f2937;
+    }
+    .coin-badge-boost {
+      animation: coinBadgePulse 1.1s ease-out;
+    }
+    @keyframes coinCelebrationRise {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -20%) scale(0.6);
+      }
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -60%) scale(1.02);
+      }
+      80% {
+        opacity: 1;
+        transform: translate(-50%, -120%) scale(0.98);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -160%) scale(0.9);
+      }
+    }
+    @keyframes coinMainPulse {
+      0% { transform: scale(0.4) rotate(-12deg); }
+      45% { transform: scale(1.1) rotate(6deg); }
+      80% { transform: scale(1); }
+      100% { transform: scale(0.92); }
+    }
+    @keyframes coinShine {
+      0% { transform: translateX(-120%); }
+      50% { transform: translateX(0%); }
+      100% { transform: translateX(120%); }
+    }
+    @keyframes coinSymbolPop {
+      0% { opacity: 0; transform: scale(0.4) rotate(-30deg); }
+      50% { opacity: 1; transform: scale(1.15) rotate(10deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    @keyframes coinAmountRise {
+      0% { opacity: 0; transform: translateY(24px); }
+      35% { opacity: 1; transform: translateY(-6px); }
+      100% { opacity: 0; transform: translateY(-40px); }
+    }
+    @keyframes coinSparkFly {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      25% { opacity: 1; }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--targetX)), calc(-50% + var(--targetY))) scale(0.15); }
+    }
+    @keyframes coinBadgePulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0.6); }
+      35% { transform: scale(1.2); box-shadow: 0 0 32px 10px rgba(245,158,11,0.35); }
+      70% { transform: scale(1.05); box-shadow: 0 0 12px 4px rgba(245,158,11,0.2); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
     @media (max-width: 720px) {
       header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
       .hero-avatar { width: 130px; height: 160px; }
@@ -328,6 +459,7 @@
       <span class="badge" id="coinTop">Coins: 0</span>
     </div>
   </header>
+  <div id="coinAnimationLayer"></div>
   <main>
     <section id="learnView" class="view active">
       <div class="card nav-card">
@@ -487,14 +619,15 @@
       <div class="game-grid">
         <div class="card" id="playerCard">
           <h2>Ritterlager</h2>
-          <div class="statline">
-            <span class="badge" id="coinDisplay">Coins: 0</span>
-            <span class="badge" id="atkDisplay">ATK 1</span>
-            <span class="badge" id="defDisplay">DEF 0</span>
-            <span class="badge" id="itemsDisplay">Gear: 0</span>
-          </div>
-          <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
-          <div class="hero-wrapper">
+        <div class="statline">
+          <span class="badge" id="coinDisplay">Coins: 0</span>
+          <span class="badge" id="atkDisplay">ATK 1</span>
+          <span class="badge" id="defDisplay">DEF 0</span>
+          <span class="badge" id="itemsDisplay">Gear: 0</span>
+        </div>
+        <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
+        <button id="testAnimationBtn" style="margin-top:0.6rem;padding:0.55rem 1.1rem;background:var(--accent);color:#1f2937;border:none;border-radius:0.7rem;font-weight:600;cursor:pointer;">Animation testen</button>
+        <div class="hero-wrapper">
             <div class="hero-avatar" id="heroAvatar" data-atk-tier="1" data-def-tier="1">
               <svg class="hero-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
@@ -589,9 +722,11 @@
     const inventoryList = document.getElementById("inventoryList");
     const inventoryEmpty = document.getElementById("inventoryEmpty");
     const overallSummary = document.getElementById("overallSummary");
+    const coinAnimationLayer = document.getElementById("coinAnimationLayer");
     const gachaBtn = document.getElementById("gachaBtn");
     const gachaMsg = document.getElementById("gachaMsg");
     const battleLog = document.getElementById("battleLog");
+    const testAnimationBtn = document.getElementById("testAnimationBtn");
 
     const learnView = document.getElementById("learnView");
     const gameView = document.getElementById("gameView");
@@ -798,6 +933,40 @@
         inventoryList.appendChild(row);
       });
     }
+    let displayedCoins = state.coins;
+
+    function spawnCoinAnimation(amount) {
+      if (!coinAnimationLayer || !coinTop) return;
+      const rect = coinTop.getBoundingClientRect();
+      const celebration = document.createElement("div");
+      celebration.className = "coin-celebration";
+      celebration.style.left = `${rect.left + rect.width / 2}px`;
+      celebration.style.top = `${rect.top + rect.height / 2}px`;
+      celebration.innerHTML = `
+        <div class="coin-main">
+          <div class="coin-symbol">💰</div>
+        </div>
+        <div class="coin-amount">+${amount} Coins</div>
+      `;
+      for (let i = 0; i < 5; i++) {
+        const spark = document.createElement("span");
+        spark.className = "coin-spark";
+        const angle = (Math.PI * 2 * (i / 5)) + (Math.random() * 0.6 - 0.3);
+        const radius = 140 + Math.random() * 45;
+        const targetX = Math.cos(angle) * radius;
+        const targetY = Math.sin(angle) * radius - 40;
+        spark.style.setProperty("--targetX", `${targetX}px`);
+        spark.style.setProperty("--targetY", `${targetY}px`);
+        spark.style.animationDelay = `${0.05 * i}s`;
+        celebration.appendChild(spark);
+      }
+      coinAnimationLayer.appendChild(celebration);
+      setTimeout(() => celebration.remove(), 1300);
+      coinTop.classList.add("coin-badge-boost");
+      coinTop.addEventListener("animationend", () => {
+        coinTop.classList.remove("coin-badge-boost");
+      }, { once: true });
+    }
     function updateHeroAvatar() {
       if (!heroAvatar) return;
       const atkBonus = Math.max(0, state.atk - BASE_ATK);
@@ -808,6 +977,11 @@
       heroAvatar.setAttribute("data-def-tier", String(defTier));
     }
     function updateUI(extraText) {
+      const diff = state.coins - displayedCoins;
+      if (diff > 0) {
+        spawnCoinAnimation(diff);
+      }
+      displayedCoins = state.coins;
       if (coinTop) coinTop.textContent = "Coins: " + state.coins;
       if (coinDisplay) coinDisplay.textContent = "Coins: " + state.coins;
       if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
@@ -932,6 +1106,12 @@
         resetSection(btn.dataset.resetSection);
       });
     });
+
+    if (testAnimationBtn) {
+      testAnimationBtn.addEventListener("click", () => {
+        spawnCoinAnimation(20);
+      });
+    }
 
     gachaBtn.addEventListener("click", () => {
       if (state.coins < 10) {
