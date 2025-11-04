@@ -265,6 +265,11 @@
       border-radius: 0.75rem;
       border: 1px solid var(--border);
       background: rgba(15,23,42,0.45);
+      transition: border 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .inventory-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(15,23,42,0.4);
     }
     .item-left {
       display: flex;
@@ -285,7 +290,63 @@
     .item-text { display: flex; flex-direction: column; gap: 0.2rem; }
     .item-text strong { font-size: 0.85rem; }
     .item-text span { font-size: 0.75rem; color: var(--muted); }
+    .item-meta { font-size: 0.75rem; color: rgba(226,232,240,0.85); }
     .item-stats { display: flex; gap: 0.4rem; }
+    .item-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .item-upgrade {
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(248,250,252,0.18);
+      background: rgba(248,250,252,0.08);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
+    }
+    .item-upgrade:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(59,130,246,0.25);
+      border-color: rgba(59,130,246,0.55);
+    }
+    .item-upgrade:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: rgba(148,163,184,0.25);
+    }
+    .inventory-item.tier-1 {
+      border-color: rgba(148,163,184,0.35);
+      background: linear-gradient(135deg, rgba(148,163,184,0.18), rgba(15,23,42,0.55));
+    }
+    .inventory-item.tier-2 {
+      border-color: rgba(74,222,128,0.55);
+      background: linear-gradient(135deg, rgba(34,197,94,0.28), rgba(15,23,42,0.55));
+    }
+    .inventory-item.tier-3 {
+      border-color: rgba(37,99,235,0.66);
+      background: linear-gradient(135deg, rgba(37,99,235,0.28), rgba(15,23,42,0.58));
+    }
+    .inventory-item.tier-4 {
+      border-color: rgba(192,132,252,0.65);
+      background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(15,23,42,0.6));
+    }
+    .inventory-item.tier-5 {
+      border-color: rgba(251,191,36,0.75);
+      background: linear-gradient(135deg, rgba(251,191,36,0.32), rgba(15,23,42,0.62));
+      box-shadow: 0 14px 38px rgba(251,191,36,0.28);
+    }
+    .inventory-item.tier-5 .item-upgrade {
+      display: none;
+    }
+    .inventory-item.tier-1 .item-icon { border-color: rgba(148,163,184,0.55); background: rgba(148,163,184,0.18); }
+    .inventory-item.tier-2 .item-icon { border-color: rgba(34,197,94,0.65); background: rgba(34,197,94,0.22); }
+    .inventory-item.tier-3 .item-icon { border-color: rgba(37,99,235,0.7); background: rgba(37,99,235,0.24); }
+    .inventory-item.tier-4 .item-icon { border-color: rgba(192,132,252,0.75); background: rgba(192,132,252,0.25); }
+    .inventory-item.tier-5 .item-icon { border-color: rgba(251,191,36,0.8); background: rgba(251,191,36,0.3); }
     .badge.atk { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.45); color: #fecaca; }
     .badge.def { background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.45); color: #bfdbfe; }
     .inventory-empty { font-size: 0.8rem; color: var(--muted); }
@@ -1094,6 +1155,7 @@
     const STORAGE_KEY = "shortcutRitter_v1";
     const BASE_ATK = 1;
     const BASE_DEF = 0;
+    const MAX_ITEM_TIER = 5;
     const state = {
       coins: 0,
       atk: BASE_ATK,
@@ -1269,6 +1331,12 @@
       { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "cape", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
       { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" }
     ];
+    const KNIGHT_BY_KEY = Object.create(null);
+    const KNIGHT_BY_NAME = Object.create(null);
+    KNIGHT_POOL.forEach(entry => {
+      KNIGHT_BY_KEY[entry.key] = entry;
+      KNIGHT_BY_NAME[entry.name] = entry;
+    });
     const GACHA_CATEGORY_LABELS = {
       weapon: "Waffe",
       armor: "Ausruestung",
@@ -1284,82 +1352,137 @@
       default: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="6" width="14" height="18" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.4"></rect><circle cx="16" cy="12" r="3" fill="#e2e8f0"></circle><path d="M12 22 h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></svg>'
     };
     function cloneItem(template) {
+      const now = Date.now();
       return {
-        id: `${template.key}-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
+        id: `${template.key}-${now}-${Math.random().toString(16).slice(2, 6)}`,
+        key: template.key,
         name: template.name,
+        baseAtk: template.atk,
+        baseDef: template.def,
         atk: template.atk,
         def: template.def,
         icon: template.icon,
         description: template.description,
         theme: template.theme || "knight",
-        category: template.category || "accessory"
+        category: template.category || "accessory",
+        tier: 1,
+        totalCopies: 1,
+        createdAt: now,
+        lastObtainedAt: now
       };
     }
+    function copiesRequiredForTier(tier) {
+      if (tier <= 1) return 1;
+      return Math.pow(2, tier - 1);
+    }
+    function maxTierFromCopies(copies) {
+      const safeCopies = Math.max(1, Math.floor(copies || 1));
+      return Math.min(MAX_ITEM_TIER, Math.floor(Math.log2(safeCopies)) + 1);
+    }
+    function updateItemDerivedStats(item) {
+      if (!item) return item;
+      const safeTier = Math.max(1, Math.min(MAX_ITEM_TIER, Math.floor(item.tier || 1)));
+      const safeCopies = Math.max(1, Math.floor(item.totalCopies || 1));
+      const baseAtk = Number(item.baseAtk ?? item.atk ?? 0);
+      const baseDef = Number(item.baseDef ?? item.def ?? 0);
+      const maxTier = maxTierFromCopies(safeCopies);
+      const tier = Math.min(safeTier, maxTier);
+      item.tier = tier;
+      item.totalCopies = safeCopies;
+      item.baseAtk = baseAtk;
+      item.baseDef = baseDef;
+      item.atk = baseAtk * tier;
+      item.def = baseDef * tier;
+      if (!item.createdAt) item.createdAt = Date.now();
+      if (!item.lastObtainedAt) item.lastObtainedAt = item.createdAt;
+      return item;
+    }
+    function getNextTierRequirement(item) {
+      if (!item) return Infinity;
+      if (item.tier >= MAX_ITEM_TIER) return Infinity;
+      return copiesRequiredForTier(item.tier + 1);
+    }
+    function canUpgradeItem(item) {
+      if (!item) return false;
+      if (item.tier >= MAX_ITEM_TIER) return false;
+      const requirement = getNextTierRequirement(item);
+      return item.totalCopies >= requirement;
+    }
     function upgradeLegacyItem(item, index) {
+      const now = Date.now();
       if (!item || typeof item !== "object") {
         return cloneItem(KNIGHT_POOL[index % KNIGHT_POOL.length]);
       }
-      if (item.theme === "knight") {
-        if (!item.id) {
-          item.id = `knight-${index}-${Date.now()}`;
-        }
-        if (!item.category) {
-          const atk = Number(item.atk || 0);
-          const def = Number(item.def || 0);
-          if (atk > def) {
-            item.category = "weapon";
-          } else if (def > atk) {
-            item.category = "armor";
-          } else {
-            item.category = "accessory";
-          }
-        }
-        if (!item.icon) {
-          item.icon = item.category === "weapon" ? "sword" : item.category === "armor" ? "shield" : "talisman";
-        }
-        return item;
-      }
-      const atk = Math.max(0, Number(item.atk || 0));
-      const def = Math.max(0, Number(item.def || 0));
-      let icon = "sword";
-      let name = "Trainingsklinge";
-      let category = "weapon";
-      if (def > atk) {
-        icon = "shield";
-        name = "Trainingsschild";
-        category = "armor";
-      } else if (def === atk && def > 0) {
-        icon = "helm";
-        name = "Trainingshelm";
-        category = "armor";
-      } else if (atk === 0 && def === 0) {
-        icon = "talisman";
-        name = "Trainingstalisman";
-        category = "accessory";
-      }
-      return {
-        id: `legacy-${index}-${Date.now()}`,
+      const template = item.key ? KNIGHT_BY_KEY[item.key] : (KNIGHT_BY_NAME[item.name] || null);
+      const key = (template && template.key) || item.key || `legacy-${index}`;
+      const baseAtk = Number(item.baseAtk ?? item.atk ?? (template ? template.atk : 0) ?? 0);
+      const baseDef = Number(item.baseDef ?? item.def ?? (template ? template.def : 0) ?? 0);
+      const tier = Math.max(1, Math.min(MAX_ITEM_TIER, Number(item.tier || 1)));
+      const copiesSource = Number(item.totalCopies || item.copies || 0);
+      const totalCopies = copiesSource > 0 ? copiesSource : 1;
+      const createdAt = Number(item.createdAt || item.obtainedAt || now);
+      const lastObtainedAt = Number(item.lastObtainedAt || item.updatedAt || createdAt);
+      const name = item.name || (template ? template.name : `Relikt ${index + 1}`);
+      const description = item.description || (template ? template.description : "Umgeschmiedet aus frueheren Belohnungen.");
+      const category = item.category || (template ? template.category : "weapon");
+      const icon = item.icon || (template ? template.icon : (category === "armor" ? "shield" : category === "accessory" ? "talisman" : "sword"));
+      const theme = item.theme || (template ? template.theme : "knight");
+      const normalized = {
+        id: item.id || `${key}-${createdAt}-${Math.random().toString(16).slice(2, 6)}`,
+        key,
         name,
-        atk,
-        def,
+        baseAtk,
+        baseDef,
+        atk: baseAtk * tier,
+        def: baseDef * tier,
         icon,
-        description: "Umgeschmiedet aus frueheren Belohnungen.",
-        theme: "knight",
-        category
+        description,
+        theme,
+        category,
+        tier,
+        totalCopies,
+        createdAt,
+        lastObtainedAt
       };
+      return normalized;
     }
     function ensureKnightInventory() {
       if (!Array.isArray(state.items)) {
         state.items = [];
         return;
       }
-      state.items = state.items.map((item, index) => upgradeLegacyItem(item, index));
+      const upgraded = state.items.map((item, index) => upgradeLegacyItem(item, index));
+      const merged = new Map();
+      upgraded.forEach(item => {
+        if (!item) return;
+        const key = item.key || item.name || item.id;
+        if (!merged.has(key)) {
+          merged.set(key, { ...item });
+        } else {
+          const existing = merged.get(key);
+          const existingCopies = Math.max(1, Math.floor(existing.totalCopies || 1));
+          const incomingCopies = Math.max(1, Math.floor(item.totalCopies || 1));
+          existing.totalCopies = existingCopies + incomingCopies;
+          existing.lastObtainedAt = Math.max(
+            Number(existing.lastObtainedAt || existing.createdAt || 0),
+            Number(item.lastObtainedAt || item.createdAt || Date.now())
+          );
+          existing.createdAt = Math.min(
+            Number(existing.createdAt || existing.lastObtainedAt || Date.now()),
+            Number(item.createdAt || item.lastObtainedAt || Date.now())
+          );
+          existing.tier = Math.max(Number(existing.tier || 1), Number(item.tier || 1));
+        }
+      });
+      state.items = Array.from(merged.values()).map(updateItemDerivedStats);
+      sortInventoryByNewest();
     }
     function recalcStats() {
       let atk = BASE_ATK;
       let def = BASE_DEF;
       state.items.forEach(item => {
         if (!item) return;
+        updateItemDerivedStats(item);
         atk += Number(item.atk || 0);
         def += Number(item.def || 0);
       });
@@ -1377,9 +1500,16 @@
         return;
       }
       if (inventoryEmpty) inventoryEmpty.style.display = "none";
-      state.items.forEach(item => {
+      const sorted = [...state.items].sort((a, b) => {
+        const left = b.lastObtainedAt || b.createdAt || 0;
+        const right = a.lastObtainedAt || a.createdAt || 0;
+        return left - right;
+      });
+      sorted.forEach(item => {
         const row = document.createElement("div");
-        row.className = "inventory-item";
+        updateItemDerivedStats(item);
+        row.className = `inventory-item tier-${item.tier}`;
+        row.dataset.itemKey = item.key || item.name;
         const left = document.createElement("div");
         left.className = "item-left";
         const icon = document.createElement("div");
@@ -1390,16 +1520,28 @@
         const nameEl = document.createElement("strong");
         nameEl.textContent = item.name;
         text.appendChild(nameEl);
-        const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category;
-        if (item.description || categoryLabel) {
+        const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "";
+        const descText = item.description ? item.description : (categoryLabel ? `Kategorie: ${categoryLabel}` : "");
+        if (descText) {
           const desc = document.createElement("span");
-          const baseText = item.description ? item.description : "Besonderes Item";
-          desc.textContent = categoryLabel ? `${baseText} - ${categoryLabel}` : baseText;
+          desc.textContent = descText;
           text.appendChild(desc);
         }
+        const requirement = getNextTierRequirement(item);
+        const meta = document.createElement("span");
+        meta.className = "item-meta";
+        if (item.tier >= MAX_ITEM_TIER) {
+          meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Maximum erreicht`;
+        } else {
+          const progress = Math.min(item.totalCopies, requirement);
+          meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Fortschritt: ${progress}/${requirement}`;
+        }
+        text.appendChild(meta);
         left.appendChild(icon);
         left.appendChild(text);
         row.appendChild(left);
+        const controls = document.createElement("div");
+        controls.className = "item-controls";
         const stats = document.createElement("div");
         stats.className = "item-stats";
         if (Number(item.atk) > 0) {
@@ -1414,9 +1556,58 @@
           defBadge.textContent = `DEF +${item.def}`;
           stats.appendChild(defBadge);
         }
-        row.appendChild(stats);
+        controls.appendChild(stats);
+        if (item.tier < MAX_ITEM_TIER) {
+          const upgradeBtn = document.createElement("button");
+          const requirementText = requirement === Infinity ? "—" : requirement;
+          upgradeBtn.className = "item-upgrade";
+          upgradeBtn.dataset.itemKey = item.key || item.name;
+          upgradeBtn.textContent = `Upgrade Tier ${item.tier + 1} (${item.totalCopies}/${requirementText})`;
+          upgradeBtn.disabled = !canUpgradeItem(item);
+          controls.appendChild(upgradeBtn);
+        }
+        row.appendChild(controls);
         inventoryList.appendChild(row);
       });
+      inventoryList.querySelectorAll(".item-upgrade").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const key = btn.dataset.itemKey;
+          if (!key) return;
+          triggerItemUpgrade(key);
+        });
+      });
+    }
+    function sortInventoryByNewest() {
+      state.items.sort((a, b) => (b.lastObtainedAt || b.createdAt || 0) - (a.lastObtainedAt || a.createdAt || 0));
+    }
+    function triggerItemUpgrade(key) {
+      const item = state.items.find(entry => (entry.key || entry.name) === key);
+      if (!item || !canUpgradeItem(item)) return;
+      item.tier = Math.min(MAX_ITEM_TIER, item.tier + 1);
+      item.lastUpgradeAt = Date.now();
+      updateItemDerivedStats(item);
+      recalcStats();
+      saveState();
+      sortInventoryByNewest();
+      updateUI(`${item.name} erreicht Tier ${item.tier}.`);
+    }
+    function addItemToInventory(template) {
+      const now = Date.now();
+      const key = template.key;
+      const existing = state.items.find(entry => entry.key === key);
+      if (existing) {
+        existing.totalCopies = Math.max(1, Math.floor(existing.totalCopies || 1)) + 1;
+        existing.lastObtainedAt = now;
+        updateItemDerivedStats(existing);
+        sortInventoryByNewest();
+        return { item: existing, isNew: false };
+      }
+      const fresh = cloneItem(template);
+      fresh.createdAt = now;
+      fresh.lastObtainedAt = now;
+      state.items.push(fresh);
+      sortInventoryByNewest();
+      return { item: fresh, isNew: true };
     }
     function updateGachaOptionStyles() {
       if (!gachaTypeInputs) return;
@@ -1518,7 +1709,10 @@
       if (coinDisplay) coinDisplay.textContent = "Coins: " + state.coins;
       if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
       if (defDisplay) defDisplay.textContent = "DEF " + state.def;
-      if (itemsDisplay) itemsDisplay.textContent = "Gear: " + state.items.length;
+      if (itemsDisplay) {
+        const totalCopies = state.items.reduce((sum, item) => sum + Math.max(1, Math.floor(item.totalCopies || 1)), 0);
+        itemsDisplay.textContent = "Gear: " + totalCopies + " (Unique: " + state.items.length + ")";
+      }
       if (progressInfo) progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
       updateHeroAvatar();
       renderInventory();
@@ -1680,11 +1874,20 @@
         if (filtered.length) pool = filtered;
       }
       const blueprint = pool[Math.floor(Math.random() * pool.length)];
-      const item = cloneItem(blueprint);
-      state.items.push(item);
+      const { item, isNew } = addItemToInventory(blueprint);
       recalcStats();
       const categoryLabel = GACHA_CATEGORY_LABELS[item.category] || item.category || "Item";
-      gachaMsg.textContent = "Neu: " + item.name + " [" + categoryLabel + "] (ATK +" + item.atk + ", DEF +" + item.def + ") -20 Coins";
+      let message = "";
+      if (isNew) {
+        message = "Neu: " + item.name + " [" + categoryLabel + "] Tier " + item.tier + " (ATK +" + item.baseAtk + ", DEF +" + item.baseDef + ") -20 Coins";
+      } else if (item.tier >= MAX_ITEM_TIER) {
+        message = item.name + " erweitert! x" + item.totalCopies + " Kopien | Tier " + item.tier + " (Max) -20 Coins";
+      } else {
+        const requirement = getNextTierRequirement(item);
+        const progress = Math.min(item.totalCopies, requirement);
+        message = item.name + " +1 Kopie (Tier " + item.tier + ") | Fortschritt " + progress + "/" + requirement + " fuer Tier " + (item.tier + 1) + " -20 Coins";
+      }
+      gachaMsg.textContent = message;
       updateUI("Gacha gezogen: " + item.name);
       saveState();
       updateGachaOptionStyles();
