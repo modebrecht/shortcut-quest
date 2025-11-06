@@ -1720,6 +1720,163 @@
     const BASE_ATK = 1;
     const BASE_DEF = 0;
     const MAX_ITEM_TIER = 5;
+    const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
+    const FALLBACK_SKILL_HOTKEYS = [
+      { label: "Arbeitsbereich markieren", keys: ["Control", "Alt", "A"] },
+      { label: "Teamchat öffnen", keys: ["Control", "Alt", "C"] },
+      { label: "Dashboard anzeigen", keys: ["Control", "Alt", "D"] },
+      { label: "Explorer einblenden", keys: ["Control", "Alt", "E"] }
+    ];
+    const skillHotkeyPool = [];
+    const activeSkillKeys = new Set();
+    const activeSkillComboLatch = new Set();
+    const VALID_MODIFIER_KEYS = new Map([
+      ["control", "CTRL"],
+      ["ctrl", "CTRL"],
+      ["alt", "ALT"],
+      ["altgraph", "ALT"],
+      ["shift", "SHIFT"],
+      ["meta", "WIN"],
+      ["win", "WIN"],
+      ["escape", "ESC"],
+      ["esc", "ESC"]
+    ]);
+
+    function normalizeHotkeyToken(token) {
+      if (!token) return null;
+      const trimmed = String(token).trim();
+      if (!trimmed) return null;
+      const lower = trimmed.toLowerCase();
+      if (VALID_MODIFIER_KEYS.has(lower)) return VALID_MODIFIER_KEYS.get(lower);
+      if (lower.length === 1 && /[a-z]/.test(lower)) {
+        return lower.toUpperCase();
+      }
+      return null;
+    }
+
+    function formatHotkeyForDisplay(sequence) {
+      return sequence.map(part => {
+        switch (part) {
+          case "CTRL": return "Ctrl";
+          case "ALT": return "Alt";
+          case "SHIFT": return "Shift";
+          case "WIN": return "Win";
+          case "ESC": return "Esc";
+          default: return part.toUpperCase();
+        }
+      }).join(" + ");
+    }
+
+    function applySkillHotkeyConfig(entries) {
+      skillHotkeyPool.length = 0;
+      if (!Array.isArray(entries)) return;
+      entries.forEach(entry => {
+        if (!entry || !Array.isArray(entry.keys)) return;
+        const rawTokens = entry.keys;
+        const normalizedTokens = [];
+        rawTokens.forEach(token => {
+          const normalized = normalizeHotkeyToken(token);
+          if (normalized && !normalizedTokens.includes(normalized)) {
+            normalizedTokens.push(normalized);
+          }
+        });
+        if (!normalizedTokens.length) return;
+        const hasModifier = normalizedTokens.some(token => token.length > 1 || ["CTRL", "ALT", "SHIFT", "WIN", "ESC"].includes(token));
+        if (!hasModifier && normalizedTokens.length === 1) return;
+        const comboId = [...normalizedTokens].sort().join("+");
+        const label = typeof entry.label === "string" && entry.label.trim() ? entry.label.trim() : normalizedTokens.join(" + ");
+        skillHotkeyPool.push({
+          label,
+          sequence: normalizedTokens,
+          comboId,
+          display: formatHotkeyForDisplay(normalizedTokens),
+          comboSet: new Set(normalizedTokens)
+        });
+      });
+    }
+
+    function getRandomSkillCombo(bannedComboIds = null) {
+      if (!skillHotkeyPool.length) return null;
+      let available = skillHotkeyPool;
+      if (bannedComboIds && bannedComboIds.size) {
+        available = skillHotkeyPool.filter(combo => !bannedComboIds.has(combo.comboId));
+      }
+      if (!available.length) available = skillHotkeyPool;
+      const index = Math.floor(Math.random() * available.length);
+      return available[Math.max(0, Math.min(index, available.length - 1))];
+    }
+
+    function assignRandomCombo(entry, usedComboIds = null, previousComboId = null) {
+      const banned = new Set();
+      if (previousComboId) banned.add(previousComboId);
+      if (usedComboIds && usedComboIds.size) {
+        usedComboIds.forEach(id => banned.add(id));
+      }
+      const combo = getRandomSkillCombo(banned);
+      if (!combo) {
+        entry.mode = "legacy";
+        entry.displayLabel = `${entry.skill.name} (Tier ${entry.skill.tier})`;
+        entry.hotkeyDisplay = "?";
+        entry.comboSet = new Set();
+        entry.comboId = null;
+        return;
+      }
+      entry.mode = "combo";
+      entry.displayLabel = combo.label;
+      entry.hotkeyDisplay = combo.display;
+      entry.comboId = combo.comboId;
+      entry.comboSet = new Set(combo.comboSet);
+      entry.comboSequence = combo.sequence.slice();
+    }
+
+    function normalizeEventKey(key) {
+      if (!key) return null;
+      const lower = key.toLowerCase();
+      if (VALID_MODIFIER_KEYS.has(lower)) return VALID_MODIFIER_KEYS.get(lower);
+      if (lower.length === 1 && /[a-z0-9]/.test(lower)) {
+        return lower.toUpperCase();
+      }
+      return null;
+    }
+
+    function setsEqual(setA, setB) {
+      if (setA.size !== setB.size) return false;
+      for (const value of setA) {
+        if (!setB.has(value)) return false;
+      }
+      return true;
+    }
+
+    function resetSkillKeyTracking() {
+      activeSkillKeys.clear();
+      activeSkillComboLatch.clear();
+    }
+
+    async function loadSkillHotkeys() {
+      applySkillHotkeyConfig(FALLBACK_SKILL_HOTKEYS);
+      try {
+        const response = await fetch("skill-hotkeys.json", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json();
+        applySkillHotkeyConfig(data);
+        if (DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length && battleSkillStates.length) {
+          const used = new Set();
+          battleSkillStates.forEach(entry => {
+            if (entry && entry.skill) {
+              assignRandomCombo(entry, used);
+              if (entry.comboId) used.add(entry.comboId);
+            }
+          });
+          resetSkillKeyTracking();
+          renderBattleSkillBar();
+        }
+      } catch (err) {
+        console.warn("Skill-Hotkeys konnten nicht geladen werden, verwende Standardzuordnung.", err);
+      }
+    }
+
+    loadSkillHotkeys();
+
     const state = {
       coins: 0,
       atk: BASE_ATK,
@@ -2896,12 +3053,26 @@
 
     function setupBattleSkills(hero, enemy) {
       const owned = getOwnedBattleSkills().slice(0, 9);
-      battleSkillStates = owned.map((skill, index) => ({
-        key: skill.key,
-        skill,
-        hotkey: index + 1,
-        used: false
-      }));
+      const combosActive = DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length;
+      const usedCombos = new Set();
+      battleSkillStates = owned.map((skill, index) => {
+        const entry = {
+          key: skill.key,
+          skill,
+          used: false
+        };
+        if (combosActive) {
+          assignRandomCombo(entry, usedCombos);
+          if (entry.comboId) usedCombos.add(entry.comboId);
+        } else {
+          entry.mode = "legacy";
+          entry.displayLabel = `${skill.name} (Tier ${skill.tier})`;
+          entry.hotkeyDisplay = String(index + 1);
+          entry.legacyKey = index + 1;
+        }
+        return entry;
+      });
+      resetSkillKeyTracking();
       currentBattleContext = { hero, enemy };
       renderBattleSkillBar();
     }
@@ -2912,7 +3083,11 @@
       if (!battleSkillStates.length) {
         const info = document.createElement("span");
         info.className = "battle-skill-desc";
-        info.textContent = state.skills.length ? "Skills bereit - starte einen Kampf und nutze 1-9." : "Noch keine Skills freigeschaltet.";
+        const combosActive = DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length > 0;
+        const message = state.skills.length
+          ? (combosActive ? "Skills bereit - nutze die angezeigten Hotkeys." : "Skills bereit - starte einen Kampf und nutze 1-9.")
+          : "Noch keine Skills freigeschaltet.";
+        info.textContent = message;
         battleSkillBar.appendChild(info);
         return;
       }
@@ -2924,34 +3099,37 @@
         button.disabled = entry.used || !battleInProgress || !currentBattleContext;
         const hotkeyBadge = document.createElement("span");
         hotkeyBadge.className = "battle-skill-hotkey";
-        hotkeyBadge.textContent = entry.hotkey;
+        hotkeyBadge.textContent = entry.hotkeyDisplay;
         const label = document.createElement("span");
-        label.textContent = `${entry.skill.name} (Tier ${entry.skill.tier})`;
+        label.textContent = entry.displayLabel;
         button.appendChild(hotkeyBadge);
         button.appendChild(label);
         button.addEventListener("click", () => {
-          useBattleSkill(entry.hotkey);
+          activateBattleSkill(entry);
         });
         card.appendChild(button);
         const effectValue = entry.skill.basePower + entry.skill.powerPerTier * (entry.skill.tier - 1);
         const desc = document.createElement("span");
         desc.className = "battle-skill-desc";
+        let effectText = "";
         switch (entry.skill.effect) {
           case "damage":
-            desc.textContent = `Fuegt sofort ${effectValue} Schaden zu.`;
+            effectText = `Fügt sofort ${effectValue} Schaden zu.`;
             break;
           case "heal":
-            desc.textContent = `Heilt ${effectValue} HP.`;
+            effectText = `Heilt ${effectValue} HP.`;
             break;
           case "buff_atk":
-            desc.textContent = `Erhoeht ATK um ${effectValue} fuer den Kampf.`;
+            effectText = `Erhöht ATK um ${effectValue} für den Kampf.`;
             break;
           case "debuff_enemy":
-            desc.textContent = `Senkt Gegner-ATK um ${effectValue}.`;
+            effectText = `Senkt Gegner-ATK um ${effectValue}.`;
             break;
           default:
-            desc.textContent = entry.skill.description || "Aktivierter Skill.";
+            effectText = entry.skill.description || "Aktivierter Skill.";
         }
+        const detailLabel = `${entry.skill.name} (Tier ${entry.skill.tier})`;
+        desc.textContent = effectText ? `${detailLabel} – ${effectText}` : detailLabel;
         card.appendChild(desc);
         battleSkillBar.appendChild(card);
       });
@@ -2960,12 +3138,12 @@
     function clearBattleSkills() {
       battleSkillStates = [];
       currentBattleContext = null;
+      resetSkillKeyTracking();
       renderBattleSkillBar();
     }
 
-    function useBattleSkill(hotkey) {
+    function activateBattleSkill(entry) {
       if (!battleInProgress || !currentBattleContext) return;
-      const entry = battleSkillStates.find(state => state.hotkey === hotkey);
       if (!entry || entry.used) return;
       const { hero, enemy } = currentBattleContext;
       const power = Math.max(1, Math.round(entry.skill.basePower + entry.skill.powerPerTier * (entry.skill.tier - 1)));
@@ -3011,20 +3189,90 @@
           break;
         }
       }
-      entry.used = true;
+      if (entry.mode === "combo") {
+        const usedByOthers = new Set();
+        battleSkillStates.forEach(other => {
+          if (other !== entry && other.mode === "combo" && other.comboId) {
+            usedByOthers.add(other.comboId);
+          }
+        });
+        assignRandomCombo(entry, usedByOthers, entry.comboId);
+        entry.used = false;
+        resetSkillKeyTracking();
+      } else {
+        entry.used = true;
+      }
       renderBattleSkillBar();
       if (battleResult) battleResult.textContent = resultText;
     }
 
-    function handleBattleHotkeys(event) {
+    function useBattleSkillByLegacyKey(key) {
+      const entry = battleSkillStates.find(state => state.mode === "legacy" && state.legacyKey === key && !state.used);
+      if (entry) {
+        activateBattleSkill(entry);
+        return true;
+      }
+      return false;
+    }
+
+    function tryActivateSkillCombos(event) {
+      if (!battleSkillStates.length) return false;
+      let triggered = false;
+      battleSkillStates.forEach(entry => {
+        if (entry.mode !== "combo" || entry.used) return;
+        if (activeSkillComboLatch.has(entry.comboId)) return;
+        if (!setsEqual(activeSkillKeys, entry.comboSet)) return;
+        event.preventDefault();
+        if (typeof event.stopPropagation === "function") event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+        activeSkillComboLatch.add(entry.comboId);
+        activateBattleSkill(entry);
+        triggered = true;
+      });
+      return triggered;
+    }
+
+    function handleBattleKeyDown(event) {
       if (!battleModal || !battleModal.classList.contains("active")) return;
       if (!currentBattleContext) return;
+      const normalized = normalizeEventKey(event.key);
+      if (!normalized) return;
+      if (normalized === "ALT") {
+        event.preventDefault();
+      }
+      activeSkillKeys.add(normalized);
       if (event.repeat) return;
-      const keyNum = Number(event.key);
-      if (!Number.isInteger(keyNum) || keyNum < 1 || keyNum > 9) return;
-      event.preventDefault();
-      useBattleSkill(keyNum);
+      if (normalized.length === 1 && /[0-9]/.test(normalized)) {
+        const keyNum = Number(normalized);
+        if (keyNum >= 1 && keyNum <= 9 && useBattleSkillByLegacyKey(keyNum)) {
+          event.preventDefault();
+          return;
+        }
+      }
+      tryActivateSkillCombos(event);
     }
+
+    function handleBattleKeyUp(event) {
+      const normalized = normalizeEventKey(event.key);
+      if (!normalized) return;
+      activeSkillKeys.delete(normalized);
+      if (!activeSkillComboLatch.size) return;
+      const release = [];
+      activeSkillComboLatch.forEach(comboId => {
+        const entry = battleSkillStates.find(state => state.mode === "combo" && state.comboId === comboId);
+        if (!entry) {
+          release.push(comboId);
+          return;
+        }
+        const stillPressed = Array.from(entry.comboSet).every(token => activeSkillKeys.has(token));
+        if (!stillPressed) release.push(comboId);
+      });
+      release.forEach(id => activeSkillComboLatch.delete(id));
+    }
+
+    document.addEventListener("keydown", handleBattleKeyDown);
+    document.addEventListener("keyup", handleBattleKeyUp);
+    window.addEventListener("blur", resetSkillKeyTracking);
 
     if (battleCloseBtn) {
       battleCloseBtn.addEventListener("click", () => {
@@ -3051,8 +3299,6 @@
         closeBattleModal();
       }
     });
-    document.addEventListener("keydown", handleBattleHotkeys);
-
     async function startBattle(level) {
       if (battleInProgress) return;
       if (level > state.battleUnlocked) return;
