@@ -404,7 +404,6 @@
     .inventory-item.tier-5 .item-icon { border-color: rgba(251,191,36,0.8); background: rgba(251,191,36,0.3); }
     .badge.atk { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.45); color: #fecaca; }
     .badge.def { background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.45); color: #bfdbfe; }
-    .inventory-empty { font-size: 0.8rem; color: var(--muted); }
     .game-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
     .game-grid .card { flex: 1 1 280px; }
     .statline { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -1243,21 +1242,21 @@
       </div>
       <div class="section active" data-section="1">
         <div class="card">
-          <h2>1. Grundschlaege</h2>
-          <p class="small">Waehle das passende Tastenkuerzel fuer die Aktion.</p>
+          <h2>1. Grundlagen</h2>
+          <p class="small">Wähle das passende Tastenkuerzel fuer die Aktion.</p>
           <label class="task-field">
             <span class="question-text">1. Kopieren</span>
             <select data-answer="Ctrl+C">
-              <option value=">-- waehlen --</option>
+              <option value="">-- wählen --</option>
               <option>Ctrl+X</option>
               <option>Ctrl+C</option>
               <option>Ctrl+V</option>
             </select>
           </label>
           <label class="task-field">
-            <span class="question-text">2. Einfuegen</span>
+            <span class="question-text">2. Einfügen</span>
             <select data-answer="Ctrl+V">
-              <option value=">-- waehlen --</option>
+              <option value="">-- wählen --</option>
               <option>Ctrl+S</option>
               <option>Ctrl+V</option>
               <option>Ctrl+Z</option>
@@ -1266,7 +1265,7 @@
           <label class="task-field">
             <span class="question-text">3. Alles markieren</span>
             <select data-answer="Ctrl+A">
-              <option value=">-- waehlen --</option>
+              <option value="">-- wählen --</option>
               <option>Ctrl+P</option>
               <option>Ctrl+A</option>
               <option>Ctrl+F</option>
@@ -1274,8 +1273,8 @@
           </label>
         </div>
         <div class="card action-card">
-          <button class="check-section" data-check-section="1">Abschnitt pruefen</button>
-          <button class="reset-section" data-reset-section="1">Zuruecksetzen</button>
+          <button class="check-section" data-check-section="1">Abschnitt prüfen</button>
+          <button class="reset-section" data-reset-section="1">Zurücksetzen</button>
           <p class="small result-text" id="result-1"></p>
         </div>
       </div>
@@ -1286,7 +1285,7 @@
           <label class="task-field">
             <span class="question-text">4. Dokument speichern</span>
             <select data-answer="Ctrl+S">
-              <option value=">-- waehlen --</option>
+              <option value=">-- wählen --</option>
               <option>Ctrl+S</option>
               <option>Ctrl+O</option>
               <option>Ctrl+Shift+S</option>
@@ -1295,7 +1294,7 @@
           <label class="task-field">
             <span class="question-text">5. Rueckgaengig</span>
             <select data-answer="Ctrl+Z">
-              <option value=">-- waehlen --</option>
+              <option value=">-- wählen --</option>
               <option>Ctrl+Z</option>
               <option>Ctrl+Y</option>
               <option>Ctrl+R</option>
@@ -1304,7 +1303,7 @@
           <label class="task-field">
             <span class="question-text">6. Im Text suchen</span>
             <select data-answer="Ctrl+F">
-              <option value=">-- waehlen --</option>
+              <option value=">-- wählen --</option>
               <option>Ctrl+F</option>
               <option>Ctrl+P</option>
               <option>Ctrl+Shift+F</option>
@@ -1439,9 +1438,8 @@
               </svg>
             </div>
             <div class="inventory">
-              <h3>Ruestungskammer</h3>
               <div id="inventoryList" class="inventory-list"></div>
-              <div id="inventoryEmpty" class="inventory-empty">Ziehe Ausrüstung im Gacha, um sie hier zu sehen.</div>
+              <div id="inventoryEmpty" class="skill-empty">Noch keine Ausrüstung vorhanden. Besuche den Shop, um neue Items zu kaufen.</div>
             </div>
           </div>
         </div>
@@ -1609,10 +1607,8 @@
       calcMode="spline" />
   </g>
 </svg>
-
             </div>
             <div class="skill-compendium">
-              <h3>Skill-Kodex</h3>
               <div id="skillList" class="skill-list"></div>
               <div id="skillEmpty" class="skill-empty">Noch keine Skills vorhanden. Wechsle in den Shop, um welche zu kaufen.</div>
             </div>
@@ -1776,7 +1772,6 @@
     const shopLatestEmpty = document.getElementById("shopLatestEmpty");
     const heroAvatar = document.getElementById("heroAvatar");
     const inventoryList = document.getElementById("inventoryList");
-    const inventoryEmpty = document.getElementById("inventoryEmpty");
     const skillList = document.getElementById("skillList");
     const skillEmpty = document.getElementById("skillEmpty");
     const skillCountDisplay = document.getElementById("skillCountDisplay");
@@ -2389,11 +2384,10 @@
     function renderInventory() {
       if (!inventoryList) return;
       inventoryList.innerHTML = "";
-      if (!state.items.length) {
-        if (inventoryEmpty) inventoryEmpty.style.display = "block";
-        return;
-      }
-      if (inventoryEmpty) inventoryEmpty.style.display = "none";
+      const hasItems = Boolean(state.items.length);
+      const emptyNotice = document.getElementById("inventoryEmpty");
+      if (emptyNotice) emptyNotice.style.display = hasItems ? "none" : "block";
+      if (!hasItems) return;
       const sorted = [...state.items].sort((a, b) => {
         const left = b.lastObtainedAt || b.createdAt || 0;
         const right = a.lastObtainedAt || a.createdAt || 0;
