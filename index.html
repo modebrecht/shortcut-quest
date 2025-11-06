@@ -442,55 +442,86 @@
     }
     .gacha-msg { min-height: 1.2rem; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
     .gacha-options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-    .shop-mode {
-      display: flex;
-      gap: 0.5rem;
-      margin: 0.75rem 0;
-    }
-    .shop-mode-option {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 0.75rem;
-      border: 1px solid rgba(148,163,184,0.35);
-      background: rgba(15,23,42,0.35);
-      cursor: pointer;
-      font-size: 0.82rem;
-      color: var(--text);
-      transition: border 0.2s ease, background 0.2s ease, transform 0.2s ease;
-    }
-    .shop-mode-option input { display: none; }
-    .shop-mode-option.active {
-      border-color: rgba(59,130,246,0.55);
-      background: rgba(59,130,246,0.18);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(59,130,246,0.2);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.9rem;
+      margin-top: 1rem;
     }
     .gacha-option {
-      display: inline-flex;
+      position: relative;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: 0.75rem;
+      gap: 0.75rem;
+      padding: 1.2rem 1rem;
+      border-radius: 1rem;
       border: 1px solid rgba(148,163,184,0.35);
-      background: rgba(15,23,42,0.35);
+      background: rgba(148,163,184,0.12);
       cursor: pointer;
-      font-size: 0.85rem;
       color: var(--text);
-      transition: border 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      transition: all 0.2s ease;
+      text-align: center;
+      min-height: 150px;
     }
     .gacha-option input { display: none; }
+    .gacha-option .gacha-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: rgba(15,23,42,0.45);
+    }
+    .gacha-option .gacha-icon svg {
+      width: 40px;
+      height: 40px;
+      color: var(--accent);
+    }
+    .gacha-option .gacha-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
     .gacha-option.active {
       border-color: rgba(245,158,11,0.6);
       background: rgba(245,158,11,0.18);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(245,158,11,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(245,158,11,0.18);
+    }
+    .shop-buy-btn {
+      width: 100%;
+      margin-top: 1.2rem;
+      padding: 1rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.9), rgba(248,196,69,0.95));
+      color: #1f2937;
+      font-weight: 700;
+      border: 1px solid rgba(245,158,11,0.9);
+      box-shadow: 0 14px 28px rgba(245,158,11,0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .shop-buy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(245,158,11,0.4);
+    }
+    .shop-buy-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 20px rgba(245,158,11,0.3);
+    }
+    @media (max-width: 640px) {
+      .gacha-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .gacha-option {
+        min-height: 130px;
+        padding: 1rem 0.8rem;
+      }
+      .gacha-option .gacha-label {
+        font-size: 0.9rem;
+      }
     }
     .battle-log {
       margin-top: 0.75rem;
@@ -1410,7 +1441,7 @@
             <div class="inventory">
               <h3>Ruestungskammer</h3>
               <div id="inventoryList" class="inventory-list"></div>
-              <div id="inventoryEmpty" class="inventory-empty">Ziehe Ausruestung im Gacha, um sie hier zu sehen.</div>
+              <div id="inventoryEmpty" class="inventory-empty">Ziehe Ausrüstung im Gacha, um sie hier zu sehen.</div>
             </div>
           </div>
         </div>
@@ -1593,36 +1624,46 @@
       <div class="game-grid">
         <div class="card">
           <h2>Shop</h2>
-          <p class="small">Waehle die Kategorie deiner Belohnung, jede Ziehung kostet 20 Coins.</p>
-          <div class="shop-mode" role="radiogroup" aria-label="Shop Modus">
-            <label class="shop-mode-option active">
-              <input type="radio" name="shopMode" value="item" checked>
-              <span>Items</span>
-            </label>
-            <label class="shop-mode-option">
-              <input type="radio" name="shopMode" value="skill">
-              <span>Skills</span>
-            </label>
-          </div>
-          <div class="gacha-options" role="radiogroup" aria-label="Gacha Kategorie">
+          <p class="small">Wähle deine Belohnungskategorie, jeder Einkauf kostet 20 Coins.</p>
+          <div class="gacha-options" role="radiogroup" aria-label="Shop Kategorie">
             <label class="gacha-option active">
               <input type="radio" name="gachaType" value="weapon" checked>
-              <span>Waffe</span>
+              <span class="gacha-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path fill="currentColor" d="M19.2 4.8l-1-1-6.4 6.4-1.6-1.6-1.4 1.4 1.6 1.6-6.6 6.6V22h2.8l6.6-6.6 1.6 1.6 1.4-1.4-1.6-1.6 6.4-6.4-1-1-2.4 2.4-1.4-1.4 2.4-2.4z"/>
+                </svg>
+              </span>
+              <span class="gacha-label">Waffe</span>
             </label>
             <label class="gacha-option">
               <input type="radio" name="gachaType" value="armor">
-              <span>Ausruestung</span>
+              <span class="gacha-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path fill="currentColor" d="M12 3l7 2.8v5.4c0 4.9-3.3 9.5-7 10.3-3.7-0.8-7-5.4-7-10.3V5.8L12 3z"/>
+                </svg>
+              </span>
+              <span class="gacha-label">Ausrüstung</span>
             </label>
             <label class="gacha-option">
               <input type="radio" name="gachaType" value="accessory">
-              <span>Accessoire</span>
+              <span class="gacha-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path fill="currentColor" d="M12 2l5 5-5 15-5-15 5-5zm0 4.2L9.2 8.1 12 16l2.8-7.9L12 6.2z"/>
+                </svg>
+              </span>
+              <span class="gacha-label">Accessoire</span>
             </label>
             <label class="gacha-option">
-              <input type="radio" name="gachaType" value="any">
-              <span>Zufall</span>
+              <input type="radio" name="gachaType" value="skill">
+              <span class="gacha-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path fill="currentColor" d="M12 2l2 5.6 5.7 0.5-4.4 3.5 1.7 5.4L12 14.8l-5 3.2 1.7-5.4-4.4-3.5 5.7-0.5L12 2z"/>
+                </svg>
+              </span>
+              <span class="gacha-label">Skill</span>
             </label>
           </div>
-          <button id="gachaBtn">Gacha ziehen</button>
+          <button id="gachaBtn" class="shop-buy-btn">Item kaufen</button>
           <p class="gacha-msg" id="gachaMsg"></p>
           <div class="shop-latest" id="shopLatest">
             <h3>Neueste Belohnung</h3>
@@ -1692,7 +1733,6 @@
       sectionClears: {},
       sectionResets: {},
       gachaPreference: "weapon",
-      shopMode: "item",
       battleUnlocked: 1,
       battleClears: {},
       lastShopPurchase: null
@@ -1716,9 +1756,6 @@
         state.battleUnlocked = 1;
       } else {
         state.battleUnlocked = Math.max(1, Math.floor(state.battleUnlocked));
-      }
-      if (state.shopMode !== "item" && state.shopMode !== "skill") {
-        state.shopMode = "item";
       }
       if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
         state.lastShopPurchase = null;
@@ -1748,7 +1785,6 @@
     const gachaBtn = document.getElementById("gachaBtn");
     const gachaMsg = document.getElementById("gachaMsg");
     const gachaTypeInputs = document.querySelectorAll("input[name='gachaType']");
-    const shopModeInputs = document.querySelectorAll("input[name='shopMode']");
     const battleLog = document.getElementById("battleLog");
     const battleModal = document.getElementById("battleModal");
     const battleTitle = document.getElementById("battleTitle");
@@ -1864,19 +1900,6 @@
     }
 
     applyGachaPreference(state.gachaPreference);
-    if (shopModeInputs && shopModeInputs.length) {
-      shopModeInputs.forEach(input => {
-        input.addEventListener("change", () => {
-          if (!input.checked) return;
-          state.shopMode = input.value;
-          updateShopModeStyles();
-          updateShopButtonLabel();
-          saveState();
-        });
-      });
-    }
-    applyShopMode(state.shopMode);
-
     const sections = document.querySelectorAll(".section");
     const sectionTabs = document.querySelectorAll(".section-tab");
     function showSection(id) {
@@ -1968,9 +1991,10 @@
     });
     const GACHA_CATEGORY_LABELS = {
       weapon: "Waffe",
-      armor: "Ausruestung",
+      armor: "Ausrüstung",
       accessory: "Accessoire",
-      any: "Zufall"
+      any: "Zufall",
+      skill: "Skill"
     };
     const ITEM_ART = {
       sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></svg>',
@@ -2535,50 +2559,6 @@
       }
       updateGachaOptionStyles();
     }
-    function updateShopModeStyles() {
-      if (!shopModeInputs) return;
-      shopModeInputs.forEach(input => {
-        const wrapper = input.closest(".shop-mode-option");
-        if (wrapper) wrapper.classList.toggle("active", input.checked);
-      });
-    }
-    function applyShopMode(mode) {
-      if (!shopModeInputs || !shopModeInputs.length) {
-        state.shopMode = mode || state.shopMode || "item";
-        updateShopButtonLabel();
-        return;
-      }
-      const target = mode || state.shopMode || "item";
-      let found = false;
-      shopModeInputs.forEach((input, idx) => {
-        const match = input.value === target;
-        input.checked = match;
-        if (match) found = true;
-        if (!found && idx === shopModeInputs.length - 1 && !match) {
-          input.checked = false;
-        }
-      });
-      if (!found) {
-        shopModeInputs[0].checked = true;
-        state.shopMode = shopModeInputs[0].value;
-      } else {
-        state.shopMode = target;
-      }
-      updateShopModeStyles();
-      updateShopButtonLabel();
-    }
-    function getSelectedShopMode() {
-      if (!shopModeInputs || !shopModeInputs.length) {
-        return state.shopMode || "item";
-      }
-      const selected = Array.from(shopModeInputs).find(input => input.checked);
-      return selected ? selected.value : state.shopMode || "item";
-    }
-    function updateShopButtonLabel() {
-      if (!gachaBtn) return;
-      const mode = getSelectedShopMode();
-      gachaBtn.textContent = mode === "skill" ? "Skill kaufen" : "Item kaufen";
-    }
     function getSelectedGachaType() {
       if (!gachaTypeInputs || !gachaTypeInputs.length) {
         return state.gachaPreference || "weapon";
@@ -2662,8 +2642,6 @@
       renderSkills();
       renderShopLatest();
       renderBattleSkillBar();
-      updateShopModeStyles();
-      updateShopButtonLabel();
     }
     function updateOverallSummary() {
       if (!overallSummary) return;
@@ -2813,12 +2791,11 @@
         return;
       }
       state.coins -= cost;
-      const shopMode = getSelectedShopMode();
       const type = getSelectedGachaType();
       state.gachaPreference = type;
       pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
       let message = "";
-      if (shopMode === "skill") {
+      if (type === "skill") {
         const blueprint = SKILL_POOL[Math.floor(Math.random() * SKILL_POOL.length)];
         const { skill, isNew } = addSkillToCollection(blueprint);
         state.lastShopPurchase = { type: "skill", key: skill.key, timestamp: Date.now() };
@@ -2834,7 +2811,7 @@
         updateUI("Skill erhalten: " + skill.name);
       } else {
         let pool = KNIGHT_POOL;
-        if (type && type !== "any") {
+        if (type && type !== "any" && type !== "skill") {
           const filtered = KNIGHT_POOL.filter(item => item.category === type);
           if (filtered.length) pool = filtered;
         }
@@ -2857,7 +2834,6 @@
       gachaMsg.textContent = message;
       saveState();
       updateGachaOptionStyles();
-      updateShopModeStyles();
     });
 
     const ENEMY_VARIANTS = ["goblin", "goblin-army", "goblin-king"];
