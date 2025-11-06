@@ -46,7 +46,18 @@
       letter-spacing: 0.02em;
     }
     .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header-right { display: flex; align-items: center; gap: 0.6rem; }
     .top-nav { display: flex; gap: 0.5rem; }
+    .mobile-nav-toggle {
+      display: none;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: rgba(148,163,184,0.16);
+      color: var(--text);
+      font-size: 0.85rem;
+    }
     .nav-toggle {
       padding: 0.35rem 0.9rem;
       border-radius: 0.75rem;
@@ -154,6 +165,45 @@
       border-radius: 0.75rem;
       border: none;
       font-weight: 600;
+    }
+    @media (max-width: 720px) {
+      header {
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        padding: 0.9rem 1rem;
+      }
+      .header-left {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.4rem 1rem;
+      }
+      .header-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .header-right .badge {
+        width: 100%;
+        justify-content: center;
+      }
+      .mobile-nav-toggle {
+        display: inline-flex;
+      }
+      .top-nav {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid rgba(148,163,184,0.16);
+      }
+      .top-nav.open {
+        display: flex;
+      }
+      .nav-toggle {
+        width: 100%;
+        text-align: left;
+      }
     }
     .action-card {
       display: flex;
@@ -1135,7 +1185,8 @@
   <header>
     <div class="header-left">
       <span class="title">Shortcut Ritter-Akademie</span>
-      <div class="top-nav">
+      <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-expanded="false" aria-controls="topNav">Menue</button>
+      <div class="top-nav" id="topNav">
         <button class="nav-toggle active" data-view="learn">Training</button>
         <button class="nav-toggle" data-view="inventory">Inventar</button>
         <button class="nav-toggle" data-view="skills">Skills</button>
@@ -1745,6 +1796,29 @@
       battle: battleView
     };
     const navToggles = document.querySelectorAll(".nav-toggle");
+    const topNav = document.querySelector(".top-nav");
+    const mobileNavToggle = document.getElementById("mobileNavToggle");
+
+    function closeMobileNav() {
+      if (!mobileNavToggle || !topNav) return;
+      topNav.classList.remove("open");
+      mobileNavToggle.setAttribute("aria-expanded", "false");
+    }
+
+    if (mobileNavToggle && topNav) {
+      mobileNavToggle.addEventListener("click", () => {
+        const expanded = mobileNavToggle.getAttribute("aria-expanded") === "true";
+        const next = !expanded;
+        mobileNavToggle.setAttribute("aria-expanded", String(next));
+        topNav.classList.toggle("open", next);
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 720) {
+          closeMobileNav();
+        }
+      });
+    }
+
     function setActiveView(viewKey) {
       Object.values(viewRegistry).forEach(section => {
         if (section) section.classList.remove("active");
@@ -1766,6 +1840,9 @@
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
         activateView(view);
+        if (typeof window !== "undefined" && window.innerWidth <= 720) {
+          closeMobileNav();
+        }
       });
     });
     const defaultNav = Array.from(navToggles).find(btn => btn.classList.contains("active"));
