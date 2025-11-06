@@ -2448,6 +2448,10 @@
           }
         }
       }
+      if (!record) {
+        if (shopLatestEmpty) shopLatestEmpty.style.display = "block";
+        return;
+      }
       let row = null;
       if (record.type === "item") {
         const item = state.items.find(entry => entry.key === record.key);
