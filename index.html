@@ -464,6 +464,35 @@
       flex-direction: column;
       gap: 0.6rem;
     }
+    .inventory-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.6rem;
+    }
+    .primary-btn {
+      padding: 0.55rem 1.1rem;
+      background: var(--accent);
+      color: #1f2937;
+      border: none;
+      border-radius: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(245,158,11,0.25);
+    }
+    .primary-btn.secondary {
+      background: rgba(148,163,184,0.18);
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,0.35);
+    }
+    .primary-btn.secondary:hover {
+      box-shadow: 0 10px 22px rgba(148,163,184,0.18);
+      border-color: rgba(245,158,11,0.5);
+    }
     .inventory h3 { margin: 0; font-size: 1rem; }
     .inventory-list {
       display: flex;
@@ -1580,13 +1609,16 @@
         <div class="card" id="playerCard">
           <h2>Inventar</h2>
         <div class="statline">
-          <span class="badge" id="coinDisplay">Coins: 0</span>
           <span class="badge" id="atkDisplay">ATK 1</span>
           <span class="badge" id="defDisplay">DEF 0</span>
-          <span class="badge" id="itemsDisplay">Gear: 0</span>
+          <span class="badge" id="hpDisplay">HP 0</span>
+          <span class="badge" id="itemsDisplay">Gear: 0/0</span>
         </div>
         <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
-        <button id="testAnimationBtn" style="margin-top:0.6rem;padding:0.55rem 1.1rem;background:var(--accent);color:#1f2937;border:none;border-radius:0.7rem;font-weight:600;cursor:pointer;">Animation testen</button>
+        <div class="inventory-actions">
+          <button id="testAnimationBtn" class="primary-btn">Animation testen</button>
+          <button id="autoEquipBtn" class="primary-btn secondary">Auto anlegen</button>
+        </div>
         <div class="hero-wrapper">
           <div class="equipment-layout">
             <div class="slot-row top-row">
@@ -1692,7 +1724,7 @@
               </div>
               <div class="equipment-slot tall" data-equip-slot="offhand">
                 <div class="slot-header">
-                  <span>Schild</span>
+                  <span>Schwert 2 / Schild</span>
                   <button class="slot-unequip" type="button" data-slot="offhand" aria-label="Schild entfernen" hidden>&times;</button>
                 </div>
                 <div class="slot-body">
@@ -2017,6 +2049,8 @@
     const STORAGE_KEY = "shortcutRitter_v1";
     const BASE_ATK = 1;
     const BASE_DEF = 0;
+    const BASE_HP = 12;
+    const HP_PER_DEF = 6;
     const MAX_ITEM_TIER = 5;
     const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
@@ -2206,6 +2240,7 @@
       coins: 0,
       atk: BASE_ATK,
       def: BASE_DEF,
+      hp: 0,
       items: [],
       skills: [],
       equipment: {
@@ -2254,7 +2289,6 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
     const coinTop = document.getElementById("coinTop");
-    const coinDisplay = document.getElementById("coinDisplay");
     const atkDisplay = document.getElementById("atkDisplay");
     const defDisplay = document.getElementById("defDisplay");
     const itemsDisplay = document.getElementById("itemsDisplay");
@@ -2262,6 +2296,8 @@
     const shopLatest = document.getElementById("shopLatest");
     const shopLatestEmpty = document.getElementById("shopLatestEmpty");
     const heroAvatar = document.getElementById("heroAvatar");
+    const hpDisplay = document.getElementById("hpDisplay");
+    const autoEquipBtn = document.getElementById("autoEquipBtn");
     const equipmentSlots = document.querySelectorAll("[data-equip-slot]");
     const equipmentSlotMap = Object.create(null);
     equipmentSlots.forEach(slot => {
@@ -2328,6 +2364,9 @@
         const slotKey = clearBtn.dataset.slot;
         unequipSlot(slotKey);
       });
+    }
+    if (autoEquipBtn) {
+      autoEquipBtn.addEventListener("click", autoEquipBest);
     }
 
     const learnView = document.getElementById("learnView");
@@ -2533,10 +2572,10 @@
         accepts: ["weapon", "sword", "blade"]
       },
       offhand: {
-        label: "Schild",
+        label: "Schwert 2 / Schild",
         hint: "Nur Schilde und Nebenhand-Gear.",
-        empty: "Kein Schild aktiv.",
-        accepts: ["offhand", "shield", "armor"]
+        empty: "Kein Schild oder Zweitwaffe aktiv.",
+        accepts: ["offhand", "shield", "weapon", "sword", "blade"]
       },
       ring_left: {
         label: "Ring / Amulett 1",
@@ -2552,6 +2591,7 @@
       }
     };
     const EQUIPMENT_SLOT_KEYS = Object.keys(EQUIPMENT_SLOT_DEFS);
+    const AUTO_EQUIP_SLOT_ORDER = ["weapon", "offhand", "helm", "gloves", "necklace", "ring_left", "ring_right"];
     const ITEM_ART = {
       sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 3)"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></g></svg>',
       shield: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L26 7 v10 c0 9-10 13-10 13S6 26 6 17V7z" fill="rgba(14,165,233,0.25)" stroke="#38bdf8" stroke-width="1.8"></path><path d="M16 6 L23 9 v8 c0 6-7 9-7 9s-7-3-7-9V9z" fill="rgba(14,116,144,0.45)"></path></svg>',
@@ -2850,6 +2890,62 @@
         }
       });
     }
+    function clearItemFromOtherSlots(itemKey, keepSlot = null) {
+      if (!itemKey) return;
+      ensureEquipmentState();
+      EQUIPMENT_SLOT_KEYS.forEach(slot => {
+        if (slot === keepSlot) return;
+        if (state.equipment[slot] === itemKey) {
+          state.equipment[slot] = null;
+        }
+      });
+    }
+    function evaluateItemPower(item) {
+      if (!item) return -Infinity;
+      updateItemDerivedStats(item);
+      const atk = Number(item.atk) || 0;
+      const def = Number(item.def) || 0;
+      const hp = Number(item.hp || item.maxHp || 0);
+      return atk * 10000 + def * 100 + hp;
+    }
+    function autoEquipBest() {
+      if (!state.items.length) {
+        updateUI("Keine Items zum Ausruesten vorhanden.");
+        return;
+      }
+      ensureEquipmentState();
+      const pool = state.items
+        .map(item => ({ item, power: evaluateItemPower(item) }))
+        .sort((a, b) => b.power - a.power);
+      const used = new Set();
+      const updatedEquipment = {};
+      EQUIPMENT_SLOT_KEYS.forEach(slot => {
+        updatedEquipment[slot] = null;
+      });
+      const slotOrder = [];
+      AUTO_EQUIP_SLOT_ORDER.forEach(slot => {
+        if (EQUIPMENT_SLOT_DEFS[slot]) slotOrder.push(slot);
+      });
+      EQUIPMENT_SLOT_KEYS.forEach(slot => {
+        if (!slotOrder.includes(slot)) slotOrder.push(slot);
+      });
+      slotOrder.forEach(slotKey => {
+        const bestEntry = pool.find(entry => {
+          const key = entry.item.key || entry.item.name;
+          if (used.has(key)) return false;
+          return itemMatchesSlot(entry.item, slotKey);
+        });
+        if (bestEntry) {
+          const key = bestEntry.item.key || bestEntry.item.name;
+          updatedEquipment[slotKey] = key;
+          used.add(key);
+        }
+      });
+      state.equipment = updatedEquipment;
+      recalcStats();
+      saveState();
+      updateUI("Auto-Ausrüstung angewendet.");
+    }
     function getItemByKey(key) {
       if (!key) return null;
       return state.items.find(entry => entry && (entry.key || entry.name) === key) || null;
@@ -2882,13 +2978,21 @@
     function recalcStats() {
       let atk = BASE_ATK;
       let def = BASE_DEF;
+      let hp = 0;
       getEquippedItems().forEach(item => {
         updateItemDerivedStats(item);
         atk += Number(item.atk || 0);
         def += Number(item.def || 0);
+        hp += Number(item.hp || item.maxHp || 0);
       });
       state.atk = atk;
       state.def = def;
+      state.hp = hp;
+    }
+    function getHeroMaxHp() {
+      const gearHp = Math.max(0, Math.round(state.hp || 0));
+      const defenseBonus = Math.max(0, state.def) * HP_PER_DEF;
+      return Math.max(1, BASE_HP + gearHp + defenseBonus);
     }
     function getItemIcon(iconKey) {
       return ITEM_ART[iconKey] || ITEM_ART.default;
@@ -3073,7 +3177,9 @@
       if (!slotKey || !item) return;
       ensureEquipmentState();
       if (!state.equipment[slotKey]) {
-        state.equipment[slotKey] = item.key || item.name;
+        const key = item.key || item.name;
+        clearItemFromOtherSlots(key, slotKey);
+        state.equipment[slotKey] = key;
       }
     }
     function equipItem(preferredSlot, itemKey) {
@@ -3084,6 +3190,7 @@
       if (!resolvedSlot || !EQUIPMENT_SLOT_DEFS[resolvedSlot]) return;
       if (!itemMatchesSlot(item, resolvedSlot)) return;
       const targetKey = item.key || item.name;
+      clearItemFromOtherSlots(targetKey, resolvedSlot);
       if (state.equipment[resolvedSlot] === targetKey) return;
       state.equipment[resolvedSlot] = targetKey;
       recalcStats();
@@ -3377,13 +3484,11 @@
       }
       displayedCoins = state.coins;
       if (coinTop) coinTop.textContent = "Coins: " + state.coins;
-      if (coinDisplay) coinDisplay.textContent = "Coins: " + state.coins;
       if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
       if (defDisplay) defDisplay.textContent = "DEF " + state.def;
-      if (itemsDisplay) {
-        const equippedCount = getEquippedItems().length;
-        itemsDisplay.textContent = "Gear: " + equippedCount + "/" + EQUIPMENT_SLOT_KEYS.length + " ausgeruestet (Unique: " + state.items.length + ")";
-      }
+      const equippedCount = getEquippedItems().length;
+      if (hpDisplay) hpDisplay.textContent = "HP " + getHeroMaxHp();
+      if (itemsDisplay) itemsDisplay.textContent = "Gear: " + equippedCount + "/" + EQUIPMENT_SLOT_KEYS.length;
       if (progressInfo) {
         progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
       }
@@ -3958,7 +4063,7 @@
     }
 
     function createHeroState() {
-      const baseHp = 28 + (Math.max(0, state.def) * 6);
+      const baseHp = getHeroMaxHp();
       return {
         name: "Ritter",
         maxHp: baseHp,
