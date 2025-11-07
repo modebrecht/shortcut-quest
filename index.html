@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -259,7 +259,26 @@
       font-weight: 600;
     }
     #overviewCard { margin-top: 0.5rem; }
-    .hero-wrapper { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+    .hero-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    .equipment-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      align-items: center;
+      width: 100%;
+    }
+    .hero-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+      flex: 0 0 auto;
+    }
     .hero-avatar {
       --atk-low: #5b6ff5;
       --atk-mid: #f59e0b;
@@ -267,8 +286,8 @@
       --def-low: #38bdf8;
       --def-mid: #0ea5e9;
       --def-high: #22c55e;
-      width: 150px;
-      height: 180px;
+      width: 180px;
+      height: 220px;
       border-radius: 1rem;
       border: 1px solid var(--border);
       background: linear-gradient(155deg, rgba(26,35,58,0.95), rgba(12,19,34,0.8));
@@ -276,6 +295,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: inset 0 0 16px rgba(8,15,30,0.7);
+      margin: 0 auto;
     }
     .hero-svg { width: 120px; height: 160px; }
     .hero-avatar[data-atk-tier="1"] .sword-blade { stroke: var(--atk-low); }
@@ -293,6 +313,150 @@
     .hero-avatar.no-gear .leg-piece {
       opacity: 0.35;
       filter: grayscale(0.6);
+    }
+    .slot-row {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.75rem;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .slot-row.middle-row {
+      align-items: center;
+    }
+    .slot-row.middle-row .hero-center {
+      min-width: 200px;
+    }
+    .equipment-slot {
+      border: 1px dashed var(--border);
+      border-radius: 0.9rem;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      background: rgba(15,23,42,0.5);
+      min-height: 150px;
+      width: 180px;
+      position: relative;
+      flex: 0 1 180px;
+    }
+    .equipment-slot.tall { min-height: 190px; }
+    [data-equip-slot="weapon"],
+    [data-equip-slot="offhand"] {
+      min-height: 210px;
+      width: 210px;
+      flex: 0 1 210px;
+    }
+    [data-equip-slot="weapon"] .slot-icon,
+    [data-equip-slot="offhand"] .slot-icon {
+      width: 70px;
+      height: 70px;
+    }
+    .equipment-slot.equipped {
+      border-style: solid;
+      border-color: rgba(245,158,11,0.55);
+      background: rgba(245,158,11,0.12);
+      box-shadow: 0 12px 28px rgba(245,158,11,0.18);
+    }
+    .slot-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .slot-unequip {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.4rem;
+    }
+    .slot-unequip:hover {
+      color: var(--text);
+      background: rgba(148,163,184,0.12);
+    }
+    .slot-unequip[hidden] { display: none; }
+    .slot-body {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .slot-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 0.75rem;
+      border: 1px dashed rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .equipment-slot.equipped .slot-icon {
+      border-style: solid;
+      border-color: rgba(245,158,11,0.6);
+      background: rgba(15,23,42,0.85);
+    }
+    .slot-icon svg { width: 42px; height: 42px; }
+    .slot-placeholder {
+      font-size: 1.1rem;
+      color: rgba(148,163,184,0.5);
+    }
+    .slot-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .slot-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .slot-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .slot-stats {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .slot-stats span {
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.15);
+      border: 1px solid rgba(148,163,184,0.2);
+    }
+    @media (max-width: 720px) {
+      .slot-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .slot-row.middle-row {
+        align-items: stretch;
+      }
+      .slot-row.middle-row .hero-center {
+        min-width: 0;
+      }
+      .slot-row .equipment-slot {
+        width: 100%;
+        flex: 1 1 auto;
+      }
+      .slot-row [data-equip-slot="weapon"],
+      .slot-row [data-equip-slot="offhand"] {
+        width: 100%;
+        flex: 1 1 auto;
+      }
+      .equipment-slot.tall {
+        min-height: 140px;
+      }
     }
     .inventory {
       flex: 1 1 240px;
@@ -320,6 +484,10 @@
     .inventory-item:hover {
       transform: translateY(-1px);
       box-shadow: 0 12px 28px rgba(15,23,42,0.4);
+    }
+    .inventory-item.equipped {
+      border-color: rgba(245,158,11,0.6);
+      box-shadow: 0 12px 26px rgba(245,158,11,0.15);
     }
     .item-left {
       display: flex;
@@ -351,6 +519,29 @@
       display: flex;
       align-items: center;
       gap: 0.6rem;
+    }
+    .item-equip {
+      padding: 0.4rem 0.9rem;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(245,158,11,0.5);
+      background: rgba(245,158,11,0.15);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .item-equip:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(245,158,11,0.2);
+    }
+    .item-equip.equipped {
+      background: rgba(245,158,11,0.35);
+      color: #1f2937;
+    }
+    .item-equip:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     .item-upgrade {
       padding: 0.4rem 0.8rem;
@@ -1397,50 +1588,157 @@
         <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
         <button id="testAnimationBtn" style="margin-top:0.6rem;padding:0.55rem 1.1rem;background:var(--accent);color:#1f2937;border:none;border-radius:0.7rem;font-weight:600;cursor:pointer;">Animation testen</button>
         <div class="hero-wrapper">
-            <div class="hero-avatar" id="heroAvatar" data-atk-tier="1" data-def-tier="1">
-              <svg class="hero-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <defs>
-                  <linearGradient id="armorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#94a3b8"></stop>
-                    <stop offset="100%" stop-color="#475569"></stop>
-                  </linearGradient>
-                  <linearGradient id="capeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#1d4ed8"></stop>
-                    <stop offset="100%" stop-color="#0f172a"></stop>
-                  </linearGradient>
-                </defs>
-              <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
-              <circle class="armor-core head-shell" cx="60" cy="41" r="15" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></circle>
-              <rect class="armor-core neck-piece" x="52" y="56" width="16" height="10" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.6"></rect>
-              <rect class="armor-core" x="44" y="62" width="32" height="40" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
-              <rect x="51" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
-              <rect x="62" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
-              <path d="M49 44 h22" stroke="#0f172a" stroke-width="3" stroke-linecap="round"></path>
-              <path d="M60 33 v-6" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
-              <path class="cape-shape" d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
-              <path class="cape-shape" d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
-              <g class="shield-group" transform="translate(18,72)">
-                  <path class="shield-outline" d="M18 0 L36 8 v16 c0 12-18 24-18 24S0 36 0 24V8z" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="2"></path>
-                  <path d="M18 4 L32 10 v12 c0 8-14 16-14 16S8 30 8 22V10z" fill="rgba(59,130,246,0.35)"></path>
-                </g>
-                <g class="sword-group" transform="translate(72,64)">
-                  <rect x="12" y="0" width="4" height="44" rx="2" fill="#e2e8f0" class="sword-blade" stroke="#94a3b8" stroke-width="1.5"></rect>
-                  <rect x="8" y="38" width="12" height="4" rx="2" fill="#fcd34d"></rect>
-                  <rect x="9.5" y="42" width="9" height="6" rx="2" fill="#b45309"></rect>
-                  <circle cx="14" cy="44" r="2" fill="#1f2937"></circle>
-                </g>
-              <g class="leg-group">
-                <rect class="leg-piece" x="48" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
-                <rect class="leg-piece" x="61" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
-                <rect class="leg-piece" x="46" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
-                <rect class="leg-piece" x="61" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
-              </g>
-              </svg>
+          <div class="equipment-layout">
+            <div class="slot-row top-row">
+              <div class="equipment-slot" data-equip-slot="gloves">
+                <div class="slot-header">
+                  <span>Handschuhe</span>
+                  <button class="slot-unequip" type="button" data-slot="gloves" aria-label="Handschuhe entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Noch keine Handschuhe.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="equipment-slot" data-equip-slot="helm">
+                <div class="slot-header">
+                  <span>Helm</span>
+                  <button class="slot-unequip" type="button" data-slot="helm" aria-label="Helm entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Kein Helm aktiv.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="equipment-slot" data-equip-slot="necklace">
+                <div class="slot-header">
+                  <span>Halskette</span>
+                  <button class="slot-unequip" type="button" data-slot="necklace" aria-label="Halskette entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Keine Halskette aktiv.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="inventory">
-              <div id="inventoryList" class="inventory-list"></div>
-              <div id="inventoryEmpty" class="skill-empty">Noch keine Ausrüstung vorhanden. Besuche den Shop, um neue Items zu kaufen.</div>
+            <div class="slot-row middle-row">
+              <div class="equipment-slot tall" data-equip-slot="weapon">
+                <div class="slot-header">
+                  <span>Schwert</span>
+                  <button class="slot-unequip" type="button" data-slot="weapon" aria-label="Schwert entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Kein Schwert ausgeruestet.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-center">
+                <div class="hero-avatar" id="heroAvatar" data-atk-tier="1" data-def-tier="1">
+                <svg class="hero-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="armorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#94a3b8"></stop>
+                      <stop offset="100%" stop-color="#475569"></stop>
+                    </linearGradient>
+                    <linearGradient id="capeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#1d4ed8"></stop>
+                      <stop offset="100%" stop-color="#0f172a"></stop>
+                    </linearGradient>
+                  </defs>
+                <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
+                <circle class="armor-core head-shell" cx="60" cy="41" r="15" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></circle>
+                <rect class="armor-core neck-piece" x="52" y="56" width="16" height="10" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.6"></rect>
+                <rect class="armor-core" x="44" y="62" width="32" height="40" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
+                <rect x="51" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
+                <rect x="62" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
+                <path d="M49 44 h22" stroke="#0f172a" stroke-width="3" stroke-linecap="round"></path>
+                <path d="M60 33 v-6" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
+                <path class="cape-shape" d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
+                <path class="cape-shape" d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
+                <g class="shield-group" transform="translate(18,72)">
+                    <path class="shield-outline" d="M18 0 L36 8 v16 c0 12-18 24-18 24S0 36 0 24V8z" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="2"></path>
+                    <path d="M18 4 L32 10 v12 c0 8-14 16-14 16S8 30 8 22V10z" fill="rgba(59,130,246,0.35)"></path>
+                  </g>
+                  <g class="sword-group" transform="translate(72,64)">
+                    <rect x="12" y="0" width="4" height="44" rx="2" fill="#e2e8f0" class="sword-blade" stroke="#94a3b8" stroke-width="1.5"></rect>
+                    <rect x="8" y="38" width="12" height="4" rx="2" fill="#fcd34d"></rect>
+                    <rect x="9.5" y="42" width="9" height="6" rx="2" fill="#b45309"></rect>
+                    <circle cx="14" cy="44" r="2" fill="#1f2937"></circle>
+                  </g>
+                <g class="leg-group">
+                  <rect class="leg-piece" x="48" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
+                  <rect class="leg-piece" x="61" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
+                  <rect class="leg-piece" x="46" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
+                  <rect class="leg-piece" x="61" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
+                </g>
+                </svg>
+              </div>
+              </div>
+              <div class="equipment-slot tall" data-equip-slot="offhand">
+                <div class="slot-header">
+                  <span>Schild</span>
+                  <button class="slot-unequip" type="button" data-slot="offhand" aria-label="Schild entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Kein Schild aktiv.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
             </div>
+            <div class="slot-row bottom-row">
+              <div class="equipment-slot" data-equip-slot="ring_left">
+                <div class="slot-header">
+                  <span>Ring / Amulett 1</span>
+                  <button class="slot-unequip" type="button" data-slot="ring_left" aria-label="Ring links entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Noch kein Schmuck.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="equipment-slot" data-equip-slot="ring_right">
+                <div class="slot-header">
+                  <span>Ring / Amulett 2</span>
+                  <button class="slot-unequip" type="button" data-slot="ring_right" aria-label="Ring rechts entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <span class="slot-name">Leer</span>
+                    <span class="slot-meta">Noch kein Schmuck.</span>
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="inventory">
+            <div id="inventoryList" class="inventory-list"></div>
+            <div id="inventoryEmpty" class="skill-empty">Noch keine Ausruestung vorhanden. Besuche den Shop, um neue Items zu kaufen.</div>
           </div>
         </div>
       </div>
@@ -1910,6 +2208,15 @@
       def: BASE_DEF,
       items: [],
       skills: [],
+      equipment: {
+        gloves: null,
+        helm: null,
+        necklace: null,
+        weapon: null,
+        offhand: null,
+        ring_left: null,
+        ring_right: null
+      },
       sectionClears: {},
       sectionResets: {},
       gachaPreference: "weapon",
@@ -1923,13 +2230,14 @@
       try {
         const saved = JSON.parse(raw);
         Object.assign(state, saved);
-        if (!state.gachaPreference) state.gachaPreference = "weapon";
-      } catch (err) {
-        console.warn("State konnte nicht geladen werden", err);
-      }
-      if (!Array.isArray(state.items)) state.items = [];
-      if (!Array.isArray(state.skills)) state.skills = [];
-      if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
+      if (!state.gachaPreference) state.gachaPreference = "weapon";
+    } catch (err) {
+      console.warn("State konnte nicht geladen werden", err);
+    }
+    if (!Array.isArray(state.items)) state.items = [];
+    if (!Array.isArray(state.skills)) state.skills = [];
+    if (typeof state.equipment !== "object" || !state.equipment) state.equipment = {};
+    if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
       if (typeof state.battleUnlocked !== "number" || !Number.isFinite(state.battleUnlocked)) {
@@ -1937,15 +2245,14 @@
       } else {
         state.battleUnlocked = Math.max(1, Math.floor(state.battleUnlocked));
       }
-      if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
-        state.lastShopPurchase = null;
-      }
+    if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
+      state.lastShopPurchase = null;
     }
+  }
+    loadState();
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
-    loadState();
-
     const coinTop = document.getElementById("coinTop");
     const coinDisplay = document.getElementById("coinDisplay");
     const atkDisplay = document.getElementById("atkDisplay");
@@ -1955,6 +2262,13 @@
     const shopLatest = document.getElementById("shopLatest");
     const shopLatestEmpty = document.getElementById("shopLatestEmpty");
     const heroAvatar = document.getElementById("heroAvatar");
+    const equipmentSlots = document.querySelectorAll("[data-equip-slot]");
+    const equipmentSlotMap = Object.create(null);
+    equipmentSlots.forEach(slot => {
+      if (!slot || !slot.dataset) return;
+      equipmentSlotMap[slot.dataset.equipSlot] = slot;
+    });
+    const equipmentLayout = document.querySelector(".equipment-layout");
     const inventoryList = document.getElementById("inventoryList");
     const skillList = document.getElementById("skillList");
     const skillEmpty = document.getElementById("skillEmpty");
@@ -1997,6 +2311,24 @@
     }
     handleUpgradeClick(inventoryList, triggerItemUpgrade);
     handleUpgradeClick(skillList, triggerSkillUpgrade);
+
+    if (inventoryList) {
+      inventoryList.addEventListener("click", event => {
+        const equipBtn = event.target.closest(".item-equip");
+        if (!equipBtn) return;
+        const itemKey = equipBtn.dataset.itemKey;
+        const slotKey = equipBtn.dataset.slotKey;
+        equipItem(slotKey, itemKey);
+      });
+    }
+    if (equipmentLayout) {
+      equipmentLayout.addEventListener("click", event => {
+        const clearBtn = event.target.closest(".slot-unequip");
+        if (!clearBtn || clearBtn.hidden) return;
+        const slotKey = clearBtn.dataset.slot;
+        unequipSlot(slotKey);
+      });
+    }
 
     const learnView = document.getElementById("learnView");
     const inventoryView = document.getElementById("inventoryView");
@@ -2142,15 +2474,15 @@
     });
 
     const KNIGHT_POOL = [
-      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
+      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", slot: "weapon", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
 
-      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
-      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
-      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", description: "Blockt Fehler beim Tippen.", theme: "knight", category: "armor" },
-      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight", category: "armor" },
-      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight", category: "armor" },
-      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "cape", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
-      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" }
+      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", slot: "weapon", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
+      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword", slot: "weapon", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
+      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", slot: "offhand", description: "Blockt Fehler beim Tippen.", theme: "knight", category: "armor" },
+      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight", category: "armor" },
+      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight", category: "armor" },
+      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "gloves", slot: "gloves", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
+      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", slot: "necklace", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" }
     ];
     const KNIGHT_BY_KEY = Object.create(null);
     const KNIGHT_BY_NAME = Object.create(null);
@@ -2175,10 +2507,56 @@
       any: "Zufall",
       skill: "Skill"
     };
+    const EQUIPMENT_SLOT_DEFS = {
+      gloves: {
+        label: "Handschuhe",
+        hint: "Bereit fuer Handschuhe oder leichte Ruestung.",
+        empty: "Noch keine Handschuhe.",
+        accepts: ["gloves", "hands", "cape", "accessory"]
+      },
+      helm: {
+        label: "Helm",
+        hint: "Nur Helme passen hier.",
+        empty: "Kein Helm aktiv.",
+        accepts: ["helm", "helmet"]
+      },
+      necklace: {
+        label: "Halskette",
+        hint: "Runen, Amulette oder Halsketten.",
+        empty: "Keine Halskette aktiv.",
+        accepts: ["necklace", "amulet", "talisman", "trinket", "accessory"]
+      },
+      weapon: {
+        label: "Schwert",
+        hint: "Lege Schwerter ueber das Inventar an.",
+        empty: "Kein Schwert ausgeruestet.",
+        accepts: ["weapon", "sword", "blade"]
+      },
+      offhand: {
+        label: "Schild",
+        hint: "Nur Schilde und Nebenhand-Gear.",
+        empty: "Kein Schild aktiv.",
+        accepts: ["offhand", "shield", "armor"]
+      },
+      ring_left: {
+        label: "Ring / Amulett 1",
+        hint: "Erster Ring- oder Amulett-Slot.",
+        empty: "Kein Schmuck ausgeruestet.",
+        accepts: ["ring_left", "ring", "band", "amulet", "talisman", "trinket", "accessory"]
+      },
+      ring_right: {
+        label: "Ring / Amulett 2",
+        hint: "Zweiter Ring- oder Amulett-Slot.",
+        empty: "Kein Schmuck ausgeruestet.",
+        accepts: ["ring_right", "ring", "band", "amulet", "talisman", "trinket", "accessory"]
+      }
+    };
+    const EQUIPMENT_SLOT_KEYS = Object.keys(EQUIPMENT_SLOT_DEFS);
     const ITEM_ART = {
       sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 3)"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></g></svg>',
       shield: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L26 7 v10 c0 9-10 13-10 13S6 26 6 17V7z" fill="rgba(14,165,233,0.25)" stroke="#38bdf8" stroke-width="1.8"></path><path d="M16 6 L23 9 v8 c0 6-7 9-7 9s-7-3-7-9V9z" fill="rgba(14,116,144,0.45)"></path></svg>',
       helm: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 2)"><path d="M8 22v-6c0-6.6 3.6-12 8-12s8 5.4 8 12v6z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"></path><rect x="11" y="16" width="10" height="4" rx="1.5" fill="#0f172a"></rect><path d="M16 11v7" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></g></svg>',
+      gloves: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g stroke="#1e293b" stroke-width="1.4" fill="rgba(248,250,252,0.85)"><path d="M9 7 q0-3 2.5-3t2.5 3v12q0 2-2.5 2T9 19z"></path><path d="M17 7 q0-3 2.5-3t2.5 3v12q0 2-2.5 2T17 19z"></path><path d="M7 13h18v6q0 5-6 7H13q-6-2-6-7z" fill="rgba(148,163,184,0.4)"></path></g></svg>',
       cape: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M10 4 q6 4 12 0 l2 20 q-8 4-16 0z" fill="rgba(59,130,246,0.45)" stroke="#2563eb" stroke-width="1.4"></path><circle cx="16" cy="6" r="2.4" fill="#1d4ed8"></circle></svg>',
       talisman: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="9" fill="rgba(254,243,199,0.9)" stroke="#fbbf24" stroke-width="1.6"></circle><path d="M16 8 L18 14 L24 16 L18 18 L16 24 L14 18 L8 16 L14 14 Z" fill="rgba(250,204,21,0.8)" stroke="#92400e" stroke-width="0.8" stroke-linejoin="round"></path><circle cx="16" cy="16" r="2.4" fill="#f97316"></circle></svg>',
       skill_power: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="rgba(239,68,68,0.18)" stroke="#f87171" stroke-width="1.8"></circle><path d="M16 6 L10 18 h6 l-2 8 8-12h-6z" fill="#facc15" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
@@ -2187,6 +2565,33 @@
       skill_shadow: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="rgba(79,70,229,0.2)" stroke="#6366f1" stroke-width="1.6"></circle><path d="M12 20 q4 4 8 0 q-2 -3 -1 -6 q1 -3 5 -5 q-4 -3 -8 0 q-4 -3 -8 0 q4 2 5 5 q1 3 -1 6z" fill="rgba(129,140,248,0.35)" stroke="#c4b5fd" stroke-width="1.2"></path></svg>',
       default: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="6" width="14" height="18" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.4"></rect><circle cx="16" cy="12" r="3" fill="#e2e8f0"></circle><path d="M12 22 h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></svg>'
     };
+    function normalizeItemSlot(slot) {
+      if (!slot) return null;
+      const key = String(slot).toLowerCase();
+      if (key === "trinket") return "necklace";
+      if (key === "ring") return "ring_left";
+      return EQUIPMENT_SLOT_DEFS[key] ? key : null;
+    }
+    function inferItemSlot(item) {
+      if (!item) return null;
+      const icon = String(item.icon || "").toLowerCase();
+      if (icon === "sword") return "weapon";
+      if (icon === "shield") return "offhand";
+      if (icon === "helm") return "helm";
+      if (icon === "gloves" || icon === "cape") return "gloves";
+      if (icon === "talisman") return "necklace";
+      if (icon === "ring") return "ring_left";
+      const category = String(item.category || "").toLowerCase();
+      if (category === "weapon") return "weapon";
+      if (category === "armor") return "offhand";
+      if (category === "accessory") return "necklace";
+      return null;
+    }
+    function getItemSlot(item) {
+      if (!item) return null;
+      return normalizeItemSlot(item.slot) || inferItemSlot(item);
+    }
+    ensureEquipmentState();
     function cloneItem(template) {
       const now = Date.now();
       return {
@@ -2198,6 +2603,7 @@
         atk: template.atk,
         def: template.def,
         icon: template.icon,
+        slot: getItemSlot(template),
         description: template.description,
         theme: template.theme || "knight",
         category: template.category || "accessory",
@@ -2229,6 +2635,7 @@
       item.baseDef = baseDef;
       item.atk = baseAtk * tier;
       item.def = baseDef * tier;
+      item.slot = getItemSlot(item);
       if (!item.createdAt) item.createdAt = Date.now();
       if (!item.lastObtainedAt) item.lastObtainedAt = item.createdAt;
       return item;
@@ -2262,6 +2669,7 @@
       const description = item.description || (template ? template.description : "Umgeschmiedet aus frueheren Belohnungen.");
       const category = item.category || (template ? template.category : "weapon");
       const icon = item.icon || (template ? template.icon : (category === "armor" ? "shield" : category === "accessory" ? "talisman" : "sword"));
+      const slot = normalizeItemSlot(item.slot) || (template ? normalizeItemSlot(template.slot) : null) || inferItemSlot({ icon, category });
       const theme = item.theme || (template ? template.theme : "knight");
       const normalized = {
         id: item.id || `${key}-${createdAt}-${Math.random().toString(16).slice(2, 6)}`,
@@ -2272,6 +2680,7 @@
         atk: baseAtk * tier,
         def: baseDef * tier,
         icon,
+        slot,
         description,
         theme,
         category,
@@ -2408,12 +2817,72 @@
       });
       state.items = Array.from(merged.values()).map(updateItemDerivedStats);
       sortInventoryByNewest();
+      ensureEquipmentState();
+    }
+    function ensureEquipmentState() {
+      if (typeof state.equipment !== "object" || !state.equipment) {
+        state.equipment = {};
+      }
+      if ("trinket" in state.equipment) {
+        const legacy = state.equipment.trinket;
+        if (legacy && !state.equipment.necklace) {
+          state.equipment.necklace = legacy;
+        }
+        delete state.equipment.trinket;
+      }
+      EQUIPMENT_SLOT_KEYS.forEach(slotKey => {
+        if (!Object.prototype.hasOwnProperty.call(state.equipment, slotKey)) {
+          state.equipment[slotKey] = null;
+        }
+        const equippedKey = state.equipment[slotKey];
+        if (!equippedKey) {
+          state.equipment[slotKey] = null;
+          return;
+        }
+        const itemExists = state.items.some(entry => entry && (entry.key || entry.name) === equippedKey);
+        if (!itemExists) {
+          state.equipment[slotKey] = null;
+        }
+      });
+      Object.keys(state.equipment).forEach(slotKey => {
+        if (!EQUIPMENT_SLOT_DEFS[slotKey]) {
+          delete state.equipment[slotKey];
+        }
+      });
+    }
+    function getItemByKey(key) {
+      if (!key) return null;
+      return state.items.find(entry => entry && (entry.key || entry.name) === key) || null;
+    }
+    function itemMatchesSlot(item, slotKey) {
+      if (!item || !slotKey) return false;
+      const normalizedSlot = normalizeItemSlot(slotKey);
+      if (!normalizedSlot) return false;
+      const meta = EQUIPMENT_SLOT_DEFS[normalizedSlot];
+      const tokenPool = [
+        normalizeItemSlot(item.slot),
+        (item.category || "").toLowerCase(),
+        (item.icon || "").toLowerCase()
+      ].filter(Boolean);
+      if (tokenPool.includes(normalizedSlot)) return true;
+      if (!meta || !meta.accepts) return false;
+      return tokenPool.some(token => meta.accepts.includes(token));
+    }
+    function getEquippedItems() {
+      ensureEquipmentState();
+      const items = [];
+      EQUIPMENT_SLOT_KEYS.forEach(slotKey => {
+        const eqKey = state.equipment[slotKey];
+        if (!eqKey) return;
+        const item = getItemByKey(eqKey);
+        if (item) items.push(item);
+      });
+      return items;
     }
     function recalcStats() {
       let atk = BASE_ATK;
       let def = BASE_DEF;
-      state.items.forEach(item => {
-        if (!item) return;
+      getEquippedItems().forEach(item => {
         updateItemDerivedStats(item);
         atk += Number(item.atk || 0);
         def += Number(item.def || 0);
@@ -2428,9 +2897,15 @@
       const { showUpgrade = true } = options;
       if (!item) return null;
       updateItemDerivedStats(item);
+      const normalizedKey = item.key || item.name;
       const row = document.createElement("div");
       row.className = `inventory-item tier-${item.tier}`;
-      row.dataset.itemKey = item.key || item.name;
+      row.dataset.itemKey = normalizedKey;
+      const slotKey = getItemSlot(item);
+      const isEquipped = slotKey && state.equipment && state.equipment[slotKey] === normalizedKey;
+      if (isEquipped) {
+        row.classList.add("equipped");
+      }
 
       const left = document.createElement("div");
       left.className = "item-left";
@@ -2480,6 +2955,16 @@
         stats.appendChild(defBadge);
       }
       controls.appendChild(stats);
+      if (slotKey && EQUIPMENT_SLOT_DEFS[slotKey]) {
+        const equipBtn = document.createElement("button");
+        equipBtn.className = "item-equip";
+        if (isEquipped) equipBtn.classList.add("equipped");
+        equipBtn.dataset.itemKey = normalizedKey;
+        equipBtn.dataset.slotKey = slotKey;
+        equipBtn.textContent = isEquipped ? "Ausgeruestet" : `Anlegen (${EQUIPMENT_SLOT_DEFS[slotKey].label})`;
+        equipBtn.disabled = isEquipped;
+        controls.appendChild(equipBtn);
+      }
       if (showUpgrade && item.tier < MAX_ITEM_TIER) {
         const upgradeBtn = document.createElement("button");
         const requirementText = requirement === Infinity ? "—" : requirement;
@@ -2567,6 +3052,7 @@
     }
     function renderInventory() {
       if (!inventoryList) return;
+      ensureEquipmentState();
       inventoryList.innerHTML = "";
       const hasItems = Boolean(state.items.length);
       const emptyNotice = document.getElementById("inventoryEmpty");
@@ -2580,6 +3066,85 @@
       sorted.forEach(item => {
         const row = createInventoryRow(item, { showUpgrade: true });
         if (row) inventoryList.appendChild(row);
+      });
+    }
+    function autoEquipIfEmpty(item) {
+      const slotKey = getItemSlot(item);
+      if (!slotKey || !item) return;
+      ensureEquipmentState();
+      if (!state.equipment[slotKey]) {
+        state.equipment[slotKey] = item.key || item.name;
+      }
+    }
+    function equipItem(preferredSlot, itemKey) {
+      ensureEquipmentState();
+      const item = getItemByKey(itemKey);
+      if (!item) return;
+      const resolvedSlot = normalizeItemSlot(preferredSlot) || getItemSlot(item);
+      if (!resolvedSlot || !EQUIPMENT_SLOT_DEFS[resolvedSlot]) return;
+      if (!itemMatchesSlot(item, resolvedSlot)) return;
+      const targetKey = item.key || item.name;
+      if (state.equipment[resolvedSlot] === targetKey) return;
+      state.equipment[resolvedSlot] = targetKey;
+      recalcStats();
+      saveState();
+      const currentInfo = progressInfo ? progressInfo.textContent : undefined;
+      updateUI(currentInfo);
+    }
+    function unequipSlot(slotKey) {
+      const normalized = normalizeItemSlot(slotKey);
+      if (!normalized) return;
+      ensureEquipmentState();
+      if (!state.equipment[normalized]) return;
+      state.equipment[normalized] = null;
+      recalcStats();
+      saveState();
+      const currentInfo = progressInfo ? progressInfo.textContent : undefined;
+      updateUI(currentInfo);
+    }
+    function renderEquipmentSlots() {
+      ensureEquipmentState();
+      EQUIPMENT_SLOT_KEYS.forEach(slotKey => {
+        const slotEl = equipmentSlotMap[slotKey];
+        if (!slotEl) return;
+        const meta = EQUIPMENT_SLOT_DEFS[slotKey] || {};
+        const iconEl = slotEl.querySelector(".slot-icon");
+        const nameEl = slotEl.querySelector(".slot-name");
+        const metaEl = slotEl.querySelector(".slot-meta");
+        const statsEl = slotEl.querySelector(".slot-stats");
+        const clearBtn = slotEl.querySelector(".slot-unequip");
+        const equippedKey = state.equipment[slotKey];
+        const item = getItemByKey(equippedKey);
+        if (!item) {
+          slotEl.classList.remove("equipped");
+          if (nameEl) nameEl.textContent = "Leer";
+          if (metaEl) metaEl.textContent = meta.empty || "Slot frei";
+          if (statsEl) statsEl.innerHTML = "";
+          if (iconEl) iconEl.innerHTML = '<span class="slot-placeholder">?</span>';
+          if (clearBtn) clearBtn.hidden = true;
+          return;
+        }
+        slotEl.classList.add("equipped");
+        if (nameEl) nameEl.textContent = item.name;
+        if (metaEl) metaEl.textContent = `Tier ${item.tier} • Kopien ${item.totalCopies}`;
+        if (statsEl) {
+          statsEl.innerHTML = "";
+          if (Number(item.atk) > 0) {
+            const atkChip = document.createElement("span");
+            atkChip.textContent = "ATK +" + item.atk;
+            statsEl.appendChild(atkChip);
+          }
+          if (Number(item.def) > 0) {
+            const defChip = document.createElement("span");
+            defChip.textContent = "DEF +" + item.def;
+            statsEl.appendChild(defChip);
+          }
+        }
+        if (iconEl) iconEl.innerHTML = getItemIcon(item.icon);
+        if (clearBtn) {
+          clearBtn.hidden = false;
+          clearBtn.dataset.slot = slotKey;
+        }
       });
     }
     function renderSkills() {
@@ -2693,6 +3258,7 @@
       fresh.createdAt = now;
       fresh.lastObtainedAt = now;
       state.items.push(fresh);
+      autoEquipIfEmpty(fresh);
       sortInventoryByNewest();
       return { item: fresh, isNew: true };
     }
@@ -2794,7 +3360,7 @@
       const defBonus = Math.max(0, state.def - BASE_DEF);
       const atkTier = atkBonus >= 5 ? 3 : atkBonus >= 2 ? 2 : 1;
       const defTier = defBonus >= 5 ? 3 : defBonus >= 2 ? 2 : 1;
-      const hasGear = state.items.length > 0;
+      const hasGear = getEquippedItems().length > 0;
       heroAvatar.setAttribute("data-atk-tier", String(atkTier));
       heroAvatar.setAttribute("data-def-tier", String(defTier));
       heroAvatar.classList.toggle("no-gear", !hasGear);
@@ -2815,11 +3381,14 @@
       if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
       if (defDisplay) defDisplay.textContent = "DEF " + state.def;
       if (itemsDisplay) {
-        const totalCopies = state.items.reduce((sum, item) => sum + Math.max(1, Math.floor(item.totalCopies || 1)), 0);
-        itemsDisplay.textContent = "Gear: " + totalCopies + " (Unique: " + state.items.length + ")";
+        const equippedCount = getEquippedItems().length;
+        itemsDisplay.textContent = "Gear: " + equippedCount + "/" + EQUIPMENT_SLOT_KEYS.length + " ausgeruestet (Unique: " + state.items.length + ")";
       }
-      if (progressInfo) progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
+      if (progressInfo) {
+        progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
+      }
       updateHeroAvatar();
+      renderEquipmentSlots();
       renderInventory();
       renderSkills();
       renderShopLatest();
