@@ -493,6 +493,39 @@
       gap: 0.6rem;
       margin-top: 0.6rem;
     }
+    .inventory-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.1rem;
+    }
+    .inventory-filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      flex: 1 1 auto;
+    }
+    .inventory-filter-btn {
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.3);
+      background: rgba(148,163,184,0.12);
+      color: var(--text);
+      font-size: 0.8rem;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .inventory-filter-btn.active {
+      border-color: rgba(245,158,11,0.65);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .inventory-filter-bar .primary-btn {
+      margin-left: auto;
+    }
     .primary-btn {
       padding: 0.55rem 1.1rem;
       background: var(--accent);
@@ -1639,8 +1672,7 @@
         </div>
         <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
         <div class="inventory-actions">
-          <button id="testAnimationBtn" class="primary-btn">Animation testen</button>
-          <button id="autoEquipBtn" class="primary-btn secondary">Auto anlegen</button>
+          <button id="testAnimationBtn" class="primary-btn" type="button">Animation testen</button>
         </div>
         <div class="hero-wrapper">
           <div class="equipment-layout">
@@ -1792,8 +1824,18 @@
             </div>
           </div>
           <div class="inventory">
+            <div class="inventory-filter-bar" aria-label="Inventarfilter">
+              <div class="inventory-filter-buttons" role="group" aria-label="Kategorie wählen">
+                <button class="inventory-filter-btn active" type="button" data-inventory-filter="all" aria-pressed="true">Alle</button>
+                <button class="inventory-filter-btn" type="button" data-inventory-filter="weapon" aria-pressed="false">Waffe</button>
+                <button class="inventory-filter-btn" type="button" data-inventory-filter="armor" aria-pressed="false">Ausrüstung</button>
+                <button class="inventory-filter-btn" type="button" data-inventory-filter="accessory" aria-pressed="false">Accessoire</button>
+              </div>
+              <button id="autoEquipBtn" class="primary-btn secondary" type="button">Auto anlegen</button>
+            </div>
             <div id="inventoryList" class="inventory-list"></div>
-            <div id="inventoryEmpty" class="skill-empty">Noch keine Ausruestung vorhanden. Besuche den Shop, um neue Items zu kaufen.</div>
+            <div id="inventoryFilterEmpty" class="skill-empty" hidden>Keine Items in dieser Kategorie.</div>
+            <div id="inventoryEmpty" class="skill-empty">Noch keine Ausrüstung vorhanden. Besuche den Shop, um neue Items zu kaufen.</div>
           </div>
         </div>
       </div>
@@ -2329,6 +2371,9 @@
     });
     const equipmentLayout = document.querySelector(".equipment-layout");
     const inventoryList = document.getElementById("inventoryList");
+    const inventoryFilterEmpty = document.getElementById("inventoryFilterEmpty");
+    const inventoryFilterButtons = document.querySelectorAll("[data-inventory-filter]");
+    let currentInventoryFilter = "all";
     const skillList = document.getElementById("skillList");
     const skillEmpty = document.getElementById("skillEmpty");
     const skillCountDisplay = document.getElementById("skillCountDisplay");
@@ -2370,6 +2415,22 @@
     }
     handleUpgradeClick(inventoryList, triggerItemUpgrade);
     handleUpgradeClick(skillList, triggerSkillUpgrade);
+    if (inventoryFilterButtons.length) {
+      inventoryFilterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const rawValue = btn.dataset.inventoryFilter || "all";
+          const normalizedValue = rawValue === "all" ? "all" : normalizeItemCategory(rawValue);
+          if (normalizedValue === currentInventoryFilter) return;
+          currentInventoryFilter = normalizedValue;
+          inventoryFilterButtons.forEach(ctrl => {
+            const isActive = ctrl === btn;
+            ctrl.classList.toggle("active", isActive);
+            ctrl.setAttribute("aria-pressed", String(isActive));
+          });
+          renderInventory();
+        });
+      });
+    }
 
     if (inventoryList) {
       inventoryList.addEventListener("click", event => {
@@ -2569,6 +2630,11 @@
       any: "Zufall",
       skill: "Skill"
     };
+    const INVENTORY_CATEGORY_ORDER = {
+      weapon: 0,
+      armor: 1,
+      accessory: 2
+    };
     const EQUIPMENT_SLOT_DEFS = {
       gloves: {
         label: "Handschuhe",
@@ -2649,6 +2715,11 @@
       if (category === "armor") return "offhand";
       if (category === "accessory") return "necklace";
       return null;
+    }
+    function normalizeItemCategory(category) {
+      if (!category) return "misc";
+      const normalized = String(category).trim().toLowerCase();
+      return normalized || "misc";
     }
     function getItemSlot(item) {
       if (!item) return null;
@@ -3025,9 +3096,11 @@
       if (!item) return null;
       updateItemDerivedStats(item);
       const normalizedKey = item.key || item.name;
+      const normalizedCategory = normalizeItemCategory(item.category);
       const row = document.createElement("div");
       row.className = `inventory-item tier-${item.tier}`;
       row.dataset.itemKey = normalizedKey;
+      row.dataset.category = normalizedCategory;
       const slotKey = getItemSlot(item);
       const isEquipped = slotKey && state.equipment && state.equipment[slotKey] === normalizedKey;
 
@@ -3189,16 +3262,58 @@
       const hasItems = Boolean(state.items.length);
       const emptyNotice = document.getElementById("inventoryEmpty");
       if (emptyNotice) emptyNotice.style.display = hasItems ? "none" : "block";
+      if (inventoryFilterEmpty) {
+        inventoryFilterEmpty.hidden = true;
+        inventoryFilterEmpty.style.display = "none";
+      }
       if (!hasItems) return;
-      const sorted = [...state.items].sort((a, b) => {
-        const left = b.lastObtainedAt || b.createdAt || 0;
-        const right = a.lastObtainedAt || a.createdAt || 0;
-        return left - right;
+      const itemTimestamp = entry => Number(entry.lastObtainedAt || entry.createdAt || 0);
+      const allItems = [...state.items];
+      allItems.sort((a, b) => itemTimestamp(b) - itemTimestamp(a));
+      const filterValue = currentInventoryFilter || "all";
+      const equippedKeys = new Set(
+        Object.values(state.equipment || {}).filter(Boolean)
+      );
+      const getCategoryRank = item => {
+        const normalizedCategory = normalizeItemCategory(item.category);
+        return INVENTORY_CATEGORY_ORDER.hasOwnProperty(normalizedCategory)
+          ? INVENTORY_CATEGORY_ORDER[normalizedCategory]
+          : 999;
+      };
+      const isEquipped = item => equippedKeys.has(item && (item.key || item.name));
+      const filtered = allItems.filter(item => {
+        const category = normalizeItemCategory(item.category);
+        return filterValue === "all" || category === filterValue;
       });
-      sorted.forEach(item => {
+      filtered.sort((a, b) => {
+        if (filterValue === "all") {
+          const categoryDiff = getCategoryRank(a) - getCategoryRank(b);
+          if (categoryDiff !== 0) return categoryDiff;
+        }
+        const equipRank = (isEquipped(a) ? 0 : 1) - (isEquipped(b) ? 0 : 1);
+        if (equipRank !== 0) return equipRank;
+        return itemTimestamp(b) - itemTimestamp(a);
+      });
+      let visibleCount = 0;
+      filtered.forEach(item => {
+        const category = normalizeItemCategory(item.category);
         const row = createInventoryRow(item, { showUpgrade: true });
-        if (row) inventoryList.appendChild(row);
+        if (row) {
+          row.dataset.category = category;
+          row.dataset.equipped = String(isEquipped(item));
+          inventoryList.appendChild(row);
+          visibleCount += 1;
+        }
       });
+      if (inventoryFilterEmpty) {
+        if (visibleCount === 0) {
+          inventoryFilterEmpty.hidden = false;
+          inventoryFilterEmpty.style.display = "block";
+        } else {
+          inventoryFilterEmpty.hidden = true;
+          inventoryFilterEmpty.style.display = "none";
+        }
+      }
     }
     function equipItem(preferredSlot, itemKey) {
       ensureEquipmentState();
