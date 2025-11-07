@@ -369,11 +369,6 @@
       width: 210px;
       flex: 0 1 210px;
     }
-    [data-equip-slot="weapon"] .slot-icon,
-    [data-equip-slot="offhand"] .slot-icon {
-      width: 70px;
-      height: 70px;
-    }
     .equipment-slot.equipped {
       border-style: solid;
       border-color: rgba(245,158,11,0.55);
@@ -434,20 +429,40 @@
     .slot-body {
       display: flex;
       align-items: center;
-      gap: 0.55rem;
+      gap: 0.75rem;
     }
     .slot-icon {
-      width: 60px;
-      height: 60px;
+      width: 100px;
+      height: 120px;
       border-radius: 0.75rem;
       border: 1px solid rgba(148,163,184,0.35);
       background: rgba(15,23,42,0.55);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      gap: 0.35rem;
+      padding: 0.35rem;
     }
-    .slot-icon svg { width: 42px; height: 42px; }
+    .slot-icon svg { width: 80px; height: 80px; }
+    [data-equip-slot="weapon"] .slot-icon,
+    [data-equip-slot="offhand"] .slot-icon {
+      width: 120px;
+      height: 140px;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding: 0.4rem;
+    }
+    [data-equip-slot="weapon"] .slot-icon svg,
+    [data-equip-slot="offhand"] .slot-icon svg {
+      width: 100px;
+      height: 100px;
+    }
+    .inventory-stat-badge {
+      padding: 0.24rem 0.65rem;
+      font-size: 0.72rem;
+    }
     .slot-placeholder {
       font-size: 1.1rem;
       color: rgba(148,163,184,0.5);
@@ -455,15 +470,7 @@
     .slot-info {
       display: flex;
       flex-direction: column;
-      gap: 0.1rem;
-    }
-    .slot-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-    .slot-meta {
-      font-size: 0.78rem;
-      color: var(--muted);
+      gap: 0.35rem;
     }
     .slot-stats {
       display: flex;
@@ -471,12 +478,6 @@
       flex-wrap: wrap;
       font-size: 0.75rem;
       color: var(--muted);
-    }
-    .slot-stats span {
-      padding: 0.2rem 0.5rem;
-      border-radius: 999px;
-      background: rgba(148,163,184,0.15);
-      border: 1px solid rgba(148,163,184,0.2);
     }
     @media (max-width: 720px) {
       .slot-row {
@@ -1706,8 +1707,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Noch keine Handschuhe.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1720,8 +1719,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Kein Helm aktiv.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1734,8 +1731,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Keine Halskette aktiv.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1750,8 +1745,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Kein Schwert ausgeruestet.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1775,8 +1768,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Kein Schild aktiv.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1791,8 +1782,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Noch kein Schmuck.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1805,8 +1794,6 @@
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
-                    <span class="slot-name">Leer</span>
-                    <span class="slot-meta">Noch kein Schmuck.</span>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -3410,6 +3397,19 @@
       const currentInfo = progressInfo ? progressInfo.textContent : undefined;
       updateUI(currentInfo);
     }
+    function collectItemStats(item) {
+      if (!item) return [];
+      const stats = [];
+      const push = (label, value, className) => {
+        const numeric = Number(value) || 0;
+        if (numeric > 0) {
+          stats.push({ label, value: numeric, className });
+        }
+      };
+      push("ATK", item.atk, "atk");
+      push("DEF", item.def, "def");
+      return stats;
+    }
     function renderEquipmentSlots() {
       ensureEquipmentState();
       EQUIPMENT_SLOT_KEYS.forEach(slotKey => {
@@ -3421,6 +3421,7 @@
         const metaEl = slotEl.querySelector(".slot-meta");
         const statsEl = slotEl.querySelector(".slot-stats");
         const clearBtn = slotEl.querySelector(".slot-unequip");
+        const headerLabel = slotEl.querySelector(".slot-header span");
         const equippedKey = state.equipment[slotKey];
         const item = getItemByKey(equippedKey);
         for (let tier = 1; tier <= MAX_ITEM_TIER; tier += 1) {
@@ -3428,6 +3429,7 @@
         }
         if (!item) {
           slotEl.classList.remove("equipped");
+          if (headerLabel) headerLabel.textContent = meta.label || slotKey.toUpperCase();
           if (nameEl) nameEl.textContent = "Leer";
           if (metaEl) metaEl.textContent = meta.empty || "Slot frei";
           if (statsEl) statsEl.innerHTML = "";
@@ -3438,22 +3440,26 @@
         slotEl.classList.add("equipped");
         const tierClass = `tier-${Math.min(MAX_ITEM_TIER, Math.max(1, Number(item.tier) || 1))}`;
         slotEl.classList.add(tierClass);
+        if (headerLabel) headerLabel.textContent = item.name || meta.label || slotKey;
         if (nameEl) nameEl.textContent = item.name;
-        if (metaEl) metaEl.textContent = `Tier ${item.tier} • Kopien ${item.totalCopies}`;
+        if (metaEl) {
+          const tierValue = item.tier || 1;
+          const copyValue = item.totalCopies || 1;
+          metaEl.textContent = "Tier " + tierValue + " / Kopien " + copyValue;
+        }
+        const statBadges = collectItemStats(item);
         if (statsEl) {
           statsEl.innerHTML = "";
-          if (Number(item.atk) > 0) {
-            const atkChip = document.createElement("span");
-            atkChip.textContent = "ATK +" + item.atk;
-            statsEl.appendChild(atkChip);
-          }
-          if (Number(item.def) > 0) {
-            const defChip = document.createElement("span");
-            defChip.textContent = "DEF +" + item.def;
-            statsEl.appendChild(defChip);
-          }
+          statBadges.forEach(({ label, value, className }) => {
+            const chip = document.createElement("span");
+            chip.className = `badge ${className} inventory-stat-badge`;
+            chip.textContent = `${label} +${value}`;
+            statsEl.appendChild(chip);
+          });
         }
-        if (iconEl) iconEl.innerHTML = getItemIcon(item.icon);
+        if (iconEl) {
+          iconEl.innerHTML = getItemIcon(item.icon);
+        }
         if (clearBtn) {
           clearBtn.hidden = false;
           clearBtn.dataset.slot = slotKey;
