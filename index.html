@@ -356,9 +356,37 @@
     .equipment-slot.equipped {
       border-style: solid;
       border-color: rgba(245,158,11,0.55);
-      background: rgba(245,158,11,0.12);
       box-shadow: 0 12px 28px rgba(245,158,11,0.18);
     }
+    .equipment-slot.tier-1 {
+      border-color: rgba(148,163,184,0.4);
+      background: rgba(148,163,184,0.12);
+    }
+    .equipment-slot.tier-2 {
+      border-color: rgba(34,197,94,0.5);
+      background: rgba(34,197,94,0.12);
+      box-shadow: 0 6px 14px rgba(34,197,94,0.15);
+    }
+    .equipment-slot.tier-3 {
+      border-color: rgba(37,99,235,0.55);
+      background: rgba(37,99,235,0.12);
+      box-shadow: 0 6px 14px rgba(37,99,235,0.18);
+    }
+    .equipment-slot.tier-4 {
+      border-color: rgba(192,132,252,0.6);
+      background: rgba(192,132,252,0.12);
+      box-shadow: 0 6px 18px rgba(192,132,252,0.2);
+    }
+    .equipment-slot.tier-5 {
+      border-color: rgba(251,191,36,0.75);
+      background: rgba(251,191,36,0.18);
+      box-shadow: 0 8px 20px rgba(251,191,36,0.22);
+    }
+    .equipment-slot.tier-1 .slot-icon { border-color: rgba(148,163,184,0.55); background: rgba(148,163,184,0.18); }
+    .equipment-slot.tier-2 .slot-icon { border-color: rgba(34,197,94,0.65); background: rgba(34,197,94,0.22); }
+    .equipment-slot.tier-3 .slot-icon { border-color: rgba(37,99,235,0.7); background: rgba(37,99,235,0.24); }
+    .equipment-slot.tier-4 .slot-icon { border-color: rgba(192,132,252,0.75); background: rgba(192,132,252,0.25); }
+    .equipment-slot.tier-5 .slot-icon { border-color: rgba(251,191,36,0.8); background: rgba(251,191,36,0.3); }
     .slot-header {
       display: flex;
       align-items: center;
@@ -397,11 +425,6 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-    }
-    .equipment-slot.equipped .slot-icon {
-      border-style: solid;
-      border-color: rgba(245,158,11,0.6);
-      background: rgba(15,23,42,0.85);
     }
     .slot-icon svg { width: 42px; height: 42px; }
     .slot-placeholder {
@@ -3217,6 +3240,9 @@
         const clearBtn = slotEl.querySelector(".slot-unequip");
         const equippedKey = state.equipment[slotKey];
         const item = getItemByKey(equippedKey);
+        for (let tier = 1; tier <= MAX_ITEM_TIER; tier += 1) {
+          slotEl.classList.remove(`tier-${tier}`);
+        }
         if (!item) {
           slotEl.classList.remove("equipped");
           if (nameEl) nameEl.textContent = "Leer";
@@ -3227,6 +3253,8 @@
           return;
         }
         slotEl.classList.add("equipped");
+        const tierClass = `tier-${Math.min(MAX_ITEM_TIER, Math.max(1, Number(item.tier) || 1))}`;
+        slotEl.classList.add(tierClass);
         if (nameEl) nameEl.textContent = item.name;
         if (metaEl) metaEl.textContent = `Tier ${item.tier} • Kopien ${item.totalCopies}`;
         if (statsEl) {
