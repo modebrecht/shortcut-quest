@@ -286,15 +286,15 @@
       --def-low: #38bdf8;
       --def-mid: #0ea5e9;
       --def-high: #22c55e;
-      width: 225px;
-      height: 275px;
+      width: 220px;
+      height: 280px;
       border-radius: 1rem;
       border: 1px solid var(--border);
-      background: linear-gradient(155deg, rgba(26,35,58,0.95), rgba(12,19,34,0.8));
+      background: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.5rem 0.5rem 1.6rem;
+      padding: 0.6rem 0.75rem 1rem;
       box-shadow: inset 0 0 16px rgba(8,15,30,0.7);
       margin: 0 auto;
       overflow: hidden;
@@ -310,10 +310,13 @@
       transition: transform 180ms ease;
     }
     .hero-avatar .hero-illustration.is-knight {
-      transform: translateY(-24px) scale(1.32);
+      transform: translateY(-2px) scale(1.22);
     }
     .hero-avatar .hero-illustration.is-blueprint {
-      transform: translateY(-4px) scale(1.18);
+      transform: translateY(-4px) scale(1.16);
+    }
+    .hero-avatar.no-gear {
+      background: linear-gradient(165deg, rgba(45,64,124,0.95), rgba(17,24,39,0.88));
     }
     .hero-svg { width: 120px; height: 160px; }
     .hero-avatar[data-atk-tier="1"] .sword-blade { stroke: var(--atk-low); }
@@ -347,7 +350,7 @@
       min-width: 250px;
     }
     .equipment-slot {
-      border: 1px dashed var(--border);
+      border: 1px solid  var(--border);
       border-radius: 0.9rem;
       padding: 0.8rem;
       display: flex;
@@ -437,7 +440,7 @@
       width: 60px;
       height: 60px;
       border-radius: 0.75rem;
-      border: 1px dashed rgba(148,163,184,0.35);
+      border: 1px solid rgba(148,163,184,0.35);
       background: rgba(15,23,42,0.55);
       display: flex;
       align-items: center;
@@ -977,7 +980,7 @@
     .skill-empty {
       padding: 0.75rem 0.85rem;
       border-radius: 0.75rem;
-      border: 1px dashed rgba(148,163,184,0.3);
+      border: 1px solid rgba(148,163,184,0.3);
       background: rgba(15,23,42,0.35);
       font-size: 0.85rem;
       color: var(--muted);
@@ -3669,15 +3672,14 @@
       const defBonus = Math.max(0, state.def - BASE_DEF);
       const atkTier = atkBonus >= 5 ? 3 : atkBonus >= 2 ? 2 : 1;
       const defTier = defBonus >= 5 ? 3 : defBonus >= 2 ? 2 : 1;
-      const hasGear = getEquippedItems().length > 0;
       const hasInventory = Array.isArray(state.items) && state.items.length > 0;
       heroAvatar.setAttribute("data-atk-tier", String(atkTier));
       heroAvatar.setAttribute("data-def-tier", String(defTier));
-      heroAvatar.classList.toggle("no-gear", !hasGear);
-      heroAvatar.classList.toggle("has-gear", hasGear);
+      heroAvatar.classList.toggle("no-gear", !hasInventory);
+      heroAvatar.classList.toggle("has-gear", hasInventory);
       if (heroAvatarImage) {
         const blueprintSrc = "assets/blueprint_clean.svg";
-        const knightSrc = "assets/knight_idle_blink.svg";
+        const knightSrc = "assets/knight_idle_fin.svg";
         heroAvatarImage.src = hasInventory ? knightSrc : blueprintSrc;
         heroAvatarImage.alt = hasInventory ? "Ritter bereit fuer den Kampf" : "Blueprint deines Helden";
         heroAvatarImage.classList.toggle("is-blueprint", !hasInventory);

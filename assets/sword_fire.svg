@@ -28,8 +28,4 @@
         fill="url(#innerFlame)" opacity="0.95">
     <animate attributeName="opacity" values="0.6;1;0.6" dur="0.9s" repeatCount="indefinite"/>
   </path>
-  <circle cx="16" cy="1.4" r="0.9" fill="#fffdf2">
-    <animate attributeName="cy" values="1.4;-0.5" dur="0.6s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="1;0" dur="0.6s" repeatCount="indefinite"/>
-  </circle>
 </svg>
