@@ -514,10 +514,6 @@
       transform: translateY(-1px);
       box-shadow: 0 12px 28px rgba(15,23,42,0.4);
     }
-    .inventory-item.equipped {
-      border-color: rgba(245,158,11,0.6);
-      box-shadow: 0 12px 26px rgba(245,158,11,0.15);
-    }
     .item-left {
       display: flex;
       align-items: center;
@@ -3007,9 +3003,6 @@
       row.dataset.itemKey = normalizedKey;
       const slotKey = getItemSlot(item);
       const isEquipped = slotKey && state.equipment && state.equipment[slotKey] === normalizedKey;
-      if (isEquipped) {
-        row.classList.add("equipped");
-      }
 
       const left = document.createElement("div");
       left.className = "item-left";
@@ -3171,16 +3164,6 @@
         const row = createInventoryRow(item, { showUpgrade: true });
         if (row) inventoryList.appendChild(row);
       });
-    }
-    function autoEquipIfEmpty(item) {
-      const slotKey = getItemSlot(item);
-      if (!slotKey || !item) return;
-      ensureEquipmentState();
-      if (!state.equipment[slotKey]) {
-        const key = item.key || item.name;
-        clearItemFromOtherSlots(key, slotKey);
-        state.equipment[slotKey] = key;
-      }
     }
     function equipItem(preferredSlot, itemKey) {
       ensureEquipmentState();
@@ -3365,7 +3348,6 @@
       fresh.createdAt = now;
       fresh.lastObtainedAt = now;
       state.items.push(fresh);
-      autoEquipIfEmpty(fresh);
       sortInventoryByNewest();
       return { item: fresh, isNew: true };
     }
