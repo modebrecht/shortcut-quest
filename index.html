@@ -286,16 +286,34 @@
       --def-low: #38bdf8;
       --def-mid: #0ea5e9;
       --def-high: #22c55e;
-      width: 180px;
-      height: 220px;
+      width: 225px;
+      height: 275px;
       border-radius: 1rem;
       border: 1px solid var(--border);
       background: linear-gradient(155deg, rgba(26,35,58,0.95), rgba(12,19,34,0.8));
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0.5rem 0.5rem 1.6rem;
       box-shadow: inset 0 0 16px rgba(8,15,30,0.7);
       margin: 0 auto;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-avatar .hero-illustration {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center 60%;
+      display: block;
+      transform-origin: center 70%;
+      transition: transform 180ms ease;
+    }
+    .hero-avatar .hero-illustration.is-knight {
+      transform: translateY(-24px) scale(1.32);
+    }
+    .hero-avatar .hero-illustration.is-blueprint {
+      transform: translateY(-4px) scale(1.18);
     }
     .hero-svg { width: 120px; height: 160px; }
     .hero-avatar[data-atk-tier="1"] .sword-blade { stroke: var(--atk-low); }
@@ -326,7 +344,7 @@
       align-items: center;
     }
     .slot-row.middle-row .hero-center {
-      min-width: 200px;
+      min-width: 250px;
     }
     .equipment-slot {
       border: 1px dashed var(--border);
@@ -1737,45 +1755,14 @@
               </div>
               <div class="hero-center">
                 <div class="hero-avatar" id="heroAvatar" data-atk-tier="1" data-def-tier="1">
-                <svg class="hero-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="armorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="#94a3b8"></stop>
-                      <stop offset="100%" stop-color="#475569"></stop>
-                    </linearGradient>
-                    <linearGradient id="capeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#1d4ed8"></stop>
-                      <stop offset="100%" stop-color="#0f172a"></stop>
-                    </linearGradient>
-                  </defs>
-                <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
-                <circle class="armor-core head-shell" cx="60" cy="41" r="15" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></circle>
-                <rect class="armor-core neck-piece" x="52" y="56" width="16" height="10" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.6"></rect>
-                <rect class="armor-core" x="44" y="62" width="32" height="40" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
-                <rect x="51" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
-                <rect x="62" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
-                <path d="M49 44 h22" stroke="#0f172a" stroke-width="3" stroke-linecap="round"></path>
-                <path d="M60 33 v-6" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
-                <path class="cape-shape" d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
-                <path class="cape-shape" d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
-                <g class="shield-group" transform="translate(18,72)">
-                    <path class="shield-outline" d="M18 0 L36 8 v16 c0 12-18 24-18 24S0 36 0 24V8z" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="2"></path>
-                    <path d="M18 4 L32 10 v12 c0 8-14 16-14 16S8 30 8 22V10z" fill="rgba(59,130,246,0.35)"></path>
-                  </g>
-                  <g class="sword-group" transform="translate(72,64)">
-                    <rect x="12" y="0" width="4" height="44" rx="2" fill="#e2e8f0" class="sword-blade" stroke="#94a3b8" stroke-width="1.5"></rect>
-                    <rect x="8" y="38" width="12" height="4" rx="2" fill="#fcd34d"></rect>
-                    <rect x="9.5" y="42" width="9" height="6" rx="2" fill="#b45309"></rect>
-                    <circle cx="14" cy="44" r="2" fill="#1f2937"></circle>
-                  </g>
-                <g class="leg-group">
-                  <rect class="leg-piece" x="48" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
-                  <rect class="leg-piece" x="61" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
-                  <rect class="leg-piece" x="46" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
-                  <rect class="leg-piece" x="61" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
-                </g>
-                </svg>
-              </div>
+                  <img
+                    id="heroAvatarImage"
+                    class="hero-illustration is-blueprint"
+                    src="assets/blueprint_clean.svg"
+                    alt="Blueprint deines Helden"
+                    loading="lazy"
+                  />
+                </div>
               </div>
               <div class="equipment-slot tall" data-equip-slot="offhand">
                 <div class="slot-header">
@@ -2361,6 +2348,7 @@
     const shopLatest = document.getElementById("shopLatest");
     const shopLatestEmpty = document.getElementById("shopLatestEmpty");
     const heroAvatar = document.getElementById("heroAvatar");
+    const heroAvatarImage = document.getElementById("heroAvatarImage");
     const hpDisplay = document.getElementById("hpDisplay");
     const autoEquipBtn = document.getElementById("autoEquipBtn");
     const equipmentSlots = document.querySelectorAll("[data-equip-slot]");
@@ -3682,10 +3670,19 @@
       const atkTier = atkBonus >= 5 ? 3 : atkBonus >= 2 ? 2 : 1;
       const defTier = defBonus >= 5 ? 3 : defBonus >= 2 ? 2 : 1;
       const hasGear = getEquippedItems().length > 0;
+      const hasInventory = Array.isArray(state.items) && state.items.length > 0;
       heroAvatar.setAttribute("data-atk-tier", String(atkTier));
       heroAvatar.setAttribute("data-def-tier", String(defTier));
       heroAvatar.classList.toggle("no-gear", !hasGear);
       heroAvatar.classList.toggle("has-gear", hasGear);
+      if (heroAvatarImage) {
+        const blueprintSrc = "assets/blueprint_clean.svg";
+        const knightSrc = "assets/knight_idle_blink.svg";
+        heroAvatarImage.src = hasInventory ? knightSrc : blueprintSrc;
+        heroAvatarImage.alt = hasInventory ? "Ritter bereit fuer den Kampf" : "Blueprint deines Helden";
+        heroAvatarImage.classList.toggle("is-blueprint", !hasInventory);
+        heroAvatarImage.classList.toggle("is-knight", hasInventory);
+      }
     }
     function updateUI(extraText) {
       const diff = state.coins - displayedCoins;
