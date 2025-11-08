@@ -459,6 +459,23 @@
       width: 100px;
       height: 100px;
     }
+    /* Make SVG or IMG icons appear larger visually without changing the slot size.
+       We use transform: scale() so the container (.slot-icon) keeps its dimensions.
+       overflow: visible ensures the scaled icon is not clipped. */
+    .slot-icon img,
+    .slot-icon svg,
+    .item-icon img,
+    .item-icon svg {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      transform-origin: center center;
+      transform: scale(1.25); /* adjust scale factor as desired */
+      object-fit: contain;
+      display: block;
+    }
+    .slot-icon { overflow: visible; }
     .inventory-stat-badge {
       padding: 0.24rem 0.65rem;
       font-size: 0.72rem;
@@ -2585,10 +2602,12 @@
     });
 
     const KNIGHT_POOL = [
-      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword", slot: "weapon", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
+      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword_bronze", slot: "weapon", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
 
-      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword", slot: "weapon", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
-      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword", slot: "weapon", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
+      { key: "feuer_klinge", name: "Feuerklinge", atk: 4, def: 0, icon: "sword_fire", slot: "weapon", description: "Entzündet zusaetzlichen Schaden bei Treffern.", theme: "knight", category: "weapon" },
+
+      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword_steel", slot: "weapon", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
+      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword_ghost", slot: "weapon", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
       { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", slot: "offhand", description: "Blockt Fehler beim Tippen.", theme: "knight", category: "armor" },
       { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight", category: "armor" },
       { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight", category: "armor" },
@@ -3102,8 +3121,22 @@
       const defenseBonus = Math.max(0, state.def) * HP_PER_DEF;
       return Math.max(1, BASE_HP + gearHp + defenseBonus);
     }
-    function getItemIcon(iconKey) {
-      return ITEM_ART[iconKey] || ITEM_ART.default;
+    function getItemIcon(iconKey, itemKey) {
+      // Prefer explicit iconKey. If missing or legacy 'sword', try resolving via the item key / template.
+      let ik = iconKey;
+      if ((!ik || String(ik).toLowerCase() === "sword") && itemKey && typeof KNIGHT_BY_KEY === 'object') {
+        const byKey = KNIGHT_BY_KEY[itemKey];
+        if (byKey && byKey.icon) ik = byKey.icon;
+      }
+      if (!ik) return ITEM_ART.default;
+      const key = String(ik);
+      // If icon references an external sword asset like "sword_fire", use the file in assets/
+      if (key.startsWith("sword_")) {
+        // sanitize to avoid unexpected chars
+        const safe = key.replace(/[^a-z0-9_\-]/gi, "");
+        return `<img src="assets/${safe}.svg" alt="${safe}" loading="lazy">`;
+      }
+      return ITEM_ART[ik] || ITEM_ART.default;
     }
     function createInventoryRow(item, options = {}) {
       const { showUpgrade = true } = options;
@@ -3121,7 +3154,7 @@
       left.className = "item-left";
       const icon = document.createElement("div");
       icon.className = "item-icon";
-      icon.innerHTML = getItemIcon(item.icon);
+  icon.innerHTML = getItemIcon(item.icon, item.key);
       const text = document.createElement("div");
       text.className = "item-text";
       const nameEl = document.createElement("strong");
@@ -3211,7 +3244,7 @@
       left.className = "item-left";
       const icon = document.createElement("div");
       icon.className = "item-icon";
-      icon.innerHTML = getItemIcon(skill.icon);
+  icon.innerHTML = getItemIcon(skill.icon, skill.key);
       const text = document.createElement("div");
       text.className = "item-text";
       const nameEl = document.createElement("strong");
@@ -3458,7 +3491,7 @@
           });
         }
         if (iconEl) {
-          iconEl.innerHTML = getItemIcon(item.icon);
+          iconEl.innerHTML = getItemIcon(item.icon, item.key);
         }
         if (clearBtn) {
           clearBtn.hidden = false;
