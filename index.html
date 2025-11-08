@@ -2821,6 +2821,25 @@
       if (tier <= 1) return 1;
       return Math.pow(2, tier - 1);
     }
+    function getMaxCopiesForItem(template) {
+      const targetTier = Math.max(1, Math.min(MAX_ITEM_TIER, Math.floor(template && template.maxTier ? template.maxTier : MAX_ITEM_TIER)));
+      return copiesRequiredForTier(targetTier);
+    }
+    function getOwnedItemCopies(itemKey) {
+      if (!itemKey || !Array.isArray(state.items)) return 0;
+      const entry = state.items.find(candidate => candidate.key === itemKey);
+      if (!entry) return 0;
+      return Math.max(1, Math.floor(entry.totalCopies || 1));
+    }
+    function getRemainingShopCopies(template) {
+      if (!template || !template.key) return 0;
+      const maxCopies = getMaxCopiesForItem(template);
+      const ownedCopies = getOwnedItemCopies(template.key);
+      return Math.max(0, maxCopies - ownedCopies);
+    }
+    function isItemEligibleForShop(template) {
+      return getRemainingShopCopies(template) > 0;
+    }
     function maxTierFromCopies(copies) {
       const safeCopies = Math.max(1, Math.floor(copies || 1));
       return Math.min(MAX_ITEM_TIER, Math.floor(Math.log2(safeCopies)) + 1);
@@ -3634,8 +3653,15 @@
       const now = Date.now();
       const key = template.key;
       const existing = state.items.find(entry => entry.key === key);
+      const maxCopies = getMaxCopiesForItem(existing || template || {});
       if (existing) {
-        existing.totalCopies = Math.max(1, Math.floor(existing.totalCopies || 1)) + 1;
+        const currentCopies = Math.max(1, Math.floor(existing.totalCopies || 1));
+        if (currentCopies >= maxCopies) {
+          updateItemDerivedStats(existing);
+          sortInventoryByNewest();
+          return { item: existing, isNew: false };
+        }
+        existing.totalCopies = currentCopies + 1;
         existing.lastObtainedAt = now;
         updateItemDerivedStats(existing);
         sortInventoryByNewest();
@@ -3699,6 +3725,32 @@
       }
       const selected = Array.from(gachaTypeInputs).find(input => input.checked);
       return selected ? selected.value : state.gachaPreference || "weapon";
+    }
+    function getShopPoolForCategory(category) {
+      let pool = KNIGHT_POOL;
+      if (category && category !== "any" && category !== "skill") {
+        const filtered = KNIGHT_POOL.filter(item => item.category === category);
+        if (filtered.length) pool = filtered;
+      }
+      return pool.filter(isItemEligibleForShop);
+    }
+    function pickBlueprintFromPool(pool) {
+      if (!pool || !pool.length) return null;
+      const weighted = [];
+      pool.forEach(item => {
+        const remaining = getRemainingShopCopies(item);
+        for (let i = 0; i < remaining; i += 1) {
+          weighted.push(item);
+        }
+      });
+      if (!weighted.length) return null;
+      const index = Math.floor(Math.random() * weighted.length);
+      return weighted[index];
+    }
+    function describeGachaCategory(category) {
+      if (category && GACHA_CATEGORY_LABELS[category]) return GACHA_CATEGORY_LABELS[category];
+      if (!category || category === "any") return GACHA_CATEGORY_LABELS.any || "Items";
+      return category.charAt(0).toUpperCase() + category.slice(1);
     }
     let displayedCoins = state.coins;
     let pendingCoinAnimation = null;
@@ -3928,12 +3980,12 @@
         gachaMsg.textContent = "Nicht genug Coins (20 noetig).";
         return;
       }
-      state.coins -= cost;
       const type = getSelectedGachaType();
       state.gachaPreference = type;
-      pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
       let message = "";
       if (type === "skill") {
+        state.coins -= cost;
+        pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
         const blueprint = SKILL_POOL[Math.floor(Math.random() * SKILL_POOL.length)];
         const { skill, isNew } = addSkillToCollection(blueprint);
         state.lastShopPurchase = { type: "skill", key: skill.key, timestamp: Date.now() };
@@ -3948,12 +4000,20 @@
         }
         updateUI();
       } else {
-        let pool = KNIGHT_POOL;
-        if (type && type !== "any" && type !== "skill") {
-          const filtered = KNIGHT_POOL.filter(item => item.category === type);
-          if (filtered.length) pool = filtered;
+        const availablePool = getShopPoolForCategory(type);
+        if (!availablePool.length) {
+          const label = describeGachaCategory(type);
+          gachaMsg.textContent = label + "-Kategorie ausverkauft: Alle Items bereits Tier " + MAX_ITEM_TIER + ".";
+          return;
         }
-        const blueprint = pool[Math.floor(Math.random() * pool.length)];
+        const blueprint = pickBlueprintFromPool(availablePool);
+        if (!blueprint) {
+          const label = describeGachaCategory(type);
+          gachaMsg.textContent = label + "-Kategorie ausverkauft: Alle Items bereits Tier " + MAX_ITEM_TIER + ".";
+          return;
+        }
+        state.coins -= cost;
+        pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
         const { item, isNew } = addItemToInventory(blueprint);
         state.lastShopPurchase = { type: "item", key: item.key, timestamp: Date.now() };
         recalcStats();
