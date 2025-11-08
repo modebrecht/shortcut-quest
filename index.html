@@ -283,10 +283,9 @@
       width: 100%;
       height: 100%;
       min-height: 0;
-      padding: 0.65rem;
       border-radius: 0.9rem;
       border: 1px solid var(--border);
-      background: rgba(15,23,42,0.5);
+      background: rgba(15,23,42,0.1);
       box-shadow: inset 0 0 16px rgba(8,15,30,0.35);
     }
     .hero-avatar {
@@ -434,26 +433,40 @@
     .slot-unequip[hidden] { display: none; }
     .slot-body {
       display: flex;
-      align-items: center;
-      gap: 0.55rem;
+      align-items: stretch;
+      gap: 0.85rem;
       flex: 1;
+      height: 100%;
     }
     .equipment-slot.equipped .slot-body {
-      align-items: flex-end;
+      align-items: stretch;
     }
     .slot-icon {
-      width: 120px;
-      height: 140px;
-      border-radius: 0.75rem;
+      width: 130px;
+      height: 100%;
+      border-radius: 0.9rem;
       border: 1px solid rgba(148,163,184,0.35);
-      background: rgba(15,23,42,0.55);
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(255,255,255,0.08), transparent),
+        rgba(3,8,23,0.85);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      gap: 0.35rem;
-      padding: 0.35rem;
+      gap: 0.4rem;
+      padding: 0.45rem;
+      position: relative;
+      box-shadow: inset 0 0 32px rgba(2,6,23,0.8);
+      align-self: stretch;
+    }
+    .slot-icon::after {
+      content: "";
+      position: absolute;
+      inset: 0.25rem;
+      border-radius: 0.7rem;
+      border: 1px solid rgba(148,163,184,0.15);
+      pointer-events: none;
     }
     .slot-icon img,
     .slot-icon svg,
@@ -485,7 +498,12 @@
     .slot-info {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      justify-content: space-between;
+      gap: 0.6rem;
+      flex: 1;
+      height: 100%;
+      min-width: 0;
+      padding: 0.1rem 0;
     }
     .slot-stats {
       display: flex;
@@ -493,6 +511,7 @@
       flex-wrap: wrap;
       font-size: 0.75rem;
       color: var(--muted);
+      margin-top: auto;
     }
     @media (max-width: 720px) {
       .slot-row {
@@ -1722,37 +1741,37 @@
           <div class="equipment-layout">
             <div class="slot-row top-row">
               <div class="equipment-slot" data-equip-slot="gloves">
-                <div class="slot-header">
-                  <span>Handschuhe</span>
-                  <button class="slot-unequip" type="button" data-slot="gloves" aria-label="Handschuhe entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Handschuhe</span>
+                      <button class="slot-unequip" type="button" data-slot="gloves" aria-label="Handschuhe entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
               </div>
               <div class="equipment-slot" data-equip-slot="helm">
-                <div class="slot-header">
-                  <span>Helm</span>
-                  <button class="slot-unequip" type="button" data-slot="helm" aria-label="Helm entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Helm</span>
+                      <button class="slot-unequip" type="button" data-slot="helm" aria-label="Helm entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
               </div>
               <div class="equipment-slot" data-equip-slot="necklace">
-                <div class="slot-header">
-                  <span>Halskette</span>
-                  <button class="slot-unequip" type="button" data-slot="necklace" aria-label="Halskette entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Halskette</span>
+                      <button class="slot-unequip" type="button" data-slot="necklace" aria-label="Halskette entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1760,13 +1779,13 @@
             </div>
             <div class="slot-row middle-row">
               <div class="equipment-slot tall" data-equip-slot="weapon">
-                <div class="slot-header">
-                  <span>Schwert</span>
-                  <button class="slot-unequip" type="button" data-slot="weapon" aria-label="Schwert entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Schwert</span>
+                      <button class="slot-unequip" type="button" data-slot="weapon" aria-label="Schwert entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1783,13 +1802,13 @@
                 </div>
               </div>
               <div class="equipment-slot tall" data-equip-slot="offhand">
-                <div class="slot-header">
-                  <span>Schwert 2 / Schild</span>
-                  <button class="slot-unequip" type="button" data-slot="offhand" aria-label="Schild entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Schwert 2 / Schild</span>
+                      <button class="slot-unequip" type="button" data-slot="offhand" aria-label="Schild entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
@@ -1797,37 +1816,37 @@
             </div>
             <div class="slot-row bottom-row">
               <div class="equipment-slot" data-equip-slot="ring_left">
-                <div class="slot-header">
-                  <span>Ring / Amulett 1</span>
-                  <button class="slot-unequip" type="button" data-slot="ring_left" aria-label="Ring links entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Ring / Amulett 1</span>
+                      <button class="slot-unequip" type="button" data-slot="ring_left" aria-label="Ring links entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
               </div>
               <div class="equipment-slot" data-equip-slot="boots">
-                <div class="slot-header">
-                  <span>Stiefel</span>
-                  <button class="slot-unequip" type="button" data-slot="boots" aria-label="Stiefel entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Stiefel</span>
+                      <button class="slot-unequip" type="button" data-slot="boots" aria-label="Stiefel entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
               </div>
               <div class="equipment-slot" data-equip-slot="ring_right">
-                <div class="slot-header">
-                  <span>Ring / Amulett 2</span>
-                  <button class="slot-unequip" type="button" data-slot="ring_right" aria-label="Ring rechts entfernen" hidden>&times;</button>
-                </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
                   <div class="slot-info">
+                    <div class="slot-header">
+                      <span>Ring / Amulett 2</span>
+                      <button class="slot-unequip" type="button" data-slot="ring_right" aria-label="Ring rechts entfernen" hidden>&times;</button>
+                    </div>
                     <div class="slot-stats"></div>
                   </div>
                 </div>
