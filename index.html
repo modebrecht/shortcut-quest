@@ -811,6 +811,11 @@
       font-weight: 600;
       letter-spacing: 0.01em;
     }
+    .gacha-remaining {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
     .gacha-option.active {
       border-color: rgba(245,158,11,0.6);
       background: rgba(245,158,11,0.18);
@@ -2044,6 +2049,7 @@
                 </svg>
               </span>
               <span class="gacha-label">Waffe</span>
+              <span class="gacha-remaining" data-remaining-category="weapon">--</span>
             </label>
             <label class="gacha-option">
               <input type="radio" name="gachaType" value="armor">
@@ -2053,6 +2059,7 @@
                 </svg>
               </span>
               <span class="gacha-label">Ausrüstung</span>
+              <span class="gacha-remaining" data-remaining-category="armor">--</span>
             </label>
             <label class="gacha-option">
               <input type="radio" name="gachaType" value="accessory">
@@ -2062,6 +2069,7 @@
                 </svg>
               </span>
               <span class="gacha-label">Accessoire</span>
+              <span class="gacha-remaining" data-remaining-category="accessory">--</span>
             </label>
             <label class="gacha-option">
               <input type="radio" name="gachaType" value="skill">
@@ -2071,6 +2079,7 @@
                 </svg>
               </span>
               <span class="gacha-label">Skill</span>
+              <span class="gacha-remaining" data-remaining-category="skill">--</span>
             </label>
           </div>
           <button id="gachaBtn" class="shop-buy-btn">Item kaufen</button>
@@ -2404,6 +2413,7 @@
     const gachaBtn = document.getElementById("gachaBtn");
     const gachaMsg = document.getElementById("gachaMsg");
     const gachaTypeInputs = document.querySelectorAll("input[name='gachaType']");
+    const gachaRemainingLabels = document.querySelectorAll("[data-remaining-category]");
     const battleLog = document.getElementById("battleLog");
     const battleModal = document.getElementById("battleModal");
     const battleTitle = document.getElementById("battleTitle");
@@ -3752,6 +3762,29 @@
       if (!category || category === "any") return GACHA_CATEGORY_LABELS.any || "Items";
       return category.charAt(0).toUpperCase() + category.slice(1);
     }
+    function getRemainingCopiesForCategory(category) {
+      if (category === "skill") return Infinity;
+      const pool = (!category || category === "any")
+        ? KNIGHT_POOL
+        : KNIGHT_POOL.filter(item => item.category === category);
+      if (!pool.length) return 0;
+      return pool.reduce((sum, template) => {
+        return sum + Math.max(0, getRemainingShopCopies(template));
+      }, 0);
+    }
+    function formatRemainingCopyText(category, amount) {
+      if (!isFinite(amount)) return "∞ übrig";
+      if (amount <= 0) return "Ausverkauft";
+      return amount + "x übrig";
+    }
+    function updateGachaRemainingDisplays() {
+      if (!gachaRemainingLabels || !gachaRemainingLabels.length) return;
+      gachaRemainingLabels.forEach(label => {
+        const category = label.getAttribute("data-remaining-category");
+        const remaining = getRemainingCopiesForCategory(category);
+        label.textContent = formatRemainingCopyText(category, remaining);
+      });
+    }
     let displayedCoins = state.coins;
     let pendingCoinAnimation = null;
 
@@ -3833,6 +3866,7 @@
       renderInventory();
       renderSkills();
       renderShopLatest();
+      updateGachaRemainingDisplays();
       renderBattleSkillBar();
     }
     function updateOverallSummary() {
