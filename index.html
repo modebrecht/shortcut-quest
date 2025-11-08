@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -17,6 +17,8 @@
       --bad-soft: rgba(248,113,113,0.18);
       --text: #e2e8f0;
       --muted: #94a3b8;
+      --slot-row-height: 200px;
+      --icon-visual-size: 116px;
     }
     * { box-sizing: border-box; }
     body {
@@ -276,9 +278,16 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 0.75rem;
-      width: 210px;
-      flex: 0 0 210px;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      padding: 0.65rem;
+      border-radius: 0.9rem;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.5);
+      box-shadow: inset 0 0 16px rgba(8,15,30,0.35);
     }
     .hero-avatar {
       --atk-low: #5b6ff5;
@@ -287,8 +296,9 @@
       --def-low: #38bdf8;
       --def-mid: #0ea5e9;
       --def-high: #22c55e;
-      width: 210px;
-      height: 210px;
+      width: 100%;
+      height: 100%;
+      flex: 1 1 auto;
       border-radius: 1rem;
       border: 1px solid var(--border);
       background: none;
@@ -297,7 +307,6 @@
       justify-content: center;
       padding: 0.65rem;
       box-shadow: inset 0 0 16px rgba(8,15,30,0.7);
-      margin: 0 auto;
       overflow: hidden;
       position: relative;
     }
@@ -337,38 +346,34 @@
       filter: grayscale(0.6);
     }
     .slot-row {
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-auto-rows: var(--slot-row-height);
       gap: 0.45rem;
       width: 100%;
-      flex-wrap: wrap;
+      align-items: stretch;
     }
     .slot-row.middle-row {
-      align-items: center;
+      align-items: stretch;
+      justify-items: stretch;
     }
     .slot-row.middle-row .hero-center {
-      min-width: 210px;
+      min-width: 0;
+      width: 100%;
+      flex: 1 1 0;
     }
     .equipment-slot {
-      border: 1px solid  var(--border);
+      border: 1px solid var(--border);
       border-radius: 0.9rem;
       padding: 0.65rem 0.8rem 0.55rem;
       display: flex;
       flex-direction: column;
       gap: 0.55rem;
       background: rgba(15,23,42,0.5);
-      min-height: 210px;
-      width: 210px;
+      min-height: 0;
       position: relative;
-      flex: 0 1 210px;
-    }
-    .equipment-slot.tall { min-height: 210px; }
-    [data-equip-slot="weapon"],
-    [data-equip-slot="offhand"] {
-      min-height: 210px;
-      width: 210px;
-      flex: 0 1 210px;
+      width: 100%;
+      height: 100%;
     }
     .equipment-slot.equipped {
       border-style: solid;
@@ -450,11 +455,6 @@
       gap: 0.35rem;
       padding: 0.35rem;
     }
-    /* Unified icon sizing: make inventory icons visually match equipment icons.
-       Use a single visual size variable so both slot icons and item icons render at
-       the same pixel dimensions while keeping their original containers. */
-    :root { --icon-visual-size: 100px; }
-
     .slot-icon img,
     .slot-icon svg,
     .item-icon img,
@@ -495,8 +495,10 @@
     }
     @media (max-width: 720px) {
       .slot-row {
+        display: flex;
         flex-direction: column;
         align-items: stretch;
+        grid-auto-rows: auto;
       }
       .slot-row.middle-row {
         align-items: stretch;
@@ -504,14 +506,12 @@
       .slot-row.middle-row .hero-center {
         min-width: 0;
       }
-      .slot-row .equipment-slot {
-        width: 100%;
-        flex: 1 1 auto;
-      }
+      .slot-row .equipment-slot,
       .slot-row [data-equip-slot="weapon"],
       .slot-row [data-equip-slot="offhand"] {
         width: 100%;
         flex: 1 1 auto;
+        height: auto;
       }
       .equipment-slot.tall {
         min-height: 140px;
@@ -525,9 +525,10 @@
     }
     .inventory-actions {
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
       gap: 0.6rem;
-      margin-top: 0.6rem;
+      flex-wrap: wrap;
+      margin-left: auto;
     }
     .inventory-filter-bar {
       display: flex;
@@ -719,6 +720,12 @@
     .game-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
     .game-grid .card { flex: 1 1 280px; }
     .statline { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .statline-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
     #gachaBtn {
       padding: 0.6rem 1.2rem;
       background: var(--accent);
@@ -1699,14 +1706,16 @@
     <section id="inventoryView" class="view">
       <div class="game-grid">
         <div class="card" id="playerCard">
-        <div class="statline">
-          <span class="badge" id="atkDisplay">ATK 1</span>
-          <span class="badge" id="defDisplay">DEF 0</span>
-          <span class="badge" id="hpDisplay">HP 0</span>
-          <span class="badge" id="itemsDisplay">Gear: 0/0</span>
-        </div>
-        <div class="inventory-actions">
-          <button id="testAnimationBtn" class="primary-btn" type="button">Animation testen</button>
+        <div class="statline-row">
+          <div class="statline">
+            <span class="badge" id="atkDisplay">ATK 1</span>
+            <span class="badge" id="defDisplay">DEF 0</span>
+            <span class="badge" id="hpDisplay">HP 0</span>
+            <span class="badge" id="itemsDisplay">Gear: 0/0</span>
+          </div>
+          <div class="inventory-actions">
+            <button id="testAnimationBtn" class="primary-btn" type="button">Animation testen</button>
+          </div>
         </div>
         <div class="hero-wrapper">
           <div class="equipment-layout">
