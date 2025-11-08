@@ -268,7 +268,7 @@
     .equipment-layout {
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 0.35rem;
       align-items: center;
       width: 100%;
     }
@@ -276,8 +276,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.85rem;
-      flex: 0 0 auto;
+      gap: 0.75rem;
+      width: 210px;
+      flex: 0 0 210px;
     }
     .hero-avatar {
       --atk-low: #5b6ff5;
@@ -286,15 +287,15 @@
       --def-low: #38bdf8;
       --def-mid: #0ea5e9;
       --def-high: #22c55e;
-      width: 220px;
-      height: 280px;
+      width: 210px;
+      height: 210px;
       border-radius: 1rem;
       border: 1px solid var(--border);
       background: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.6rem 0.75rem 1rem;
+      padding: 0.65rem;
       box-shadow: inset 0 0 16px rgba(8,15,30,0.7);
       margin: 0 auto;
       overflow: hidden;
@@ -339,7 +340,7 @@
       display: flex;
       justify-content: center;
       align-items: stretch;
-      gap: 0.75rem;
+      gap: 0.45rem;
       width: 100%;
       flex-wrap: wrap;
     }
@@ -347,22 +348,22 @@
       align-items: center;
     }
     .slot-row.middle-row .hero-center {
-      min-width: 250px;
+      min-width: 210px;
     }
     .equipment-slot {
       border: 1px solid  var(--border);
       border-radius: 0.9rem;
-      padding: 0.8rem;
+      padding: 0.65rem 0.8rem 0.55rem;
       display: flex;
       flex-direction: column;
       gap: 0.55rem;
       background: rgba(15,23,42,0.5);
-      min-height: 150px;
-      width: 180px;
+      min-height: 210px;
+      width: 210px;
       position: relative;
-      flex: 0 1 180px;
+      flex: 0 1 210px;
     }
-    .equipment-slot.tall { min-height: 190px; }
+    .equipment-slot.tall { min-height: 210px; }
     [data-equip-slot="weapon"],
     [data-equip-slot="offhand"] {
       min-height: 210px;
@@ -429,11 +430,15 @@
     .slot-body {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.55rem;
+      flex: 1;
+    }
+    .equipment-slot.equipped .slot-body {
+      align-items: flex-end;
     }
     .slot-icon {
-      width: 100px;
-      height: 120px;
+      width: 120px;
+      height: 140px;
       border-radius: 0.75rem;
       border: 1px solid rgba(148,163,184,0.35);
       background: rgba(15,23,42,0.55);
@@ -444,20 +449,6 @@
       flex-shrink: 0;
       gap: 0.35rem;
       padding: 0.35rem;
-    }
-    .slot-icon svg { width: 80px; height: 80px; }
-    [data-equip-slot="weapon"] .slot-icon,
-    [data-equip-slot="offhand"] .slot-icon {
-      width: 120px;
-      height: 140px;
-      flex-direction: column;
-      gap: 0.45rem;
-      padding: 0.4rem;
-    }
-    [data-equip-slot="weapon"] .slot-icon svg,
-    [data-equip-slot="offhand"] .slot-icon svg {
-      width: 100px;
-      height: 100px;
     }
     /* Unified icon sizing: make inventory icons visually match equipment icons.
        Use a single visual size variable so both slot icons and item icons render at
@@ -481,6 +472,7 @@
     /* Allow the larger visual to overflow the small inventory icon box so sizes match visually */
     .slot-icon,
     .item-icon { overflow: visible; }
+
     .inventory-stat-badge {
       padding: 0.24rem 0.65rem;
       font-size: 0.72rem;
@@ -1707,7 +1699,6 @@
     <section id="inventoryView" class="view">
       <div class="game-grid">
         <div class="card" id="playerCard">
-          <h2>Inventar</h2>
         <div class="statline">
           <span class="badge" id="atkDisplay">ATK 1</span>
           <span class="badge" id="defDisplay">DEF 0</span>
@@ -1800,6 +1791,18 @@
                 <div class="slot-header">
                   <span>Ring / Amulett 1</span>
                   <button class="slot-unequip" type="button" data-slot="ring_left" aria-label="Ring links entfernen" hidden>&times;</button>
+                </div>
+                <div class="slot-body">
+                  <div class="slot-icon"><span class="slot-placeholder">?</span></div>
+                  <div class="slot-info">
+                    <div class="slot-stats"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="equipment-slot" data-equip-slot="boots">
+                <div class="slot-header">
+                  <span>Stiefel</span>
+                  <button class="slot-unequip" type="button" data-slot="boots" aria-label="Stiefel entfernen" hidden>&times;</button>
                 </div>
                 <div class="slot-body">
                   <div class="slot-icon"><span class="slot-placeholder">?</span></div>
@@ -2311,6 +2314,7 @@
         gloves: null,
         helm: null,
         necklace: null,
+        boots: null,
         weapon: null,
         offhand: null,
         ring_left: null,
@@ -2617,7 +2621,9 @@
       { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight", category: "armor" },
       { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight", category: "armor" },
       { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "gloves", slot: "gloves", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
-      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", slot: "necklace", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" }
+      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", slot: "necklace", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" },
+      { key: "stahl_stiefel", name: "Stahl-Stiefel", atk: 0, def: 2, icon: "boots", slot: "boots", description: "Schwere Panzerung fuer sicheren Stand.", theme: "knight", category: "armor" },
+      { key: "wind_stiefel", name: "Windlaeufer-Stiefel", atk: 1, def: 1, icon: "boots", slot: "boots", description: "Leichte Stiefel fuer flinke Schritte.", theme: "knight", category: "armor" }
     ];
     const KNIGHT_BY_KEY = Object.create(null);
     const KNIGHT_BY_NAME = Object.create(null);
@@ -2666,6 +2672,12 @@
         empty: "Keine Halskette aktiv.",
         accepts: ["necklace", "amulet", "talisman", "trinket", "accessory"]
       },
+      boots: {
+        label: "Stiefel",
+        hint: "Stiefel, Beinschienen oder leichte Panzerung.",
+        empty: "Keine Stiefel aktiv.",
+        accepts: ["boots", "boot", "stiefel", "greaves", "legs", "armor"]
+      },
       weapon: {
         label: "Schwert",
         hint: "Lege Schwerter ueber das Inventar an.",
@@ -2692,12 +2704,13 @@
       }
     };
     const EQUIPMENT_SLOT_KEYS = Object.keys(EQUIPMENT_SLOT_DEFS);
-    const AUTO_EQUIP_SLOT_ORDER = ["weapon", "offhand", "helm", "gloves", "necklace", "ring_left", "ring_right"];
+    const AUTO_EQUIP_SLOT_ORDER = ["weapon", "offhand", "helm", "gloves", "necklace", "boots", "ring_left", "ring_right"];
     const ITEM_ART = {
       sword: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 3)"><rect x="14" y="4" width="4" height="18" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"></rect><rect x="10" y="16" width="12" height="3" rx="1.5" fill="#fcd34d"></rect><rect x="11.5" y="19" width="9" height="4" rx="2" fill="#b45309"></rect><circle cx="16" cy="21" r="1.4" fill="#1f2937"></circle></g></svg>',
       shield: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L26 7 v10 c0 9-10 13-10 13S6 26 6 17V7z" fill="rgba(14,165,233,0.25)" stroke="#38bdf8" stroke-width="1.8"></path><path d="M16 6 L23 9 v8 c0 6-7 9-7 9s-7-3-7-9V9z" fill="rgba(14,116,144,0.45)"></path></svg>',
       helm: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 2)"><path d="M8 22v-6c0-6.6 3.6-12 8-12s8 5.4 8 12v6z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6" stroke-linejoin="round"></path><rect x="11" y="16" width="10" height="4" rx="1.5" fill="#0f172a"></rect><path d="M16 11v7" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></g></svg>',
-      gloves: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g stroke="#1e293b" stroke-width="1.4" fill="rgba(248,250,252,0.85)"><path d="M9 7 q0-3 2.5-3t2.5 3v12q0 2-2.5 2T9 19z"></path><path d="M17 7 q0-3 2.5-3t2.5 3v12q0 2-2.5 2T17 19z"></path><path d="M7 13h18v6q0 5-6 7H13q-6-2-6-7z" fill="rgba(148,163,184,0.4)"></path></g></svg>',
+      gloves: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g stroke="#1e293b" stroke-width="1.4" fill="rgba(248,250,252,0.85)"><path d="M9 7 q0-3 2.5-3t2.5 3v12q0 2-2.5 2T9 19z"></path><path d="M17 7 q0-3 2.5-3t2.5 3v12q0 2-2.5 2T17 19z"></path><path d="M7 13h18v6q0 5-6 7H13 q-6-2-6-7z" fill="rgba(148,163,184,0.4)"></path></g></svg>',
+      boots: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M8 7 h8 v12 l6 3 v5H8z" fill="rgba(148,163,184,0.5)" stroke="#475569" stroke-width="1.3" stroke-linejoin="round"></path><path d="M18 7 h6 v10 l-2 8h-4z" fill="rgba(59,130,246,0.35)" stroke="#1d4ed8" stroke-width="1.2" stroke-linejoin="round"></path><path d="M8 24h10M19 26h6" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"></path></svg>',
       cape: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M10 4 q6 4 12 0 l2 20 q-8 4-16 0z" fill="rgba(59,130,246,0.45)" stroke="#2563eb" stroke-width="1.4"></path><circle cx="16" cy="6" r="2.4" fill="#1d4ed8"></circle></svg>',
       talisman: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="9" fill="rgba(254,243,199,0.9)" stroke="#fbbf24" stroke-width="1.6"></circle><path d="M16 8 L18 14 L24 16 L18 18 L16 24 L14 18 L8 16 L14 14 Z" fill="rgba(250,204,21,0.8)" stroke="#92400e" stroke-width="0.8" stroke-linejoin="round"></path><circle cx="16" cy="16" r="2.4" fill="#f97316"></circle></svg>',
       skill_power: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="rgba(239,68,68,0.18)" stroke="#f87171" stroke-width="1.8"></circle><path d="M16 6 L10 18 h6 l-2 8 8-12h-6z" fill="#facc15" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
@@ -2711,6 +2724,7 @@
       const key = String(slot).toLowerCase();
       if (key === "trinket") return "necklace";
       if (key === "ring") return "ring_left";
+      if (key === "stiefel" || key === "boots" || key === "boot" || key === "greaves" || key === "legs") return "boots";
       return EQUIPMENT_SLOT_DEFS[key] ? key : null;
     }
     function inferItemSlot(item) {
@@ -2720,10 +2734,12 @@
       if (icon === "shield") return "offhand";
       if (icon === "helm") return "helm";
       if (icon === "gloves" || icon === "cape") return "gloves";
+      if (icon === "boots" || icon === "greaves") return "boots";
       if (icon === "talisman") return "necklace";
       if (icon === "ring") return "ring_left";
       const category = String(item.category || "").toLowerCase();
       if (category === "weapon") return "weapon";
+      if (category === "boots" || category === "legs") return "boots";
       if (category === "armor") return "offhand";
       if (category === "accessory") return "necklace";
       return null;
