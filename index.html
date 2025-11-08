@@ -2856,25 +2856,47 @@
       return getRemainingShopCopies(template) > 0;
     }
     function getMaxCopiesForSkill(template) {
-      const targetTier = Math.max(1, Math.min(MAX_SKILL_TIER, Math.floor(template && template.maxTier ? template.maxTier : MAX_SKILL_TIER)));
-      return copiesRequiredForTier(targetTier);
-    }
-    function getOwnedSkillCopies(skillKey) {
-      if (!skillKey || !Array.isArray(state.skills)) return 0;
-      const entry = state.skills.find(candidate => candidate.key === skillKey);
-      if (!entry) return 0;
-      return Math.max(0, Math.floor(entry.totalCopies || 0));
-    }
-    function getRemainingSkillCopies(template) {
-      if (!template || !template.key) return 0;
-      const maxCopies = getMaxCopiesForSkill(template);
-      const ownedCopies = getOwnedSkillCopies(template.key);
-      return Math.max(0, maxCopies - ownedCopies);
+      if (template && Number.isFinite(template.maxTier)) {
+        const targetTier = Math.max(1, Math.min(MAX_SKILL_TIER, Math.floor(template.maxTier)));
+        return copiesRequiredForTier(targetTier);
+      }
+      return Infinity;
     }
     function maxTierFromCopies(copies, tierCap = MAX_ITEM_TIER) {
       const safeCopies = Math.max(1, Math.floor(copies || 1));
       const cap = Math.max(1, Math.floor(tierCap || MAX_ITEM_TIER));
       return Math.min(cap, Math.floor(Math.log2(safeCopies)) + 1);
+    }
+    function getSkillOvercapInfo(skill) {
+      const totalCopies = Math.max(0, Math.floor(skill && skill.totalCopies ? skill.totalCopies : 0));
+      const capCopies = copiesRequiredForTier(MAX_SKILL_TIER);
+      const overcapCopies = Math.max(0, totalCopies - capCopies);
+      const copiesPerPercent = 10;
+      const bonusPercent = Math.floor(overcapCopies / copiesPerPercent);
+      const progressTowardNextPercent = overcapCopies % copiesPerPercent;
+      const remainingToNextPercent = copiesPerPercent - progressTowardNextPercent || copiesPerPercent;
+      return {
+        totalCopies,
+        capCopies,
+        overcapCopies,
+        bonusPercent,
+        copiesPerPercent,
+        progressTowardNextPercent,
+        remainingToNextPercent: progressTowardNextPercent === 0 && overcapCopies > 0 ? copiesPerPercent : copiesPerPercent - progressTowardNextPercent
+      };
+    }
+    function getSkillBaseEffect(skill) {
+      if (!skill) return 0;
+      const tier = Math.max(1, Math.floor(skill.tier || 1));
+      const basePower = Number(skill.basePower || 0);
+      const perTier = Number(skill.powerPerTier || 0);
+      return basePower + perTier * (tier - 1);
+    }
+    function getSkillEffectivePower(skill) {
+      const base = getSkillBaseEffect(skill);
+      const bonusPercent = Number(skill && skill.overcapBonusPercent ? skill.overcapBonusPercent : 0);
+      if (!bonusPercent) return base;
+      return Math.max(1, Math.round(base * (1 + bonusPercent / 100)));
     }
     function updateItemDerivedStats(item) {
       if (!item) return item;
@@ -2977,6 +2999,11 @@
       skill.totalCopies = safeCopies;
       skill.basePower = Number(skill.basePower || 0);
       skill.powerPerTier = Number(skill.powerPerTier || 0);
+      const magicInfo = getSkillOvercapInfo(skill);
+      skill.overcapCopies = magicInfo.overcapCopies;
+      skill.overcapBonusPercent = magicInfo.bonusPercent;
+      skill.overcapProgress = magicInfo.progressTowardNextPercent;
+      skill.copiesPerOvercapPercent = magicInfo.copiesPerPercent;
       if (!skill.createdAt) skill.createdAt = Date.now();
       if (!skill.lastObtainedAt) skill.lastObtainedAt = skill.createdAt;
       return skill;
@@ -3351,8 +3378,11 @@
       const meta = document.createElement("span");
       meta.className = "item-meta";
       const isMagicRed = skill.tier >= MAX_SKILL_TIER;
+      const bonusPercent = Number(skill.overcapBonusPercent || 0);
+      const bonusLabel = bonusPercent > 0 ? ` +${bonusPercent}%` : "";
+      const magicInfo = getSkillOvercapInfo(skill);
       if (isMagicRed) {
-        meta.textContent = `Tier ${skill.tier} (MAGIC-RED) | x${skill.totalCopies} | Maximum erreicht`;
+        meta.textContent = `Tier ${skill.tier} (MAGIC-RED${bonusLabel}) | x${skill.totalCopies} | Bonus-Fortschritt ${magicInfo.progressTowardNextPercent}/${magicInfo.copiesPerPercent}`;
       } else {
         const progress = Math.min(skill.totalCopies, requirement);
         meta.textContent = `Tier ${skill.tier} | x${skill.totalCopies} | Fortschritt: ${progress}/${requirement}`;
@@ -3367,20 +3397,22 @@
       stats.className = "item-stats";
       const badge = document.createElement("span");
       badge.className = "badge atk";
+      const effectValue = getSkillEffectivePower(skill);
+      const bonusText = bonusPercent ? ` (+${bonusPercent}%)` : "";
       switch (skill.effect) {
         case "damage":
-          badge.textContent = `Schaden +${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          badge.textContent = `Schaden +${effectValue}${bonusText}`;
           break;
         case "heal":
           badge.className = "badge def";
-          badge.textContent = `Heilung +${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          badge.textContent = `Heilung +${effectValue}${bonusText}`;
           break;
         case "buff_atk":
-          badge.textContent = `ATK Buff +${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          badge.textContent = `ATK Buff +${effectValue}${bonusText}`;
           break;
         case "debuff_enemy":
           badge.className = "badge def";
-          badge.textContent = `Enemy ATK -${skill.basePower + skill.powerPerTier * (skill.tier - 1)}`;
+          badge.textContent = `Enemy ATK -${effectValue}${bonusText}`;
           break;
         default:
           badge.textContent = `Tier ${skill.tier}`;
@@ -3718,7 +3750,7 @@
       const maxCopies = getMaxCopiesForSkill(existing || template || {});
       if (existing) {
         const currentCopies = Math.max(1, Math.floor(existing.totalCopies || 1));
-        if (currentCopies >= maxCopies) {
+        if (Number.isFinite(maxCopies) && currentCopies >= maxCopies) {
           updateSkillDerivedStats(existing);
           sortSkillsByNewest();
           return { skill: existing, isNew: false };
@@ -3798,9 +3830,7 @@
     }
     function getRemainingCopiesForCategory(category) {
       if (category === "skill") {
-        return SKILL_POOL.reduce((sum, template) => {
-          return sum + Math.max(0, getRemainingSkillCopies(template));
-        }, 0);
+        return Infinity;
       }
       const pool = (!category || category === "any")
         ? KNIGHT_POOL
@@ -3811,7 +3841,7 @@
       }, 0);
     }
     function formatRemainingCopyText(category, amount) {
-      if (!isFinite(amount)) return "unbegrenzt";
+      if (!isFinite(amount)) return "∞ übrig";
       if (amount <= 0) return "Ausverkauft";
       return amount + "x übrig";
     }
@@ -4056,24 +4086,18 @@
       state.gachaPreference = type;
       let message = "";
       if (type === "skill") {
-        const availableSkills = SKILL_POOL.filter(template => getRemainingSkillCopies(template) > 0);
-        if (!availableSkills.length) {
-          gachaMsg.textContent = "Skill-Kategorie ausverkauft: Alle Skills sind bereits MAGIC-RED.";
-          return;
-        }
-        const blueprint = pickBlueprintFromPool(availableSkills, getRemainingSkillCopies);
-        if (!blueprint) {
-          gachaMsg.textContent = "Skill-Kategorie ausverkauft: Alle Skills sind bereits MAGIC-RED.";
-          return;
-        }
         state.coins -= cost;
         pendingCoinAnimation = { amount: -cost, anchor: gachaBtn, variant: "loss" };
+        const blueprint = SKILL_POOL[Math.floor(Math.random() * SKILL_POOL.length)];
         const { skill, isNew } = addSkillToCollection(blueprint);
         state.lastShopPurchase = { type: "skill", key: skill.key, timestamp: Date.now() };
         if (isNew) {
           message = "Neuer Skill: " + skill.name + " (Tier " + skill.tier + ") freigeschaltet! -20 Coins";
         } else if (skill.tier >= MAX_SKILL_TIER) {
-          message = skill.name + " ausgebaut! x" + skill.totalCopies + " Kopien | Tier " + skill.tier + " (MAGIC-RED Max) -20 Coins";
+          const magicInfo = getSkillOvercapInfo(skill);
+          const progressText = `${magicInfo.progressTowardNextPercent}/${magicInfo.copiesPerPercent} fuer +1%`;
+          const bonusText = magicInfo.bonusPercent > 0 ? ` +${magicInfo.bonusPercent}%` : "";
+          message = `${skill.name} MAGIC-RED Tier ${skill.tier}${bonusText} | Fortschritt ${progressText} -20 Coins`;
         } else {
           const requirement = getNextTierRequirement(skill, MAX_SKILL_TIER);
           const progress = Math.min(skill.totalCopies, requirement);
@@ -4185,12 +4209,14 @@
           skill,
           used: false
         };
+        const bonusPercent = Number(skill.overcapBonusPercent || 0);
+        const tierLabel = bonusPercent > 0 ? `Tier ${skill.tier} +${bonusPercent}%` : `Tier ${skill.tier}`;
+        entry.displayLabel = `${skill.name} (${tierLabel})`;
         if (combosActive) {
           assignRandomCombo(entry, usedCombos);
           if (entry.comboId) usedCombos.add(entry.comboId);
         } else {
           entry.mode = "legacy";
-          entry.displayLabel = `${skill.name} (Tier ${skill.tier})`;
           entry.hotkeyDisplay = String(index + 1);
           entry.legacyKey = index + 1;
         }
@@ -4232,28 +4258,31 @@
           activateBattleSkill(entry);
         });
         card.appendChild(button);
-        const effectValue = entry.skill.basePower + entry.skill.powerPerTier * (entry.skill.tier - 1);
+        const effectValue = getSkillEffectivePower(entry.skill);
+        const bonusPercent = Number(entry.skill.overcapBonusPercent || 0);
         const desc = document.createElement("span");
         desc.className = "battle-skill-desc";
         let effectText = "";
+        const bonusDescriptor = bonusPercent > 0 ? ` (+${bonusPercent}%)` : "";
         switch (entry.skill.effect) {
           case "damage":
-            effectText = `Fügt sofort ${effectValue} Schaden zu.`;
+            effectText = `Fügt sofort ${effectValue} Schaden zu${bonusDescriptor}.`;
             break;
           case "heal":
-            effectText = `Heilt ${effectValue} HP.`;
+            effectText = `Heilt ${effectValue} HP${bonusDescriptor}.`;
             break;
           case "buff_atk":
-            effectText = `Erhöht ATK um ${effectValue} für den Kampf.`;
+            effectText = `Erhöht ATK um ${effectValue} für den Kampf${bonusDescriptor}.`;
             break;
           case "debuff_enemy":
-            effectText = `Senkt Gegner-ATK um ${effectValue}.`;
+            effectText = `Senkt Gegner-ATK um ${effectValue}${bonusDescriptor}.`;
             break;
           default:
             effectText = entry.skill.description || "Aktivierter Skill.";
         }
-        const detailLabel = `${entry.skill.name} (Tier ${entry.skill.tier})`;
-        desc.textContent = effectText ? `${detailLabel} – ${effectText}` : detailLabel;
+        const tierDetail = bonusPercent > 0 ? `Tier ${entry.skill.tier} +${bonusPercent}%` : `Tier ${entry.skill.tier}`;
+        const detailLabel = `${entry.skill.name} (${tierDetail})`;
+        desc.textContent = effectText ? `${detailLabel} - ${effectText}` : detailLabel;
         card.appendChild(desc);
         battleSkillBar.appendChild(card);
       });
@@ -4270,7 +4299,7 @@
       if (!battleInProgress || !currentBattleContext) return;
       if (!entry || entry.used) return;
       const { hero, enemy } = currentBattleContext;
-      const power = Math.max(1, Math.round(entry.skill.basePower + entry.skill.powerPerTier * (entry.skill.tier - 1)));
+      const power = getSkillEffectivePower(entry.skill);
       let resultText = entry.skill.name + " aktiviert.";
       switch (entry.skill.effect) {
         case "damage": {
