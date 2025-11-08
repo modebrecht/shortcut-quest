@@ -468,10 +468,11 @@
       object-fit: contain;
       display: block;
     }
-
     /* Allow the larger visual to overflow the small inventory icon box so sizes match visually */
     .slot-icon,
-    .item-icon { overflow: visible; }
+    .item-icon { overflow: visible; 
+      box-shadow: inset 0 0 32px rgba(2,6,23,0.8);
+    }
 
     .inventory-stat-badge {
       padding: 0.24rem 0.65rem;
