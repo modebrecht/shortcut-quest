@@ -1705,7 +1705,6 @@
           <span class="badge" id="hpDisplay">HP 0</span>
           <span class="badge" id="itemsDisplay">Gear: 0/0</span>
         </div>
-        <p class="small" id="progressInfo">Noch kein Kampf bestritten.</p>
         <div class="inventory-actions">
           <button id="testAnimationBtn" class="primary-btn" type="button">Animation testen</button>
         </div>
@@ -2360,7 +2359,6 @@
     const atkDisplay = document.getElementById("atkDisplay");
     const defDisplay = document.getElementById("defDisplay");
     const itemsDisplay = document.getElementById("itemsDisplay");
-    const progressInfo = document.getElementById("progressInfo");
     const shopLatest = document.getElementById("shopLatest");
     const shopLatestEmpty = document.getElementById("shopLatestEmpty");
     const heroAvatar = document.getElementById("heroAvatar");
@@ -3058,7 +3056,7 @@
     }
     function autoEquipBest() {
       if (!state.items.length) {
-        updateUI("Keine Items zum Ausruesten vorhanden.");
+    updateUI();
         return;
       }
       ensureEquipmentState();
@@ -3092,7 +3090,7 @@
       state.equipment = updatedEquipment;
       recalcStats();
       saveState();
-      updateUI("Auto-Ausrüstung angewendet.");
+    updateUI();
     }
     function getItemByKey(key) {
       if (!key) return null;
@@ -3437,8 +3435,7 @@
       state.equipment[resolvedSlot] = targetKey;
       recalcStats();
       saveState();
-      const currentInfo = progressInfo ? progressInfo.textContent : undefined;
-      updateUI(currentInfo);
+      updateUI();
     }
     function unequipSlot(slotKey) {
       const normalized = normalizeItemSlot(slotKey);
@@ -3448,8 +3445,7 @@
       state.equipment[normalized] = null;
       recalcStats();
       saveState();
-      const currentInfo = progressInfo ? progressInfo.textContent : undefined;
-      updateUI(currentInfo);
+      updateUI();
     }
     function collectItemStats(item) {
       if (!item) return [];
@@ -3604,7 +3600,7 @@
       recalcStats();
       saveState();
       sortInventoryByNewest();
-      updateUI(`${item.name} erreicht Tier ${item.tier}.`);
+      updateUI();
     }
     function triggerSkillUpgrade(key) {
       const skill = state.skills.find(entry => (entry.key || entry.name) === key);
@@ -3614,7 +3610,7 @@
       updateSkillDerivedStats(skill);
       saveState();
       sortSkillsByNewest();
-      updateUI(`${skill.name} erreicht Tier ${skill.tier}.`);
+      updateUI();
     }
     function addItemToInventory(template) {
       const now = Date.now();
@@ -3746,7 +3742,7 @@
         heroAvatarImage.classList.toggle("is-knight", hasInventory);
       }
     }
-    function updateUI(extraText) {
+    function updateUI() {
       const diff = state.coins - displayedCoins;
       if (pendingCoinAnimation) {
         const info = pendingCoinAnimation;
@@ -3762,9 +3758,6 @@
       const equippedCount = getEquippedItems().length;
       if (hpDisplay) hpDisplay.textContent = "HP " + getHeroMaxHp();
       if (itemsDisplay) itemsDisplay.textContent = "Gear: " + equippedCount + "/" + EQUIPMENT_SLOT_KEYS.length;
-      if (progressInfo) {
-        progressInfo.textContent = extraText || "Trainiere weiter fuer mehr Coins!";
-      }
       updateHeroAvatar();
       renderEquipmentSlots();
       renderInventory();
@@ -3821,7 +3814,6 @@
       });
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
       let resultMsg = `${correctCount}/${total} richtig (${percent}%)`;
-      let infoMsg = `Abschnitt ${sectionId}: ${resultMsg}`;
       if (correctCount === total) {
         const clears = state.sectionClears[sectionId] || 0;
         const resets = state.sectionResets[sectionId] || 0;
@@ -3837,7 +3829,6 @@
           state.coins += reward;
           pendingCoinAnimation = { amount: reward, anchor: triggerBtn || null, variant: "gain" };
           resultMsg += ` | +${reward} Coins`;
-          infoMsg += ` | +${reward} Coins`;
         } else if (clears > 0) {
           resultMsg += " | fuer mehr Coins erst zuruecksetzen.";
         }
@@ -3846,7 +3837,7 @@
       }
       const resultEl = document.getElementById(`result-${sectionId}`);
       if (resultEl) resultEl.textContent = resultMsg;
-      updateUI(infoMsg);
+      updateUI();
       updateOverallSummary();
       recalcStats();
       saveState();
@@ -3874,7 +3865,7 @@
       const resultEl = document.getElementById(`result-${sectionId}`);
       if (resultEl) resultEl.textContent = "Abschnitt wurde zurueckgesetzt.";
       state.sectionResets[sectionId] = (state.sectionResets[sectionId] || 0) + 1;
-      updateUI(`Abschnitt ${sectionId} wurde zurueckgesetzt.`);
+      updateUI();
       updateOverallSummary();
       saveState();
     }
@@ -3893,7 +3884,7 @@
       testAnimationBtn.addEventListener("click", () => {
         state.coins += 20;
         pendingCoinAnimation = { amount: 20, anchor: testAnimationBtn, variant: "gain" };
-        updateUI("Testanimation: +20 Coins");
+        updateUI();
         saveState();
       });
     }
@@ -3937,7 +3928,7 @@
           const progress = Math.min(skill.totalCopies, requirement);
           message = skill.name + " +1 Kopie (Tier " + skill.tier + ") | Fortschritt " + progress + "/" + requirement + " fuer Tier " + (skill.tier + 1) + " -20 Coins";
         }
-        updateUI("Skill erhalten: " + skill.name);
+        updateUI();
       } else {
         let pool = KNIGHT_POOL;
         if (type && type !== "any" && type !== "skill") {
@@ -3958,7 +3949,7 @@
           const progress = Math.min(item.totalCopies, requirement);
           message = item.name + " +1 Kopie (Tier " + item.tier + ") | Fortschritt " + progress + "/" + requirement + " fuer Tier " + (item.tier + 1) + " -20 Coins";
         }
-        updateUI("Gacha gezogen: " + item.name);
+        updateUI();
       }
       gachaMsg.textContent = message;
       saveState();
