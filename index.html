@@ -2627,19 +2627,19 @@
     });
 
     const KNIGHT_POOL = [
-      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword_bronze", slot: "weapon", description: "Verstaerkt deine Angriffskraft.", theme: "knight", category: "weapon" },
+      { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword_bronze", slot: "weapon", description: "", theme: "knight", category: "weapon" },
 
-      { key: "feuer_klinge", name: "Feuerklinge", atk: 4, def: 0, icon: "sword_fire", slot: "weapon", description: "Entzündet zusaetzlichen Schaden bei Treffern.", theme: "knight", category: "weapon" },
+      { key: "feuer_klinge", name: "Feuerklinge", atk: 4, def: 0, icon: "sword_fire", slot: "weapon", description: "", theme: "knight", category: "weapon" },
 
-      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword_steel", slot: "weapon", description: "Praezise Hiebe fuer schnelle Kombos.", theme: "knight", category: "weapon" },
-      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword_ghost", slot: "weapon", description: "Leicht und schnell, perfekt fuer Kombos.", theme: "knight", category: "weapon" },
-      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", slot: "offhand", description: "Blockt Fehler beim Tippen.", theme: "knight", category: "armor" },
-      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "Massive Deckung fuer schwere Aufgaben.", theme: "knight", category: "armor" },
-      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "Haelt deinen Fokus auf Shortcuts.", theme: "knight", category: "armor" },
-      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "gloves", slot: "gloves", description: "Mehr Tempo beim Merken.", theme: "knight", category: "accessory" },
-      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", slot: "necklace", description: "Leuchtet bei perfekten Antworten.", theme: "knight", category: "accessory" },
-      { key: "stahl_stiefel", name: "Stahl-Stiefel", atk: 0, def: 2, icon: "boots", slot: "boots", description: "Schwere Panzerung fuer sicheren Stand.", theme: "knight", category: "armor" },
-      { key: "wind_stiefel", name: "Windlaeufer-Stiefel", atk: 1, def: 1, icon: "boots", slot: "boots", description: "Leichte Stiefel fuer flinke Schritte.", theme: "knight", category: "armor" }
+      { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword_steel", slot: "weapon", description: "", theme: "knight", category: "weapon" },
+      { key: "schatten_klinge", name: "Schattenklinge", atk: 2, def: 1, icon: "sword_ghost", slot: "weapon", description: "", theme: "knight", category: "weapon" },
+      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", slot: "offhand", description: "", theme: "knight", category: "armor" },
+      { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "", theme: "knight", category: "armor" },
+      { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "", theme: "knight", category: "armor" },
+      { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "gloves", slot: "gloves", description: "", theme: "knight", category: "accessory" },
+      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", slot: "necklace", description: "", theme: "knight", category: "accessory" },
+      { key: "stahl_stiefel", name: "Stahl-Stiefel", atk: 0, def: 2, icon: "boots", slot: "boots", description: "", theme: "knight", category: "armor" },
+      { key: "wind_stiefel", name: "Windlaeufer-Stiefel", atk: 1, def: 1, icon: "boots", slot: "boots", description: "", theme: "knight", category: "armor" }
     ];
     const KNIGHT_BY_KEY = Object.create(null);
     const KNIGHT_BY_NAME = Object.create(null);
@@ -3900,8 +3900,8 @@
 
     if (testAnimationBtn) {
       testAnimationBtn.addEventListener("click", () => {
-        state.coins += 20;
-        pendingCoinAnimation = { amount: 20, anchor: testAnimationBtn, variant: "gain" };
+        state.coins += 200;
+        pendingCoinAnimation = { amount: 200, anchor: testAnimationBtn, variant: "gain" };
         updateUI();
         saveState();
       });
