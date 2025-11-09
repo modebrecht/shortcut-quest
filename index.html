@@ -864,6 +864,11 @@
     .shop-latest .inventory-item .item-controls {
       flex: 1 1 48%;
       justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .shop-latest .inventory-item .item-equip {
+      display: none;
     }
     .shop-latest .inventory-item .skill-bonus-indicator {
       flex: 1 1 260px;
@@ -995,6 +1000,19 @@
     .battle-portrait-icon {
       font-size: 2rem;
       color: rgba(248,250,252,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    .battle-portrait.enemy .battle-portrait-icon {
+      font-size: 2.8rem;
+    }
+    .battle-portrait-icon img {
+      width: 70%;
+      height: auto;
+      filter: drop-shadow(0 6px 12px rgba(15,23,42,0.6));
     }
     .battle-statline {
       display: flex;
@@ -1012,41 +1030,85 @@
     .battle-stat-badge strong {
       margin-left: 0.2rem;
     }
-    .battle-hp-preview {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .battle-hp-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      color: rgba(248,250,252,0.75);
-    }
-    .battle-hp-track {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.6);
-      border: 1px solid rgba(148,163,184,0.35);
-      overflow: hidden;
-    }
-    .battle-hp-fill {
-      height: 100%;
-      border-radius: inherit;
-      width: 0%;
-      transition: width 0.35s ease;
-    }
-    .battle-hp-fill.hero {
-      background: linear-gradient(90deg, rgba(59,130,246,0.85), rgba(14,165,233,0.65));
-    }
-    .battle-hp-fill.enemy {
-      background: linear-gradient(90deg, rgba(248,113,113,0.85), rgba(251,191,36,0.65));
-    }
     .battle-side-meta {
       margin: 0;
       font-size: 0.78rem;
       color: rgba(248,250,252,0.75);
+    }
+    .battle-gear {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .battle-gear-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(248,250,252,0.65);
+    }
+    .battle-gear-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    .battle-gear-card {
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.4);
+      padding: 0.45rem 0.55rem;
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      min-height: 80px;
+    }
+    .battle-gear-card .gear-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .battle-gear-card .gear-icon img,
+    .battle-gear-card .gear-icon svg {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+    .battle-gear-card .gear-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      font-size: 0.74rem;
+    }
+    .battle-gear-card .gear-text strong {
+      font-size: 0.78rem;
+      color: rgba(248,250,252,0.95);
+    }
+    .battle-gear-card .gear-text span {
+      color: rgba(226,232,240,0.8);
+    }
+    .battle-gear-card .gear-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+    .battle-gear-card .gear-stats .badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+    }
+    .battle-gear-empty {
+      opacity: 0.65;
+      font-style: italic;
+      grid-column: 1 / -1;
     }
     .battle-center {
       flex: 1 1 320px;
@@ -1096,6 +1158,9 @@
       }
       .battle-portrait {
         margin: 0.5rem auto;
+      }
+      .battle-gear-list {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       }
     }
     .battle-buttons {
@@ -2223,9 +2288,6 @@
     <section id="skillsView" class="view">
       <div class="game-grid">
         <div class="card" id="skillCard">
-          <div class="statline">
-            <span class="badge" id="skillCountDisplay">Skills: 0 (Unique: 0)</span>
-          </div>
           <div class="skill-wrapper">
             <div class="skill-avatar" aria-hidden="true">
           <!--    <svg class="skill-svg" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skillSpellbookTitle">
@@ -2465,8 +2527,6 @@
     <section id="battleView" class="view">
       <div class="game-grid">
         <div class="card battle-card">
-          <h2>Goblin-Scharmuetzel</h2>
-          <p class="small">Fordere die Goblins vom Rang 1 (Kobold) bis Rang 11 (Goblinkoenig) heraus. Jeder Sieg schaltet den naechsten Rang frei.</p>
           <div class="battle-overview">
             <div class="battle-side hero">
               <div class="battle-side-head">
@@ -2477,22 +2537,20 @@
                 <span class="battle-side-tier" id="battleHeroTier">Rang 1</span>
               </div>
               <div class="battle-portrait hero">
-                <span class="battle-portrait-icon">⚔</span>
+                <span class="battle-portrait-icon"><img src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
                 <span class="battle-stat-badge def">DEF<strong id="battleHeroDefStat">0</strong></span>
               </div>
-              <div class="battle-hp-preview">
-                <div class="battle-hp-label">
-                  <span>HP</span>
-                  <strong id="battleHeroHpStat">0</strong>
-                </div>
-                <div class="battle-hp-track">
-                  <div class="battle-hp-fill hero" id="battleHeroHpPreviewFill"></div>
-                </div>
+              <div class="battle-statline">
+                <span class="battle-stat-badge">HP<strong id="battleHeroHpStat">0</strong></span>
               </div>
               <p class="battle-side-meta" id="battleHeroFlavor">Bereit fuer den naechsten Kampf.</p>
+              <div class="battle-gear">
+                <span class="battle-gear-label">Gear</span>
+                <ul class="battle-gear-list" id="battleHeroGearList"></ul>
+              </div>
             </div>
             <div class="battle-center">
               <div class="battle-crest">
@@ -2513,20 +2571,14 @@
                 <span class="battle-side-tier" id="battleEnemyPreviewLevel">Rang 1</span>
               </div>
               <div class="battle-portrait enemy">
-                <span class="battle-portrait-icon">☠</span>
+                <span class="battle-portrait-icon">⚔</span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
                 <span class="battle-stat-badge def">DEF<strong id="battleEnemyDefStat">0</strong></span>
               </div>
-              <div class="battle-hp-preview">
-                <div class="battle-hp-label">
-                  <span>HP</span>
-                  <strong id="battleEnemyHpStat">0</strong>
-                </div>
-                <div class="battle-hp-track">
-                  <div class="battle-hp-fill enemy" id="battleEnemyHpPreviewFill"></div>
-                </div>
+              <div class="battle-statline">
+                <span class="battle-stat-badge">HP<strong id="battleEnemyHpStat">0</strong></span>
               </div>
               <p class="battle-side-meta" id="battleEnemyFlavor">Unbekannte Taktik.</p>
             </div>
@@ -2842,7 +2894,6 @@
     let currentInventoryOrder = [];
     const skillList = document.getElementById("skillList");
     const skillEmpty = document.getElementById("skillEmpty");
-    const skillCountDisplay = document.getElementById("skillCountDisplay");
     const overallSummary = document.getElementById("overallSummary");
     const coinAnimationLayer = document.getElementById("coinAnimationLayer");
     const gachaBtn = document.getElementById("gachaBtn");
@@ -2883,6 +2934,7 @@
     const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
     const battleEnemyHpPreviewFill = document.getElementById("battleEnemyHpPreviewFill");
     const battleEnemyFlavor = document.getElementById("battleEnemyFlavor");
+    const battleHeroGearList = document.getElementById("battleHeroGearList");
     const enemyHpLabel = document.getElementById("enemyHpLabel");
     const heroHpFill = document.getElementById("heroHpFill");
     const enemyHpFill = document.getElementById("enemyHpFill");
@@ -3841,7 +3893,7 @@
             const normalizedCategory = normalizeItemCategory(item.category);
             const isAccessory = normalizedCategory === "accessory";
             const label = isAccessory ? "Anziehen" : `Anziehen (${slotLabel})`;
-            equipBtn.textContent = isEquippedInSlot ? "Ausziehen" : label;
+            equipBtn.textContent = label;
             equipBtn.disabled = false;
             controls.appendChild(equipBtn);
           });
@@ -4339,9 +4391,6 @@
       const totalCopies = state.skills.reduce((sum, skill) => {
         return sum + Math.max(1, Math.floor(skill.totalCopies || 1));
       }, 0);
-      if (skillCountDisplay) {
-        skillCountDisplay.textContent = "Skills: " + totalCopies + " (Unique: " + uniqueSkills + ")";
-      }
       if (!uniqueSkills) {
         if (skillEmpty) skillEmpty.style.display = "block";
         return;
@@ -4670,16 +4719,61 @@
         const equippedCount = getEquippedItems().length;
         battleHeroFlavor.textContent = `${equippedCount}/${EQUIPMENT_SLOT_KEYS.length} Slots belegt`;
       }
+      if (battleHeroGearList) {
+        battleHeroGearList.innerHTML = "";
+        const gearEntries = [];
+        EQUIPMENT_SLOT_KEYS.forEach(slotKey => {
+          const eqKey = state.equipment && state.equipment[slotKey];
+          if (!eqKey) return;
+          const item = getItemByKey(eqKey);
+          if (!item) return;
+          const meta = EQUIPMENT_SLOT_DEFS[slotKey] || {};
+          gearEntries.push({
+            slot: meta.label || slotKey,
+            name: item.name || eqKey,
+            icon: getItemIcon(item.icon, item.key),
+            stats: collectItemStats(item)
+          });
+        });
+        if (!gearEntries.length) {
+          const empty = document.createElement("li");
+          empty.className = "battle-gear-empty";
+          empty.textContent = "Keine Ausrüstung";
+          battleHeroGearList.appendChild(empty);
+        } else {
+          gearEntries.forEach(entry => {
+            const li = document.createElement("li");
+            li.className = "battle-gear-card";
+            const iconWrap = document.createElement("div");
+            iconWrap.className = "gear-icon";
+            iconWrap.innerHTML = entry.icon;
+            const textWrap = document.createElement("div");
+            textWrap.className = "gear-text";
+            const slotLabel = document.createElement("strong");
+            slotLabel.textContent = entry.slot;
+            const nameLabel = document.createElement("span");
+            nameLabel.textContent = entry.name;
+            textWrap.appendChild(slotLabel);
+            textWrap.appendChild(nameLabel);
+            const statsRow = document.createElement("div");
+            statsRow.className = "gear-stats";
+            entry.stats.forEach(stat => {
+              const badge = document.createElement("span");
+              badge.className = `badge ${stat.className}`;
+              badge.textContent = `${stat.label} +${stat.value}`;
+              statsRow.appendChild(badge);
+            });
+            if (entry.stats.length) {
+              textWrap.appendChild(statsRow);
+            }
+            li.appendChild(iconWrap);
+            li.appendChild(textWrap);
+            battleHeroGearList.appendChild(li);
+          });
+        }
+      }
       const previewLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
       const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
-      const enemyHp = enemy ? enemy.hp : heroHpMax;
-      const maxReference = Math.max(heroHpMax, enemyHp, 1);
-      if (battleHeroHpPreviewFill) {
-        battleHeroHpPreviewFill.style.width = `${Math.round((heroHpMax / maxReference) * 100)}%`;
-      }
-      if (battleEnemyHpPreviewFill) {
-        battleEnemyHpPreviewFill.style.width = `${Math.round((enemyHp / maxReference) * 100)}%`;
-      }
       if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
       if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
       if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
@@ -5352,12 +5446,13 @@
           battleNextBtn.classList.add("hidden");
           battleNextBtn.removeAttribute("data-target-level");
         }
-        }
-        updateBattleButtons();
-        currentBattleContext = null;
-        renderBattleSkillBar();
-        saveState();
       }
+      updateBattleButtons();
+      currentBattleContext = null;
+      renderBattleSkillBar();
+      saveState();
+      updateBattlePreview();
+    }
 
     function updateBattleButtons() {
       if (!battleButtons || !battleButtons.length) return;
