@@ -663,8 +663,9 @@
     .item-stats { display: flex; gap: 0.4rem; }
     .item-controls {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 0.6rem;
+      flex-wrap: wrap;
     }
     .item-equip {
       padding: 0.4rem 0.9rem;
@@ -715,14 +716,116 @@
       cursor: not-allowed;
       border-color: rgba(148,163,184,0.25);
     }
-    .skill-bonus-btn {
-      border-color: rgba(250,204,21,0.6);
-      background: rgba(250,204,21,0.18);
-      color: #f8fafc;
+    .skill-bonus-indicator {
+      flex: 1 1 220px;
+      min-width: 180px;
+      padding: 0.55rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(250,204,21,0.35);
+      background: rgba(250,204,21,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      position: relative;
+      transition: border 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+      cursor: default;
+      user-select: none;
     }
-    .skill-bonus-btn:not(:disabled):hover {
-      border-color: rgba(250,204,21,0.85);
-      box-shadow: 0 10px 26px rgba(250,204,21,0.25);
+    .skill-bonus-indicator::after {
+      content: "";
+      position: absolute;
+      inset: 0.15rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(250,204,21,0.12);
+      pointer-events: none;
+    }
+    .skill-bonus-indicator .skill-bonus-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      color: rgba(248,250,252,0.85);
+    }
+    .skill-bonus-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+    }
+    .skill-bonus-progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.55);
+      overflow: hidden;
+      border: 1px solid rgba(250,204,21,0.3);
+    }
+    .skill-bonus-progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(250,204,21,0.9), rgba(250,204,21,0.45));
+      width: 0%;
+      transition: width 0.35s ease, background-position 1.2s linear;
+      background-size: 200% 100%;
+      animation: skillBonusStripe 4.5s linear infinite;
+    }
+    @keyframes skillBonusStripe {
+      0% { background-position: 0% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skill-bonus-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: rgba(248,250,252,0.8);
+    }
+    .skill-bonus-meta span + span {
+      margin-left: 0.4rem;
+    }
+    .skill-bonus-progress-label {
+      margin-left: auto;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.72rem;
+      color: rgba(248,250,252,0.85);
+    }
+    .skill-bonus-ready {
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(250,204,21,0.6);
+      background: rgba(250,204,21,0.15);
+      font-size: 0.75rem;
+      color: #fff;
+    }
+    .skill-bonus-indicator[data-skill-bonus-ready="true"] {
+      border-color: rgba(250,204,21,0.8);
+      box-shadow: 0 12px 28px rgba(250,204,21,0.22);
+      cursor: pointer;
+    }
+    .skill-bonus-indicator[data-skill-bonus-ready="true"] .skill-bonus-progress {
+      border-color: rgba(250,204,21,0.65);
+    }
+    .skill-bonus-indicator.tier-1 {
+      border-color: rgba(148,163,184,0.4);
+      background: rgba(148,163,184,0.12);
+    }
+    .skill-bonus-indicator.tier-2 {
+      border-color: rgba(74,222,128,0.4);
+      background: rgba(34,197,94,0.12);
+    }
+    .skill-bonus-indicator.tier-3 {
+      border-color: rgba(37,99,235,0.45);
+      background: rgba(37,99,235,0.12);
+    }
+    .skill-bonus-indicator.tier-4 {
+      border-color: rgba(192,132,252,0.45);
+      background: rgba(192,132,252,0.12);
+    }
+    .skill-bonus-indicator.tier-5 {
+      border-color: rgba(251,191,36,0.5);
+      background: rgba(251,191,36,0.12);
+    }
+    .skill-bonus-indicator.tier-6 {
+      border-color: rgba(248,113,113,0.55);
+      background: rgba(248,113,113,0.14);
     }
     .inventory-item.tier-1 {
       border-color: rgba(148,163,184,0.35);
@@ -2498,13 +2601,25 @@
     }
     handleUpgradeClick(inventoryList, triggerItemUpgrade);
     handleUpgradeClick(skillList, triggerSkillUpgrade);
+    const handleSkillBonusActivation = target => {
+      if (!target) return;
+      if (target.dataset.skillBonusReady !== "true") return;
+      const key = target.dataset.skillBonusKey;
+      if (!key) return;
+      triggerSkillBonusUpgrade(key);
+    };
     if (skillList) {
       skillList.addEventListener("click", event => {
-        const btn = event.target.closest("[data-skill-bonus-key]");
-        if (!btn || btn.disabled) return;
-        const key = btn.dataset.skillBonusKey;
-        if (!key) return;
-        triggerSkillBonusUpgrade(key);
+        const indicator = event.target.closest("[data-skill-bonus-key]");
+        if (!indicator) return;
+        handleSkillBonusActivation(indicator);
+      });
+      skillList.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const indicator = event.target.closest("[data-skill-bonus-key]");
+        if (!indicator) return;
+        event.preventDefault();
+        handleSkillBonusActivation(indicator);
       });
     }
     if (inventoryFilterButtons.length) {
@@ -3448,21 +3563,15 @@
         text.appendChild(desc);
       }
       const requirement = getNextTierRequirement(skill, MAX_SKILL_TIER);
-      const meta = document.createElement("span");
-      meta.className = "item-meta";
       const isMagicRed = skill.tier >= MAX_SKILL_TIER;
       const bonusPercent = Number(skill.overcapBonusPercent || 0);
       const bonusLabel = bonusPercent > 0 ? ` +${bonusPercent}%` : "";
       const magicInfo = getSkillOvercapInfo(skill);
-      if (isMagicRed) {
-        const progressValue = magicInfo.availablePercent > 0 ? magicInfo.copiesPerPercent : magicInfo.progressTowardNextPercent;
-        const readyText = magicInfo.availablePercent > 0 ? ` | Bonus bereit: ${magicInfo.availablePercent}` : "";
-        meta.textContent = `Tier ${skill.tier} (MAGIC-RED${bonusLabel}) | x${skill.totalCopies} | Bonus-Fortschritt ${progressValue}/${magicInfo.copiesPerPercent}${readyText}`;
-      } else {
-        const progress = Math.min(skill.totalCopies, requirement);
-        meta.textContent = `Tier ${skill.tier} | x${skill.totalCopies} | Fortschritt: ${progress}/${requirement}`;
-      }
-      text.appendChild(meta);
+      const readyCount = Math.max(0, magicInfo.availablePercent);
+      const isReady = readyCount > 0;
+      const progressDisplayValue = isReady && magicInfo.progressTowardNextPercent === 0
+        ? magicInfo.copiesPerPercent
+        : magicInfo.progressTowardNextPercent;
       left.appendChild(icon);
       left.appendChild(text);
       row.appendChild(left);
@@ -3494,30 +3603,90 @@
       }
       stats.appendChild(badge);
       controls.appendChild(stats);
+      const canUpgradeSkill = canUpgradeItem(skill, MAX_SKILL_TIER);
       if (showUpgrade && skill.tier < MAX_SKILL_TIER) {
         const requirementText = requirement === Infinity ? "-" : requirement;
         const upgradeBtn = document.createElement("button");
         upgradeBtn.className = "item-upgrade";
         upgradeBtn.dataset.skillKey = skill.key || skill.name;
         const nextTier = Math.min(skill.tier + 1, MAX_SKILL_TIER);
-        if (canUpgradeItem(skill, MAX_SKILL_TIER)) {
+        if (canUpgradeSkill) {
           upgradeBtn.classList.add(`tier-${nextTier}`);
         }
         upgradeBtn.textContent = `Upgrade Tier ${skill.tier + 1} (${skill.totalCopies}/${requirementText})`;
-        upgradeBtn.disabled = !canUpgradeItem(skill, MAX_SKILL_TIER);
+        upgradeBtn.disabled = !canUpgradeSkill;
         controls.appendChild(upgradeBtn);
       }
-      if (isMagicRed && magicInfo.availablePercent > 0) {
-        const bonusBtn = document.createElement("button");
-        bonusBtn.className = "item-upgrade skill-bonus-btn";
-        bonusBtn.dataset.skillBonus = "true";
-        bonusBtn.dataset.skillBonusKey = skill.key || skill.name;
-        const readyCount = magicInfo.availablePercent;
-        const readyLabel = readyCount > 1 ? `${readyCount}x bereit` : "Bereit";
-        bonusBtn.textContent = `Tier-6 Bonus +1% (${readyLabel})`;
-        bonusBtn.disabled = false;
-        controls.appendChild(bonusBtn);
+      const bonusIndicator = document.createElement("div");
+      bonusIndicator.className = "skill-bonus-indicator";
+      bonusIndicator.classList.add(`tier-${Math.min(skill.tier, MAX_SKILL_TIER)}`);
+      const title = document.createElement("div");
+      title.className = "skill-bonus-title";
+      const headerRow = document.createElement("div");
+      headerRow.className = "skill-bonus-header";
+      const progressLabel = document.createElement("span");
+      progressLabel.className = "skill-bonus-progress-label";
+      headerRow.appendChild(title);
+      headerRow.appendChild(progressLabel);
+      const bar = document.createElement("div");
+      bar.className = "skill-bonus-progress";
+      const fill = document.createElement("div");
+      fill.className = "skill-bonus-progress-fill";
+      bar.appendChild(fill);
+      const metaRow = document.createElement("div");
+      metaRow.className = "skill-bonus-meta";
+      const status = document.createElement("span");
+      if (isMagicRed) {
+        bonusIndicator.dataset.skillBonus = "true";
+        bonusIndicator.dataset.skillBonusKey = skill.key || skill.name;
+        bonusIndicator.dataset.skillBonusReady = String(isReady);
+        bonusIndicator.setAttribute("role", "button");
+        bonusIndicator.setAttribute("aria-disabled", String(!isReady));
+        bonusIndicator.tabIndex = isReady ? 0 : -1;
+        title.textContent = "Tier-6 Bonus";
+        const progressRatio = magicInfo.copiesPerPercent
+          ? Math.min(1, Math.max(0, progressDisplayValue / magicInfo.copiesPerPercent))
+          : 0;
+        fill.style.width = `${progressRatio * 100}%`;
+        progressLabel.textContent = `${progressDisplayValue}/${magicInfo.copiesPerPercent}`;
+        if (isReady) {
+          status.className = "skill-bonus-ready";
+          status.textContent = readyCount > 1 ? `${readyCount}x Upgrade bereit` : "Upgrade bereit";
+        } else {
+          status.textContent = "";
+        }
+        const ariaBits = [`Tier-6 Bonus Fortschritt ${progressDisplayValue}/${magicInfo.copiesPerPercent}`];
+        if (isReady) {
+          ariaBits.push(`${readyCount > 1 ? readyCount + " Upgrades" : "Upgrade"} bereit, zum Aktivieren klicken`);
+        } else {
+          ariaBits.push("Noch nicht bereit");
+        }
+        bonusIndicator.setAttribute("aria-label", ariaBits.join(". "));
+      } else {
+        const nextTier = Math.min(MAX_SKILL_TIER, skill.tier + 1);
+        title.textContent = `Tier ${skill.tier} ➜ Tier ${nextTier}`;
+        bonusIndicator.dataset.skillBonusReady = String(canUpgradeSkill);
+        const progress = Math.min(skill.totalCopies, requirement === Infinity ? skill.totalCopies : requirement);
+        const progressRatio = requirement && Number.isFinite(requirement)
+          ? Math.min(1, Math.max(0, progress / requirement))
+          : 1;
+        fill.style.width = `${progressRatio * 100}%`;
+        progressLabel.textContent = requirement === Infinity ? "MAX" : `${progress}/${requirement}`;
+        if (canUpgradeSkill) {
+          status.className = "skill-bonus-ready";
+          status.textContent = "Upgrade bereit";
+        } else if (Number.isFinite(requirement)) {
+          status.textContent = "";
+        } else {
+          status.textContent = "Maximum erreicht";
+        }
+        bonusIndicator.setAttribute("aria-label", `Tier ${skill.tier} Fortschritt ${progressLabel.textContent}`);
       }
+      metaRow.appendChild(status);
+      bonusIndicator.appendChild(headerRow);
+      bonusIndicator.appendChild(bar);
+      bonusIndicator.appendChild(metaRow);
+      controls.appendChild(bonusIndicator);
       row.appendChild(controls);
       return row;
     }
@@ -4198,9 +4367,12 @@
         } else if (skill.tier >= MAX_SKILL_TIER) {
           const magicInfo = getSkillOvercapInfo(skill);
           const bonusText = magicInfo.bonusPercent > 0 ? ` +${magicInfo.bonusPercent}%` : "";
-          const progressValue = magicInfo.availablePercent > 0 ? magicInfo.copiesPerPercent : magicInfo.progressTowardNextPercent;
-          const progressText = `${progressValue}/${magicInfo.copiesPerPercent} fuer +1%`;
-          const readyText = magicInfo.availablePercent > 0 ? ` | Bonus bereit: ${magicInfo.availablePercent}` : "";
+          const readyCount = Math.max(0, magicInfo.availablePercent);
+          const progressDisplayValue = readyCount > 0 && magicInfo.progressTowardNextPercent === 0
+            ? magicInfo.copiesPerPercent
+            : magicInfo.progressTowardNextPercent;
+          const progressText = `${progressDisplayValue}/${magicInfo.copiesPerPercent} fuer +1%`;
+          const readyText = readyCount > 0 ? ` | Upgrade bereit: ${readyCount}` : "";
           message = `${skill.name} MAGIC-RED Tier ${skill.tier}${bonusText} | Fortschritt ${progressText}${readyText} -20 Coins`;
         } else {
           const requirement = getNextTierRequirement(skill, MAX_SKILL_TIER);
