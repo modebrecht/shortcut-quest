@@ -1,0 +1,36 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="kg_bg" x1="24" y1="14" x2="176" y2="186" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4c0519"/>
+      <stop offset="0.4" stop-color="#7f1d1d"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <radialGradient id="kg_glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 90) scale(90 72)">
+      <stop offset="0" stop-color="#fb923c" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#7f1d1d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="kg_body" x1="60" y1="68" x2="140" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#9a3412"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#kg_bg)"/>
+  <rect width="200" height="200" rx="24" fill="url(#kg_glow)"/>
+  <path d="M44 152c20 24 44 40 56 40s36-16 56-40c-24-10-34-22-38-34-4-12-10-28-20-28h-0.5c-10 0-16 16-20 28-4 12-14 24-34 34Z" fill="#0f172a" opacity="0.45"/>
+  <path d="M62 66c-10 12-18 26-18 42 0 28 24 48 56 48s56-20 56-48c0-16-8-30-18-42l-18 20-20-6-20 6-18-20Z" fill="url(#kg_body)"/>
+  <path d="M100 40c-18 0-30 12-30 34 0 12 6 18 14 24l-6 30 22 14 22-14-6-30c8-6 14-12 14-24 0-22-12-34-30-34Z" fill="#fee2e2"/>
+  <path d="M74 108c8 12 18 18 26 18s18-6 26-18c-8-14-16-22-26-22s-18 8-26 22Z" fill="#f97316" opacity="0.45"/>
+  <path d="M84 134c-10 0-18 8-18 16 0 8 6 14 14 14 12 0 22-6 22-16s-8-14-18-14Z" fill="#450a0a" opacity="0.45"/>
+  <path d="M116 134c-10 0-18 6-18 14s10 16 22 16c8 0 14-6 14-14 0-8-8-16-18-16Z" fill="#450a0a" opacity="0.4"/>
+  <path d="M86 74c-6 0-10 4-10 10 0 6 4 10 10 10s10-4 10-10c0-6-4-10-10-10Z" fill="#1c1917"/>
+  <path d="M114 74c-6 0-10 4-10 10 0 6 4 10 10 10s10-4 10-10c0-6-4-10-10-10Z" fill="#1c1917"/>
+  <path d="M90 124c0 10 8 16 10 16s10-6 10-16-8-18-10-18-10 8-10 18Z" fill="#ffe4e6"/>
+  <path d="M100 142c-6 0-10 4-10 8s4 8 10 8 10-4 10-8-4-8-10-8Z" fill="#f97316"/>
+  <path d="M72 92c-8-12-12-28-2-40 6 10 16 16 28 18-12 4-18 10-26 22Z" fill="#fee2e2" opacity="0.6"/>
+  <path d="M128 92c-8-12-14-18-26-22 12-2 22-8 28-18 10 12 6 28-2 40Z" fill="#fee2e2" opacity="0.5"/>
+  <path d="M84 68c-4 0-6 2-6 4s2 4 6 4 6-2 6-4-2-4-6-4Z" fill="#fff1f2"/>
+  <path d="M116 68c-4 0-6 2-6 4s2 4 6 4 6-2 6-4-2-4-6-4Z" fill="#fff1f2"/>
+  <path d="M68 148c-4 0-8 4-8 8s4 6 8 6 8-2 8-6-4-8-8-8Z" fill="#fb923c"/>
+  <path d="M132 148c-4 0-8 4-8 8s4 6 8 6 8-2 8-6-4-8-8-8Z" fill="#fb923c"/>
+  <path d="M100 84c-4 0-6 2-6 6s2 6 6 6 6-2 6-6-2-6-6-6Z" fill="#1c1917"/>
+</svg>
