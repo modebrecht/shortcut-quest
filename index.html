@@ -1571,12 +1571,25 @@
       border-color: rgba(245,158,11,0.6);
     }
     .battle-arena {
+      --battle-art: none;
+      --battle-art-size: cover;
+      --battle-art-position: center;
       position: relative;
       height: 220px;
-      background:
-        radial-gradient(circle at 30% -10%, rgba(59,130,246,0.15), transparent 65%),
-        radial-gradient(circle at 70% -20%, rgba(248,113,113,0.15), transparent 60%),
-        rgba(5,10,22,0.85);
+      background-color: rgba(5,10,22,0.92);
+      background-image:
+        var(--battle-art),
+        radial-gradient(circle at 30% -10%, rgba(59,130,246,0.18), transparent 65%),
+        radial-gradient(circle at 70% -20%, rgba(248,113,113,0.2), transparent 60%);
+      background-size:
+        var(--battle-art-size),
+        140% 100%,
+        120% 100%;
+      background-position:
+        var(--battle-art-position),
+        10% 0%,
+        80% 0%;
+      background-repeat: no-repeat;
       border: 1px solid rgba(148,163,184,0.25);
       border-radius: 0.9rem;
       display: flex;
@@ -1584,6 +1597,16 @@
       justify-content: space-between;
       padding: 1.5rem 2rem;
       overflow: hidden;
+    }
+    .battle-arena[data-battle-theme="forest"] {
+      --battle-art: url("assets/battle-bg-forest.svg");
+    }
+    .battle-arena[data-battle-theme="mountain"] {
+      --battle-art: url("assets/battle-bg-mountain.svg");
+    }
+    .battle-arena[data-battle-theme="celestial"] {
+      --battle-art: url("assets/battle-bg-celestial.svg");
+      --battle-art-position: center top;
     }
     .battle-arena::before {
       content: "";
@@ -4942,6 +4965,11 @@
       if (enemy.def >= enemy.atk + 2) return "Tank";
       return "Unberechenbar";
     }
+    function getBattleTheme(level) {
+      if (level >= 9) return "celestial";
+      if (level >= 5) return "mountain";
+      return "forest";
+    }
     function setActiveBattleSide(isHeroActive) {
       heroCardElements.forEach(el => el.classList.toggle("attacking", Boolean(isHeroActive)));
       enemyCardElements.forEach(el => el.classList.toggle("attacking", !isHeroActive));
@@ -5605,6 +5633,8 @@
         battleNextBtn.classList.add("hidden");
         battleNextBtn.removeAttribute("data-target-level");
       }
+      const theme = getBattleTheme(Math.max(1, level || enemyState?.level || 1));
+      if (battleArena) battleArena.setAttribute("data-battle-theme", theme);
       const enemyName = enemyState && enemyState.name ? enemyState.name : "Gegner";
       if (battleTitle) battleTitle.textContent = "Kampf gegen " + enemyName + " (Rang " + level + ")";
       if (battleEnemyName) battleEnemyName.textContent = enemyName;
