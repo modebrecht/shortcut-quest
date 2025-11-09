@@ -3789,16 +3789,20 @@
           bonusIndicator.dataset.skillBonusReady = "false";
           bonusIndicator.setAttribute("aria-hidden", "true");
         }
-        title.textContent = "Tier-6 Bonus";
+        const bonusStageValue = Math.max(0, Number(indicatorOverrides.bonusStage ?? bonusPercent) || 0);
+        title.textContent = indicatorOverrides.titleText || `Tier-6 (Bonusstufe ${bonusStageValue})`;
         const progressCap = indicatorOverrides.progressMax ?? magicInfo.copiesPerPercent;
         const progressValueCustom = indicatorOverrides.progressValue ?? progressDisplayValue;
+        const forceFull = indicatorOverrides.forceFullProgress ?? true;
+        const showFullProgress = forceFull && readyCount > 0 && Number.isFinite(progressCap) && progressCap > 0;
+        const effectiveValue = showFullProgress ? progressCap : progressValueCustom;
         const ratio = progressCap === Infinity
           ? 1
-          : (progressCap ? Math.min(1, Math.max(0, progressValueCustom / progressCap)) : 0);
+          : (progressCap ? Math.min(1, Math.max(0, effectiveValue / progressCap)) : 0);
         fill.style.width = `${ratio * 100}%`;
         const progressLabelText = indicatorOverrides.progressLabel
           ? indicatorOverrides.progressLabel
-          : (progressCap === Infinity ? `${progressValueCustom}/∞` : `${progressValueCustom}/${progressCap}`);
+          : (progressCap === Infinity ? `${effectiveValue}/∞` : `${effectiveValue}/${progressCap}`);
         progressLabel.textContent = progressLabelText;
         if (indicatorOverrides.statusText !== undefined) {
           status.textContent = indicatorOverrides.statusText;
@@ -3819,9 +3823,13 @@
       } else {
         const displayTierOverride = indicatorOverrides.displayTier ?? skill.tier;
         const nextTierOverride = indicatorOverrides.nextTier ?? Math.min(MAX_SKILL_TIER, skill.tier + 1);
-        title.textContent = displayTierOverride >= MAX_SKILL_TIER
-          ? `Tier ${displayTierOverride} (MAX)`
-          : `Tier ${displayTierOverride} ➜ Tier ${nextTierOverride}`;
+        if (indicatorOverrides.titleText) {
+          title.textContent = indicatorOverrides.titleText;
+        } else {
+          title.textContent = displayTierOverride >= MAX_SKILL_TIER
+            ? `Tier ${displayTierOverride} (MAX)`
+            : `Tier ${displayTierOverride} ➜ Tier ${nextTierOverride}`;
+        }
         let progressCap = indicatorOverrides.progressMax;
         let infiniteCap = false;
         if (progressCap === Infinity) {
