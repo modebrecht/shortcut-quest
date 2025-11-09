@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title>Daemonengoblin</title>
+  <defs>
+    <linearGradient id="demon-bg" x1="8" y1="0" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#340000"/>
+      <stop offset="1" stop-color="#050000"/>
+    </linearGradient>
+    <linearGradient id="demon-skin" x1="32" y1="24" x2="92" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff8e7a"/>
+      <stop offset="1" stop-color="#b0181b"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="26" fill="url(#demon-bg)"/>
+  <path d="M21 48c5-11 17-21 28-22-4 9-3 18 0 25-8-2-15-2-28-3z" fill="#570a0e"/>
+  <path d="M99 48c-5-11-17-21-28-22 4 9 3 18 0 25 8-2 15-2 28-3z" fill="#2f0306"/>
+  <circle cx="60" cy="64" r="34" fill="url(#demon-skin)" stroke="#450004" stroke-width="4"/>
+  <path d="M36 57c-3 0-6-3-6-7s3-8 7-8 11 6 12 11c-5 2-9 4-13 4zm48 0c3 0 6-3 6-7s-3-8-7-8-11 6-12 11c5 2 9 4 13 4z" fill="#210001"/>
+  <path d="M45 76c5 5 9 7 15 7s10-2 15-7" stroke="#260001" stroke-width="4" stroke-linecap="round"/>
+  <path d="M42 84c5 3 10 5 18 5s13-2 18-5" stroke="#ffd4c7" stroke-width="2" stroke-linecap="round"/>
+  <path d="M60 27c-9 0-16 7-16 16v5h32v-5c0-9-7-16-16-16z" fill="#ffb9a8" stroke="#4f0104" stroke-width="3"/>
+  <path d="M34 38l-6-16 14 8 6-12 6 12 14-8-6 16H34z" fill="#f6d6d1" stroke="#480001" stroke-width="3"/>
+  <path d="M60 86l-12 14 12 4 12-4z" fill="#7a040d" stroke="#2b0001" stroke-width="3"/>
+  <circle cx="46" cy="60" r="4" fill="#fff6cf"/>
+  <circle cx="74" cy="60" r="4" fill="#fff6cf"/>
+</svg>

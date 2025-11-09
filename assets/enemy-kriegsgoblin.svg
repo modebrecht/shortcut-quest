@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title>Kriegsgoblin</title>
+  <defs>
+    <linearGradient id="war-bg" x1="8" y1="0" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2b0505"/>
+      <stop offset="1" stop-color="#050000"/>
+    </linearGradient>
+    <linearGradient id="war-skin" x1="32" y1="24" x2="92" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffcf5d"/>
+      <stop offset="1" stop-color="#d15527"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="24" fill="url(#war-bg)"/>
+  <path d="M15 76c8-16 22-26 45-26h0c23 0 37 10 45 26-17-6-31-8-45-8S32 70 15 76z" fill="#460b08" stroke="#150202" stroke-width="3"/>
+  <circle cx="60" cy="58" r="34" fill="url(#war-skin)" stroke="#401207" stroke-width="4"/>
+  <path d="M44 53c-4 0-7-3-7-7s4-9 10-10 12 5 13 11c-5 2-10 4-16 6zm32 0c4 0 7-3 7-7s-4-9-10-10-12 5-13 11c5 2 10 4 16 6z" fill="#2b0904"/>
+  <path d="M47 78c4 4 8 6 13 6s9-2 13-6" fill="none" stroke="#c43c19" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 86h52v10c0 5-4 9-9 9H43c-5 0-9-4-9-9V86z" fill="#210706" stroke="#140202" stroke-width="3"/>
+  <path d="M27 62h66v11H27z" fill="#ffdf6b" stroke="#2c0c00" stroke-width="3"/>
+  <path d="M60 34l16 8-4 10-12-5-12 5-4-10z" fill="#ffd87c" stroke="#2c0c00" stroke-width="3"/>
+  <path d="M30 69c5 2 12 4 30 4s25-2 30-4" stroke="#9b250d" stroke-width="3" stroke-linecap="round"/>
+  <path d="M42 91h36v8H42z" fill="#ffd894"/>
+  <path d="M42 41l-8-14 14 6 6-10 6 10 14-6-8 14H42z" fill="#fef1a4" stroke="#321401" stroke-width="3"/>
+  <circle cx="60" cy="76" r="6" fill="#ffd66b" stroke="#2c0c00" stroke-width="2"/>
+</svg>
