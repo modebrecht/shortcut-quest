@@ -1747,17 +1747,8 @@
       background: linear-gradient(90deg, #0f172a 0 24%, #38bdf8 24% 76%, #0f172a 76% 100%);
       box-shadow: 0 6px 0 0 #1f2937;
     }
-    .fighter.enemy {
-      --enemy-sprite: linear-gradient(180deg, #047857 0%, #065f46 58%, #064e3b 100%);
-    }
     .fighter.enemy::before {
-      background: var(--enemy-sprite);
-      border-radius: 6px;
-      box-shadow: 0 12px 18px rgba(5,10,25,0.45);
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center bottom;
-      image-rendering: auto;
+      display: none;
     }
     .fighter.enemy::after {
       background: linear-gradient(90deg, #111827 0 30%, #bef264 30% 70%, #111827 70% 100%);
@@ -1766,11 +1757,15 @@
         -12px 0 0 -4px rgba(255,255,255,0.08),
         12px 0 0 -4px rgba(255,255,255,0.08);
     }
-    .fighter.enemy.goblin-army {
-      --enemy-sprite: linear-gradient(180deg, #059669 0%, #047857 55%, #065f46 100%);
-    }
-    .fighter.enemy.goblin-king {
-      --enemy-sprite: linear-gradient(180deg, #d97706 0 18%, #10b981 18% 62%, #047857 62% 100%);
+    .fighter-sprite {
+      position: absolute;
+      width: 80px;
+      max-width: 90%;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      filter: drop-shadow(0 10px 20px rgba(3,7,18,0.6));
     }
     .fighter-name {
       position: absolute;
@@ -2725,6 +2720,7 @@
                 <div class="fighter-name">Ritter</div>
               </div>
               <div class="fighter enemy goblin" id="battleEnemy">
+                <img id="battleEnemySprite" class="fighter-sprite" src="assets/enemy-kobold.svg" alt="Goblin">
                 <div class="fighter-name" id="battleEnemyName">Goblin</div>
               </div>
             </div>
@@ -3155,6 +3151,7 @@
     const battleSkillBar = document.getElementById("battleSkillBar");
     const battleKnight = document.getElementById("battleKnight");
     const battleEnemy = document.getElementById("battleEnemy");
+    const battleEnemySprite = document.getElementById("battleEnemySprite");
     const battleEnemyName = document.getElementById("battleEnemyName");
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
@@ -5018,8 +5015,9 @@
         modalEnemyIcon.src = path;
         modalEnemyIcon.alt = altText;
       }
-      if (battleEnemy) {
-        battleEnemy.style.setProperty("--enemy-sprite", `url("${path}")`);
+      if (battleEnemySprite) {
+        battleEnemySprite.src = path;
+        battleEnemySprite.alt = altText;
       }
     }
     function updateBattlePreview() {
@@ -5793,7 +5791,8 @@
         def: blueprint.def,
         variance: blueprint.variance || 1,
         crit: blueprint.crit || 0.1,
-        variant: blueprint.variant || "goblin"
+        variant: blueprint.variant || "goblin",
+        icon: blueprint.icon || getEnemyIconKey(blueprint)
       };
     }
 

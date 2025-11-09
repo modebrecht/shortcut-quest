@@ -10,7 +10,6 @@
       <stop offset="1" stop-color="#b0181b"/>
     </linearGradient>
   </defs>
-  <rect width="120" height="120" rx="26" fill="url(#demon-bg)"/>
   <path d="M21 48c5-11 17-21 28-22-4 9-3 18 0 25-8-2-15-2-28-3z" fill="#570a0e"/>
   <path d="M99 48c-5-11-17-21-28-22 4 9 3 18 0 25 8-2 15-2 28-3z" fill="#2f0306"/>
   <circle cx="60" cy="64" r="34" fill="url(#demon-skin)" stroke="#450004" stroke-width="4"/>
