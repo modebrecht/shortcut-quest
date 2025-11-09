@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Waldgoblin</title>
+  <desc id="desc">Ein Waldgoblin mit Blattmantel und Efeu-Runen.</desc>
+  <defs>
+    <radialGradient id="wgBg" cx="50%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#082f26" stop-opacity="0" />
+      <stop offset="70%" stop-color="#052e16" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#031f14" />
+    </radialGradient>
+    <linearGradient id="wgSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#bbf7d0" />
+      <stop offset="100%" stop-color="#16a34a" />
+    </linearGradient>
+    <linearGradient id="wgCloak" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#047857" />
+      <stop offset="60%" stop-color="#065f46" />
+      <stop offset="100%" stop-color="#14532d" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" fill="#03110a" />
+  <circle cx="60" cy="54" r="52" fill="url(#wgBg)" />
+  <ellipse cx="60" cy="106" rx="32" ry="7" fill="rgba(1,22,12,0.7)" />
+  <g transform="translate(0,-5)">
+    <path d="M38 84 Q60 110 82 84 L86 92 C84 102 72 110 60 110 C48 110 36 102 34 92 Z" fill="url(#wgCloak)" />
+    <ellipse cx="60" cy="56" rx="26" ry="20" fill="url(#wgSkin)" stroke="#0f5132" stroke-width="2.5" />
+    <path d="M42 56 Q60 66 78 56" fill="rgba(15,81,50,0.45)" />
+    <path d="M32 42 C36 24 48 18 60 20 C72 18 84 24 88 42 C80 54 72 64 60 66 C48 64 40 54 32 42 Z" fill="url(#wgSkin)" />
+    <ellipse cx="48" cy="54" rx="4.6" ry="6" fill="#052e16" />
+    <ellipse cx="72" cy="54" rx="4.6" ry="6" fill="#052e16" />
+    <circle cx="48" cy="52" r="2.2" fill="#bef264" />
+    <circle cx="72" cy="52" r="2.2" fill="#bef264" />
+    <path d="M44 44 Q60 48 76 44" stroke="#052e16" stroke-width="3" stroke-linecap="round" />
+    <path d="M50 68 C56 74 64 74 70 68" stroke="#dcfce7" stroke-width="2.8" stroke-linecap="round" />
+    <path d="M42 36 L50 26 L60 34 L70 26 L78 36" fill="#166534" stroke="#052e16" stroke-width="2" />
+    <g transform="translate(26,72)">
+      <path d="M6 0 Q20 8 28 24" stroke="#22c55e" stroke-width="3" stroke-linecap="round" />
+      <path d="M0 10 Q12 18 18 34" stroke="#bbf7d0" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+    </g>
+    <g transform="translate(78,72)">
+      <path d="M-6 0 Q-20 8 -28 24" stroke="#22c55e" stroke-width="3" stroke-linecap="round" />
+      <path d="M0 10 Q-12 18 -18 34" stroke="#bbf7d0" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+    </g>
+    <path d="M44 86 L40 102" stroke="#052e16" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M76 86 L80 102" stroke="#052e16" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+  </g>
+</svg>

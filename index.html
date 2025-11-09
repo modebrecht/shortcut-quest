@@ -1039,9 +1039,9 @@
       font-size: 2.8rem;
     }
     .battle-portrait-icon img {
-      width: 70%;
+      width: 84%;
       height: auto;
-      filter: drop-shadow(0 6px 12px rgba(15,23,42,0.6));
+      filter: drop-shadow(0 10px 20px rgba(15,23,42,0.65));
     }
     .battle-statline {
       display: flex;
@@ -1704,6 +1704,19 @@
       justify-content: center;
       padding-bottom: 0.4rem;
       overflow: visible;
+    }
+    .fighter-illustration {
+      position: relative;
+      z-index: 1;
+      width: 84px;
+      height: 84px;
+      object-fit: contain;
+      filter: drop-shadow(0 16px 24px rgba(15,23,42,0.6));
+      transition: transform 0.3s ease;
+    }
+    .fighter.attacking-left .fighter-illustration,
+    .fighter.attacking-right .fighter-illustration {
+      transform: translateY(-4px) scale(1.04);
     }
     .fighter::before {
       content: "";
@@ -2712,9 +2725,27 @@
                 <span style="left:5%; animation-delay:5.2s;"></span>
               </div>
               <div class="fighter knight" id="battleKnight">
+                <img
+                  id="battleKnightArt"
+                  class="fighter-illustration"
+                  src="assets/knight_idle_fin.svg"
+                  alt="Shortcut Knight"
+                  width="92"
+                  height="92"
+                  loading="lazy"
+                />
                 <div class="fighter-name">Ritter</div>
               </div>
               <div class="fighter enemy goblin" id="battleEnemy">
+                <img
+                  id="battleEnemyArt"
+                  class="fighter-illustration"
+                  src="assets/enemy_kobold.svg"
+                  alt="Kobold"
+                  width="92"
+                  height="92"
+                  loading="lazy"
+                />
                 <div class="fighter-name" id="battleEnemyName">Goblin</div>
               </div>
             </div>
@@ -2791,7 +2822,7 @@
                 </div>
               </div>
               <div class="battle-portrait hero">
-                <span class="battle-portrait-icon"><img src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
+                <span class="battle-portrait-icon"><img id="battleHeroPortrait" src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
@@ -2828,7 +2859,7 @@
                 </div>
               </div>
               <div class="battle-portrait enemy">
-                <span class="battle-portrait-icon">⚔</span>
+                <span class="battle-portrait-icon"><img id="battleEnemyPreviewArt" src="assets/enemy_kobold.svg" alt="Kobold"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
@@ -2885,6 +2916,33 @@
       { label: "Kommentar einfügen", keys: ["Control", "Alt", "Shift", "M"] },
       { label: "Notizmodus", keys: ["Control", "Alt", "Shift", "N"] }
     ];
+    const HERO_ART = {
+      src: "assets/knight_idle_fin.svg",
+      alt: "Shortcut Knight, gepanzerter Held"
+    };
+    const DEFAULT_ENEMY_ART = {
+      src: "assets/enemy_kobold.svg",
+      alt: "Goblinkrieger"
+    };
+    const ENEMY_ART_BY_LEVEL = {
+      1: { src: "assets/enemy_kobold.svg", alt: "Kobold mit Speer" },
+      2: { src: "assets/enemy_gruener_goblin.svg", alt: "Gruener Goblin mit Schleuder" },
+      3: { src: "assets/enemy_hobgoblin.svg", alt: "Hobgoblin mit Kriegshammer" },
+      4: { src: "assets/enemy_waldgoblin.svg", alt: "Waldgoblin mit Efeu" },
+      5: { src: "assets/enemy_hoehlengoblin.svg", alt: "Hoehlengoblin mit Kristall" },
+      6: { src: "assets/enemy_bergtroll.svg", alt: "Bergtroll mit Felskeule" },
+      7: { src: "assets/enemy_dunkelgoblin.svg", alt: "Dunkelgoblin mit Schattenklingen" },
+      8: { src: "assets/enemy_kriegsgoblin.svg", alt: "Kriegsgoblin mit Kriegstrommel" },
+      9: { src: "assets/enemy_schattengoblin.svg", alt: "Schattengoblin mit Sichel" },
+      10: { src: "assets/enemy_daemonengoblin.svg", alt: "Daemonengoblin mit Hexenfeuer" },
+      11: { src: "assets/enemy_goblinkoenig.svg", alt: "Goblinkoenig mit Krone" }
+    };
+    function getEnemyArt(level, enemy) {
+      if (enemy && enemy.art && enemy.art.src) return enemy.art;
+      if (level && ENEMY_ART_BY_LEVEL[level]) return ENEMY_ART_BY_LEVEL[level];
+      if (enemy && enemy.level && ENEMY_ART_BY_LEVEL[enemy.level]) return ENEMY_ART_BY_LEVEL[enemy.level];
+      return DEFAULT_ENEMY_ART;
+    }
     const skillHotkeyPool = [];
     const activeSkillKeys = new Set();
     const activeSkillComboLatch = new Set();
@@ -3065,14 +3123,14 @@
       try {
         const saved = JSON.parse(raw);
         Object.assign(state, saved);
-      if (!state.gachaPreference) state.gachaPreference = "weapon";
-    } catch (err) {
-      console.warn("State konnte nicht geladen werden", err);
-    }
-    if (!Array.isArray(state.items)) state.items = [];
-    if (!Array.isArray(state.skills)) state.skills = [];
-    if (typeof state.equipment !== "object" || !state.equipment) state.equipment = {};
-    if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
+        if (!state.gachaPreference) state.gachaPreference = "weapon";
+      } catch (err) {
+        console.warn("State konnte nicht geladen werden", err);
+      }
+      if (!Array.isArray(state.items)) state.items = [];
+      if (!Array.isArray(state.skills)) state.skills = [];
+      if (typeof state.equipment !== "object" || !state.equipment) state.equipment = {};
+      if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
       if (typeof state.battleUnlocked !== "number" || !Number.isFinite(state.battleUnlocked)) {
@@ -3080,10 +3138,10 @@
       } else {
         state.battleUnlocked = Math.max(1, Math.floor(state.battleUnlocked));
       }
-    if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
-      state.lastShopPurchase = null;
+      if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
+        state.lastShopPurchase = null;
+      }
     }
-  }
     loadState();
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -3139,7 +3197,10 @@
     const battleArena = document.getElementById("battleArena");
     const battleSkillBar = document.getElementById("battleSkillBar");
     const battleKnight = document.getElementById("battleKnight");
+    const battleKnightArt = document.getElementById("battleKnightArt");
+    const battleHeroPortrait = document.getElementById("battleHeroPortrait");
     const battleEnemy = document.getElementById("battleEnemy");
+    const battleEnemyArt = document.getElementById("battleEnemyArt");
     const battleEnemyName = document.getElementById("battleEnemyName");
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
@@ -3154,6 +3215,15 @@
     const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
     const battleEnemyFlavor = document.getElementById("battleEnemyFlavor");
     const battleEnemyTrait = document.getElementById("battleEnemyTrait");
+    const battleEnemyPreviewArt = document.getElementById("battleEnemyPreviewArt");
+    if (battleKnightArt && HERO_ART) {
+      battleKnightArt.src = HERO_ART.src;
+      battleKnightArt.alt = HERO_ART.alt;
+    }
+    if (battleHeroPortrait && HERO_ART) {
+      battleHeroPortrait.src = HERO_ART.src;
+      battleHeroPortrait.alt = HERO_ART.alt;
+    }
     const battleHeroGearList = document.getElementById("battleHeroGearList");
     const modalHeroCard = document.getElementById("modalHeroCard");
     const modalEnemyCard = document.getElementById("modalEnemyCard");
@@ -4937,9 +5007,9 @@
       heroAvatar.classList.toggle("has-gear", hasInventory);
       if (heroAvatarImage) {
         const blueprintSrc = "assets/blueprint_clean.svg";
-        const knightSrc = "assets/knight_idle_fin.svg";
+        const knightSrc = HERO_ART.src;
         heroAvatarImage.src = hasInventory ? knightSrc : blueprintSrc;
-        heroAvatarImage.alt = hasInventory ? "Ritter bereit fuer den Kampf" : "Blueprint deines Helden";
+        heroAvatarImage.alt = hasInventory ? HERO_ART.alt : "Blueprint deines Helden";
         heroAvatarImage.classList.toggle("is-blueprint", !hasInventory);
         heroAvatarImage.classList.toggle("is-knight", hasInventory);
       }
@@ -5048,12 +5118,17 @@
       }
       const previewLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
       const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
+      const enemyArt = getEnemyArt(previewLevel, enemy);
       if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
       if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
       if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
       if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
       if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      if (battleEnemyPreviewArt && enemyArt) {
+        battleEnemyPreviewArt.src = enemyArt.src;
+        battleEnemyPreviewArt.alt = enemy ? enemy.name + " Illustration" : enemyArt.alt;
+      }
       if (battleEnemyFlavor) {
         battleEnemyFlavor.textContent = enemy
           ? `ATK ${enemy.atk} • DEF ${enemy.def} • HP ${enemy.hp}`
@@ -5298,8 +5373,19 @@
     const ENEMIES = {};
     ENEMY_DATA.forEach((enemy, index) => {
       const level = index + 1;
-      ENEMIES[level] = { ...enemy, level };
+      const art = getEnemyArt(level, enemy);
+      ENEMIES[level] = { ...enemy, level, art };
     });
+    const initialEnemy = ENEMIES[1];
+    const initialEnemyArt = getEnemyArt(1, initialEnemy);
+    if (battleEnemyArt && initialEnemyArt) {
+      battleEnemyArt.src = initialEnemyArt.src;
+      battleEnemyArt.alt = initialEnemy ? initialEnemy.name + " Illustration" : initialEnemyArt.alt;
+    }
+    if (battleEnemyPreviewArt && initialEnemyArt) {
+      battleEnemyPreviewArt.src = initialEnemyArt.src;
+      battleEnemyPreviewArt.alt = initialEnemy ? initialEnemy.name + " Illustration" : initialEnemyArt.alt;
+    }
     canRenderBattlePreview = true;
     updateBattlePreview();
     state.battleUnlocked = Math.min(ENEMY_DATA.length, Math.max(1, Math.floor(state.battleUnlocked || 1)));
@@ -5636,6 +5722,11 @@
         battleEnemy.classList.remove("attacking-left", "attacking-right", "hit");
         ENEMY_VARIANTS.forEach(variant => battleEnemy.classList.remove(variant));
         if (enemyState && enemyState.variant) battleEnemy.classList.add(enemyState.variant);
+      }
+      const activeEnemyArt = getEnemyArt(level, enemyState);
+      if (battleEnemyArt && activeEnemyArt) {
+        battleEnemyArt.src = activeEnemyArt.src;
+        battleEnemyArt.alt = enemyName ? enemyName + " Illustration" : activeEnemyArt.alt;
       }
       updateBattleSimulationCards(heroState, enemyState, level);
       resetBattleArena();

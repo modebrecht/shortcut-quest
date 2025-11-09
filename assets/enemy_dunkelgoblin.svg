@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Dunkelgoblin</title>
+  <desc id="desc">Ein Schatten-Goblin mit violetter Rüstung und Zwillingsdolchen.</desc>
+  <defs>
+    <radialGradient id="dgBg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#312e81" stop-opacity="0" />
+      <stop offset="70%" stop-color="#1e1b4b" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#0b0720" />
+    </radialGradient>
+    <linearGradient id="dgSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0abfc" />
+      <stop offset="100%" stop-color="#9333ea" />
+    </linearGradient>
+    <linearGradient id="dgArmor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d28d9" />
+      <stop offset="100%" stop-color="#4c1d95" />
+    </linearGradient>
+    <linearGradient id="blade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#a5b4fc" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" fill="#050312" />
+  <circle cx="60" cy="56" r="54" fill="url(#dgBg)" />
+  <ellipse cx="60" cy="108" rx="34" ry="7" fill="rgba(6,4,18,0.72)" />
+  <g transform="translate(0,-4)">
+    <path d="M34 80 Q60 106 86 80 L84 94 C80 104 72 110 60 110 C48 110 40 104 36 94 Z" fill="url(#dgArmor)" opacity="0.85" />
+    <ellipse cx="60" cy="56" rx="26" ry="20" fill="url(#dgSkin)" stroke="#4c1d95" stroke-width="2.5" />
+    <path d="M42 56 Q60 70 78 56" fill="rgba(76,29,149,0.45)" />
+    <path d="M32 42 C36 28 48 20 60 22 C72 20 84 28 88 42 C80 54 72 64 60 66 C48 64 40 54 32 42 Z" fill="url(#dgSkin)" />
+    <ellipse cx="48" cy="54" rx="4.6" ry="6" fill="#3b0764" />
+    <ellipse cx="72" cy="54" rx="4.6" ry="6" fill="#3b0764" />
+    <circle cx="48" cy="52" r="2.2" fill="#e0f2fe" />
+    <circle cx="72" cy="52" r="2.2" fill="#e0f2fe" />
+    <path d="M44 46 Q60 50 76 46" stroke="#3b0764" stroke-width="3.2" stroke-linecap="round" />
+    <path d="M50 68 C56 74 64 74 70 68" stroke="#f5f3ff" stroke-width="2.8" stroke-linecap="round" />
+    <g transform="translate(26,26)">
+      <rect x="-2" y="0" width="6" height="42" rx="3" fill="#312e81" />
+      <path d="M-6 34 L6 34 L2 46 L-2 46 Z" fill="url(#blade)" stroke="#64748b" stroke-width="1.5" />
+    </g>
+    <g transform="translate(94,26)">
+      <rect x="-4" y="0" width="6" height="42" rx="3" fill="#312e81" />
+      <path d="M-6 34 L6 34 L8 46 L-4 46 Z" fill="url(#blade)" stroke="#64748b" stroke-width="1.5" />
+    </g>
+    <path d="M38 34 L60 20 L82 34 L60 42 Z" fill="url(#dgArmor)" stroke="#4c1d95" stroke-width="2" />
+    <path d="M46 88 L42 106" stroke="#312e81" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M74 88 L78 106" stroke="#312e81" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+  </g>
+</svg>
