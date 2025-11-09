@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title desc">
+  <title id="title">Hoehlengoblin</title>
+  <desc id="desc">Ein Höhlengoblin mit violetten Kristallen und Fackelglanz.</desc>
+  <defs>
+    <radialGradient id="cgBg" cx="50%" cy="36%" r="64%">
+      <stop offset="0%" stop-color="#1f1029" stop-opacity="0" />
+      <stop offset="70%" stop-color="#130c1c" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#090712" />
+    </radialGradient>
+    <linearGradient id="cgSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a3e635" />
+      <stop offset="100%" stop-color="#4d7c0f" />
+    </linearGradient>
+    <linearGradient id="cgArmor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3730a3" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="crystal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c4b5fd" />
+      <stop offset="50%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" fill="#05030a" />
+  <circle cx="60" cy="54" r="52" fill="url(#cgBg)" />
+  <ellipse cx="60" cy="106" rx="32" ry="7" fill="rgba(8,6,20,0.7)" />
+  <g transform="translate(0,-4)">
+    <path d="M36 84 Q60 108 84 84 L88 92 C86 102 74 110 60 110 C46 110 34 102 32 92 Z" fill="url(#cgArmor)" opacity="0.85" />
+    <ellipse cx="60" cy="56" rx="26" ry="20" fill="url(#cgSkin)" stroke="#3f6212" stroke-width="2.5" />
+    <path d="M42 56 Q60 68 78 56" fill="rgba(63,98,18,0.45)" />
+    <path d="M34 42 C38 24 50 18 60 20 C70 18 82 24 86 42 C78 54 70 64 60 66 C50 64 42 54 34 42 Z" fill="url(#cgSkin)" />
+    <ellipse cx="48" cy="54" rx="4.6" ry="6" fill="#23300e" />
+    <ellipse cx="72" cy="54" rx="4.6" ry="6" fill="#23300e" />
+    <circle cx="48" cy="52" r="2.2" fill="#fde68a" />
+    <circle cx="72" cy="52" r="2.2" fill="#fde68a" />
+    <path d="M44 44 Q60 48 76 44" stroke="#2d3810" stroke-width="3" stroke-linecap="round" />
+    <path d="M50 70 C56 76 64 76 70 70" stroke="#fef9c3" stroke-width="3" stroke-linecap="round" />
+    <g transform="translate(20,22)">
+      <path d="M0 22 L18 36 L24 24 L12 10 Z" fill="url(#crystal)" stroke="#4c1d95" stroke-width="2" />
+      <path d="M12 6 L24 16" stroke="#fde68a" stroke-width="3" stroke-linecap="round" />
+    </g>
+    <g transform="translate(92,22)">
+      <path d="M0 22 L-18 36 L-24 24 L-12 10 Z" fill="url(#crystal)" stroke="#4c1d95" stroke-width="2" />
+      <path d="M-12 6 L-24 16" stroke="#fde68a" stroke-width="3" stroke-linecap="round" />
+    </g>
+    <g transform="translate(88,20)">
+      <rect x="-4" y="0" width="8" height="40" rx="3" fill="#854d0e" />
+      <circle cx="0" cy="-6" r="8" fill="#fde68a" stroke="#f97316" stroke-width="2" />
+    </g>
+    <path d="M46 86 L40 104" stroke="#312e81" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M74 86 L80 104" stroke="#312e81" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+  </g>
+</svg>

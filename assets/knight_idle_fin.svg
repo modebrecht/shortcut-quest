@@ -1,126 +1,81 @@
-<svg viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Shortcut Knight Illustration</title>
+  <desc id="desc">Ein gepanzerter Ritter mit blauer Schärpe und leuchtendem Schwert.</desc>
   <defs>
-    <linearGradient id="steel" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#dbe2ea"/>
-      <stop offset="50%" stop-color="#9aa6b5"/>
-      <stop offset="100%" stop-color="#e5edf5"/>
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0" />
+      <stop offset="60%" stop-color="#0f172a" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0.95" />
+    </radialGradient>
+    <linearGradient id="armorMain" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5f5" />
+      <stop offset="55%" stop-color="#7f8ea7" />
+      <stop offset="100%" stop-color="#3f4c63" />
     </linearGradient>
-    <linearGradient id="darkSteel" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#4b5563"/>
-      <stop offset="100%" stop-color="#1f2937"/>
+    <linearGradient id="cape" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#0b1d4b" />
+    </linearGradient>
+    <linearGradient id="goldTrim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="swordBlade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="45%" stop-color="#dbe2f1" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+    <linearGradient id="shieldFace" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="60%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#060b16" />
     </linearGradient>
   </defs>
-  <path d="M46 122 L58 122 L56 156 Q51 158 46 156 Z" fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-  <path d="M67 122 L79 122 L79 156 Q74 158 67 156 Z" fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-  <path d="M42 156 H58 V163 Q50 165 43 163 Z" fill="#111827" stroke="#0f172a" stroke-width="1"/>
-  <path d="M64 156 H80 V163 Q72 165 65 163 Z" fill="#111827" stroke="#0f172a" stroke-width="1"/>
-  <g id="arm-left">
-    <animateTransform attributeName="transform" type="rotate"
-      values="0 40 75; 2 40 75; 0 40 75; -1 40 75; 0 40 75"
-      dur="3.4s" repeatCount="indefinite" />
-    <path d="M30 82 Q34 70 45 67 L49 82 L42 114 Q35 113 30 110 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-    <path d="M30 109 L38 112 L37 120 Q34 123 31 120 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-    <path d="M31.5 111.2 L31.2 119" stroke="rgba(17,24,39,0.55)" stroke-width="0.6" />
-    <path d="M34 112 L33.8 120" stroke="rgba(17,24,39,0.55)" stroke-width="0.6" />
-    <path d="M36.2 112.7 L36 120.2" stroke="rgba(17,24,39,0.55)" stroke-width="0.6" />
-  </g>
-  <g id="arm-right">
-    <animateTransform attributeName="transform" type="rotate"
-      values="0 80 75; -2 80 75; 0 80 75; 1 80 75; 0 80 75"
-      dur="3.4s" repeatCount="indefinite" />
-    <path d="M90 82 Q86 70 75 67 L71 82 L78 114 Q85 113 90 110 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-    <path d="M82 112 L91 109 L92 120 Q89 123 85.5 120 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-    <path d="M84 113 L84.4 120.2" stroke="rgba(17,24,39,0.55)" stroke-width="0.6" />
-    <path d="M86.5 112.1 L87 120.1" stroke="rgba(17,24,39,0.55)" stroke-width="0.6" />
-    <path d="M89 111.2 L89.5 119.2" stroke="rgba(17,24,39,0.55)" stroke-width="0.6" />
-  </g>
-  <g id="breath">
-    <animateTransform attributeName="transform" type="translate"
-      values="0 0; 0 -2.4; 0 0"
-      dur="4.2s" repeatCount="indefinite" />
-    <path d="M42 38 Q60 20 78 38 V60 Q60 66 42 60 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1.8" />
-    <g>
-      <animateTransform attributeName="transform" type="translate"
-        values="0 0; 0 0; 2 0; 2 0; 0 0; 0 0"
-        keyTimes="0;0.5;0.533;0.866;0.9;1"
-        dur="30s" repeatCount="indefinite"
-        calcMode="spline"
-        keySplines="0.4 0 0.2 1;
-                    0.4 0 0.2 1;
-                    0 0 1 1;
-                    0.4 0 0.2 1;
-                    0 0 1 1" />
-      <rect x="46" y="43" width="28" height="9" rx="3" fill="#111827" opacity="0.9" />
-      <rect x="50" y="46" width="20" height="3" rx="1.5" fill="#d1d5db" opacity="0.7">
-        <animate attributeName="x"
-                 values="50;50;60;60;50;50"
-                 keyTimes="0;0.5;0.533;0.866;0.9;1"
-                 dur="30s" repeatCount="indefinite"
-                 calcMode="spline"
-                 keySplines="0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0 0 1 1;
-                             0.4 0 0.2 1;
-                             0 0 1 1" />
-        <animate attributeName="width"
-                 values="20;20;10;10;20;20"
-                 keyTimes="0;0.5;0.533;0.866;0.9;1"
-                 dur="30s" repeatCount="indefinite"
-                 calcMode="spline"
-                 keySplines="0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0 0 1 1;
-                             0.4 0 0.2 1;
-                             0 0 1 1" />
-        <animate attributeName="height"
-                 values="3;3;0.25;3;3;0.25;3;3;0.25;3"
-                 keyTimes="0;0.332;0.338;0.345;0.655;0.661;0.668;0.988;0.994;1"
-                 dur="30s" repeatCount="indefinite"
-                 calcMode="spline"
-                 keySplines="0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0 0 1 1" />
-        <animate attributeName="y"
-                 values="46;46;47.4;46;46;47.4;46;46;47.4;46"
-                 keyTimes="0;0.332;0.338;0.345;0.655;0.661;0.668;0.988;0.994;1"
-                 dur="30s" repeatCount="indefinite"
-                 calcMode="spline"
-                 keySplines="0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0.4 0 0.2 1;
-                             0 0 1 1" />
-      </rect>
+  <rect width="160" height="160" fill="#020617" />
+  <circle cx="80" cy="72" r="74" fill="url(#bgGlow)" />
+  <ellipse cx="80" cy="142" rx="44" ry="10" fill="rgba(15,23,42,0.8)" />
+  <g transform="translate(0,-4)">
+    <path d="M42 120 C52 102 54 82 54 82 L106 82 C106 82 108 104 118 120 C108 134 94 142 80 142 C66 142 52 134 42 120 Z" fill="url(#cape)" opacity="0.85" />
+    <path d="M66 38 C70 28 80 24 90 28 L102 52 L92 60 L84 46 Z" fill="#1e3a8a" opacity="0.55" />
+    <g id="shield" transform="translate(24,64)">
+      <path d="M36 6 L52 14 L52 40 C52 56 36 74 36 74 C36 74 20 56 20 40 L20 14 Z" fill="#0f172a" stroke="#1d4ed8" stroke-width="3" stroke-linejoin="round" />
+      <path d="M36 10 L48 16 L48 38 C48 50 36 64 36 64 C36 64 24 50 24 38 L24 16 Z" fill="rgba(59,130,246,0.45)" />
+      <path d="M36 18 A8 8 0 1 1 35.9 18" fill="#38bdf8" />
+      <path d="M36 24 V46" stroke="#bae6fd" stroke-width="3" stroke-linecap="round" opacity="0.6" />
     </g>
-    <path d="M44 60 Q60 65 76 60 L78 69 Q60 74 42 69 Z"
-          fill="url(#darkSteel)" stroke="#111827" stroke-width="1.2" />
-    <path d="M30 70 Q37 56 48 60 L46 83 Q36 82 30 75 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1.1" />
-    <path d="M90 70 Q83 56 72 60 L74 83 Q84 82 90 75 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1.1" />
-    <path d="M44 69 L76 69 L80 106 Q60 114 40 106 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1.3" />
-    <path d="M60 70 V110" stroke="rgba(17,24,39,0.5)" stroke-width="2"/>
-    <path d="M38 104 H82 L78 116 Q60 120 42 116 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-    <path d="M40 108 H60 L57 137 L34 131 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
-    <path d="M80 108 H60 L63 137 L86 131 Z"
-          fill="url(#steel)" stroke="#1f2937" stroke-width="1" />
+    <g id="body" transform="translate(56,38)">
+      <rect x="4" y="30" width="40" height="54" rx="18" fill="url(#armorMain)" stroke="#1e293b" stroke-width="3" />
+      <rect x="10" y="42" width="28" height="18" rx="8" fill="#1f2937" opacity="0.5" />
+      <path d="M24 30 L38 16 L32 6 L16 6 L10 16 L24 30 Z" fill="url(#armorMain)" stroke="#1e293b" stroke-width="2.5" />
+      <path d="M4 54 Q24 66 44 54" fill="#111827" opacity="0.55" />
+      <path d="M18 80 L18 94 L12 106 L22 110 L30 96 L38 110 L48 106 L42 94 L42 80" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+      <rect x="14" y="86" width="20" height="22" rx="9" fill="#111827" />
+    </g>
+    <g id="head" transform="translate(58,18)">
+      <path d="M22 0 C33 0 42 9 42 22 L42 30 C42 38 36 44 22 44 C8 44 2 38 2 30 L2 22 C2 9 11 0 22 0 Z" fill="url(#armorMain)" stroke="#1e293b" stroke-width="3" />
+      <path d="M6 26 H38" stroke="#0f172a" stroke-width="4" stroke-linecap="round" />
+      <path d="M10 18 H34" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+      <circle cx="14" cy="26" r="4" fill="#0f172a" />
+      <circle cx="30" cy="26" r="4" fill="#0f172a" />
+      <path d="M22 6 V-4" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" />
+    </g>
+    <g id="sword" transform="translate(102,52)">
+      <rect x="8" y="0" width="8" height="64" rx="4" fill="url(#swordBlade)" stroke="#64748b" stroke-width="2" />
+      <rect x="4" y="50" width="16" height="6" rx="3" fill="url(#goldTrim)" />
+      <rect x="6" y="56" width="12" height="10" rx="4" fill="#b45309" />
+      <circle cx="12" cy="61" r="2.6" fill="#0f172a" />
+      <path d="M12 4 L16 8 L12 20 L8 8 Z" fill="#f8fafc" opacity="0.65" />
+    </g>
+    <g id="capeHighlights" transform="translate(0,6)">
+      <path d="M54 68 Q46 100 62 124" stroke="rgba(191,219,254,0.45)" stroke-width="6" stroke-linecap="round" opacity="0.6" />
+      <path d="M106 70 Q114 106 94 132" stroke="rgba(59,130,246,0.4)" stroke-width="5" stroke-linecap="round" opacity="0.6" />
+    </g>
+    <g id="sigil" transform="translate(68,66)">
+      <circle cx="12" cy="12" r="10" fill="rgba(15,23,42,0.75)" stroke="url(#goldTrim)" stroke-width="2" />
+      <path d="M12 6 L16 18 L12 16 L8 18 Z" fill="#38bdf8" />
+      <circle cx="12" cy="10" r="2" fill="#f8fafc" />
+    </g>
   </g>
 </svg>
