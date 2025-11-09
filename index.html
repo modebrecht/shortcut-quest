@@ -19,6 +19,7 @@
       --muted: #94a3b8;
       --slot-row-height: 200px;
       --icon-visual-size: 116px;
+      --inventory-icon-frame: 96px;
     }
     * { box-sizing: border-box; }
     body {
@@ -623,19 +624,37 @@
       flex: 1;
     }
     .item-icon {
-      width: 54px;
-      height: 54px;
-      border-radius: 0.6rem;
+      width: var(--inventory-icon-frame);
+      height: var(--inventory-icon-frame);
+      padding: 0.35rem;
+      border-radius: 0.85rem;
       border: 1px solid rgba(148,163,184,0.35);
-      background: rgba(148,163,184,0.12);
+      background:
+        radial-gradient(120% 120% at 20% 0%, rgba(255,255,255,0.08), transparent),
+        rgba(3,8,23,0.88);
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
     }
+    .item-icon::after {
+      content: "";
+      position: absolute;
+      inset: 0.25rem;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(148,163,184,0.2);
+      pointer-events: none;
+    }
+    .item-icon img,
     .item-icon svg {
-      width: 100%;
-      height: 100%;
+      width: calc(var(--inventory-icon-frame) - 18px);
+      height: calc(var(--inventory-icon-frame) - 18px);
+      max-width: 100%;
+      max-height: 100%;
       display: block;
+      transform: none;
     }
     .item-text { display: flex; flex-direction: column; gap: 0.2rem; }
     .item-text strong { font-size: 0.85rem; }
@@ -728,8 +747,8 @@
     .inventory-item.tier-4 .item-icon { border-color: rgba(192,132,252,0.75); background: rgba(192,132,252,0.25); }
     .inventory-item.tier-5 .item-icon { border-color: rgba(251,191,36,0.8); background: rgba(251,191,36,0.3); }
     .inventory-item.tier-6 .item-icon { border-color: rgba(248,113,113,0.9); background: rgba(248,113,113,0.35); }
-    .badge.atk { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.45); color: #fecaca; }
-    .badge.def { background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.45); color: #bfdbfe; }
+    .badge.atk { background: rgba(248,113,113,0.5); border: 1px solid rgba(248,113,113,0.45); color: #fecaca; }
+    .badge.def { background: rgba(96,165,250,0.5); border: 1px solid rgba(96,165,250,0.45); color: #bfdbfe; }
     .game-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
     .game-grid .card { flex: 1 1 280px; }
     .statline { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -1854,8 +1873,7 @@
           <div class="inventory">
             <div class="inventory-filter-bar" aria-label="Inventarfilter">
               <div class="inventory-filter-buttons" role="group" aria-label="Kategorie wählen">
-                <button class="inventory-filter-btn active" type="button" data-inventory-filter="all" aria-pressed="true">Alle</button>
-                <button class="inventory-filter-btn" type="button" data-inventory-filter="weapon" aria-pressed="false">Waffe</button>
+                <button class="inventory-filter-btn active" type="button" data-inventory-filter="weapon" aria-pressed="true">Waffe</button>
                 <button class="inventory-filter-btn" type="button" data-inventory-filter="armor" aria-pressed="false">Ausrüstung</button>
                 <button class="inventory-filter-btn" type="button" data-inventory-filter="accessory" aria-pressed="false">Accessoire</button>
               </div>
@@ -2425,7 +2443,8 @@
     const inventoryList = document.getElementById("inventoryList");
     const inventoryFilterEmpty = document.getElementById("inventoryFilterEmpty");
     const inventoryFilterButtons = document.querySelectorAll("[data-inventory-filter]");
-    let currentInventoryFilter = "all";
+    const DEFAULT_INVENTORY_FILTER = "weapon";
+    let currentInventoryFilter = DEFAULT_INVENTORY_FILTER;
     let inventoryNeedsResort = true;
     let currentInventoryOrder = [];
     const skillList = document.getElementById("skillList");
@@ -2473,7 +2492,7 @@
     if (inventoryFilterButtons.length) {
       inventoryFilterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
-          const rawValue = btn.dataset.inventoryFilter || "all";
+          const rawValue = btn.dataset.inventoryFilter || DEFAULT_INVENTORY_FILTER;
           const normalizedValue = rawValue === "all" ? "all" : normalizeItemCategory(rawValue);
           if (normalizedValue === currentInventoryFilter) return;
           currentInventoryFilter = normalizedValue;
@@ -3465,7 +3484,7 @@
         inventoryFilterEmpty.style.display = "none";
       }
       if (!hasItems) return;
-      const filterValue = currentInventoryFilter || "all";
+      const filterValue = currentInventoryFilter || DEFAULT_INVENTORY_FILTER;
       const itemTimestamp = entry => Number(entry.lastObtainedAt || entry.createdAt || 0);
       const equippedKeys = new Set(
         Object.values(state.equipment || {}).filter(Boolean)
