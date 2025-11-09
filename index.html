@@ -715,6 +715,15 @@
       cursor: not-allowed;
       border-color: rgba(148,163,184,0.25);
     }
+    .skill-bonus-btn {
+      border-color: rgba(250,204,21,0.6);
+      background: rgba(250,204,21,0.18);
+      color: #f8fafc;
+    }
+    .skill-bonus-btn:not(:disabled):hover {
+      border-color: rgba(250,204,21,0.85);
+      box-shadow: 0 10px 26px rgba(250,204,21,0.25);
+    }
     .inventory-item.tier-1 {
       border-color: rgba(148,163,184,0.35);
       background: linear-gradient(135deg, rgba(148,163,184,0.18), rgba(15,23,42,0.55));
@@ -2481,7 +2490,7 @@
       if (!container) return;
       container.addEventListener("click", event => {
         const btn = event.target.closest(".item-upgrade");
-        if (!btn || btn.disabled) return;
+        if (!btn || btn.disabled || btn.dataset.skillBonus === "true") return;
         const key = btn.dataset.itemKey || btn.dataset.skillKey;
         if (!key) return;
         upgradeFn(key);
@@ -2489,6 +2498,15 @@
     }
     handleUpgradeClick(inventoryList, triggerItemUpgrade);
     handleUpgradeClick(skillList, triggerSkillUpgrade);
+    if (skillList) {
+      skillList.addEventListener("click", event => {
+        const btn = event.target.closest("[data-skill-bonus-key]");
+        if (!btn || btn.disabled) return;
+        const key = btn.dataset.skillBonusKey;
+        if (!key) return;
+        triggerSkillBonusUpgrade(key);
+      });
+    }
     if (inventoryFilterButtons.length) {
       inventoryFilterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
@@ -2909,17 +2927,26 @@
       const capCopies = copiesRequiredForTier(MAX_SKILL_TIER);
       const overcapCopies = Math.max(0, totalCopies - capCopies);
       const copiesPerPercent = 10;
-      const bonusPercent = Math.floor(overcapCopies / copiesPerPercent);
-      const progressTowardNextPercent = overcapCopies % copiesPerPercent;
-      const remainingToNextPercent = copiesPerPercent - progressTowardNextPercent || copiesPerPercent;
+      const naturalMaxPercent = Math.floor(overcapCopies / copiesPerPercent);
+      const storedBonus = Math.max(0, Math.floor(skill && skill.overcapBonusPercent ? skill.overcapBonusPercent : 0));
+      const bonusPercent = Math.min(storedBonus, naturalMaxPercent);
+      const spentCopies = bonusPercent * copiesPerPercent;
+      const availableCopies = Math.max(0, overcapCopies - spentCopies);
+      const availablePercent = Math.floor(availableCopies / copiesPerPercent);
+      const progressTowardNextPercent = availableCopies % copiesPerPercent;
+      const remainingToNextPercent = availablePercent > 0
+        ? 0
+        : (progressTowardNextPercent === 0 ? copiesPerPercent : copiesPerPercent - progressTowardNextPercent);
       return {
         totalCopies,
         capCopies,
         overcapCopies,
         bonusPercent,
         copiesPerPercent,
+        availablePercent,
+        availableCopies,
         progressTowardNextPercent,
-        remainingToNextPercent: progressTowardNextPercent === 0 && overcapCopies > 0 ? copiesPerPercent : copiesPerPercent - progressTowardNextPercent
+        remainingToNextPercent
       };
     }
     function getSkillBaseEffect(skill) {
@@ -3036,11 +3063,20 @@
       skill.totalCopies = safeCopies;
       skill.basePower = Number(skill.basePower || 0);
       skill.powerPerTier = Number(skill.powerPerTier || 0);
+      const capCopies = copiesRequiredForTier(MAX_SKILL_TIER);
+      const overcapCopies = Math.max(0, safeCopies - capCopies);
+      const copiesPerPercent = 10;
+      const naturalMaxPercent = Math.floor(overcapCopies / copiesPerPercent);
+      if (!Number.isFinite(skill.overcapBonusPercent)) {
+        skill.overcapBonusPercent = naturalMaxPercent;
+      }
+      skill.overcapBonusPercent = Math.max(0, Math.min(naturalMaxPercent, Math.floor(skill.overcapBonusPercent)));
       const magicInfo = getSkillOvercapInfo(skill);
       skill.overcapCopies = magicInfo.overcapCopies;
       skill.overcapBonusPercent = magicInfo.bonusPercent;
       skill.overcapProgress = magicInfo.progressTowardNextPercent;
       skill.copiesPerOvercapPercent = magicInfo.copiesPerPercent;
+      skill.overcapAvailablePercent = magicInfo.availablePercent;
       if (!skill.createdAt) skill.createdAt = Date.now();
       if (!skill.lastObtainedAt) skill.lastObtainedAt = skill.createdAt;
       return skill;
@@ -3419,7 +3455,9 @@
       const bonusLabel = bonusPercent > 0 ? ` +${bonusPercent}%` : "";
       const magicInfo = getSkillOvercapInfo(skill);
       if (isMagicRed) {
-        meta.textContent = `Tier ${skill.tier} (MAGIC-RED${bonusLabel}) | x${skill.totalCopies} | Bonus-Fortschritt ${magicInfo.progressTowardNextPercent}/${magicInfo.copiesPerPercent}`;
+        const progressValue = magicInfo.availablePercent > 0 ? magicInfo.copiesPerPercent : magicInfo.progressTowardNextPercent;
+        const readyText = magicInfo.availablePercent > 0 ? ` | Bonus bereit: ${magicInfo.availablePercent}` : "";
+        meta.textContent = `Tier ${skill.tier} (MAGIC-RED${bonusLabel}) | x${skill.totalCopies} | Bonus-Fortschritt ${progressValue}/${magicInfo.copiesPerPercent}${readyText}`;
       } else {
         const progress = Math.min(skill.totalCopies, requirement);
         meta.textContent = `Tier ${skill.tier} | x${skill.totalCopies} | Fortschritt: ${progress}/${requirement}`;
@@ -3468,6 +3506,17 @@
         upgradeBtn.textContent = `Upgrade Tier ${skill.tier + 1} (${skill.totalCopies}/${requirementText})`;
         upgradeBtn.disabled = !canUpgradeItem(skill, MAX_SKILL_TIER);
         controls.appendChild(upgradeBtn);
+      }
+      if (isMagicRed && magicInfo.availablePercent > 0) {
+        const bonusBtn = document.createElement("button");
+        bonusBtn.className = "item-upgrade skill-bonus-btn";
+        bonusBtn.dataset.skillBonus = "true";
+        bonusBtn.dataset.skillBonusKey = skill.key || skill.name;
+        const readyCount = magicInfo.availablePercent;
+        const readyLabel = readyCount > 1 ? `${readyCount}x bereit` : "Bereit";
+        bonusBtn.textContent = `Tier-6 Bonus +1% (${readyLabel})`;
+        bonusBtn.disabled = false;
+        controls.appendChild(bonusBtn);
       }
       row.appendChild(controls);
       return row;
@@ -3749,6 +3798,22 @@
       const skill = state.skills.find(entry => (entry.key || entry.name) === key);
       if (!skill || !canUpgradeItem(skill, MAX_SKILL_TIER)) return;
       skill.tier = Math.min(MAX_SKILL_TIER, skill.tier + 1);
+      skill.lastUpgradeAt = Date.now();
+      updateSkillDerivedStats(skill);
+      saveState();
+      sortSkillsByNewest();
+      updateUI();
+    }
+    function triggerSkillBonusUpgrade(key) {
+      const skill = state.skills.find(entry => (entry.key || entry.name) === key);
+      if (!skill) return;
+      updateSkillDerivedStats(skill);
+      const magicInfo = getSkillOvercapInfo(skill);
+      if (!magicInfo.availablePercent) return;
+      const maxBonus = Math.floor(magicInfo.overcapCopies / magicInfo.copiesPerPercent);
+      const currentBonus = Math.max(0, Math.floor(skill.overcapBonusPercent || 0));
+      if (currentBonus >= maxBonus) return;
+      skill.overcapBonusPercent = Math.min(maxBonus, currentBonus + 1);
       skill.lastUpgradeAt = Date.now();
       updateSkillDerivedStats(skill);
       saveState();
@@ -4132,9 +4197,11 @@
           message = "Neuer Skill: " + skill.name + " (Tier " + skill.tier + ") freigeschaltet! -20 Coins";
         } else if (skill.tier >= MAX_SKILL_TIER) {
           const magicInfo = getSkillOvercapInfo(skill);
-          const progressText = `${magicInfo.progressTowardNextPercent}/${magicInfo.copiesPerPercent} fuer +1%`;
           const bonusText = magicInfo.bonusPercent > 0 ? ` +${magicInfo.bonusPercent}%` : "";
-          message = `${skill.name} MAGIC-RED Tier ${skill.tier}${bonusText} | Fortschritt ${progressText} -20 Coins`;
+          const progressValue = magicInfo.availablePercent > 0 ? magicInfo.copiesPerPercent : magicInfo.progressTowardNextPercent;
+          const progressText = `${progressValue}/${magicInfo.copiesPerPercent} fuer +1%`;
+          const readyText = magicInfo.availablePercent > 0 ? ` | Bonus bereit: ${magicInfo.availablePercent}` : "";
+          message = `${skill.name} MAGIC-RED Tier ${skill.tier}${bonusText} | Fortschritt ${progressText}${readyText} -20 Coins`;
         } else {
           const requirement = getNextTierRequirement(skill, MAX_SKILL_TIER);
           const progress = Math.min(skill.totalCopies, requirement);
