@@ -1,0 +1,39 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kriegsgoblin">
+  <defs>
+    <linearGradient id="warGoblinSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f87171" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+    <linearGradient id="warGoblinArmor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="100%" stop-color="#0b1120" />
+    </linearGradient>
+  </defs>
+  <rect x="14" y="18" width="132" height="134" rx="42" fill="rgba(239,68,68,0.28)" />
+  <ellipse cx="80" cy="138" rx="48" ry="16" fill="rgba(239,68,68,0.32)" />
+  <g stroke="#7f1d1d" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M34 84 C30 48 56 24 80 24 C104 24 130 48 126 84 Z" fill="url(#warGoblinSkin)" />
+    <path d="M48 88 C52 114 62 130 80 130 C98 130 108 114 112 88 Z" fill="#ef4444" />
+    <circle cx="66" cy="72" r="9" fill="#111827" />
+    <circle cx="94" cy="72" r="9" fill="#111827" />
+    <path d="M60 54 L72 52" stroke-linecap="round" />
+    <path d="M100 54 L88 52" stroke-linecap="round" />
+    <path d="M68 96 Q80 108 92 96" stroke="#fde68a" stroke-width="4" stroke-linecap="round" />
+  </g>
+  <g fill="url(#warGoblinArmor)" stroke="#111827" stroke-width="2.6">
+    <path d="M46 128 L114 128 L126 154 H34 Z" />
+    <path d="M54 134 H106 L112 150 H48 Z" fill="#111827" />
+  </g>
+  <g stroke="#f97316" stroke-width="3" stroke-linecap="round">
+    <path d="M46 46 L80 34 L114 46" />
+    <path d="M56 40 L60 20" />
+    <path d="M104 40 L100 20" />
+  </g>
+  <g fill="#fbbf24" stroke="#92400e" stroke-width="2.2">
+    <path d="M52 110 L80 124 L108 110" />
+  </g>
+  <g stroke="#facc15" stroke-width="3" stroke-linecap="round">
+    <path d="M68 76 h6" />
+    <path d="M86 76 h6" />
+  </g>
+</svg>

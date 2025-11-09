@@ -1,0 +1,33 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hoehlengoblin">
+  <defs>
+    <linearGradient id="caveGoblinSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9" />
+      <stop offset="100%" stop-color="#0ea5e9" />
+    </linearGradient>
+    <linearGradient id="caveGoblinArmor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+  </defs>
+  <rect x="14" y="18" width="132" height="132" rx="38" fill="rgba(15,23,42,0.45)" />
+  <ellipse cx="80" cy="136" rx="46" ry="14" fill="rgba(14,165,233,0.28)" />
+  <g stroke="#0c4a6e" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M36 82 C32 48 52 26 80 26 C108 26 128 48 124 82 Z" fill="url(#caveGoblinSkin)" />
+    <path d="M48 86 C50 108 62 124 80 124 C98 124 110 108 112 86 Z" fill="#0ea5e9" />
+    <circle cx="66" cy="74" r="9" fill="#082f49" />
+    <circle cx="94" cy="74" r="9" fill="#082f49" />
+    <circle cx="66" cy="74" r="3.5" fill="#bae6fd" />
+    <circle cx="94" cy="74" r="3.5" fill="#bae6fd" />
+    <path d="M68 96 Q80 106 92 96" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round" />
+  </g>
+  <g fill="url(#caveGoblinArmor)" stroke="#0f172a" stroke-width="2.6">
+    <path d="M46 124 L114 124 L124 150 H36 Z" />
+    <path d="M56 132 H104 L108 146 H52 Z" fill="#1e293b" />
+  </g>
+  <g fill="#38bdf8" stroke="#0f172a" stroke-width="2">
+    <path d="M28 104 L46 72 L54 108 Z" />
+    <path d="M132 104 L114 72 L106 108 Z" />
+    <path d="M80 42 L72 62 L88 62 Z" />
+  </g>
+  <path d="M72 60 h16" stroke="#bae6fd" stroke-width="3" stroke-linecap="round" />
+</svg>
