@@ -921,11 +921,187 @@
       color: #1f2937;
     }
     .battle-card { position: relative; }
+    .battle-overview {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .battle-side {
+      flex: 1 1 280px;
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 1rem;
+      padding: 1.1rem;
+      background: linear-gradient(145deg, rgba(15,23,42,0.92), rgba(15,23,42,0.75));
+      box-shadow: inset 0 0 18px rgba(2,6,23,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .battle-side.hero {
+      border-color: rgba(59,130,246,0.45);
+      background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(30,64,175,0.4));
+    }
+    .battle-side.enemy {
+      border-color: rgba(248,113,113,0.45);
+      background: linear-gradient(145deg, rgba(36,12,23,0.95), rgba(153,27,27,0.35));
+    }
+    .battle-side-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .battle-side-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(248,250,252,0.75);
+    }
+    .battle-side-head h3 {
+      margin: 0.15rem 0 0;
+      font-size: 1.1rem;
+    }
+    .battle-side-tier {
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248,250,252,0.25);
+      font-size: 0.75rem;
+      color: rgba(248,250,252,0.85);
+    }
+    .battle-portrait {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 1px solid rgba(248,250,252,0.25);
+      background: radial-gradient(circle at 40% 30%, rgba(248,250,252,0.2), transparent 60%),
+        rgba(15,23,42,0.4);
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 18px 30px rgba(15,23,42,0.45);
+    }
+    .battle-portrait.hero {
+      border-color: rgba(59,130,246,0.55);
+    }
+    .battle-portrait.enemy {
+      border-color: rgba(248,113,113,0.55);
+    }
+    .battle-portrait-icon {
+      font-size: 2rem;
+      color: rgba(248,250,252,0.9);
+    }
+    .battle-statline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .battle-stat-badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.65rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+      border: 1px solid rgba(148,163,184,0.35);
+      color: rgba(248,250,252,0.9);
+    }
+    .battle-stat-badge strong {
+      margin-left: 0.2rem;
+    }
+    .battle-hp-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .battle-hp-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: rgba(248,250,252,0.75);
+    }
+    .battle-hp-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(148,163,184,0.35);
+      overflow: hidden;
+    }
+    .battle-hp-fill {
+      height: 100%;
+      border-radius: inherit;
+      width: 0%;
+      transition: width 0.35s ease;
+    }
+    .battle-hp-fill.hero {
+      background: linear-gradient(90deg, rgba(59,130,246,0.85), rgba(14,165,233,0.65));
+    }
+    .battle-hp-fill.enemy {
+      background: linear-gradient(90deg, rgba(248,113,113,0.85), rgba(251,191,36,0.65));
+    }
+    .battle-side-meta {
+      margin: 0;
+      font-size: 0.78rem;
+      color: rgba(248,250,252,0.75);
+    }
+    .battle-center {
+      flex: 1 1 320px;
+      min-width: 280px;
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(8,47,73,0.9), rgba(15,23,42,0.85));
+      box-shadow: inset 0 0 24px rgba(2,6,23,0.55);
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .battle-crest {
+      text-align: center;
+    }
+    .battle-crest-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid rgba(248,250,252,0.35);
+      font-size: 1.6rem;
+      letter-spacing: 0.1em;
+      color: rgba(248,250,252,0.9);
+      box-shadow: 0 15px 40px rgba(15,23,42,0.45);
+    }
+    .battle-crest p {
+      margin: 0.7rem 0 0;
+      font-size: 0.85rem;
+      color: rgba(226,232,240,0.85);
+    }
+    .battle-center-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .battle-log {
+      margin: 0;
+    }
+    @media (max-width: 900px) {
+      .battle-side,
+      .battle-center {
+        flex: 1 1 100%;
+      }
+      .battle-portrait {
+        margin: 0.5rem auto;
+      }
+    }
     .battle-buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
-      margin-top: 0.85rem;
     }
     .battle-btn {
       flex: 1 1 150px;
@@ -2291,8 +2467,70 @@
         <div class="card battle-card">
           <h2>Goblin-Scharmuetzel</h2>
           <p class="small">Fordere die Goblins vom Rang 1 (Kobold) bis Rang 11 (Goblinkoenig) heraus. Jeder Sieg schaltet den naechsten Rang frei.</p>
-          <div class="battle-buttons" id="battleButtons"></div>
-          <pre class="battle-log" id="battleLog">Waehle einen Kampf um die Simulation zu starten.</pre>
+          <div class="battle-overview">
+            <div class="battle-side hero">
+              <div class="battle-side-head">
+                <div>
+                  <span class="battle-side-label">Held</span>
+                  <h3>Shortcut Knight</h3>
+                </div>
+                <span class="battle-side-tier" id="battleHeroTier">Rang 1</span>
+              </div>
+              <div class="battle-portrait hero">
+                <span class="battle-portrait-icon">⚔</span>
+              </div>
+              <div class="battle-statline">
+                <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
+                <span class="battle-stat-badge def">DEF<strong id="battleHeroDefStat">0</strong></span>
+              </div>
+              <div class="battle-hp-preview">
+                <div class="battle-hp-label">
+                  <span>HP</span>
+                  <strong id="battleHeroHpStat">0</strong>
+                </div>
+                <div class="battle-hp-track">
+                  <div class="battle-hp-fill hero" id="battleHeroHpPreviewFill"></div>
+                </div>
+              </div>
+              <p class="battle-side-meta" id="battleHeroFlavor">Bereit fuer den naechsten Kampf.</p>
+            </div>
+            <div class="battle-center">
+              <div class="battle-crest">
+                <span class="battle-crest-label">VS</span>
+                <p>Waehle deinen Kampf und nutze Skills in der Schlacht.</p>
+              </div>
+              <div class="battle-center-actions">
+                <div class="battle-buttons" id="battleButtons"></div>
+                <pre class="battle-log" id="battleLog">Waehle einen Kampf um die Simulation zu starten.</pre>
+              </div>
+            </div>
+            <div class="battle-side enemy">
+              <div class="battle-side-head">
+                <div>
+                  <span class="battle-side-label">Naechster Gegner</span>
+                  <h3 id="battleEnemyPreviewName">Goblin</h3>
+                </div>
+                <span class="battle-side-tier" id="battleEnemyPreviewLevel">Rang 1</span>
+              </div>
+              <div class="battle-portrait enemy">
+                <span class="battle-portrait-icon">☠</span>
+              </div>
+              <div class="battle-statline">
+                <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
+                <span class="battle-stat-badge def">DEF<strong id="battleEnemyDefStat">0</strong></span>
+              </div>
+              <div class="battle-hp-preview">
+                <div class="battle-hp-label">
+                  <span>HP</span>
+                  <strong id="battleEnemyHpStat">0</strong>
+                </div>
+                <div class="battle-hp-track">
+                  <div class="battle-hp-fill enemy" id="battleEnemyHpPreviewFill"></div>
+                </div>
+              </div>
+              <p class="battle-side-meta" id="battleEnemyFlavor">Unbekannte Taktik.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -2632,6 +2870,19 @@
     const battleKnight = document.getElementById("battleKnight");
     const battleEnemy = document.getElementById("battleEnemy");
     const battleEnemyName = document.getElementById("battleEnemyName");
+    const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
+    const battleHeroDefStat = document.getElementById("battleHeroDefStat");
+    const battleHeroHpStat = document.getElementById("battleHeroHpStat");
+    const battleHeroHpPreviewFill = document.getElementById("battleHeroHpPreviewFill");
+    const battleHeroTierLabel = document.getElementById("battleHeroTier");
+    const battleHeroFlavor = document.getElementById("battleHeroFlavor");
+    const battleEnemyPreviewName = document.getElementById("battleEnemyPreviewName");
+    const battleEnemyPreviewLevel = document.getElementById("battleEnemyPreviewLevel");
+    const battleEnemyAtkStat = document.getElementById("battleEnemyAtkStat");
+    const battleEnemyDefStat = document.getElementById("battleEnemyDefStat");
+    const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
+    const battleEnemyHpPreviewFill = document.getElementById("battleEnemyHpPreviewFill");
+    const battleEnemyFlavor = document.getElementById("battleEnemyFlavor");
     const enemyHpLabel = document.getElementById("enemyHpLabel");
     const heroHpFill = document.getElementById("heroHpFill");
     const enemyHpFill = document.getElementById("enemyHpFill");
@@ -2644,6 +2895,7 @@
     let battleButtons = [];
     let battleSkillStates = [];
     let currentBattleContext = null;
+    let canRenderBattlePreview = false;
     function handleUpgradeClick(container, upgradeFn) {
       if (!container) return;
       container.addEventListener("click", event => {
@@ -4405,6 +4657,41 @@
         heroAvatarImage.classList.toggle("is-knight", hasInventory);
       }
     }
+    function updateBattlePreview() {
+      if (!canRenderBattlePreview) return;
+      const heroAtk = Math.max(0, state.atk || 0);
+      const heroDef = Math.max(0, state.def || 0);
+      const heroHpMax = getHeroMaxHp();
+      if (battleHeroAtkStat) battleHeroAtkStat.textContent = String(heroAtk);
+      if (battleHeroDefStat) battleHeroDefStat.textContent = String(heroDef);
+      if (battleHeroHpStat) battleHeroHpStat.textContent = String(heroHpMax);
+      if (battleHeroTierLabel) battleHeroTierLabel.textContent = "Rang " + Math.max(1, state.battleUnlocked || 1);
+      if (battleHeroFlavor) {
+        const equippedCount = getEquippedItems().length;
+        battleHeroFlavor.textContent = `${equippedCount}/${EQUIPMENT_SLOT_KEYS.length} Slots belegt`;
+      }
+      const previewLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
+      const enemyHp = enemy ? enemy.hp : heroHpMax;
+      const maxReference = Math.max(heroHpMax, enemyHp, 1);
+      if (battleHeroHpPreviewFill) {
+        battleHeroHpPreviewFill.style.width = `${Math.round((heroHpMax / maxReference) * 100)}%`;
+      }
+      if (battleEnemyHpPreviewFill) {
+        battleEnemyHpPreviewFill.style.width = `${Math.round((enemyHp / maxReference) * 100)}%`;
+      }
+      if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
+      if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
+      if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
+      if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
+      if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
+      if (battleEnemyFlavor) {
+        const variantLabel = enemy && ENEMY_VARIANT_LABELS[enemy.variant]
+          ? ENEMY_VARIANT_LABELS[enemy.variant]
+          : "Schlachtbereit";
+        battleEnemyFlavor.textContent = variantLabel;
+      }
+    }
     function updateUI() {
       const diff = state.coins - displayedCoins;
       if (pendingCoinAnimation) {
@@ -4428,6 +4715,7 @@
       renderShopLatest();
       updateGachaRemainingDisplays();
       renderBattleSkillBar();
+      if (canRenderBattlePreview) updateBattlePreview();
     }
     function updateOverallSummary() {
       if (!overallSummary) return;
@@ -4608,6 +4896,11 @@
     });
 
     const ENEMY_VARIANTS = ["goblin", "goblin-army", "goblin-king"];
+    const ENEMY_VARIANT_LABELS = {
+      goblin: "Schneller Nahkaempfer",
+      "goblin-army": "Verstaerkungen im Ruecken",
+      "goblin-king": "Koenigliche Elite"
+    };
     const ENEMY_DATA = [
       { name: "Kobold", hp: 16, atk: 2, def: 0, variance: 1, crit: 0.06, variant: "goblin" },
       { name: "Gruener Goblin", hp: 20, atk: 3, def: 0, variance: 1, crit: 0.07, variant: "goblin" },
@@ -4626,6 +4919,8 @@
       const level = index + 1;
       ENEMIES[level] = { ...enemy, level };
     });
+    canRenderBattlePreview = true;
+    updateBattlePreview();
     state.battleUnlocked = Math.min(ENEMY_DATA.length, Math.max(1, Math.floor(state.battleUnlocked || 1)));
     Object.keys(state.battleClears || {}).forEach(key => {
       const level = Number(key);
