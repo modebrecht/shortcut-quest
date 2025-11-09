@@ -1,0 +1,45 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Daemonengoblin</title>
+  <desc id="desc">A demonic goblin infused with hellfire and obsidian armor.</desc>
+  <defs>
+    <linearGradient id="dg2-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3b0a0a"/>
+      <stop offset="100%" stop-color="#120202"/>
+    </linearGradient>
+    <linearGradient id="dg2-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="50%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="dg2-armor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="50%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+    <radialGradient id="dg2-eye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fee2e2"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </radialGradient>
+    <filter id="dg2-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#170202" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="30" fill="url(#dg2-bg)"/>
+  <g filter="url(#dg2-shadow)">
+    <path d="M30 136 Q18 92 46 50 Q64 28 80 26 Q96 28 114 50 Q142 92 130 136" fill="url(#dg2-armor)" opacity="0.85"/>
+    <path d="M48 58 Q66 44 80 44 Q94 44 112 58 L106 92 Q94 112 80 114 Q66 112 54 92 Z" fill="url(#dg2-skin)" stroke="#2b0606" stroke-width="2.2"/>
+    <path d="M56 92 Q66 130 48 140 Q30 128 38 100 Z" fill="url(#dg2-skin)" stroke="#2b0606" stroke-width="1.8"/>
+    <path d="M104 92 Q94 130 112 140 Q130 128 122 100 Z" fill="url(#dg2-skin)" stroke="#2b0606" stroke-width="1.8"/>
+    <path d="M60 114 Q74 128 80 130 Q86 128 100 114 L104 142 Q90 150 80 152 Q70 150 56 142 Z" fill="#3f0d0d" stroke="#1a0404" stroke-width="2"/>
+    <path d="M44 48 L60 30 L80 40 L100 30 L116 48" fill="#fbbf24" stroke="#7c2d12" stroke-width="1.8"/>
+    <path d="M42 66 L52 52 L58 66 L48 80 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.2"/>
+    <path d="M118 66 L108 52 L102 66 L112 80 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.2"/>
+    <ellipse cx="66" cy="78" rx="9" ry="11" fill="#2b0606"/>
+    <ellipse cx="94" cy="78" rx="9" ry="11" fill="#2b0606"/>
+    <circle cx="66" cy="78" r="5" fill="url(#dg2-eye)"/>
+    <circle cx="94" cy="78" r="5" fill="url(#dg2-eye)"/>
+    <path d="M64 106 Q80 118 96 106" fill="none" stroke="#2b0606" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M70 90 Q80 94 90 90" fill="none" stroke="#fee2e2" stroke-width="2" stroke-linecap="round"/>
+    <path d="M60 120 Q80 130 100 120" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

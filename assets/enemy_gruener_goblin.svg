@@ -1,0 +1,43 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Gruener Goblin</title>
+  <desc id="desc">A green goblin raider with bone piercings and jagged teeth.</desc>
+  <defs>
+    <linearGradient id="gg-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c3023"/>
+      <stop offset="100%" stop-color="#0b1410"/>
+    </linearGradient>
+    <linearGradient id="gg-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7ef08b"/>
+      <stop offset="55%" stop-color="#3dbb54"/>
+      <stop offset="100%" stop-color="#23803a"/>
+    </linearGradient>
+    <linearGradient id="gg-armor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5a4634"/>
+      <stop offset="100%" stop-color="#2b1f16"/>
+    </linearGradient>
+    <radialGradient id="gg-eye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </radialGradient>
+    <filter id="gg-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#040c06" flood-opacity="0.75"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="26" fill="url(#gg-bg)"/>
+  <g filter="url(#gg-shadow)">
+    <path d="M38 132 Q24 90 48 56 Q66 30 80 28 Q94 30 112 56 Q136 90 122 132" fill="url(#gg-armor)"/>
+    <path d="M50 60 Q70 44 80 44 Q90 44 110 60 L104 92 Q94 110 80 112 Q66 110 56 92 Z" fill="url(#gg-skin)" stroke="#0f2115" stroke-width="2"/>
+    <path d="M54 94 Q64 130 46 136 Q30 126 38 100 Z" fill="url(#gg-skin)" stroke="#0f2115" stroke-width="1.8"/>
+    <path d="M106 94 Q96 130 114 136 Q130 126 122 100 Z" fill="url(#gg-skin)" stroke="#0f2115" stroke-width="1.8"/>
+    <path d="M60 112 Q74 126 80 128 Q86 126 100 112 L104 138 Q90 146 80 148 Q70 146 56 138 Z" fill="#2f4f2f" stroke="#0c2414" stroke-width="2"/>
+    <ellipse cx="64" cy="76" rx="9" ry="11" fill="#0f2115"/>
+    <ellipse cx="96" cy="76" rx="9" ry="11" fill="#0f2115"/>
+    <circle cx="64" cy="76" r="5" fill="url(#gg-eye)"/>
+    <circle cx="96" cy="76" r="5" fill="url(#gg-eye)"/>
+    <path d="M64 104 Q80 114 96 104" fill="none" stroke="#0f2115" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M58 88 L80 98 L102 88 Q102 98 96 102 Q80 110 64 102 Q58 98 58 88 Z" fill="#fef3c7" stroke="#0f2115" stroke-width="1.4"/>
+    <path d="M52 60 Q66 50 70 36 Q62 70 54 82 Z" fill="#836347"/>
+    <path d="M108 60 Q94 50 90 36 Q98 70 106 82 Z" fill="#836347"/>
+    <path d="M70 72 L80 74 L90 72" fill="none" stroke="#14532d" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

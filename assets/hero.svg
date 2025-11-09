@@ -1,38 +1,58 @@
-<svg class="hero-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="armorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="#94a3b8"></stop>
-                      <stop offset="100%" stop-color="#475569"></stop>
-                    </linearGradient>
-                    <linearGradient id="capeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#1d4ed8"></stop>
-                      <stop offset="100%" stop-color="#0f172a"></stop>
-                    </linearGradient>
-                  </defs>
-                <ellipse cx="60" cy="150" rx="32" ry="8" fill="rgba(8,15,30,0.85)"></ellipse>
-                <circle class="armor-core head-shell" cx="60" cy="41" r="15" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></circle>
-                <rect class="armor-core neck-piece" x="52" y="56" width="16" height="10" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.6"></rect>
-                <rect class="armor-core" x="44" y="62" width="32" height="40" rx="12" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="2"></rect>
-                <rect x="51" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
-                <rect x="62" y="36" width="7" height="7" rx="2" fill="#0f172a"></rect>
-                <path d="M49 44 h22" stroke="#0f172a" stroke-width="3" stroke-linecap="round"></path>
-                <path d="M60 33 v-6" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"></path>
-                <path class="cape-shape" d="M38 62 q-16 22 0 44" fill="url(#capeGradient)" opacity="0.8"></path>
-                <path class="cape-shape" d="M82 62 q16 26 0 48" fill="url(#capeGradient)" opacity="0.5"></path>
-                <g class="shield-group" transform="translate(18,72)">
-                    <path class="shield-outline" d="M18 0 L36 8 v16 c0 12-18 24-18 24S0 36 0 24V8z" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="2"></path>
-                    <path d="M18 4 L32 10 v12 c0 8-14 16-14 16S8 30 8 22V10z" fill="rgba(59,130,246,0.35)"></path>
-                  </g>
-                  <g class="sword-group" transform="translate(72,64)">
-                    <rect x="12" y="0" width="4" height="44" rx="2" fill="#e2e8f0" class="sword-blade" stroke="#94a3b8" stroke-width="1.5"></rect>
-                    <rect x="8" y="38" width="12" height="4" rx="2" fill="#fcd34d"></rect>
-                    <rect x="9.5" y="42" width="9" height="6" rx="2" fill="#b45309"></rect>
-                    <circle cx="14" cy="44" r="2" fill="#1f2937"></circle>
-                  </g>
-                <g class="leg-group">
-                  <rect class="leg-piece" x="48" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
-                  <rect class="leg-piece" x="61" y="96" width="11" height="32" rx="4" fill="url(#armorGradient)" stroke="#1e293b" stroke-width="1.5"></rect>
-                  <rect class="leg-piece" x="46" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
-                  <rect class="leg-piece" x="61" y="124" width="13" height="8" rx="3" fill="#0f172a"></rect>
-                </g>
-                </svg>
+<svg class="hero-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Hero Portrait</title>
+  <desc id="desc">Front view of a shining armored knight wielding a sword and shield.</desc>
+  <defs>
+    <linearGradient id="hero-bg-2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14233f"/>
+      <stop offset="65%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0a1120"/>
+    </linearGradient>
+    <linearGradient id="hero-cape-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="40%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="hero-armor-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#cbd5f5"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="hero-plate-2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9ca3af"/>
+      <stop offset="50%" stop-color="#5b6474"/>
+      <stop offset="100%" stop-color="#3a4454"/>
+    </linearGradient>
+    <linearGradient id="hero-shield-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="45%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+    <linearGradient id="hero-sword-2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#c7d2fe"/>
+      <stop offset="100%" stop-color="#a5b4fc"/>
+    </linearGradient>
+    <radialGradient id="hero-glow-2" cx="50%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="rgba(96,165,250,0.55)"/>
+      <stop offset="55%" stop-color="rgba(59,130,246,0.18)"/>
+      <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+    </radialGradient>
+    <filter id="hero-shadow-2" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#060b18" flood-opacity="0.65"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" fill="url(#hero-bg-2)" rx="28"/>
+  <circle cx="80" cy="64" r="58" fill="url(#hero-glow-2)"/>
+  <g filter="url(#hero-shadow-2)">
+    <path d="M34 136 Q20 90 46 50 Q68 18 80 16 Q92 18 114 50 Q140 90 126 136" fill="url(#hero-cape-2)" opacity="0.9"/>
+    <path d="M70 22 L90 22 L94 46 Q94 56 80 58 Q66 56 66 46 Z" fill="url(#hero-armor-2)" stroke="#0f172a" stroke-width="2"/>
+    <path d="M54 60 Q80 40 106 60 L102 100 Q92 118 80 122 Q68 118 58 100 Z" fill="url(#hero-plate-2)" stroke="#0f172a" stroke-width="2"/>
+    <path d="M42 86 Q64 90 72 112 L50 128 Q38 112 42 86 Z" fill="url(#hero-shield-2)" stroke="#083a59" stroke-width="2"/>
+    <path d="M118 86 Q96 90 88 112 L110 128 Q122 112 118 86 Z" fill="url(#hero-sword-2)" stroke="#16213a" stroke-width="2"/>
+    <path d="M60 120 Q74 134 80 136 Q86 134 100 120 L102 142 Q88 150 80 150 Q72 150 58 142 Z" fill="url(#hero-plate-2)" stroke="#0f172a" stroke-width="2"/>
+    <path d="M66 46 Q80 36 94 46 L92 52 Q80 46 68 52 Z" fill="#0f172a" opacity="0.65"/>
+    <path d="M66 64 Q80 70 94 64 L94 70 Q80 76 66 70 Z" fill="#e2e8f0" opacity="0.6"/>
+    <circle cx="80" cy="66" r="8" fill="#f8fafc" stroke="#0f172a" stroke-width="1.4"/>
+    <circle cx="80" cy="66" r="3" fill="#0f172a"/>
+  </g>
+</svg>

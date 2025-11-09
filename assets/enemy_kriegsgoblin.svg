@@ -1,0 +1,44 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Kriegsgoblin</title>
+  <desc id="desc">A war goblin commander wearing battle armor and crimson crest.</desc>
+  <defs>
+    <linearGradient id="kg-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2d1919"/>
+      <stop offset="100%" stop-color="#130909"/>
+    </linearGradient>
+    <linearGradient id="kg-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <linearGradient id="kg-armor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+    <radialGradient id="kg-eye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fee2e2"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </radialGradient>
+    <filter id="kg-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#080509" flood-opacity="0.82"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="28" fill="url(#kg-bg)"/>
+  <g filter="url(#kg-shadow)">
+    <path d="M36 134 Q22 90 48 54 Q64 30 80 28 Q96 30 112 54 Q138 90 124 134" fill="#3f2a2a"/>
+    <path d="M50 58 Q68 44 80 44 Q92 44 110 58 L104 90 Q94 108 80 110 Q66 108 56 90 Z" fill="url(#kg-skin)" stroke="#3b170d" stroke-width="2"/>
+    <path d="M56 90 Q66 128 48 138 Q32 126 40 98 Z" fill="url(#kg-skin)" stroke="#3b170d" stroke-width="1.8"/>
+    <path d="M104 90 Q94 128 112 138 Q128 126 120 98 Z" fill="url(#kg-skin)" stroke="#3b170d" stroke-width="1.8"/>
+    <path d="M60 112 Q74 126 80 128 Q86 126 100 112 L104 140 Q90 148 80 150 Q70 148 56 140 Z" fill="url(#kg-armor)" stroke="#1f2937" stroke-width="2"/>
+    <path d="M46 50 L62 30 L80 38 L98 30 L114 50" fill="url(#kg-armor)" stroke="#1f2937" stroke-width="1.8"/>
+    <path d="M56 30 L80 22 L104 30 L80 10 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.6"/>
+    <ellipse cx="66" cy="76" rx="9" ry="11" fill="#3b170d"/>
+    <ellipse cx="94" cy="76" rx="9" ry="11" fill="#3b170d"/>
+    <circle cx="66" cy="76" r="5" fill="url(#kg-eye)"/>
+    <circle cx="94" cy="76" r="5" fill="url(#kg-eye)"/>
+    <path d="M64 104 Q80 116 96 104" fill="none" stroke="#3b170d" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M70 88 Q80 92 90 88" fill="none" stroke="#fee2e2" stroke-width="2" stroke-linecap="round"/>
+    <path d="M60 120 L80 126 L100 120" fill="none" stroke="#1f2937" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>
