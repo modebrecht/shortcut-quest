@@ -1276,15 +1276,51 @@
       }
     }
     .battle-log {
-      margin-top: 0.75rem;
-      background: rgba(15,23,42,0.4);
-      border: 1px solid var(--border);
-      border-radius: 0.75rem;
-      padding: 0.75rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-      min-height: 4.5rem;
-      white-space: pre-wrap;
+      display: none;
+      margin-top: 0;
+      background: rgba(8,15,35,0.65);
+      border: 1px solid rgba(148,163,184,0.3);
+      border-radius: 0.85rem;
+      padding: 0.75rem 0.85rem;
+      font-size: 0.82rem;
+      color: rgba(226,232,240,0.85);
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .battle-entry {
+      position: relative;
+      padding-left: 1.2rem;
+      line-height: 1.35;
+    }
+    .battle-entry::before {
+      content: "";
+      position: absolute;
+      left: 0.35rem;
+      top: 0.55rem;
+      width: 0.4rem;
+      height: 0.4rem;
+      border-radius: 50%;
+      border: 2px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+    }
+    .battle-entry-hero {
+      color: rgba(125,211,252,0.95);
+    }
+    .battle-entry-hero::before {
+      border-color: rgba(59,130,246,0.8);
+    }
+    .battle-entry-enemy {
+      color: rgba(252,165,165,0.95);
+    }
+    .battle-entry-enemy::before {
+      border-color: rgba(248,113,113,0.8);
+    }
+    .battle-entry-system {
+      color: rgba(226,232,240,0.85);
+      opacity: 0.85;
     }
     .skill-wrapper {
       display: flex;
@@ -2559,7 +2595,7 @@
               </div>
               <div class="battle-center-actions">
                 <div class="battle-buttons" id="battleButtons"></div>
-                <pre class="battle-log" id="battleLog">Waehle einen Kampf um die Simulation zu starten.</pre>
+                <div class="battle-log" id="battleLog"></div>
               </div>
             </div>
             <div class="battle-side enemy">
@@ -2924,7 +2960,6 @@
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
     const battleHeroHpStat = document.getElementById("battleHeroHpStat");
-    const battleHeroHpPreviewFill = document.getElementById("battleHeroHpPreviewFill");
     const battleHeroTierLabel = document.getElementById("battleHeroTier");
     const battleHeroFlavor = document.getElementById("battleHeroFlavor");
     const battleEnemyPreviewName = document.getElementById("battleEnemyPreviewName");
@@ -2932,7 +2967,6 @@
     const battleEnemyAtkStat = document.getElementById("battleEnemyAtkStat");
     const battleEnemyDefStat = document.getElementById("battleEnemyDefStat");
     const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
-    const battleEnemyHpPreviewFill = document.getElementById("battleEnemyHpPreviewFill");
     const battleEnemyFlavor = document.getElementById("battleEnemyFlavor");
     const battleHeroGearList = document.getElementById("battleHeroGearList");
     const enemyHpLabel = document.getElementById("enemyHpLabel");
@@ -4786,6 +4820,19 @@
         battleEnemyFlavor.textContent = variantLabel;
       }
     }
+    function pushBattleLog(message, variant = "system") {
+      if (!battleLog) return;
+      const entry = document.createElement("div");
+      entry.className = `battle-entry battle-entry-${variant}`;
+      entry.textContent = message;
+      battleLog.appendChild(entry);
+      battleLog.scrollTop = battleLog.scrollHeight;
+    }
+    function resetBattleLog(message) {
+      if (!battleLog) return;
+      battleLog.innerHTML = "";
+      if (message) pushBattleLog(message, "system");
+    }
     function updateUI() {
       const diff = state.coins - displayedCoins;
       if (pendingCoinAnimation) {
@@ -5320,7 +5367,7 @@
       const enemy = createEnemyState(enemyBlueprint);
       setupBattleSkills(hero, enemy);
       updateHpUi(hero, enemy);
-      battleLog.textContent = "Kampf gegen " + enemy.name + " (Rang " + level + ") gestartet.";
+      resetBattleLog("Kampf gegen " + enemy.name + " (Rang " + level + ") gestartet.");
       let heroWon = false;
       try {
         heroWon = await runBattleLoop(hero, enemy);
@@ -5407,6 +5454,10 @@
         playAttack(attackerEl, defenderEl);
         applyDamage(defender, amount);
         spawnDamageNumber(defenderEl, amount, defender === hero ? "hero" : "enemy", crit);
+        const attackerName = attacker === hero ? "Ritter" : enemy.name;
+        const defenderName = defender === hero ? "Ritter" : enemy.name;
+        const critNote = crit ? " (Kritisch!)" : "";
+        pushBattleLog(`${attackerName} trifft ${defenderName} für ${amount} Schaden${critNote}.`, attacker === hero ? "hero" : "enemy");
         updateHpUi(hero, enemy);
         await delay(680);
         if (defender.hp <= 0) break;
@@ -5438,10 +5489,13 @@
           battleNextBtn.removeAttribute("data-target-level");
         }
         if (battleResult) battleResult.textContent = "Sieg! Der Ritter besiegt " + enemy.name + "." + unlockText;
-        battleLog.textContent = "Sieg gegen " + enemy.name + " (Rang " + level + "). Verbleibende HP: " + remainingHeroHp + ".";
+        pushBattleLog("Ritter besiegt " + enemy.name + ". Verbleibende HP: " + remainingHeroHp + ".", "hero");
+        if (unlockText) {
+          pushBattleLog("Rang " + nextLevel + " freigeschaltet.", "system");
+        }
       } else {
         if (battleResult) battleResult.textContent = "Niederlage gegen " + enemy.name + ". Versuche es erneut.";
-        battleLog.textContent = "Niederlage gegen " + enemy.name + " (Rang " + level + ").";
+        pushBattleLog(enemy.name + " besiegt den Ritter. Versuche es erneut.", "enemy");
         if (battleNextBtn) {
           battleNextBtn.classList.add("hidden");
           battleNextBtn.removeAttribute("data-target-level");
@@ -5569,7 +5623,7 @@
     recalcStats();
     updateUI();
     updateOverallSummary();
-    battleLog.textContent = "Waehle einen Kampf um die Simulation zu starten.";
+    resetBattleLog("Waehle einen Kampf um die Simulation zu starten.");
   </script>
 </body>
 </html>
