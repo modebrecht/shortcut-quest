@@ -1,0 +1,44 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Dunkelgoblin</title>
+  <desc id="desc">A shadow goblin with violet flames and runic markings.</desc>
+  <defs>
+    <linearGradient id="dg-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1b1033"/>
+      <stop offset="100%" stop-color="#0b0618"/>
+    </linearGradient>
+    <linearGradient id="dg-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="dg-robe" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <radialGradient id="dg-eye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f5d0fe"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </radialGradient>
+    <filter id="dg-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#06040e" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="28" fill="url(#dg-bg)"/>
+  <g filter="url(#dg-shadow)">
+    <path d="M34 134 Q22 90 48 54 Q64 32 80 30 Q96 32 112 54 Q138 90 126 134" fill="url(#dg-robe)"/>
+    <path d="M50 58 Q68 44 80 44 Q92 44 110 58 L104 90 Q94 108 80 110 Q66 108 56 90 Z" fill="url(#dg-skin)" stroke="#1f1440" stroke-width="2"/>
+    <path d="M56 90 Q66 128 48 138 Q32 126 40 98 Z" fill="url(#dg-skin)" stroke="#1f1440" stroke-width="1.8"/>
+    <path d="M104 90 Q94 128 112 138 Q128 126 120 98 Z" fill="url(#dg-skin)" stroke="#1f1440" stroke-width="1.8"/>
+    <path d="M60 112 Q74 126 80 128 Q86 126 100 112 L104 140 Q90 148 80 150 Q70 148 56 140 Z" fill="#2e1065" stroke="#1b0b45" stroke-width="2"/>
+    <path d="M44 48 L56 30 L80 38 L104 30 L116 48" fill="#f0abfc" stroke="#3b0764" stroke-width="1.8"/>
+    <path d="M42 66 Q54 50 62 48 Q56 70 48 80 Z" fill="#7c3aed"/>
+    <path d="M118 66 Q106 50 98 48 Q104 70 112 80 Z" fill="#7c3aed"/>
+    <ellipse cx="66" cy="76" rx="9" ry="11" fill="#1f1440"/>
+    <ellipse cx="94" cy="76" rx="9" ry="11" fill="#1f1440"/>
+    <circle cx="66" cy="76" r="5" fill="url(#dg-eye)"/>
+    <circle cx="94" cy="76" r="5" fill="url(#dg-eye)"/>
+    <path d="M64 104 Q80 118 96 104" fill="none" stroke="#1f1440" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M70 88 Q80 92 90 88" fill="none" stroke="#f5d0fe" stroke-width="2" stroke-linecap="round"/>
+    <path d="M64 120 Q80 128 96 120" fill="none" stroke="#f472b6" stroke-width="2" stroke-dasharray="6 4"/>
+  </g>
+</svg>

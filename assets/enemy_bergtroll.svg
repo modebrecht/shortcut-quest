@@ -1,0 +1,43 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Bergtroll</title>
+  <desc id="desc">A hulking mountain troll clad in stone armor with icy beard.</desc>
+  <defs>
+    <linearGradient id="bt-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e2a37"/>
+      <stop offset="100%" stop-color="#0b1017"/>
+    </linearGradient>
+    <linearGradient id="bt-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5f5"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="bt-armor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+    <radialGradient id="bt-eye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </radialGradient>
+    <filter id="bt-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#05070d" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="30" fill="url(#bt-bg)"/>
+  <g filter="url(#bt-shadow)">
+    <path d="M30 138 Q18 92 44 50 Q62 26 80 24 Q98 26 116 50 Q142 92 130 138" fill="url(#bt-armor)"/>
+    <path d="M46 62 Q66 46 80 44 Q94 46 114 62 L108 96 Q96 118 80 120 Q64 118 52 96 Z" fill="url(#bt-skin)" stroke="#0f172a" stroke-width="2.4"/>
+    <path d="M54 96 Q66 134 48 144 Q30 132 38 102 Z" fill="url(#bt-skin)" stroke="#0f172a" stroke-width="2"/>
+    <path d="M106 96 Q94 134 112 144 Q130 132 122 102 Z" fill="url(#bt-skin)" stroke="#0f172a" stroke-width="2"/>
+    <path d="M58 120 Q74 134 80 136 Q86 134 102 120 L106 146 Q90 154 80 156 Q70 154 54 146 Z" fill="#374151" stroke="#0f172a" stroke-width="2.2"/>
+    <path d="M58 54 L80 36 L102 54 L98 72 Q88 62 80 62 Q72 62 62 72 Z" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/>
+    <path d="M44 50 Q60 32 68 20 Q66 44 58 60 Z" fill="#cbd5f5" stroke="#0f172a" stroke-width="1.8"/>
+    <path d="M116 50 Q100 32 92 20 Q94 44 102 60 Z" fill="#cbd5f5" stroke="#0f172a" stroke-width="1.8"/>
+    <ellipse cx="64" cy="80" rx="10" ry="12" fill="#0f172a"/>
+    <ellipse cx="96" cy="80" rx="10" ry="12" fill="#0f172a"/>
+    <circle cx="64" cy="80" r="5.6" fill="url(#bt-eye)"/>
+    <circle cx="96" cy="80" r="5.6" fill="url(#bt-eye)"/>
+    <path d="M60 112 Q80 128 100 112" fill="none" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M62 92 Q80 110 98 92" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  </g>
+</svg>

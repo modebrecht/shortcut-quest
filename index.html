@@ -1036,12 +1036,17 @@
       height: 100%;
     }
     .battle-portrait.enemy .battle-portrait-icon {
-      font-size: 2.8rem;
+      font-size: 2.4rem;
     }
     .battle-portrait-icon img {
-      width: 70%;
+      width: 82%;
+      max-height: 82%;
       height: auto;
       filter: drop-shadow(0 6px 12px rgba(15,23,42,0.6));
+      transition: transform 200ms ease;
+    }
+    .battle-portrait-icon img:hover {
+      transform: scale(1.04);
     }
     .battle-statline {
       display: flex;
@@ -1642,6 +1647,32 @@
     }
     .modal-battle-card.enemy {
       border-color: rgba(248,113,113,0.35);
+    }
+    .modal-card-art {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: radial-gradient(circle at 40% 30%, rgba(248,250,252,0.18), transparent 60%),
+        rgba(15,23,42,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      margin: 0.2rem 0 0.6rem;
+      box-shadow: 0 18px 30px rgba(15,23,42,0.45);
+    }
+    .modal-battle-card.hero .modal-card-art {
+      border-color: rgba(59,130,246,0.55);
+    }
+    .modal-battle-card.enemy .modal-card-art {
+      border-color: rgba(248,113,113,0.55);
+    }
+    .modal-card-art img {
+      width: 78%;
+      max-height: 78%;
+      height: auto;
+      filter: drop-shadow(0 8px 16px rgba(15,23,42,0.5));
     }
     .modal-card-head {
       display: flex;
@@ -2730,6 +2761,9 @@
                     <span class="battle-trait" id="modalHeroTrait">Ausbalanciert</span>
                   </div>
                 </div>
+                <div class="modal-card-art">
+                  <img id="modalHeroArt" src="assets/knight_idle_fin.svg" alt="Shortcut Knight" loading="lazy">
+                </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalHeroAtk">1</strong></span>
                   <span class="battle-stat-badge def">DEF<strong id="modalHeroDef">0</strong></span>
@@ -2747,6 +2781,9 @@
                     <span class="battle-side-tier" id="modalEnemyTier">Rang 1</span>
                     <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
                   </div>
+                </div>
+                <div class="modal-card-art">
+                  <img id="modalEnemyArt" src="assets/enemy_kobold.svg" alt="Kobold" loading="lazy">
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalEnemyAtk">0</strong></span>
@@ -2791,7 +2828,7 @@
                 </div>
               </div>
               <div class="battle-portrait hero">
-                <span class="battle-portrait-icon"><img src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
+                <span class="battle-portrait-icon"><img id="battleHeroPortrait" src="assets/knight_idle_fin.svg" alt="Shortcut Knight" loading="lazy"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
@@ -2828,7 +2865,7 @@
                 </div>
               </div>
               <div class="battle-portrait enemy">
-                <span class="battle-portrait-icon">⚔</span>
+                <span class="battle-portrait-icon"><img id="battleEnemyPreviewArt" src="assets/enemy_kobold.svg" alt="Kobold" loading="lazy"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
@@ -2852,6 +2889,7 @@
     const MAX_ITEM_TIER = 5;
     const MAX_SKILL_TIER = 6;
     const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
+    const HERO_ART_SRC = "assets/knight_idle_fin.svg";
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
     const FALLBACK_SKILL_HOTKEYS = [
       { label: "Arbeitsbereich markieren", keys: ["Control", "Alt", "A"] },
@@ -3141,6 +3179,8 @@
     const battleKnight = document.getElementById("battleKnight");
     const battleEnemy = document.getElementById("battleEnemy");
     const battleEnemyName = document.getElementById("battleEnemyName");
+    const battleHeroPortrait = document.getElementById("battleHeroPortrait");
+    const battleEnemyPreviewArt = document.getElementById("battleEnemyPreviewArt");
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
     const battleHeroHpStat = document.getElementById("battleHeroHpStat");
@@ -3164,6 +3204,7 @@
     const modalHeroDef = document.getElementById("modalHeroDef");
     const modalHeroHp = document.getElementById("modalHeroHp");
     const modalHeroMeta = document.getElementById("modalHeroMeta");
+    const modalHeroArt = document.getElementById("modalHeroArt");
     const modalEnemyName = document.getElementById("modalEnemyName");
     const modalEnemyTier = document.getElementById("modalEnemyTier");
     const modalEnemyTrait = document.getElementById("modalEnemyTrait");
@@ -3171,6 +3212,7 @@
     const modalEnemyDef = document.getElementById("modalEnemyDef");
     const modalEnemyHp = document.getElementById("modalEnemyHp");
     const modalEnemyMeta = document.getElementById("modalEnemyMeta");
+    const modalEnemyArt = document.getElementById("modalEnemyArt");
     const heroCardElements = Array.from(document.querySelectorAll(".battle-side.hero, .modal-battle-card.hero"));
     const enemyCardElements = Array.from(document.querySelectorAll(".battle-side.enemy, .modal-battle-card.enemy"));
     const enemyHpLabel = document.getElementById("enemyHpLabel");
@@ -4988,6 +5030,11 @@
       if (battleHeroDefStat) battleHeroDefStat.textContent = String(heroDef);
       if (battleHeroHpStat) battleHeroHpStat.textContent = String(heroHpMax);
       if (battleHeroTierLabel) battleHeroTierLabel.textContent = "Rang " + Math.max(1, state.battleUnlocked || 1);
+      if (battleHeroPortrait) {
+        battleHeroPortrait.src = HERO_ART_SRC;
+        battleHeroPortrait.alt = "Shortcut Knight";
+        battleHeroPortrait.hidden = false;
+      }
       if (battleHeroFlavor) {
         const equippedCount = getEquippedItems().length;
         battleHeroFlavor.textContent = `${equippedCount}/${EQUIPMENT_SLOT_KEYS.length} Slots belegt`;
@@ -5054,6 +5101,17 @@
       if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
       if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      if (battleEnemyPreviewArt) {
+        if (enemy && enemy.art) {
+          battleEnemyPreviewArt.src = `assets/${enemy.art}.svg`;
+          battleEnemyPreviewArt.alt = enemy.name;
+          battleEnemyPreviewArt.hidden = false;
+        } else {
+          battleEnemyPreviewArt.removeAttribute("src");
+          battleEnemyPreviewArt.alt = "";
+          battleEnemyPreviewArt.hidden = true;
+        }
+      }
       if (battleEnemyFlavor) {
         battleEnemyFlavor.textContent = enemy
           ? `ATK ${enemy.atk} • DEF ${enemy.def} • HP ${enemy.hp}`
@@ -5283,17 +5341,17 @@
       "goblin-king": "Koenigliche Elite"
     };
     const ENEMY_DATA = [
-      { name: "Kobold", hp: 16, atk: 2, def: 0, variance: 1, crit: 0.06, variant: "goblin" },
-      { name: "Gruener Goblin", hp: 20, atk: 3, def: 0, variance: 1, crit: 0.07, variant: "goblin" },
-      { name: "Hobgoblin", hp: 24, atk: 4, def: 1, variance: 1, crit: 0.08, variant: "goblin" },
-      { name: "Waldgoblin", hp: 26, atk: 4, def: 2, variance: 2, crit: 0.09, variant: "goblin" },
-      { name: "Hoehlengoblin", hp: 30, atk: 5, def: 2, variance: 2, crit: 0.1, variant: "goblin" },
-      { name: "Bergtroll", hp: 34, atk: 6, def: 2, variance: 2, crit: 0.11, variant: "goblin-army" },
-      { name: "Dunkelgoblin", hp: 38, atk: 6, def: 3, variance: 2, crit: 0.12, variant: "goblin-army" },
-      { name: "Kriegsgoblin", hp: 42, atk: 7, def: 3, variance: 3, crit: 0.13, variant: "goblin-army" },
-      { name: "Schattengoblin", hp: 46, atk: 7, def: 4, variance: 3, crit: 0.14, variant: "goblin-army" },
-      { name: "Daemonengoblin", hp: 52, atk: 8, def: 4, variance: 3, crit: 0.15, variant: "goblin-army" },
-      { name: "Goblinkoenig", hp: 60, atk: 9, def: 5, variance: 3, crit: 0.18, variant: "goblin-king" }
+      { name: "Kobold", hp: 16, atk: 2, def: 0, variance: 1, crit: 0.06, variant: "goblin", art: "enemy_kobold" },
+      { name: "Gruener Goblin", hp: 20, atk: 3, def: 0, variance: 1, crit: 0.07, variant: "goblin", art: "enemy_gruener_goblin" },
+      { name: "Hobgoblin", hp: 24, atk: 4, def: 1, variance: 1, crit: 0.08, variant: "goblin", art: "enemy_hobgoblin" },
+      { name: "Waldgoblin", hp: 26, atk: 4, def: 2, variance: 2, crit: 0.09, variant: "goblin", art: "enemy_waldgoblin" },
+      { name: "Hoehlengoblin", hp: 30, atk: 5, def: 2, variance: 2, crit: 0.1, variant: "goblin", art: "enemy_hoehlengoblin" },
+      { name: "Bergtroll", hp: 34, atk: 6, def: 2, variance: 2, crit: 0.11, variant: "goblin-army", art: "enemy_bergtroll" },
+      { name: "Dunkelgoblin", hp: 38, atk: 6, def: 3, variance: 2, crit: 0.12, variant: "goblin-army", art: "enemy_dunkelgoblin" },
+      { name: "Kriegsgoblin", hp: 42, atk: 7, def: 3, variance: 3, crit: 0.13, variant: "goblin-army", art: "enemy_kriegsgoblin" },
+      { name: "Schattengoblin", hp: 46, atk: 7, def: 4, variance: 3, crit: 0.14, variant: "goblin-army", art: "enemy_schattengoblin" },
+      { name: "Daemonengoblin", hp: 52, atk: 8, def: 4, variance: 3, crit: 0.15, variant: "goblin-army", art: "enemy_daemonengoblin" },
+      { name: "Goblinkoenig", hp: 60, atk: 9, def: 5, variance: 3, crit: 0.18, variant: "goblin-king", art: "enemy_goblinkoenig" }
     ];
     const ENEMIES = {};
     ENEMY_DATA.forEach((enemy, index) => {
@@ -5651,6 +5709,11 @@
             Math.max(0, heroState.def || 0)
           );
         }
+        if (modalHeroArt) {
+          modalHeroArt.src = HERO_ART_SRC;
+          modalHeroArt.alt = heroState.name || "Shortcut Knight";
+          modalHeroArt.hidden = false;
+        }
         if (modalHeroAtk) modalHeroAtk.textContent = String(Math.max(0, heroState.atk || 0));
         if (modalHeroDef) modalHeroDef.textContent = String(Math.max(0, heroState.def || 0));
         if (modalHeroHp) modalHeroHp.textContent = String(Math.max(0, heroState.maxHp || heroState.hp || 0));
@@ -5666,6 +5729,17 @@
         const enemyLevel = Math.max(1, level || enemyState.level || 1);
         if (modalEnemyTier) modalEnemyTier.textContent = "Rang " + enemyLevel;
         if (modalEnemyTrait) modalEnemyTrait.textContent = describeEnemyTrait(enemyState);
+        if (modalEnemyArt) {
+          if (enemyState.art) {
+            modalEnemyArt.src = `assets/${enemyState.art}.svg`;
+            modalEnemyArt.alt = enemyState.name || "Gegner";
+            modalEnemyArt.hidden = false;
+          } else {
+            modalEnemyArt.removeAttribute("src");
+            modalEnemyArt.alt = "";
+            modalEnemyArt.hidden = true;
+          }
+        }
         if (modalEnemyAtk) modalEnemyAtk.textContent = String(Math.max(0, enemyState.atk || 0));
         if (modalEnemyDef) modalEnemyDef.textContent = String(Math.max(0, enemyState.def || 0));
         if (modalEnemyHp) modalEnemyHp.textContent = String(Math.max(0, enemyState.maxHp || enemyState.hp || 0));
@@ -5674,6 +5748,10 @@
           const variance = Math.max(0, enemyState.variance || 0);
           modalEnemyMeta.textContent = `Var ±${variance} • Krit ${critPercent}%`;
         }
+      } else if (modalEnemyArt) {
+        modalEnemyArt.removeAttribute("src");
+        modalEnemyArt.alt = "";
+        modalEnemyArt.hidden = true;
       }
     }
 
@@ -5731,7 +5809,8 @@
         def: blueprint.def,
         variance: blueprint.variance || 1,
         crit: blueprint.crit || 0.1,
-        variant: blueprint.variant || "goblin"
+        variant: blueprint.variant || "goblin",
+        art: blueprint.art || null
       };
     }
 

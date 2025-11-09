@@ -1,0 +1,43 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Waldgoblin</title>
+  <desc id="desc">A forest goblin druid crowned with antlers and vines.</desc>
+  <defs>
+    <linearGradient id="wg-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#123121"/>
+      <stop offset="100%" stop-color="#07140d"/>
+    </linearGradient>
+    <linearGradient id="wg-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9ae6b4"/>
+      <stop offset="50%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="wg-robe" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#065f46"/>
+    </linearGradient>
+    <radialGradient id="wg-eye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#bbf7d0"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </radialGradient>
+    <filter id="wg-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#03140c" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="28" fill="url(#wg-bg)"/>
+  <g filter="url(#wg-shadow)">
+    <path d="M34 134 Q22 92 44 56 Q60 34 80 32 Q100 34 116 56 Q138 92 126 134" fill="url(#wg-robe)"/>
+    <path d="M50 58 Q68 44 80 44 Q92 44 110 58 L104 90 Q94 108 80 110 Q66 108 56 90 Z" fill="url(#wg-skin)" stroke="#0f2618" stroke-width="2"/>
+    <path d="M56 90 Q66 126 50 138 Q34 126 40 98 Z" fill="url(#wg-skin)" stroke="#0f2618" stroke-width="1.8"/>
+    <path d="M104 90 Q94 126 110 138 Q126 126 120 98 Z" fill="url(#wg-skin)" stroke="#0f2618" stroke-width="1.8"/>
+    <path d="M60 112 Q74 126 80 128 Q86 126 100 112 L104 140 Q90 148 80 150 Q70 148 56 140 Z" fill="#0f3f28" stroke="#062417" stroke-width="2"/>
+    <path d="M52 50 L44 32 L56 24 L72 40 Z" fill="#4a371f" stroke="#1f1208" stroke-width="1.6"/>
+    <path d="M108 50 L116 32 L104 24 L88 40 Z" fill="#4a371f" stroke="#1f1208" stroke-width="1.6"/>
+    <path d="M44 36 Q60 48 80 48 Q100 48 116 36" fill="none" stroke="#a3e635" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="66" cy="76" rx="9" ry="11" fill="#0f2618"/>
+    <ellipse cx="94" cy="76" rx="9" ry="11" fill="#0f2618"/>
+    <circle cx="66" cy="76" r="5" fill="url(#wg-eye)"/>
+    <circle cx="94" cy="76" r="5" fill="url(#wg-eye)"/>
+    <path d="M64 104 Q80 116 96 104" fill="none" stroke="#0f2618" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M70 88 Q80 92 90 88" fill="none" stroke="#bbf7d0" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>
