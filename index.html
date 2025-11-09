@@ -328,7 +328,6 @@
     .hero-avatar.no-gear {
       background: linear-gradient(165deg, rgba(45,64,124,0.95), rgba(17,24,39,0.88));
     }
-    .hero-svg { width: 120px; height: 160px; }
     .hero-avatar[data-atk-tier="1"] .sword-blade { stroke: var(--atk-low); }
     .hero-avatar[data-atk-tier="2"] .sword-blade { stroke: var(--atk-mid); }
     .hero-avatar[data-atk-tier="3"] .sword-blade { stroke: var(--atk-high); }
@@ -1027,21 +1026,24 @@
       border-color: rgba(248,113,113,0.55);
     }
     .battle-portrait-icon {
-      font-size: 2rem;
-      color: rgba(248,250,252,0.9);
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
       height: 100%;
     }
-    .battle-portrait.enemy .battle-portrait-icon {
-      font-size: 2.8rem;
-    }
     .battle-portrait-icon img {
-      width: 70%;
+      width: 78%;
+      max-width: 110px;
       height: auto;
-      filter: drop-shadow(0 6px 12px rgba(15,23,42,0.6));
+      filter: drop-shadow(0 8px 16px rgba(15,23,42,0.55));
+    }
+    .battle-portrait.enemy .battle-portrait-icon img {
+      filter: drop-shadow(0 8px 18px rgba(88,28,135,0.45));
+    }
+    .pixel-art {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: pixelated;
     }
     .battle-statline {
       display: flex;
@@ -1694,73 +1696,49 @@
     }
     .fighter {
       position: relative;
-      width: 92px;
-      height: 92px;
-      border-radius: 0.6rem;
-      background: rgba(30,41,59,0.8);
+      width: 116px;
+      height: 116px;
+      border-radius: 0.9rem;
+      background: linear-gradient(180deg, rgba(30,41,59,0.85), rgba(15,23,42,0.75));
       border: 2px solid rgba(148,163,184,0.45);
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      padding-bottom: 0.4rem;
+      padding-bottom: 0.75rem;
       overflow: visible;
+      box-shadow: inset 0 0 20px rgba(15,23,42,0.35);
     }
-    .fighter::before {
-      content: "";
-      position: absolute;
-      width: 56px;
-      height: 56px;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      image-rendering: pixelated;
-    }
+    .fighter::before,
     .fighter::after {
-      content: "";
-      position: absolute;
-      width: 32px;
-      height: 12px;
-      top: 34px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 4px;
+      display: none;
     }
-    .fighter.knight::before {
-      background: linear-gradient(180deg, #9ca3af 0%, #64748b 65%, #334155 100%);
-      border-radius: 6px;
-      box-shadow:
-        0 -16px 0 0 #cbd5f5 inset,
-        0 -30px 0 0 #475569 inset;
+    .fighter.knight {
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: inset 0 0 18px rgba(14,165,233,0.18), 0 12px 28px rgba(8,47,73,0.45);
     }
-    .fighter.knight::after {
-      background: linear-gradient(90deg, #0f172a 0 24%, #38bdf8 24% 76%, #0f172a 76% 100%);
-      box-shadow: 0 6px 0 0 #1f2937;
+    .fighter.enemy {
+      border-color: rgba(248,113,113,0.55);
+      box-shadow: inset 0 0 18px rgba(220,38,38,0.18), 0 12px 28px rgba(67,20,7,0.35);
     }
-    .fighter.enemy::before {
-      background: linear-gradient(180deg, #047857 0%, #065f46 58%, #064e3b 100%);
-      border-radius: 6px;
-      box-shadow:
-        0 -14px 0 0 #34d399 inset,
-        0 -28px 0 0 #0f766e inset;
+    .fighter.enemy.goblin-army {
+      border-color: rgba(16,185,129,0.7);
+      box-shadow: inset 0 0 18px rgba(34,197,94,0.22), 0 12px 28px rgba(6,95,70,0.38);
     }
-    .fighter.enemy::after {
-      background: linear-gradient(90deg, #111827 0 30%, #bef264 30% 70%, #111827 70% 100%);
-      border-radius: 3px;
-      box-shadow:
-        -12px 0 0 -4px rgba(255,255,255,0.08),
-        12px 0 0 -4px rgba(255,255,255,0.08);
+    .fighter.enemy.goblin-king {
+      border-color: rgba(250,204,21,0.75);
+      box-shadow: inset 0 0 18px rgba(251,191,36,0.28), 0 12px 28px rgba(120,53,15,0.42);
     }
-    .fighter.enemy.goblin-army::before {
-      background: linear-gradient(180deg, #059669 0%, #047857 55%, #065f46 100%);
-      box-shadow:
-        0 -14px 0 0 #6ee7b7 inset,
-        0 -28px 0 0 #047857 inset;
+    .fighter-art {
+      width: 88px;
+      height: auto;
+      filter: drop-shadow(0 12px 0 rgba(8,15,30,0.65));
+      transition: transform 0.2s ease;
     }
-    .fighter.enemy.goblin-king::before {
-      background: linear-gradient(180deg, #d97706 0 18%, #10b981 18% 62%, #047857 62% 100%);
-      box-shadow:
-        0 -18px 0 0 #fcd34d inset,
-        0 -34px 0 0 #047857 inset;
+    .fighter.knight .fighter-art {
+      filter: drop-shadow(0 12px 0 rgba(12,74,110,0.55));
+    }
+    .fighter.enemy .fighter-art {
+      filter: drop-shadow(0 12px 0 rgba(67,20,7,0.55));
     }
     .fighter-name {
       position: absolute;
@@ -2712,9 +2690,11 @@
                 <span style="left:5%; animation-delay:5.2s;"></span>
               </div>
               <div class="fighter knight" id="battleKnight">
+                <img id="battleKnightArt" class="fighter-art pixel-art" src="assets/player_knight_pixel.svg" alt="Ritter">
                 <div class="fighter-name">Ritter</div>
               </div>
               <div class="fighter enemy goblin" id="battleEnemy">
+                <img id="battleEnemyArt" class="fighter-art pixel-art" src="assets/enemy_kobold.svg" alt="Goblin">
                 <div class="fighter-name" id="battleEnemyName">Goblin</div>
               </div>
             </div>
@@ -2791,7 +2771,7 @@
                 </div>
               </div>
               <div class="battle-portrait hero">
-                <span class="battle-portrait-icon"><img src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
+                <span class="battle-portrait-icon"><img id="battleHeroPortrait" class="pixel-art" src="assets/player_knight_pixel.svg" alt="Shortcut Knight"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
@@ -2828,7 +2808,7 @@
                 </div>
               </div>
               <div class="battle-portrait enemy">
-                <span class="battle-portrait-icon">⚔</span>
+                <span class="battle-portrait-icon"><img id="battleEnemyPortrait" class="pixel-art" src="assets/enemy_kobold.svg" alt="Goblin"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
@@ -2852,6 +2832,9 @@
     const MAX_ITEM_TIER = 5;
     const MAX_SKILL_TIER = 6;
     const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
+    const HERO_ART_SRC = "assets/player_knight_pixel.svg";
+    const HERO_ART_ALT = "Shortcut Knight";
+    const DEFAULT_ENEMY_ART_SRC = "assets/enemy_kobold.svg";
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
     const FALLBACK_SKILL_HOTKEYS = [
       { label: "Arbeitsbereich markieren", keys: ["Control", "Alt", "A"] },
@@ -3154,6 +3137,10 @@
     const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
     const battleEnemyFlavor = document.getElementById("battleEnemyFlavor");
     const battleEnemyTrait = document.getElementById("battleEnemyTrait");
+    const battleHeroPortraitImg = document.getElementById("battleHeroPortrait");
+    const battleEnemyPortraitImg = document.getElementById("battleEnemyPortrait");
+    const battleKnightArtImg = document.getElementById("battleKnightArt");
+    const battleEnemyArtImg = document.getElementById("battleEnemyArt");
     const battleHeroGearList = document.getElementById("battleHeroGearList");
     const modalHeroCard = document.getElementById("modalHeroCard");
     const modalEnemyCard = document.getElementById("modalEnemyCard");
@@ -4937,9 +4924,9 @@
       heroAvatar.classList.toggle("has-gear", hasInventory);
       if (heroAvatarImage) {
         const blueprintSrc = "assets/blueprint_clean.svg";
-        const knightSrc = "assets/knight_idle_fin.svg";
+        const knightSrc = HERO_ART_SRC;
         heroAvatarImage.src = hasInventory ? knightSrc : blueprintSrc;
-        heroAvatarImage.alt = hasInventory ? "Ritter bereit fuer den Kampf" : "Blueprint deines Helden";
+        heroAvatarImage.alt = hasInventory ? `${HERO_ART_ALT} bereit fuer den Kampf` : "Blueprint deines Helden";
         heroAvatarImage.classList.toggle("is-blueprint", !hasInventory);
         heroAvatarImage.classList.toggle("is-knight", hasInventory);
       }
@@ -4956,6 +4943,12 @@
       if (enemy.atk >= enemy.def + 2) return "Berserker";
       if (enemy.def >= enemy.atk + 2) return "Tank";
       return "Unberechenbar";
+    }
+    function getEnemyArtSource(enemy) {
+      if (enemy && enemy.icon) {
+        return `assets/${enemy.icon}.svg`;
+      }
+      return DEFAULT_ENEMY_ART_SRC;
     }
     function getBattleTheme(level) {
       if (level >= 9) return "celestial";
@@ -5054,6 +5047,15 @@
       if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
       if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      const enemyArtSrc = getEnemyArtSource(enemy);
+      if (battleEnemyPortraitImg) {
+        battleEnemyPortraitImg.src = enemyArtSrc;
+        battleEnemyPortraitImg.alt = enemy ? enemy.name : "Unbekannter Gegner";
+      }
+      if (battleEnemyArtImg) {
+        battleEnemyArtImg.src = enemyArtSrc;
+        battleEnemyArtImg.alt = enemy ? enemy.name : "Gegner";
+      }
       if (battleEnemyFlavor) {
         battleEnemyFlavor.textContent = enemy
           ? `ATK ${enemy.atk} • DEF ${enemy.def} • HP ${enemy.hp}`
@@ -5283,23 +5285,37 @@
       "goblin-king": "Koenigliche Elite"
     };
     const ENEMY_DATA = [
-      { name: "Kobold", hp: 16, atk: 2, def: 0, variance: 1, crit: 0.06, variant: "goblin" },
-      { name: "Gruener Goblin", hp: 20, atk: 3, def: 0, variance: 1, crit: 0.07, variant: "goblin" },
-      { name: "Hobgoblin", hp: 24, atk: 4, def: 1, variance: 1, crit: 0.08, variant: "goblin" },
-      { name: "Waldgoblin", hp: 26, atk: 4, def: 2, variance: 2, crit: 0.09, variant: "goblin" },
-      { name: "Hoehlengoblin", hp: 30, atk: 5, def: 2, variance: 2, crit: 0.1, variant: "goblin" },
-      { name: "Bergtroll", hp: 34, atk: 6, def: 2, variance: 2, crit: 0.11, variant: "goblin-army" },
-      { name: "Dunkelgoblin", hp: 38, atk: 6, def: 3, variance: 2, crit: 0.12, variant: "goblin-army" },
-      { name: "Kriegsgoblin", hp: 42, atk: 7, def: 3, variance: 3, crit: 0.13, variant: "goblin-army" },
-      { name: "Schattengoblin", hp: 46, atk: 7, def: 4, variance: 3, crit: 0.14, variant: "goblin-army" },
-      { name: "Daemonengoblin", hp: 52, atk: 8, def: 4, variance: 3, crit: 0.15, variant: "goblin-army" },
-      { name: "Goblinkoenig", hp: 60, atk: 9, def: 5, variance: 3, crit: 0.18, variant: "goblin-king" }
+      { name: "Kobold", hp: 16, atk: 2, def: 0, variance: 1, crit: 0.06, variant: "goblin", icon: "enemy_kobold" },
+      { name: "Gruener Goblin", hp: 20, atk: 3, def: 0, variance: 1, crit: 0.07, variant: "goblin", icon: "enemy_gruener_goblin" },
+      { name: "Hobgoblin", hp: 24, atk: 4, def: 1, variance: 1, crit: 0.08, variant: "goblin", icon: "enemy_hobgoblin" },
+      { name: "Waldgoblin", hp: 26, atk: 4, def: 2, variance: 2, crit: 0.09, variant: "goblin", icon: "enemy_waldgoblin" },
+      { name: "Hoehlengoblin", hp: 30, atk: 5, def: 2, variance: 2, crit: 0.1, variant: "goblin", icon: "enemy_hoehlengoblin" },
+      { name: "Bergtroll", hp: 34, atk: 6, def: 2, variance: 2, crit: 0.11, variant: "goblin-army", icon: "enemy_bergtroll" },
+      { name: "Dunkelgoblin", hp: 38, atk: 6, def: 3, variance: 2, crit: 0.12, variant: "goblin-army", icon: "enemy_dunkelgoblin" },
+      { name: "Kriegsgoblin", hp: 42, atk: 7, def: 3, variance: 3, crit: 0.13, variant: "goblin-army", icon: "enemy_kriegsgoblin" },
+      { name: "Schattengoblin", hp: 46, atk: 7, def: 4, variance: 3, crit: 0.14, variant: "goblin-army", icon: "enemy_schattengoblin" },
+      { name: "Daemonengoblin", hp: 52, atk: 8, def: 4, variance: 3, crit: 0.15, variant: "goblin-army", icon: "enemy_daemonengoblin" },
+      { name: "Goblinkoenig", hp: 60, atk: 9, def: 5, variance: 3, crit: 0.18, variant: "goblin-king", icon: "enemy_goblinkoenig" }
     ];
     const ENEMIES = {};
     ENEMY_DATA.forEach((enemy, index) => {
       const level = index + 1;
       ENEMIES[level] = { ...enemy, level };
     });
+    if (battleHeroPortraitImg) {
+      battleHeroPortraitImg.src = HERO_ART_SRC;
+      battleHeroPortraitImg.alt = HERO_ART_ALT;
+    }
+    if (battleKnightArtImg) {
+      battleKnightArtImg.src = HERO_ART_SRC;
+      battleKnightArtImg.alt = "Ritter";
+    }
+    if (battleEnemyPortraitImg && !battleEnemyPortraitImg.getAttribute("src")) {
+      battleEnemyPortraitImg.src = DEFAULT_ENEMY_ART_SRC;
+    }
+    if (battleEnemyArtImg && !battleEnemyArtImg.getAttribute("src")) {
+      battleEnemyArtImg.src = DEFAULT_ENEMY_ART_SRC;
+    }
     canRenderBattlePreview = true;
     updateBattlePreview();
     state.battleUnlocked = Math.min(ENEMY_DATA.length, Math.max(1, Math.floor(state.battleUnlocked || 1)));
@@ -5637,6 +5653,15 @@
         ENEMY_VARIANTS.forEach(variant => battleEnemy.classList.remove(variant));
         if (enemyState && enemyState.variant) battleEnemy.classList.add(enemyState.variant);
       }
+      const enemyArtSrc = getEnemyArtSource(enemyState);
+      if (battleEnemyArtImg) {
+        battleEnemyArtImg.src = enemyArtSrc;
+        battleEnemyArtImg.alt = enemyName;
+      }
+      if (battleEnemyPortraitImg) {
+        battleEnemyPortraitImg.src = enemyArtSrc;
+        battleEnemyPortraitImg.alt = enemyName;
+      }
       updateBattleSimulationCards(heroState, enemyState, level);
       resetBattleArena();
     }
@@ -5731,7 +5756,8 @@
         def: blueprint.def,
         variance: blueprint.variance || 1,
         crit: blueprint.crit || 0.1,
-        variant: blueprint.variant || "goblin"
+        variant: blueprint.variant || "goblin",
+        icon: blueprint.icon
       };
     }
 
