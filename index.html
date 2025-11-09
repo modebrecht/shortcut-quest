@@ -1576,20 +1576,12 @@
       --battle-art-position: center;
       position: relative;
       height: 220px;
-      background-color: rgba(5,10,22,0.92);
-      background-image:
-        var(--battle-art),
-        radial-gradient(circle at 30% -10%, rgba(59,130,246,0.18), transparent 65%),
-        radial-gradient(circle at 70% -20%, rgba(248,113,113,0.2), transparent 60%);
-      background-size:
-        var(--battle-art-size),
-        140% 100%,
-        120% 100%;
-      background-position:
-        var(--battle-art-position),
-        10% 0%,
-        80% 0%;
+      background-color: transparent;
+      background-image: var(--battle-art);
+      background-size: var(--battle-art-size);
+      background-position: var(--battle-art-position);
       background-repeat: no-repeat;
+      filter: saturate(1.25) brightness(1.05);
       border: 1px solid rgba(148,163,184,0.25);
       border-radius: 0.9rem;
       display: flex;
@@ -1597,6 +1589,16 @@
       justify-content: space-between;
       padding: 1.5rem 2rem;
       overflow: hidden;
+    }
+    .battle-arena::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% -10%, rgba(59,130,246,0.018), transparent 65%),
+        radial-gradient(circle at 70% -20%, rgba(248,113,113,0.02), transparent 60%);
+      pointer-events: none;
+      mix-blend-mode: screen;
     }
     .battle-arena[data-battle-theme="forest"] {
       --battle-art: url("assets/battle-bg-forest.svg");
@@ -1608,22 +1610,12 @@
       --battle-art: url("assets/battle-bg-celestial.svg");
       --battle-art-position: center top;
     }
-    .battle-arena::before {
-      content: "";
-      position: absolute;
-      inset: -40% -10% auto;
-      height: 200%;
-      background: radial-gradient(circle at 50% 50%, rgba(248,250,252,0.1), transparent 55%);
-      opacity: 0.5;
-      filter: blur(6px);
-      animation: arenaGlow 8s ease-in-out infinite;
-    }
     .battle-arena::after {
       content: "";
       position: absolute;
       inset: auto 0 0;
       height: 80px;
-      background: linear-gradient(180deg, rgba(30,41,59,0.2), rgba(15,23,42,0.85));
+      background: linear-gradient(180deg, rgba(30,41,59,0.12), rgba(15,23,42,0.55));
     }
     @keyframes arenaGlow {
       0%, 100% { transform: translate(-5%, -5%) scale(1); opacity: 0.35; }
