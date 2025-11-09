@@ -1,0 +1,34 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schattengoblin">
+  <defs>
+    <linearGradient id="shadowGoblinSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a5b4fc" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+    <radialGradient id="shadowAura" cx="50%" cy="40%" r="64%">
+      <stop offset="0%" stop-color="rgba(148,163,255,0.6)" />
+      <stop offset="60%" stop-color="rgba(76,29,149,0.4)" />
+      <stop offset="100%" stop-color="rgba(17,24,39,0)" />
+    </radialGradient>
+  </defs>
+  <rect x="12" y="18" width="136" height="134" rx="42" fill="rgba(79,70,229,0.35)" />
+  <ellipse cx="80" cy="138" rx="46" ry="16" fill="rgba(59,130,246,0.32)" />
+  <circle cx="80" cy="88" r="70" fill="url(#shadowAura)" />
+  <g stroke="#1e1b4b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M34 84 C30 50 54 26 80 26 C106 26 130 50 126 84 Z" fill="url(#shadowGoblinSkin)" />
+    <path d="M48 90 C52 114 62 130 80 130 C98 130 108 114 112 90 Z" fill="#4338ca" />
+    <circle cx="66" cy="74" r="9" fill="#0b1120" />
+    <circle cx="94" cy="74" r="9" fill="#0b1120" />
+    <circle cx="66" cy="74" r="3" fill="#c7d2fe" />
+    <circle cx="94" cy="74" r="3" fill="#c7d2fe" />
+    <path d="M68 104 Q80 112 92 104" stroke="#a855f7" stroke-width="4" stroke-linecap="round" />
+  </g>
+  <g stroke="#22d3ee" stroke-width="3" stroke-linecap="round">
+    <path d="M48 46 Q80 30 112 46" />
+    <path d="M56 40 L64 20" />
+    <path d="M104 40 L96 20" />
+  </g>
+  <g fill="#0f172a" opacity="0.4">
+    <path d="M40 118 L80 134 L120 118 L108 150 L52 150 Z" />
+  </g>
+  <path d="M72 60 h16" stroke="#a5b4fc" stroke-width="3" stroke-linecap="round" />
+</svg>

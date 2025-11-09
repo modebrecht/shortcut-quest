@@ -1,0 +1,32 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gruener Goblin">
+  <defs>
+    <linearGradient id="greenGoblinSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bbf7d0" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="greenGoblinArmor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14532d" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+  </defs>
+  <rect x="16" y="18" width="128" height="128" rx="36" fill="rgba(22,101,52,0.35)" />
+  <ellipse cx="80" cy="134" rx="44" ry="14" fill="rgba(16,185,129,0.3)" />
+  <g stroke="#064e3b" stroke-width="2.5">
+    <path d="M34 78 C30 44 52 22 80 22 C108 22 130 44 126 78 Z" fill="url(#greenGoblinSkin)" stroke-linejoin="round" />
+    <path d="M46 82 C48 100 60 116 80 116 C100 116 112 100 114 82 Z" fill="#10b981" />
+    <path d="M52 60 C60 54 68 54 74 60" stroke-linecap="round" />
+    <path d="M108 60 C100 54 92 54 86 60" stroke-linecap="round" />
+    <circle cx="68" cy="70" r="9" fill="#0f172a" />
+    <circle cx="92" cy="70" r="9" fill="#0f172a" />
+    <path d="M68 88 Q80 98 92 88" stroke="#a7f3d0" stroke-width="3" stroke-linecap="round" />
+  </g>
+  <g fill="url(#greenGoblinArmor)" stroke="#0f172a" stroke-width="2.5">
+    <path d="M44 116 L116 116 L126 146 H34 Z" />
+    <path d="M54 124 H106 L110 140 H50 Z" fill="#0f766e" />
+  </g>
+  <g fill="#22c55e" stroke="#065f46" stroke-width="2">
+    <path d="M44 40 L60 20 L80 34 L100 20 L116 40 L96 38 L80 48 L64 38 Z" />
+  </g>
+  <path d="M72 70 h4" stroke="#fef08a" stroke-width="3" stroke-linecap="round" />
+  <path d="M88 70 h4" stroke="#fef08a" stroke-width="3" stroke-linecap="round" />
+</svg>

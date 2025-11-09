@@ -1,0 +1,58 @@
+<svg class="hero-svg" viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="guardianArmor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e2e8f0" />
+      <stop offset="40%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+    <linearGradient id="guardianTrim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="guardianCape" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81" />
+      <stop offset="40%" stop-color="#4338ca" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <radialGradient id="guardianGlow" cx="50%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="rgba(148,197,255,0.9)" />
+      <stop offset="42%" stop-color="rgba(67,97,238,0.35)" />
+      <stop offset="100%" stop-color="rgba(15,23,42,0)" />
+    </radialGradient>
+  </defs>
+  <rect x="12" y="18" width="136" height="164" rx="38" fill="url(#guardianGlow)" opacity="0.55" />
+  <ellipse cx="80" cy="178" rx="48" ry="16" fill="rgba(15,23,42,0.75)" />
+  <path class="cape-shape" d="M35 78 Q16 126 44 168 L80 186 L116 168 Q144 126 125 78 Z" fill="url(#guardianCape)" opacity="0.92" />
+  <g class="armor-core" fill="url(#guardianArmor)" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 32 C94 32 107 44 112 62 L120 98 C124 118 118 136 104 150 L80 170 L56 150 C42 136 36 118 40 98 L48 62 C53 44 66 32 80 32 Z" />
+  </g>
+  <path class="armor-core" d="M80 26 C92 26 102 36 102 48 C102 60 92 70 80 70 C68 70 58 60 58 48 C58 36 68 26 80 26 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="3" />
+  <circle cx="80" cy="44" r="6" fill="#0f172a" />
+  <path d="M68 48 C72 54 88 54 92 48" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+  <g class="shield-group" transform="translate(22,90)">
+    <path class="shield-outline" d="M38 0 L64 10 V38 C64 60 44 78 38 82 C32 78 12 60 12 38 V10 Z" fill="rgba(30,41,59,0.92)" stroke="#38bdf8" stroke-width="3" />
+    <path d="M38 6 L56 14 V36 C56 52 42 64 38 66 C34 64 20 52 20 36 V14 Z" fill="rgba(148,197,255,0.28)" />
+    <circle cx="38" cy="34" r="9" fill="#1d4ed8" opacity="0.72" />
+    <path d="M38 18 V52" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+  </g>
+  <g class="sword-group" transform="translate(102,84)">
+    <rect class="sword-blade" x="14" y="-14" width="10" height="92" rx="5" fill="#f8fafc" stroke="#38bdf8" stroke-width="3" />
+    <path d="M19 -24 L24 -14 H14 Z" fill="#e2e8f0" stroke="#38bdf8" stroke-width="2" />
+    <rect x="4" y="46" width="30" height="8" rx="4" fill="#facc15" stroke="#b45309" stroke-width="2" />
+    <rect x="12" y="54" width="14" height="18" rx="6" fill="#92400e" stroke="#451a03" stroke-width="2" />
+    <circle cx="19" cy="63" r="4" fill="#1f2937" />
+  </g>
+  <g class="armor-core" fill="url(#guardianArmor)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round">
+    <path d="M58 86 L102 86 L108 124 C110 138 100 150 88 154 L72 154 C60 150 50 138 52 124 Z" />
+  </g>
+  <g class="leg-group" stroke="#0f172a" stroke-width="3" stroke-linejoin="round">
+    <rect class="leg-piece" x="60" y="140" width="18" height="34" rx="6" fill="url(#guardianArmor)" />
+    <rect class="leg-piece" x="82" y="140" width="18" height="34" rx="6" fill="url(#guardianArmor)" />
+    <path d="M58 172 H78 L74 188 H54 Z" fill="#0f172a" />
+    <path d="M82 172 H102 L106 188 H86 Z" fill="#0f172a" />
+  </g>
+  <g opacity="0.72" stroke="url(#guardianTrim)" stroke-width="2" fill="none">
+    <path d="M80 84 C94 84 108 94 112 108" />
+    <path d="M80 84 C66 84 52 94 48 108" />
+  </g>
+</svg>

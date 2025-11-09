@@ -1,0 +1,35 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bergtroll">
+  <defs>
+    <linearGradient id="mountainTrollSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d1d5db" />
+      <stop offset="100%" stop-color="#6b7280" />
+    </linearGradient>
+    <linearGradient id="mountainTrollArmor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <rect x="12" y="18" width="136" height="134" rx="44" fill="rgba(30,41,59,0.45)" />
+  <ellipse cx="80" cy="138" rx="48" ry="16" fill="rgba(100,116,139,0.35)" />
+  <g stroke="#1f2937" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M32 90 C28 48 54 22 80 22 C106 22 132 48 128 90 Z" fill="url(#mountainTrollSkin)" />
+    <path d="M46 96 C50 120 62 132 80 132 C98 132 110 120 114 96 Z" fill="#9ca3af" />
+    <circle cx="64" cy="76" r="10" fill="#111827" />
+    <circle cx="96" cy="76" r="10" fill="#111827" />
+    <path d="M60 58 H72" stroke-linecap="round" />
+    <path d="M100 58 H88" stroke-linecap="round" />
+    <path d="M64 102 Q80 114 96 102" stroke="#facc15" stroke-width="4" stroke-linecap="round" />
+  </g>
+  <g fill="url(#mountainTrollArmor)" stroke="#020617" stroke-width="3">
+    <path d="M44 132 L116 132 L130 156 H30 Z" />
+    <path d="M54 140 H106 L110 152 H50 Z" fill="#1f2937" />
+  </g>
+  <g stroke="#f97316" stroke-width="3" stroke-linecap="round">
+    <path d="M48 44 L68 30" />
+    <path d="M112 44 L92 30" />
+    <path d="M80 34 L80 16" />
+  </g>
+  <g fill="#fbbf24" stroke="#b45309" stroke-width="2.2">
+    <path d="M60 104 L80 120 L100 104" />
+  </g>
+</svg>

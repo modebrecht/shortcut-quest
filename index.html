@@ -1027,7 +1027,7 @@
       border-color: rgba(248,113,113,0.55);
     }
     .battle-portrait-icon {
-      font-size: 2rem;
+      font-size: 0;
       color: rgba(248,250,252,0.9);
       display: flex;
       align-items: center;
@@ -1035,13 +1035,11 @@
       width: 100%;
       height: 100%;
     }
-    .battle-portrait.enemy .battle-portrait-icon {
-      font-size: 2.8rem;
-    }
     .battle-portrait-icon img {
-      width: 70%;
-      height: auto;
-      filter: drop-shadow(0 6px 12px rgba(15,23,42,0.6));
+      width: 86%;
+      height: 86%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 14px rgba(15,23,42,0.55));
     }
     .battle-statline {
       display: flex;
@@ -1697,7 +1695,7 @@
       width: 92px;
       height: 92px;
       border-radius: 0.6rem;
-      background: rgba(30,41,59,0.8);
+      background: rgba(30,41,59,0.82);
       border: 2px solid rgba(148,163,184,0.45);
       display: flex;
       align-items: flex-end;
@@ -1708,59 +1706,47 @@
     .fighter::before {
       content: "";
       position: absolute;
-      width: 56px;
-      height: 56px;
-      top: 18px;
+      width: 86px;
+      height: 86px;
+      top: 4px;
       left: 50%;
       transform: translateX(-50%);
-      image-rendering: pixelated;
+      border-radius: 28px;
+      background: radial-gradient(circle at 50% 30%, rgba(148,197,255,0.65), rgba(15,23,42,0.12) 60%, rgba(15,23,42,0));
+      filter: blur(0.4px);
+      transition: opacity 200ms ease;
     }
     .fighter::after {
       content: "";
       position: absolute;
-      width: 32px;
-      height: 12px;
-      top: 34px;
+      width: 52px;
+      height: 14px;
+      bottom: 6px;
       left: 50%;
       transform: translateX(-50%);
-      border-radius: 4px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      box-shadow:
+        0 6px 14px rgba(15,23,42,0.65);
     }
     .fighter.knight::before {
-      background: linear-gradient(180deg, #9ca3af 0%, #64748b 65%, #334155 100%);
-      border-radius: 6px;
-      box-shadow:
-        0 -16px 0 0 #cbd5f5 inset,
-        0 -30px 0 0 #475569 inset;
-    }
-    .fighter.knight::after {
-      background: linear-gradient(90deg, #0f172a 0 24%, #38bdf8 24% 76%, #0f172a 76% 100%);
-      box-shadow: 0 6px 0 0 #1f2937;
+      background: radial-gradient(circle at 50% 30%, rgba(148,197,255,0.75), rgba(15,23,42,0.18) 60%, rgba(15,23,42,0));
     }
     .fighter.enemy::before {
-      background: linear-gradient(180deg, #047857 0%, #065f46 58%, #064e3b 100%);
-      border-radius: 6px;
-      box-shadow:
-        0 -14px 0 0 #34d399 inset,
-        0 -28px 0 0 #0f766e inset;
-    }
-    .fighter.enemy::after {
-      background: linear-gradient(90deg, #111827 0 30%, #bef264 30% 70%, #111827 70% 100%);
-      border-radius: 3px;
-      box-shadow:
-        -12px 0 0 -4px rgba(255,255,255,0.08),
-        12px 0 0 -4px rgba(255,255,255,0.08);
+      background: radial-gradient(circle at 50% 30%, rgba(134,239,172,0.7), rgba(15,23,42,0.18) 62%, rgba(15,23,42,0));
     }
     .fighter.enemy.goblin-army::before {
-      background: linear-gradient(180deg, #059669 0%, #047857 55%, #065f46 100%);
-      box-shadow:
-        0 -14px 0 0 #6ee7b7 inset,
-        0 -28px 0 0 #047857 inset;
+      background: radial-gradient(circle at 50% 28%, rgba(134,239,172,0.82), rgba(21,128,61,0.22) 58%, rgba(15,23,42,0));
     }
     .fighter.enemy.goblin-king::before {
-      background: linear-gradient(180deg, #d97706 0 18%, #10b981 18% 62%, #047857 62% 100%);
-      box-shadow:
-        0 -18px 0 0 #fcd34d inset,
-        0 -34px 0 0 #047857 inset;
+      background: radial-gradient(circle at 50% 28%, rgba(252,211,77,0.88), rgba(20,184,166,0.25) 62%, rgba(15,23,42,0));
+    }
+    .fighter-illustration {
+      width: 84px;
+      height: 84px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 14px rgba(8,15,30,0.65));
+      z-index: 1;
     }
     .fighter-name {
       position: absolute;
@@ -2712,9 +2698,23 @@
                 <span style="left:5%; animation-delay:5.2s;"></span>
               </div>
               <div class="fighter knight" id="battleKnight">
+                <img
+                  id="battleKnightImage"
+                  class="fighter-illustration"
+                  src="assets/player-guardian.svg"
+                  alt="Ritter"
+                  loading="lazy"
+                />
                 <div class="fighter-name">Ritter</div>
               </div>
               <div class="fighter enemy goblin" id="battleEnemy">
+                <img
+                  id="battleEnemyImage"
+                  class="fighter-illustration"
+                  src="assets/enemy-01-kobold.svg"
+                  alt="Goblin"
+                  loading="lazy"
+                />
                 <div class="fighter-name" id="battleEnemyName">Goblin</div>
               </div>
             </div>
@@ -2791,7 +2791,7 @@
                 </div>
               </div>
               <div class="battle-portrait hero">
-                <span class="battle-portrait-icon"><img src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
+                <span class="battle-portrait-icon"><img id="battleHeroPortrait" src="assets/player-guardian.svg" alt="Shortcut Knight"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
@@ -2828,7 +2828,7 @@
                 </div>
               </div>
               <div class="battle-portrait enemy">
-                <span class="battle-portrait-icon">⚔</span>
+                <span class="battle-portrait-icon"><img id="battleEnemyPreviewImage" src="assets/enemy-01-kobold.svg" alt="Kobold"></span>
               </div>
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
@@ -3139,7 +3139,9 @@
     const battleArena = document.getElementById("battleArena");
     const battleSkillBar = document.getElementById("battleSkillBar");
     const battleKnight = document.getElementById("battleKnight");
+    const battleKnightImage = document.getElementById("battleKnightImage");
     const battleEnemy = document.getElementById("battleEnemy");
+    const battleEnemyImage = document.getElementById("battleEnemyImage");
     const battleEnemyName = document.getElementById("battleEnemyName");
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
@@ -3149,6 +3151,7 @@
     const battleHeroFlavor = document.getElementById("battleHeroFlavor");
     const battleEnemyPreviewName = document.getElementById("battleEnemyPreviewName");
     const battleEnemyPreviewLevel = document.getElementById("battleEnemyPreviewLevel");
+    const battleEnemyPreviewImage = document.getElementById("battleEnemyPreviewImage");
     const battleEnemyAtkStat = document.getElementById("battleEnemyAtkStat");
     const battleEnemyDefStat = document.getElementById("battleEnemyDefStat");
     const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
@@ -3173,6 +3176,7 @@
     const modalEnemyMeta = document.getElementById("modalEnemyMeta");
     const heroCardElements = Array.from(document.querySelectorAll(".battle-side.hero, .modal-battle-card.hero"));
     const enemyCardElements = Array.from(document.querySelectorAll(".battle-side.enemy, .modal-battle-card.enemy"));
+    const battleHeroPortrait = document.getElementById("battleHeroPortrait");
     const enemyHpLabel = document.getElementById("enemyHpLabel");
     const heroHpFill = document.getElementById("heroHpFill");
     const enemyHpFill = document.getElementById("enemyHpFill");
@@ -4937,7 +4941,7 @@
       heroAvatar.classList.toggle("has-gear", hasInventory);
       if (heroAvatarImage) {
         const blueprintSrc = "assets/blueprint_clean.svg";
-        const knightSrc = "assets/knight_idle_fin.svg";
+        const knightSrc = "assets/player-guardian.svg";
         heroAvatarImage.src = hasInventory ? knightSrc : blueprintSrc;
         heroAvatarImage.alt = hasInventory ? "Ritter bereit fuer den Kampf" : "Blueprint deines Helden";
         heroAvatarImage.classList.toggle("is-blueprint", !hasInventory);
@@ -4984,6 +4988,15 @@
       const heroAtk = Math.max(0, state.atk || 0);
       const heroDef = Math.max(0, state.def || 0);
       const heroHpMax = getHeroMaxHp();
+      const heroImageSrc = "assets/player-guardian.svg";
+      if (battleHeroPortrait) {
+        battleHeroPortrait.src = heroImageSrc;
+        battleHeroPortrait.alt = "Shortcut Knight";
+      }
+      if (battleKnightImage) {
+        battleKnightImage.src = heroImageSrc;
+        battleKnightImage.alt = "Ritter";
+      }
       if (battleHeroAtkStat) battleHeroAtkStat.textContent = String(heroAtk);
       if (battleHeroDefStat) battleHeroDefStat.textContent = String(heroDef);
       if (battleHeroHpStat) battleHeroHpStat.textContent = String(heroHpMax);
@@ -5048,12 +5061,21 @@
       }
       const previewLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
       const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
+      const enemyArt = ENEMY_ART[previewLevel];
       if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
       if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
       if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
       if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
       if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      if (battleEnemyPreviewImage && enemyArt) {
+        battleEnemyPreviewImage.src = enemyArt.src;
+        battleEnemyPreviewImage.alt = enemy ? enemy.name : enemyArt.alt;
+      }
+      if (battleEnemyImage && enemyArt) {
+        battleEnemyImage.src = enemyArt.src;
+        battleEnemyImage.alt = enemy ? enemy.name : enemyArt.alt;
+      }
       if (battleEnemyFlavor) {
         battleEnemyFlavor.textContent = enemy
           ? `ATK ${enemy.atk} • DEF ${enemy.def} • HP ${enemy.hp}`
@@ -5295,6 +5317,19 @@
       { name: "Daemonengoblin", hp: 52, atk: 8, def: 4, variance: 3, crit: 0.15, variant: "goblin-army" },
       { name: "Goblinkoenig", hp: 60, atk: 9, def: 5, variance: 3, crit: 0.18, variant: "goblin-king" }
     ];
+    const ENEMY_ART = {
+      1: { src: "assets/enemy-01-kobold.svg", alt: "Kobold" },
+      2: { src: "assets/enemy-02-gruener-goblin.svg", alt: "Gruener Goblin" },
+      3: { src: "assets/enemy-03-hobgoblin.svg", alt: "Hobgoblin" },
+      4: { src: "assets/enemy-04-waldgoblin.svg", alt: "Waldgoblin" },
+      5: { src: "assets/enemy-05-hoehlengoblin.svg", alt: "Hoehlengoblin" },
+      6: { src: "assets/enemy-06-bergtroll.svg", alt: "Bergtroll" },
+      7: { src: "assets/enemy-07-dunkelgoblin.svg", alt: "Dunkelgoblin" },
+      8: { src: "assets/enemy-08-kriegsgoblin.svg", alt: "Kriegsgoblin" },
+      9: { src: "assets/enemy-09-schattengoblin.svg", alt: "Schattengoblin" },
+      10: { src: "assets/enemy-10-daemonengoblin.svg", alt: "Daemonengoblin" },
+      11: { src: "assets/enemy-11-goblinkoenig.svg", alt: "Goblinkoenig" }
+    };
     const ENEMIES = {};
     ENEMY_DATA.forEach((enemy, index) => {
       const level = index + 1;
@@ -5631,6 +5666,16 @@
       if (battleTitle) battleTitle.textContent = "Kampf gegen " + enemyName + " (Rang " + level + ")";
       if (battleEnemyName) battleEnemyName.textContent = enemyName;
       if (enemyHpLabel) enemyHpLabel.textContent = enemyName;
+      const resolvedLevel = Math.max(1, level || enemyState?.level || 1);
+      const battleArt = ENEMY_ART[resolvedLevel];
+      if (battleEnemyImage && battleArt) {
+        battleEnemyImage.src = battleArt.src;
+        battleEnemyImage.alt = enemyName;
+      }
+      if (battleEnemyPreviewImage && battleArt) {
+        battleEnemyPreviewImage.src = battleArt.src;
+        battleEnemyPreviewImage.alt = enemyName;
+      }
       if (battleKnight) battleKnight.classList.remove("attacking-left", "attacking-right", "hit");
       if (battleEnemy) {
         battleEnemy.classList.remove("attacking-left", "attacking-right", "hit");

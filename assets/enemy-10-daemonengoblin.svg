@@ -1,0 +1,37 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Daemonengoblin">
+  <defs>
+    <linearGradient id="demonGoblinSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <linearGradient id="demonGoblinCloak" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c2d12" />
+      <stop offset="100%" stop-color="#450a0a" />
+    </linearGradient>
+  </defs>
+  <rect x="14" y="18" width="132" height="134" rx="42" fill="rgba(248,113,113,0.3)" />
+  <ellipse cx="80" cy="138" rx="46" ry="16" fill="rgba(248,113,113,0.3)" />
+  <g stroke="#7c2d12" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M36 82 C32 48 54 24 80 24 C106 24 128 48 124 82 Z" fill="url(#demonGoblinSkin)" />
+    <path d="M48 88 C52 112 62 128 80 128 C98 128 108 112 112 88 Z" fill="#f97316" />
+    <circle cx="66" cy="72" r="9" fill="#111827" />
+    <circle cx="94" cy="72" r="9" fill="#111827" />
+    <path d="M58 54 L72 50" stroke-linecap="round" />
+    <path d="M102 54 L88 50" stroke-linecap="round" />
+    <path d="M64 98 Q80 114 96 98" stroke="#fef08a" stroke-width="4" stroke-linecap="round" />
+  </g>
+  <g fill="url(#demonGoblinCloak)" stroke="#7f1d1d" stroke-width="2.4">
+    <path d="M46 60 L80 36 L114 60 L106 142 H54 Z" />
+    <path d="M80 44 L68 66" stroke="#facc15" stroke-width="3" stroke-linecap="round" />
+  </g>
+  <g stroke="#ef4444" stroke-width="3" stroke-linecap="round">
+    <path d="M48 46 L60 22" />
+    <path d="M112 46 L100 22" />
+    <path d="M56 40 Q80 24 104 40" />
+  </g>
+  <g fill="#f87171" stroke="#450a0a" stroke-width="2.2">
+    <path d="M42 116 L80 132 L118 116 L104 150 L56 150 Z" />
+  </g>
+  <path d="M70 72 h8" stroke="#facc15" stroke-width="3" stroke-linecap="round" />
+  <path d="M90 72 h8" stroke="#facc15" stroke-width="3" stroke-linecap="round" />
+</svg>

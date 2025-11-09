@@ -1,0 +1,33 @@
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kobold">
+  <defs>
+    <linearGradient id="koboldSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a3e635" />
+      <stop offset="100%" stop-color="#4d7c0f" />
+    </linearGradient>
+    <linearGradient id="koboldArmor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+  <rect x="18" y="20" width="124" height="124" rx="36" fill="rgba(22,101,52,0.25)" />
+  <ellipse cx="80" cy="134" rx="40" ry="12" fill="rgba(14,116,144,0.45)" />
+  <g stroke="#022c22" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M36 74 C32 42 50 20 80 20 C110 20 128 42 124 74 Z" fill="url(#koboldSkin)" />
+    <path d="M46 74 C46 90 58 108 80 108 C102 108 114 90 114 74 Z" fill="#15803d" />
+    <path d="M50 54 L64 48" stroke-linecap="round" />
+    <path d="M110 54 L96 48" stroke-linecap="round" />
+    <circle cx="64" cy="66" r="8" fill="#0f172a" />
+    <circle cx="96" cy="66" r="8" fill="#0f172a" />
+    <path d="M70 86 C80 94 90 94 100 86" stroke="#65a30d" stroke-width="3" stroke-linecap="round" />
+  </g>
+  <g fill="url(#koboldArmor)" stroke="#1f2937" stroke-width="2.5">
+    <path d="M50 104 L110 104 L118 140 H42 Z" />
+    <path d="M44 118 H116" stroke="#2563eb" stroke-width="3" />
+  </g>
+  <g fill="#22d3ee" stroke="#0f172a" stroke-width="2">
+    <path d="M40 44 L30 22 L54 34 Z" />
+    <path d="M120 44 L130 22 L106 34 Z" />
+  </g>
+  <circle cx="66" cy="66" r="3" fill="#facc15" />
+  <circle cx="94" cy="66" r="3" fill="#facc15" />
+</svg>
