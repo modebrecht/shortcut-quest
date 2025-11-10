@@ -2791,7 +2791,7 @@
     const MAX_SKILL_TIER = 6;
     const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
-    const FALLBACK_SKILL_HOTKEYS = [
+    const INLINE_SKILL_HOTKEYS = [
       { label: "Arbeitsbereich markieren", keys: ["Control", "Alt", "A"] },
       { label: "Teamchat öffnen", keys: ["Control", "Alt", "C"] },
       { label: "Dashboard anzeigen", keys: ["Control", "Alt", "D"] },
@@ -2826,6 +2826,7 @@
     const skillHotkeyPool = [];
     const activeSkillKeys = new Set();
     const activeSkillComboLatch = new Set();
+    let battleSkillStates = [];
     const VALID_MODIFIER_KEYS = new Map([
       ["control", "CTRL"],
       ["ctrl", "CTRL"],
@@ -2948,30 +2949,22 @@
       activeSkillComboLatch.clear();
     }
 
-    async function loadSkillHotkeys() {
-      applySkillHotkeyConfig(FALLBACK_SKILL_HOTKEYS);
-      try {
-        const response = await fetch("skill-hotkeys.json", { cache: "no-store" });
-        if (!response.ok) return;
-        const data = await response.json();
-        applySkillHotkeyConfig(data);
-        if (DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length && battleSkillStates.length) {
-          const used = new Set();
-          battleSkillStates.forEach(entry => {
-            if (entry && entry.skill) {
-              assignRandomCombo(entry, used);
-              if (entry.comboId) used.add(entry.comboId);
-            }
-          });
-          resetSkillKeyTracking();
-          renderBattleSkillBar();
-        }
-      } catch (err) {
-        console.warn("Skill-Hotkeys konnten nicht geladen werden, verwende Standardzuordnung.", err);
+    function initSkillHotkeys() {
+      applySkillHotkeyConfig(INLINE_SKILL_HOTKEYS);
+      if (DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length && battleSkillStates.length) {
+        const used = new Set();
+        battleSkillStates.forEach(entry => {
+          if (entry && entry.skill) {
+            assignRandomCombo(entry, used);
+            if (entry.comboId) used.add(entry.comboId);
+          }
+        });
+        resetSkillKeyTracking();
+        renderBattleSkillBar();
       }
     }
 
-    loadSkillHotkeys();
+    initSkillHotkeys();
 
     const state = {
       coins: 0,
@@ -3489,7 +3482,6 @@
     const testAnimationBtn = document.getElementById("testAnimationBtn");
     const battleButtonContainer = document.getElementById("battleButtons");
     let battleButtons = [];
-    let battleSkillStates = [];
     let currentBattleContext = null;
     let canRenderBattlePreview = false;
     function handleUpgradeClick(container, upgradeFn) {
