@@ -2161,7 +2161,7 @@
     <section id="learnView" class="view active">
       <div class="card nav-card">
         <div class="nav-row" id="sectionTabs"></div>
-        <p class="small">Perfekte Loesungen bringen 20 Coins. Nach Zuruecksetzen und erneuter Perfektloesung gibt es 5 Coins.</p>
+        <p class="small">Jede perfekte Lösung bringt 10 Coins pro Aufgabe (z. B. 3 Aufgaben = 30 Coins). Nach Zuruecksetzen gibt es 5 Coins pro Aufgabe.</p>
       </div>
       <div id="learnSections"></div>
       <div class="card" id="overviewCard">
@@ -2714,6 +2714,8 @@
   <script src="assets/sections-data.js"></script>
   <script>
     const STORAGE_KEY = "shortcutRitter_v1";
+    const COINS_PER_ACTION = 10;
+    const COINS_PER_ACTION_AFTER_RESET = 5;
     const BASE_ATK = 1;
     const BASE_DEF = 0;
     const BASE_HP = 12;
@@ -5260,12 +5262,14 @@
       if (correctCount === total) {
         const clears = state.sectionClears[sectionId] || 0;
         const resets = state.sectionResets[sectionId] || 0;
+        const actions = total;
         let reward = 0;
         if (clears === 0) {
-          reward = 20;
+          reward = actions * COINS_PER_ACTION;
         } else if (resets > 0) {
-          reward = 5;
-          state.sectionResets[sectionId] = resets - 1;
+          reward = actions * COINS_PER_ACTION_AFTER_RESET;
+          const remainingResets = Math.max(0, resets - 1);
+          state.sectionResets[sectionId] = remainingResets;
         }
         state.sectionClears[sectionId] = clears + 1;
         if (reward > 0) {
