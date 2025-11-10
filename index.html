@@ -2160,153 +2160,10 @@
   <main>
     <section id="learnView" class="view active">
       <div class="card nav-card">
-        <div class="nav-row">
-          <button class="section-tab active" data-goto="1">Abschnitt 1</button>
-          <button class="section-tab" data-goto="2">Abschnitt 2</button>
-          <button class="section-tab" data-goto="3">Abschnitt 3</button>
-          <button class="section-tab" data-goto="4">Abschnitt 4</button>
-        </div>
+        <div class="nav-row" id="sectionTabs"></div>
         <p class="small">Perfekte Loesungen bringen 20 Coins. Nach Zuruecksetzen und erneuter Perfektloesung gibt es 5 Coins.</p>
       </div>
-      <div class="section active" data-section="1">
-        <div class="card">
-          <h2>1. Grundlagen</h2>
-          <p class="small">Wähle das passende Tastenkuerzel fuer die Aktion.</p>
-          <label class="task-field">
-            <span class="question-text">1. Kopieren</span>
-            <select data-answer="Ctrl+C">
-              <option value="">-- wählen --</option>
-              <option>Ctrl+X</option>
-              <option>Ctrl+C</option>
-              <option>Ctrl+V</option>
-            </select>
-          </label>
-          <label class="task-field">
-            <span class="question-text">2. Einfügen</span>
-            <select data-answer="Ctrl+V">
-              <option value="">-- wählen --</option>
-              <option>Ctrl+S</option>
-              <option>Ctrl+V</option>
-              <option>Ctrl+Z</option>
-            </select>
-          </label>
-          <label class="task-field">
-            <span class="question-text">3. Alles markieren</span>
-            <select data-answer="Ctrl+A">
-              <option value="">-- wählen --</option>
-              <option>Ctrl+P</option>
-              <option>Ctrl+A</option>
-              <option>Ctrl+F</option>
-            </select>
-          </label>
-        </div>
-        <div class="card action-card">
-          <button class="check-section" data-check-section="1">Abschnitt prüfen</button>
-          <button class="reset-section" data-reset-section="1">Zurücksetzen</button>
-          <p class="small result-text" id="result-1"></p>
-        </div>
-      </div>
-      <div class="section" data-section="2">
-        <div class="card">
-          <h2>2. Werkzeuge</h2>
-          <p class="small">Welches Tastenkuerzel passt zur Beschreibung?</p>
-          <label class="task-field">
-            <span class="question-text">4. Dokument speichern</span>
-            <select data-answer="Ctrl+S">
-              <option value="">-- wählen --</option>
-              <option>Ctrl+S</option>
-              <option>Ctrl+O</option>
-              <option>Ctrl+Shift+S</option>
-            </select>
-          </label>
-          <label class="task-field">
-            <span class="question-text">5. Rueckgaengig</span>
-            <select data-answer="Ctrl+Z">
-              <option value="">-- wählen --</option>
-              <option>Ctrl+Z</option>
-              <option>Ctrl+Y</option>
-              <option>Ctrl+R</option>
-            </select>
-          </label>
-          <label class="task-field">
-            <span class="question-text">6. Im Text suchen</span>
-            <select data-answer="Ctrl+F">
-              <option value="">-- wählen --</option>
-              <option>Ctrl+F</option>
-              <option>Ctrl+P</option>
-              <option>Ctrl+Shift+F</option>
-            </select>
-          </label>
-        </div>
-        <div class="card action-card">
-          <button class="check-section" data-check-section="2">Abschnitt pruefen</button>
-          <button class="reset-section" data-reset-section="2">Zuruecksetzen</button>
-          <p class="small result-text" id="result-2"></p>
-        </div>
-      </div>
-      <div class="section" data-section="3">
-        <div class="card">
-          <h2>3. Selber tippen</h2>
-          <p class="small">Schreibe das Tastenkuerzel exakt in das Feld.</p>
-          <label class="task-field">
-            <span class="question-text">7. Drucken</span>
-            <input type="text" placeholder="z. B. Ctrl+P" data-answer="Ctrl+P">
-          </label>
-          <label class="task-field">
-            <span class="question-text">8. Wiederholen</span>
-            <input type="text" placeholder="z. B. Ctrl+Y" data-answer="Ctrl+Y">
-          </label>
-          <label class="task-field">
-            <span class="question-text">9. Neuer Tab</span>
-            <input type="text" placeholder="z. B. Ctrl+N" data-answer="Ctrl+N">
-          </label>
-        </div>
-        <div class="card action-card">
-          <button class="check-section" data-check-section="3">Abschnitt pruefen</button>
-          <button class="reset-section" data-reset-section="3">Zuruecksetzen</button>
-          <p class="small result-text" id="result-3"></p>
-        </div>
-      </div>
-      <div class="section" data-section="4">
-        <div class="card">
-          <h2>4. Drag und Drop</h2>
-          <p class="small">Ziehe jedes Tastenkuerzel auf die passende Beschreibung.</p>
-          <div class="dnd-pool">
-            <div class="dnd-token" draggable="true" data-value="Ctrl+C">Ctrl+C</div>
-            <div class="dnd-token" draggable="true" data-value="Ctrl+V">Ctrl+V</div>
-            <div class="dnd-token" draggable="true" data-value="Ctrl+X">Ctrl+X</div>
-            <div class="dnd-token" draggable="true" data-value="Ctrl+F">Ctrl+F</div>
-            <div class="dnd-token" draggable="true" data-value="Ctrl+S">Ctrl+S</div>
-          </div>
-          <div class="dnd-targets">
-            <div class="dnd-target" data-answer="Ctrl+C">
-              <span class="question-text">Markiertes kopieren</span>
-              <div class="drop-slot"></div>
-            </div>
-            <div class="dnd-target" data-answer="Ctrl+V">
-              <span class="question-text">Markiertes einfuegen</span>
-              <div class="drop-slot"></div>
-            </div>
-            <div class="dnd-target" data-answer="Ctrl+X">
-              <span class="question-text">Markiertes ausschneiden</span>
-              <div class="drop-slot"></div>
-            </div>
-            <div class="dnd-target" data-answer="Ctrl+F">
-              <span class="question-text">Inhalt durchsuchen</span>
-              <div class="drop-slot"></div>
-            </div>
-            <div class="dnd-target" data-answer="Ctrl+S">
-              <span class="question-text">Datei speichern</span>
-              <div class="drop-slot"></div>
-            </div>
-          </div>
-        </div>
-        <div class="card action-card">
-          <button class="check-section" data-check-section="4">Abschnitt pruefen</button>
-          <button class="reset-section" data-reset-section="4">Zuruecksetzen</button>
-          <p class="small result-text" id="result-4"></p>
-        </div>
-      </div>
+      <div id="learnSections"></div>
       <div class="card" id="overviewCard">
         <h2>Gesamtuebersicht</h2>
         <p class="small" id="overallSummary">Noch keine Ergebnisse.</p>
@@ -2854,6 +2711,7 @@
         </div>
       </div>
     </section>
+  <script src="assets/sections-data.js"></script>
   <script>
     const STORAGE_KEY = "shortcutRitter_v1";
     const BASE_ATK = 1;
@@ -3125,7 +2983,278 @@
     let currentInventoryOrder = [];
     const skillList = document.getElementById("skillList");
     const skillEmpty = document.getElementById("skillEmpty");
+    const sectionTabsHost = document.getElementById("sectionTabs");
+    const learnSectionsHost = document.getElementById("learnSections");
     const overallSummary = document.getElementById("overallSummary");
+    let allCheckables = [];
+    const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
+
+    function resolveSectionId(section, fallbackIndex) {
+      if (section && section.id !== undefined && section.id !== null && section.id !== "") {
+        return String(section.id);
+      }
+      return String(fallbackIndex + 1);
+    }
+
+    function createSectionTab(section, sectionId, isActive) {
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = "section-tab";
+      if (isActive) tab.classList.add("active");
+      tab.dataset.goto = sectionId;
+      tab.textContent = section && section.tabLabel ? section.tabLabel : `Abschnitt ${sectionId}`;
+      return tab;
+    }
+
+    function buildSelectField(task) {
+      const select = document.createElement("select");
+      select.dataset.answer = task && task.answer ? task.answer : "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = task && task.placeholderOption ? task.placeholderOption : "-- wählen --";
+      select.appendChild(placeholder);
+      const options = Array.isArray(task && task.options) ? task.options : [];
+      options.forEach(optionValue => {
+        if (optionValue === null || optionValue === undefined) return;
+        const optionEl = document.createElement("option");
+        if (typeof optionValue === "string") {
+          optionEl.value = optionValue;
+          optionEl.textContent = optionValue;
+        } else {
+          const value = optionValue.value || optionValue.label || "";
+          optionEl.value = value;
+          optionEl.textContent = optionValue.label || optionValue.value || "";
+        }
+        select.appendChild(optionEl);
+      });
+      return select;
+    }
+
+    function buildInputField(task) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.dataset.answer = task && task.answer ? task.answer : "";
+      input.placeholder = task && task.placeholder ? task.placeholder : "";
+      input.autocomplete = "off";
+      return input;
+    }
+
+    function buildTaskField(task) {
+      if (!task) return null;
+      const label = document.createElement("label");
+      label.className = "task-field";
+      const question = document.createElement("span");
+      question.className = "question-text";
+      question.textContent = task.prompt || "";
+      label.appendChild(question);
+      let control = null;
+      if (task.type === "select") {
+        control = buildSelectField(task);
+      } else if (task.type === "input") {
+        control = buildInputField(task);
+      }
+      if (control) {
+        label.appendChild(control);
+      }
+      return label;
+    }
+
+    function appendDndBlock(container, task) {
+      const pool = document.createElement("div");
+      pool.className = "dnd-pool";
+      const tokens = Array.isArray(task && task.tokens) ? task.tokens : [];
+      tokens.forEach(entry => {
+        if (!entry) return;
+        const tokenMeta = typeof entry === "string" ? { label: entry, value: entry } : entry;
+        const value = tokenMeta.value || tokenMeta.label || "";
+        if (!value) return;
+        const tokenEl = document.createElement("div");
+        tokenEl.className = "dnd-token";
+        tokenEl.setAttribute("draggable", "true");
+        tokenEl.dataset.value = value;
+        tokenEl.textContent = tokenMeta.label || value;
+        pool.appendChild(tokenEl);
+      });
+      container.appendChild(pool);
+      const targetsWrap = document.createElement("div");
+      targetsWrap.className = "dnd-targets";
+      const targets = Array.isArray(task && task.targets) ? task.targets : [];
+      targets.forEach(target => {
+        if (!target) return;
+        const targetEl = document.createElement("div");
+        targetEl.className = "dnd-target";
+        targetEl.dataset.answer = target.answer || "";
+        const label = document.createElement("span");
+        label.className = "question-text";
+        label.textContent = target.label || target.answer || "";
+        const slot = document.createElement("div");
+        slot.className = "drop-slot";
+        targetEl.appendChild(label);
+        targetEl.appendChild(slot);
+        targetsWrap.appendChild(targetEl);
+      });
+      container.appendChild(targetsWrap);
+    }
+
+    function buildSectionElement(section, sectionId, isActive) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "section";
+      if (isActive) wrapper.classList.add("active");
+      wrapper.dataset.section = sectionId;
+
+      const contentCard = document.createElement("div");
+      contentCard.className = "card";
+      const heading = document.createElement("h2");
+      heading.textContent = section && section.title ? section.title : `Abschnitt ${sectionId}`;
+      contentCard.appendChild(heading);
+      if (section && section.description) {
+        const description = document.createElement("p");
+        description.className = "small";
+        description.textContent = section.description;
+        contentCard.appendChild(description);
+      }
+      const tasks = Array.isArray(section && section.tasks) ? section.tasks : [];
+      tasks.forEach(task => {
+        if (!task) return;
+        if (task.type === "dnd") {
+          appendDndBlock(contentCard, task);
+        } else {
+          const field = buildTaskField(task);
+          if (field) contentCard.appendChild(field);
+        }
+      });
+      wrapper.appendChild(contentCard);
+
+      const actionCard = document.createElement("div");
+      actionCard.className = "card action-card";
+      const checkBtn = document.createElement("button");
+      checkBtn.type = "button";
+      checkBtn.className = "check-section";
+      checkBtn.dataset.checkSection = sectionId;
+      checkBtn.textContent = section && section.checkLabel ? section.checkLabel : "Abschnitt prüfen";
+      const resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.className = "reset-section";
+      resetBtn.dataset.resetSection = sectionId;
+      resetBtn.textContent = section && section.resetLabel ? section.resetLabel : "Zurücksetzen";
+      const result = document.createElement("p");
+      result.className = "small result-text";
+      result.id = `result-${sectionId}`;
+      actionCard.appendChild(checkBtn);
+      actionCard.appendChild(resetBtn);
+      actionCard.appendChild(result);
+      wrapper.appendChild(actionCard);
+      return wrapper;
+    }
+
+    function renderLearnSections() {
+      if (!sectionTabsHost || !learnSectionsHost) return;
+      sectionTabsHost.innerHTML = "";
+      learnSectionsHost.innerHTML = "";
+      if (!SECTION_BLUEPRINTS.length) {
+        const fallback = document.createElement("p");
+        fallback.className = "small";
+        fallback.textContent = "Keine Trainingsabschnitte verfuegbar.";
+        learnSectionsHost.appendChild(fallback);
+        return;
+      }
+      SECTION_BLUEPRINTS.forEach((section, index) => {
+        const sectionId = resolveSectionId(section, index);
+        const tab = createSectionTab(section, sectionId, index === 0);
+        const sectionEl = buildSectionElement(section, sectionId, index === 0);
+        sectionTabsHost.appendChild(tab);
+        learnSectionsHost.appendChild(sectionEl);
+      });
+    }
+
+    function setupLearnSectionInteractions() {
+      const sections = document.querySelectorAll(".section");
+      const sectionTabs = document.querySelectorAll(".section-tab");
+      const showSection = id => {
+        sections.forEach(sec => {
+          sec.classList.toggle("active", sec.dataset.section === String(id));
+        });
+        sectionTabs.forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.goto === String(id));
+        });
+      };
+      sectionTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          showSection(tab.dataset.goto);
+        });
+      });
+      if (sectionTabs.length) {
+        const defaultId = sectionTabs[0].dataset.goto || (sections[0] ? sections[0].dataset.section : "1");
+        showSection(defaultId);
+      }
+      allCheckables = Array.from(document.querySelectorAll("[data-answer], .dnd-target"));
+      let draggedValue = "";
+      document.querySelectorAll(".dnd-token").forEach(token => {
+        token.addEventListener("dragstart", event => {
+          draggedValue = token.dataset.value;
+          if (event.dataTransfer) {
+            event.dataTransfer.setData("text/plain", draggedValue);
+          }
+        });
+      });
+      document.querySelectorAll(".dnd-target").forEach(target => {
+        const slot = target.querySelector(".drop-slot");
+        if (!slot) return;
+        slot.addEventListener("dragover", event => {
+          event.preventDefault();
+          target.classList.add("over");
+        });
+        slot.addEventListener("dragleave", () => {
+          target.classList.remove("over");
+        });
+        slot.addEventListener("drop", event => {
+          event.preventDefault();
+          target.classList.remove("over");
+          const value = (event.dataTransfer && event.dataTransfer.getData("text/plain")) || draggedValue;
+          if (!value) return;
+          slot.textContent = value;
+          slot.dataset.value = value;
+          target.classList.remove("correct", "incorrect");
+          const wrap = target.closest(".task-field");
+          if (wrap) wrap.classList.remove("correct", "incorrect");
+          updateOverallSummary();
+        });
+      });
+      allCheckables.forEach(el => {
+        const wrap = el.closest(".task-field");
+        const clear = () => {
+          el.classList.remove("correct", "incorrect");
+          if (wrap) wrap.classList.remove("correct", "incorrect");
+          updateOverallSummary();
+        };
+        if (el.tagName === "SELECT") {
+          el.addEventListener("change", clear);
+        } else if (el.tagName === "INPUT") {
+          el.addEventListener("input", clear);
+        }
+      });
+    }
+
+    function bindSectionActionButtons() {
+      document.querySelectorAll(".check-section").forEach(btn => {
+        btn.addEventListener("click", () => {
+          gradeSection(btn.dataset.checkSection, btn);
+        });
+      });
+      document.querySelectorAll(".reset-section").forEach(btn => {
+        btn.addEventListener("click", () => {
+          resetSection(btn.dataset.resetSection);
+        });
+      });
+    }
+
+    function initLearnSections() {
+      renderLearnSections();
+      setupLearnSectionInteractions();
+      bindSectionActionButtons();
+    }
+
+    initLearnSections();
     const coinAnimationLayer = document.getElementById("coinAnimationLayer");
     const gachaBtn = document.getElementById("gachaBtn");
     const baseGachaLabel = gachaBtn ? (gachaBtn.getAttribute("aria-label") || gachaBtn.textContent.trim() || "Item kaufen") : "";
@@ -3375,67 +3504,6 @@
     }
 
     applyGachaPreference(state.gachaPreference);
-    const sections = document.querySelectorAll(".section");
-    const sectionTabs = document.querySelectorAll(".section-tab");
-    function showSection(id) {
-      sections.forEach(sec => {
-        sec.classList.toggle("active", sec.dataset.section === String(id));
-      });
-      sectionTabs.forEach(tab => {
-        tab.classList.toggle("active", tab.dataset.goto === String(id));
-      });
-    }
-    sectionTabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        showSection(tab.dataset.goto);
-      });
-    });
-    showSection("1");
-
-    const allCheckables = document.querySelectorAll("[data-answer], .dnd-target");
-    let draggedValue = "";
-    document.querySelectorAll(".dnd-token").forEach(token => {
-      token.addEventListener("dragstart", event => {
-        draggedValue = token.dataset.value;
-        event.dataTransfer.setData("text/plain", draggedValue);
-      });
-    });
-    document.querySelectorAll(".dnd-target").forEach(target => {
-      const slot = target.querySelector(".drop-slot");
-      slot.addEventListener("dragover", event => {
-        event.preventDefault();
-        target.classList.add("over");
-      });
-      slot.addEventListener("dragleave", () => {
-        target.classList.remove("over");
-      });
-      slot.addEventListener("drop", event => {
-        event.preventDefault();
-        target.classList.remove("over");
-        const value = event.dataTransfer.getData("text/plain") || draggedValue;
-        if (!value) return;
-        slot.textContent = value;
-        slot.dataset.value = value;
-        target.classList.remove("correct", "incorrect");
-        const wrap = target.closest(".task-field");
-        if (wrap) wrap.classList.remove("correct", "incorrect");
-        updateOverallSummary();
-      });
-    });
-
-    allCheckables.forEach(el => {
-      const wrap = el.closest(".task-field");
-      const clear = () => {
-        el.classList.remove("correct", "incorrect");
-        if (wrap) wrap.classList.remove("correct", "incorrect");
-        updateOverallSummary();
-      };
-      if (el.tagName === "SELECT") {
-        el.addEventListener("change", clear);
-      } else if (el.tagName === "INPUT") {
-        el.addEventListener("input", clear);
-      }
-    });
 
     const KNIGHT_POOL = [
       { key: "bronze_sword", name: "Bronzeklinge", atk: 2, def: 0, icon: "sword_bronze", slot: "weapon", description: "", theme: "knight", category: "weapon" },
@@ -5244,17 +5312,6 @@
       updateOverallSummary();
       saveState();
     }
-    document.querySelectorAll(".check-section").forEach(btn => {
-      btn.addEventListener("click", () => {
-        gradeSection(btn.dataset.checkSection, btn);
-      });
-    });
-    document.querySelectorAll(".reset-section").forEach(btn => {
-      btn.addEventListener("click", () => {
-        resetSection(btn.dataset.resetSection);
-      });
-    });
-
     if (testAnimationBtn) {
       testAnimationBtn.addEventListener("click", () => {
         state.coins += 200;
