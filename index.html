@@ -254,11 +254,17 @@
       color: var(--text);
     }
     .result-text { flex: 1 1 100%; margin: 0; }
-    .dnd-pool, .dnd-targets {
+    .dnd-pool {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
       margin-top: 0.9rem;
+    }
+    .dnd-targets {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
     }
     .dnd-token {
       padding: 0.3rem 0.7rem;
@@ -269,12 +275,23 @@
       user-select: none;
     }
     .dnd-target {
+      width: 100%;
       padding: 0.6rem;
       border-radius: 0.75rem;
-      border: 1px dashed rgba(148,163,184,0.4);
-      min-width: 170px;
+      border: 1px solid rgba(148,163,184,0.4);
+      min-width: 0;
       background: rgba(15,23,42,0.3);
       position: relative;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .dnd-target.correct {
+      border-color: var(--good);
+      background: var(--good-soft);
+    }
+    .dnd-target.incorrect {
+      border-color: var(--bad);
+      background: var(--bad-soft);
     }
     .dnd-target.over {
       border-color: var(--accent);
@@ -289,6 +306,27 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    .drop-slot.correct {
+      border-color: rgba(34,197,94,0.6);
+      background: rgba(34,197,94,0.12);
+      color: var(--good);
+    }
+    .drop-slot.incorrect {
+      border-color: rgba(248,113,113,0.6);
+      background: rgba(248,113,113,0.12);
+      color: var(--bad);
+    }
+    @media (max-width: 900px) {
+      .dnd-targets {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 520px) {
+      .dnd-targets {
+        grid-template-columns: 1fr;
+      }
     }
     #overviewCard { margin-top: 0.5rem; }
     .hero-wrapper {
@@ -3038,6 +3076,32 @@
       return tab;
     }
 
+    function shuffleArray(source) {
+      if (!Array.isArray(source)) return [];
+      const array = source.slice();
+      for (let i = array.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = array[i];
+        array[i] = array[j];
+        array[j] = tmp;
+      }
+      return array;
+    }
+
+    function reshuffleDndSection(section) {
+      if (!section) return;
+      const pools = section.querySelectorAll(".dnd-pool");
+      pools.forEach(pool => {
+        const tokens = Array.from(pool.querySelectorAll(".dnd-token"));
+        shuffleArray(tokens).forEach(node => pool.appendChild(node));
+      });
+      const wraps = section.querySelectorAll(".dnd-targets");
+      wraps.forEach(wrapper => {
+        const targets = Array.from(wrapper.querySelectorAll(".dnd-target"));
+        shuffleArray(targets).forEach(node => wrapper.appendChild(node));
+      });
+    }
+
     function buildSelectField(task) {
       const select = document.createElement("select");
       select.dataset.answer = task && task.answer ? task.answer : "";
@@ -3108,7 +3172,7 @@
     function appendDndBlock(container, task) {
       const pool = document.createElement("div");
       pool.className = "dnd-pool";
-      const tokens = Array.isArray(task && task.tokens) ? task.tokens : [];
+      const tokens = shuffleArray(task && task.tokens);
       tokens.forEach(entry => {
         if (!entry) return;
         const tokenMeta = typeof entry === "string" ? { label: entry, value: entry } : entry;
@@ -3124,7 +3188,7 @@
       container.appendChild(pool);
       const targetsWrap = document.createElement("div");
       targetsWrap.className = "dnd-targets";
-      const targets = Array.isArray(task && task.targets) ? task.targets : [];
+      const targets = shuffleArray(task && task.targets);
       targets.forEach(target => {
         if (!target) return;
         const targetEl = document.createElement("div");
@@ -3304,6 +3368,7 @@
           if (!value) return;
           slot.textContent = value;
           slot.dataset.value = value;
+          slot.classList.remove("correct", "incorrect");
           target.classList.remove("correct", "incorrect");
           const wrap = target.closest(".task-field");
           if (wrap) wrap.classList.remove("correct", "incorrect");
@@ -3314,9 +3379,13 @@
         const wrap = el.closest(".task-field");
         const clear = () => {
           el.classList.remove("correct", "incorrect");
-          if (wrap) wrap.classList.remove("correct", "incorrect");
-          updateOverallSummary();
-        };
+        if (wrap) wrap.classList.remove("correct", "incorrect");
+        if (el.classList.contains("dnd-target")) {
+          const slot = el.querySelector(".drop-slot");
+          if (slot) slot.classList.remove("correct", "incorrect");
+        }
+        updateOverallSummary();
+      };
         if (el.tagName === "SELECT") {
           el.addEventListener("change", clear);
         } else if (el.tagName === "INPUT") {
@@ -5324,11 +5393,13 @@
         const wrap = field.closest(".task-field");
         field.classList.remove("correct", "incorrect");
         if (wrap) wrap.classList.remove("correct", "incorrect");
+        let slotRef = null;
         const solution = (field.getAttribute("data-answer") || "").trim();
         let userValue = "";
         if (field.classList.contains("dnd-target")) {
-          const slot = field.querySelector(".drop-slot");
-          userValue = slot ? (slot.dataset.value || slot.textContent || "").trim() : "";
+          slotRef = field.querySelector(".drop-slot");
+          if (slotRef) slotRef.classList.remove("correct", "incorrect");
+          userValue = slotRef ? (slotRef.dataset.value || slotRef.textContent || "").trim() : "";
         } else if (field.tagName === "SELECT") {
           userValue = field.value.trim();
         } else if (field.tagName === "INPUT") {
@@ -5344,9 +5415,11 @@
           correctCount += 1;
           field.classList.add("correct");
           if (wrap) wrap.classList.add("correct");
+          if (slotRef) slotRef.classList.add("correct");
         } else {
           field.classList.add("incorrect");
           if (wrap) wrap.classList.add("incorrect");
+          if (slotRef) slotRef.classList.add("incorrect");
         }
       });
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
@@ -5401,9 +5474,11 @@
           if (slot) {
             slot.textContent = "";
             delete slot.dataset.value;
+            slot.classList.remove("correct", "incorrect");
           }
         }
       });
+      reshuffleDndSection(section);
       const resultEl = document.getElementById(`result-${sectionId}`);
       if (resultEl) resultEl.textContent = "Abschnitt wurde zurueckgesetzt.";
       state.sectionResets[sectionId] = (state.sectionResets[sectionId] || 0) + 1;

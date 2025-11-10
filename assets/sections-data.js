@@ -139,13 +139,20 @@
       tasks: [
         {
           type: "dnd",
-          tokens: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+F", "Ctrl+S"],
+          tokens: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+F", "Ctrl+S", "Ctrl+Z", "Ctrl+Y", "Ctrl+N", "Ctrl+P", "Ctrl+A", "Ctrl+O", "Ctrl+Shift+S"],
           targets: [
             { label: "Markiertes kopieren", answer: "Ctrl+C" },
             { label: "Markiertes einfügen", answer: "Ctrl+V" },
             { label: "Markiertes ausschneiden", answer: "Ctrl+X" },
             { label: "Inhalt durchsuchen", answer: "Ctrl+F" },
-            { label: "Datei speichern", answer: "Ctrl+S" }
+            { label: "Datei speichern", answer: "Ctrl+S" },
+            { label: "Aktion rückgängig", answer: "Ctrl+Z" },
+            { label: "Aktion wiederholen", answer: "Ctrl+Y" },
+            { label: "Neues Dokument", answer: "Ctrl+N" },
+            { label: "Drucken", answer: "Ctrl+P" },
+            { label: "Alles markieren", answer: "Ctrl+A" },
+            { label: "Dokument öffnen", answer: "Ctrl+O" },
+            { label: "Speichern unter", answer: "Ctrl+Shift+S" }
           ]
         }
       ]
