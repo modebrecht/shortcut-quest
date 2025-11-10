@@ -6,79 +6,129 @@
     {
       id: "1",
       tabLabel: "Abschnitt 1",
-      title: "1. Grundlagen",
-      description: "Wähle das passende Tastenkürzel für die Aktion.",
+      title: "1. Selber tippen",
+      description: "Schreibe jedes Tastenkürzel exakt in das Feld.",
       tasks: [
         {
-          type: "select",
-          prompt: "1. Kopieren",
-          answer: "Ctrl+C",
-          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V"]
+          type: "input",
+          prompt: "1. Drucken",
+          answer: "Ctrl+P",
+          hint: "Ctrl+P"
         },
         {
-          type: "select",
-          prompt: "2. Einfügen",
-          answer: "Ctrl+V",
-          options: ["Ctrl+S", "Ctrl+V", "Ctrl+Z"]
+          type: "input",
+          prompt: "2. Neuer Tab",
+          answer: "Ctrl+N",
+          hint: "Ctrl+N"
         },
         {
-          type: "select",
-          prompt: "3. Alles markieren",
+          type: "input",
+          prompt: "3. Fenster schließen",
+          answer: "Ctrl+W",
+          hint: "Ctrl+W"
+        },
+        {
+          type: "input",
+          prompt: "4. Speichern unter",
+          answer: "Ctrl+Shift+S",
+          hint: "Ctrl+Shift+S"
+        },
+        {
+          type: "input",
+          prompt: "5. Alles markieren",
           answer: "Ctrl+A",
-          options: ["Ctrl+P", "Ctrl+A", "Ctrl+F"]
+          hint: "Ctrl+A"
+        },
+        {
+          type: "input",
+          prompt: "6. Suche öffnen",
+          answer: "Ctrl+F",
+          hint: "Ctrl+F"
+        },
+        {
+          type: "input",
+          prompt: "7. Wiederholen",
+          answer: "Ctrl+Y",
+          hint: "Ctrl+Y"
+        },
+        {
+          type: "input",
+          prompt: "8. Fett formatieren",
+          answer: "Ctrl+B",
+          hint: "Ctrl+B"
         }
       ]
     },
     {
       id: "2",
       tabLabel: "Abschnitt 2",
-      title: "2. Werkzeuge",
-      description: "Welches Tastenkürzel passt zur Beschreibung?",
+      title: "2. Grundlagen",
+      description: "Wähle das passende Tastenkürzel für die Aktion.",
       tasks: [
         {
           type: "select",
-          prompt: "4. Dokument speichern",
+          prompt: "9. Kopieren",
+          answer: "Ctrl+C",
+          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V"]
+        },
+        {
+          type: "select",
+          prompt: "10. Einfügen",
+          answer: "Ctrl+V",
+          options: ["Ctrl+S", "Ctrl+V", "Ctrl+Z"]
+        },
+        {
+          type: "select",
+          prompt: "11. Ausschneiden",
+          answer: "Ctrl+X",
+          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V"]
+        },
+        {
+          type: "select",
+          prompt: "12. Alles markieren",
+          answer: "Ctrl+A",
+          options: ["Ctrl+P", "Ctrl+A", "Ctrl+F"]
+        },
+        {
+          type: "select",
+          prompt: "13. Speichern",
           answer: "Ctrl+S",
           options: ["Ctrl+S", "Ctrl+O", "Ctrl+Shift+S"]
         },
         {
           type: "select",
-          prompt: "5. Rückgängig",
-          answer: "Ctrl+Z",
-          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+R"]
+          prompt: "14. Neues Dokument",
+          answer: "Ctrl+N",
+          options: ["Ctrl+O", "Ctrl+N", "Ctrl+P"]
         },
         {
           type: "select",
-          prompt: "6. Im Text suchen",
-          answer: "Ctrl+F",
-          options: ["Ctrl+F", "Ctrl+P", "Ctrl+Shift+F"]
+          prompt: "15. Drucken",
+          answer: "Ctrl+P",
+          options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F"]
+        },
+        {
+          type: "select",
+          prompt: "16. Rückgängig",
+          answer: "Ctrl+Z",
+          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z"]
         }
       ]
     },
     {
       id: "3",
       tabLabel: "Abschnitt 3",
-      title: "3. Selber tippen",
-      description: "Schreibe das Tastenkürzel exakt in das Feld.",
+      title: "3. Windows Navigation",
+      description: "Gib Tastenkombinationen mit der Win-Taste ein.",
       tasks: [
-        {
-          type: "input",
-          prompt: "7. Drucken",
-          answer: "Ctrl+P",
-          placeholder: "z. B. Ctrl+P"
-        },
-        {
-          type: "input",
-          prompt: "8. Wiederholen",
-          answer: "Ctrl+Y",
-          placeholder: "z. B. Ctrl+Y"
-        },
-        {
-          type: "input",
-          prompt: "9. Neuer Tab",
-          answer: "Ctrl+N",
-          placeholder: "z. B. Ctrl+N"
-        }
+        { type: "input", prompt: "17. Desktop anzeigen", answer: "Win+D", hint: "Win+D" },
+        { type: "input", prompt: "18. Einstellungen öffnen", answer: "Win+I", hint: "Win+I" },
+        { type: "input", prompt: "19. Explorer starten", answer: "Win+E", hint: "Win+E" },
+        { type: "input", prompt: "20. Task-Ansicht", answer: "Win+Tab", hint: "Win+Tab" },
+        { type: "input", prompt: "21. Fenster fix nach links", answer: "Win+Left", hint: "Win+Left" },
+        { type: "input", prompt: "22. Fenster fix nach rechts", answer: "Win+Right", hint: "Win+Right" },
+        { type: "input", prompt: "23. Schnellmenü", answer: "Win+X", hint: "Win+X" },
+        { type: "input", prompt: "24. Ausführen öffnen", answer: "Win+R", hint: "Win+R" }
       ]
     },
     {

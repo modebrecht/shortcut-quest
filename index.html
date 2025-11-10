@@ -162,6 +162,35 @@
       outline: 2px solid rgba(245,158,11,0.45);
       outline-offset: 2px;
     }
+    .input-with-hint {
+      position: relative;
+    }
+    .input-with-hint input[type="text"] {
+      background: transparent;
+    }
+    .input-with-hint .input-hint-overlay {
+      position: absolute;
+      top: 50%;
+      left: var(--input-hint-offset, 0.6rem);
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 0.92rem;
+      letter-spacing: 0.01em;
+      transition: opacity 0.15s ease;
+      white-space: pre;
+      opacity: 0.85;
+    }
+    .input-with-hint .input-hint-overlay.hidden {
+      opacity: 0;
+    }
+    .input-with-hint .input-hint-measure {
+      position: absolute;
+      visibility: hidden;
+      pointer-events: none;
+      white-space: pre;
+      font: inherit;
+    }
     button {
       font-family: inherit;
       cursor: pointer;
@@ -2161,7 +2190,7 @@
     <section id="learnView" class="view active">
       <div class="card nav-card">
         <div class="nav-row" id="sectionTabs"></div>
-        <p class="small">Jede perfekte Lösung bringt 10 Coins pro Aufgabe (z. B. 3 Aufgaben = 30 Coins). Nach Zuruecksetzen gibt es 5 Coins pro Aufgabe.</p>
+        <p class="small">Jede perfekte Lösung bringt 10 Coins pro Aufgabe (3 Aufgaben = 30 Coins). Nach Zuruecksetzen gibt es 5 Coins pro Aufgabe.</p>
       </div>
       <div id="learnSections"></div>
       <div class="card" id="overviewCard">
@@ -2990,6 +3019,7 @@
     const overallSummary = document.getElementById("overallSummary");
     let allCheckables = [];
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
+    const inputHintRegistry = new Set();
 
     function resolveSectionId(section, fallbackIndex) {
       if (section && section.id !== undefined && section.id !== null && section.id !== "") {
@@ -3033,12 +3063,26 @@
     }
 
     function buildInputField(task) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "input-with-hint";
       const input = document.createElement("input");
       input.type = "text";
       input.dataset.answer = task && task.answer ? task.answer : "";
-      input.placeholder = task && task.placeholder ? task.placeholder : "";
       input.autocomplete = "off";
-      return input;
+      if (task && task.hint) {
+        input.dataset.hint = task.hint;
+      }
+      wrapper.appendChild(input);
+      if (task && task.hint) {
+        const overlay = document.createElement("span");
+        overlay.className = "input-hint-overlay";
+        overlay.textContent = task.hint;
+        const measure = document.createElement("span");
+        measure.className = "input-hint-measure";
+        wrapper.appendChild(overlay);
+        wrapper.appendChild(measure);
+      }
+      return wrapper;
     }
 
     function buildTaskField(task) {
@@ -3096,6 +3140,49 @@
         targetsWrap.appendChild(targetEl);
       });
       container.appendChild(targetsWrap);
+    }
+
+    function updateInputHintOverlay(input) {
+      if (!input || !input.dataset) return;
+      const hint = input.dataset.hint || "";
+      if (!hint) return;
+      const wrapper = input.closest(".input-with-hint");
+      if (!wrapper) return;
+      const overlay = wrapper.querySelector(".input-hint-overlay");
+      const measure = wrapper.querySelector(".input-hint-measure");
+      if (!overlay || !measure) return;
+      const computed = window.getComputedStyle(input);
+      const paddingLeft = parseFloat(computed.paddingLeft) || 0;
+      const paddingRight = parseFloat(computed.paddingRight) || 0;
+      const availableWidth = input.clientWidth - paddingRight - paddingLeft;
+      const value = input.value || "";
+      if (!value) {
+        overlay.textContent = hint;
+        measure.textContent = "";
+        overlay.style.setProperty("--input-hint-offset", `${paddingLeft}px`);
+        overlay.classList.toggle("hidden", false);
+        return;
+      }
+      overlay.textContent = "";
+      overlay.classList.add("hidden");
+    }
+
+    function initInputHint(input) {
+      if (!input || !input.dataset || !input.dataset.hint) return;
+      if (inputHintRegistry.has(input)) {
+        updateInputHintOverlay(input);
+        return;
+      }
+      inputHintRegistry.add(input);
+      const handler = () => updateInputHintOverlay(input);
+      input.addEventListener("input", handler);
+      input.addEventListener("focus", handler);
+      input.addEventListener("blur", handler);
+      updateInputHintOverlay(input);
+    }
+
+    function refreshAllInputHints() {
+      inputHintRegistry.forEach(input => updateInputHintOverlay(input));
     }
 
     function buildSectionElement(section, sectionId, isActive) {
@@ -3190,6 +3277,7 @@
         showSection(defaultId);
       }
       allCheckables = Array.from(document.querySelectorAll("[data-answer], .dnd-target"));
+      document.querySelectorAll("input[data-hint]").forEach(input => initInputHint(input));
       let draggedValue = "";
       document.querySelectorAll(".dnd-token").forEach(token => {
         token.addEventListener("dragstart", event => {
@@ -3254,9 +3342,13 @@
       renderLearnSections();
       setupLearnSectionInteractions();
       bindSectionActionButtons();
+      refreshAllInputHints();
     }
 
     initLearnSections();
+    window.addEventListener("resize", () => {
+      refreshAllInputHints();
+    });
     const coinAnimationLayer = document.getElementById("coinAnimationLayer");
     const gachaBtn = document.getElementById("gachaBtn");
     const baseGachaLabel = gachaBtn ? (gachaBtn.getAttribute("aria-label") || gachaBtn.textContent.trim() || "Item kaufen") : "";
@@ -5301,6 +5393,9 @@
           field.value = "";
         } else if (field.tagName === "INPUT") {
           field.value = "";
+          if (field.dataset && field.dataset.hint) {
+            updateInputHintOverlay(field);
+          }
         } else if (field.classList.contains("dnd-target")) {
           const slot = field.querySelector(".drop-slot");
           if (slot) {
