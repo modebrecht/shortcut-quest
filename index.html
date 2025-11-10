@@ -328,6 +328,156 @@
         grid-template-columns: 1fr;
       }
     }
+    .fast-paced {
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 1.2rem;
+      padding: 1.6rem;
+      margin-top: 1.2rem;
+      background: radial-gradient(circle at top, rgba(30,41,59,0.92), rgba(15,23,42,0.9));
+      box-shadow: 0 12px 32px rgba(8,15,30,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      align-items: center;
+      text-align: center;
+    }
+    .fast-paced-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1.4rem;
+      width: 100%;
+    }
+    .fast-paced-timer-wrap {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 130px;
+      height: 130px;
+      border-radius: 999px;
+      border: 2px solid rgba(245,158,11,0.55);
+      background: radial-gradient(circle, rgba(245,158,11,0.16), rgba(245,158,11,0.05));
+      box-shadow: 0 0 28px rgba(245,158,11,0.22), inset 0 0 16px rgba(245,158,11,0.14);
+    }
+    .fast-paced-timer {
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 72px;
+      text-align: right;
+      font-size: 2.4rem;
+      letter-spacing: 0.02em;
+    }
+    .fast-paced-hourglass {
+      width: 40px;
+      height: 40px;
+      stroke: var(--accent);
+      stroke-width: 1.6;
+      fill: none;
+      transform-origin: 50% 50%;
+    }
+    .fast-paced-hourglass .hourglass-sand {
+      fill: rgba(245,158,11,0.65);
+      stroke: none;
+    }
+    .fast-paced-active .fast-paced-hourglass {
+      animation: fastHourglassSpin 12s linear infinite;
+    }
+    .fast-paced-active .fast-paced-hourglass .hourglass-sand {
+      animation: fastHourglassPulse 3s ease-in-out infinite;
+    }
+    @keyframes fastHourglassSpin {
+      0% { transform: rotate(0deg); }
+      49% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg); }
+      99% { transform: rotate(180deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes fastHourglassPulse {
+      0%,100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .fast-paced-prompt {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #f8fafc 0%, #fbbf24 50%, #fef3c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 0.2rem;
+    }
+    .fast-paced-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.85rem;
+      width: 100%;
+      max-width: 700px;
+    }
+    @media (max-width: 980px) {
+      .fast-paced-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 520px;
+      }
+    }
+    @media (max-width: 520px) {
+      .fast-paced-options {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+    }
+    .fast-paced-option {
+      border: 1px solid rgba(148,163,184,0.4);
+      border-radius: 1rem;
+      padding: 0.95rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background: rgba(15,23,42,0.55);
+      color: var(--text);
+      transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      box-shadow: inset 0 0 0 0 rgba(245,158,11,0.25);
+    }
+    .fast-paced-option:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: rgba(245,158,11,0.18);
+      transform: translateY(-3px);
+    }
+    .fast-paced-option.correct {
+      border-color: var(--good);
+      background: var(--good-soft);
+      color: var(--good);
+    }
+    .fast-paced-option.incorrect {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+      color: var(--bad);
+    }
+    .fast-paced-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      }
+    .fast-paced-progress {
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .fast-paced-result {
+      flex: 1 1 100%;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .fast-paced-start {
+      padding: 0.6rem 1.4rem;
+      border-radius: 0.8rem;
+      border: none;
+      background: var(--accent);
+      color: #1f2937;
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(245,158,11,0.25);
+    }
     #overviewCard { margin-top: 0.5rem; }
     .hero-wrapper {
       display: flex;
@@ -3020,6 +3170,7 @@
     const overallSummary = document.getElementById("overallSummary");
     let allCheckables = [];
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
+    const fastPacedSections = [];
     const inputHintRegistry = new Set();
 
     function resolveSectionId(section, fallbackIndex) {
@@ -3049,6 +3200,27 @@
         array[j] = tmp;
       }
       return array;
+    }
+
+    function createHourglassIcon() {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("class", "fast-paced-hourglass");
+      const frame = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      frame.setAttribute("d", "M7 3h10M7 21h10M9 3v5l5 4-5 4v5M15 3v5l-5 4 5 4v5");
+      frame.setAttribute("fill", "none");
+      frame.setAttribute("stroke-linecap", "round");
+      frame.setAttribute("stroke-linejoin", "round");
+      const sandTop = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      sandTop.setAttribute("d", "M10 8h4l-2 2z");
+      sandTop.setAttribute("class", "hourglass-sand");
+      const sandBottom = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      sandBottom.setAttribute("d", "M12 16l-2-2h4z");
+      sandBottom.setAttribute("class", "hourglass-sand");
+      svg.appendChild(frame);
+      svg.appendChild(sandTop);
+      svg.appendChild(sandBottom);
+      return svg;
     }
 
     function reshuffleDndSection(section) {
@@ -3169,6 +3341,68 @@
       container.appendChild(targetsWrap);
     }
 
+    function appendFastPacedBlock(container, config, sectionId) {
+      if (!config || !Array.isArray(config.combos) || !config.combos.length) return;
+      const block = document.createElement("div");
+      block.className = "fast-paced";
+      block.dataset.sectionId = sectionId;
+
+      const prompt = document.createElement("div");
+      prompt.className = "fast-paced-prompt";
+      prompt.textContent = "Bereit?";
+
+      const header = document.createElement("div");
+      header.className = "fast-paced-header";
+      const timerWrap = document.createElement("div");
+      timerWrap.className = "fast-paced-timer-wrap";
+      const timer = document.createElement("span");
+      timer.className = "fast-paced-timer";
+      timer.textContent = `${config.timeLimitSeconds || 8}s`;
+      const hourglassIcon = createHourglassIcon();
+      timerWrap.appendChild(timer);
+      timerWrap.appendChild(hourglassIcon);
+      header.appendChild(prompt);
+      header.appendChild(timerWrap);
+
+      const options = document.createElement("div");
+      options.className = "fast-paced-options";
+
+      const footer = document.createElement("div");
+      footer.className = "fast-paced-footer";
+      const startBtn = document.createElement("button");
+      startBtn.type = "button";
+      startBtn.className = "fast-paced-start";
+      startBtn.textContent = "Training starten";
+      const progress = document.createElement("span");
+      progress.className = "fast-paced-progress";
+      progress.textContent = `0/${config.rounds || 8}`;
+      const result = document.createElement("div");
+      result.className = "fast-paced-result";
+      result.textContent = "Klicke auf Start, um zu beginnen.";
+      footer.appendChild(startBtn);
+      footer.appendChild(progress);
+      footer.appendChild(result);
+
+      block.appendChild(header);
+      block.appendChild(options);
+      block.appendChild(footer);
+      container.appendChild(block);
+
+      fastPacedSections.push({
+        sectionId,
+        config,
+        elements: {
+          root: block,
+          prompt,
+          timer,
+          options,
+          startBtn,
+          progress,
+          result
+        }
+      });
+    }
+
     function updateInputHintOverlay(input) {
       if (!input || !input.dataset) return;
       const hint = input.dataset.hint || "";
@@ -3212,6 +3446,201 @@
       inputHintRegistry.forEach(input => updateInputHintOverlay(input));
     }
 
+    function pickRandomCombos(pool, count, excludeValue) {
+      const filtered = pool.filter(entry => entry.combo !== excludeValue);
+      return shuffleArray(filtered).slice(0, Math.max(0, count));
+    }
+
+    function initFastPacedSections() {
+      fastPacedSections.forEach(registerFastPacedController);
+    }
+
+    function registerFastPacedController(entry) {
+      const { config, elements, sectionId } = entry;
+      const normalizedCombos = (config.combos || []).map(combo => ({
+        label: combo.label || combo.combo,
+        combo: combo.combo || "",
+        display: (combo.combo || "").toUpperCase()
+      })).filter(item => item.combo);
+      if (!normalizedCombos.length) return;
+      const rounds = Math.max(1, config.rounds || 8);
+      const timeLimit = Math.max(2, config.timeLimitSeconds || 8);
+      const optionsPerRound = Math.max(2, Math.min(config.optionsPerRound || 4, normalizedCombos.length));
+      const fastState = {
+        active: false,
+        currentRound: 0,
+        correct: 0,
+        timerId: null,
+        remaining: timeLimit,
+        awaitingInput: false,
+        currentAnswer: null
+      };
+
+      function resetOptions() {
+        elements.options.innerHTML = "";
+      }
+
+      function updateTimerDisplay(value) {
+        elements.timer.textContent = `${Math.max(0, value)}s`;
+      }
+
+      function updateProgress() {
+        elements.progress.textContent = `${fastState.currentRound}/${rounds}`;
+      }
+
+      function showResult(message, isSuccess) {
+        elements.result.textContent = message;
+        if (isSuccess === true) {
+          elements.result.style.color = "var(--good)";
+        } else if (isSuccess === false) {
+          elements.result.style.color = "var(--bad)";
+        } else {
+          elements.result.style.color = "var(--muted)";
+        }
+      }
+
+      function stopTimer() {
+        if (fastState.timerId) {
+          clearInterval(fastState.timerId);
+          fastState.timerId = null;
+        }
+      }
+
+      function endRound(success) {
+        if (success) fastState.correct += 1;
+        fastState.awaitingInput = false;
+        stopTimer();
+        updateProgress();
+        setTimeout(() => {
+          if (fastState.currentRound >= rounds) {
+            finishSession();
+          } else {
+            runNextRound();
+          }
+        }, 600);
+      }
+
+      function handleSelection(option, button) {
+        if (!fastState.awaitingInput) return;
+        fastState.awaitingInput = false;
+        const success = option.combo === fastState.currentAnswer.combo;
+        button.classList.add(success ? "correct" : "incorrect");
+        if (!success) {
+          elements.options.querySelectorAll("button").forEach(btn => {
+            const expected = btn.dataset.combo;
+            if (expected === fastState.currentAnswer.combo) {
+              btn.classList.add("correct");
+            }
+            btn.disabled = true;
+          });
+          showResult(`Falsch – gesucht: ${fastState.currentAnswer.display}`, false);
+        } else {
+          elements.options.querySelectorAll("button").forEach(btn => btn.disabled = true);
+          showResult("Richtig!", true);
+        }
+        endRound(success);
+      }
+
+      function runNextRound() {
+        fastState.currentRound += 1;
+        fastState.remaining = timeLimit;
+        fastState.awaitingInput = true;
+        elements.options.innerHTML = "";
+        const pool = shuffleArray(normalizedCombos);
+        const answer = pool[0];
+        fastState.currentAnswer = answer;
+        const promptLabel = answer.label || answer.display;
+        elements.prompt.textContent = promptLabel;
+        const distractors = pickRandomCombos(normalizedCombos, optionsPerRound - 1, answer.combo);
+        const roundOptions = shuffleArray([answer, ...distractors]);
+        roundOptions.forEach(option => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "fast-paced-option";
+          btn.textContent = option.display;
+          btn.dataset.combo = option.combo;
+          btn.addEventListener("click", () => handleSelection(option, btn));
+          elements.options.appendChild(btn);
+        });
+        updateProgress();
+        updateTimerDisplay(fastState.remaining);
+        stopTimer();
+        fastState.timerId = setInterval(() => {
+          fastState.remaining -= 1;
+          updateTimerDisplay(fastState.remaining);
+          if (fastState.remaining <= 0) {
+            stopTimer();
+            showResult(`Zu langsam – gesucht: ${fastState.currentAnswer.display}`, false);
+            elements.options.querySelectorAll("button").forEach(btn => {
+              const expected = btn.dataset.combo;
+              if (expected === fastState.currentAnswer.combo) {
+                btn.classList.add("correct");
+              }
+              btn.disabled = true;
+            });
+            endRound(false);
+          }
+        }, 1000);
+      }
+
+      function finishSession() {
+        fastState.active = false;
+        elements.startBtn.disabled = false;
+        elements.startBtn.textContent = "Erneut starten";
+        elements.prompt.textContent = `Ergebnis: ${fastState.correct}/${rounds}`;
+        updateTimerDisplay(timeLimit);
+        resetOptions();
+        elements.root.classList.remove("fast-paced-active");
+        const reward = fastState.correct * COINS_PER_ACTION;
+        if (reward > 0) {
+          state.coins += reward;
+          pendingCoinAnimation = { amount: reward, anchor: elements.startBtn, variant: "gain" };
+          showResult(`Belohnung: +${reward} Coins`, true);
+        } else {
+          showResult("Keine Coins in dieser Runde.", false);
+        }
+        updateUI();
+        updateOverallSummary();
+        recalcStats();
+        saveState();
+      }
+
+      function resetSession() {
+        stopTimer();
+        fastState.active = false;
+        fastState.currentRound = 0;
+        fastState.correct = 0;
+        fastState.awaitingInput = false;
+        fastState.currentAnswer = null;
+        elements.prompt.textContent = "Bereit?";
+        showResult("Klicke auf Start, um zu beginnen.", null);
+        updateTimerDisplay(timeLimit);
+        elements.startBtn.disabled = false;
+        elements.startBtn.textContent = "Training starten";
+        elements.progress.textContent = `0/${rounds}`;
+        resetOptions();
+        elements.root.classList.remove("fast-paced-active");
+      }
+
+      function startSession() {
+        if (fastState.active) return;
+        fastState.active = true;
+        fastState.currentRound = 0;
+        fastState.correct = 0;
+        elements.startBtn.disabled = true;
+        showResult("Schnell reagieren!", null);
+        elements.root.classList.add("fast-paced-active");
+        runNextRound();
+      }
+
+      elements.startBtn.addEventListener("click", () => {
+        resetSession();
+        startSession();
+      });
+
+      resetSession();
+    }
+
     function buildSectionElement(section, sectionId, isActive) {
       const wrapper = document.createElement("div");
       wrapper.className = "section";
@@ -3239,27 +3668,32 @@
           if (field) contentCard.appendChild(field);
         }
       });
+      if (section && section.fastPaced) {
+        appendFastPacedBlock(contentCard, section.fastPaced, sectionId);
+      }
       wrapper.appendChild(contentCard);
 
-      const actionCard = document.createElement("div");
-      actionCard.className = "card action-card";
-      const checkBtn = document.createElement("button");
-      checkBtn.type = "button";
-      checkBtn.className = "check-section";
-      checkBtn.dataset.checkSection = sectionId;
-      checkBtn.textContent = section && section.checkLabel ? section.checkLabel : "Abschnitt prüfen";
-      const resetBtn = document.createElement("button");
-      resetBtn.type = "button";
-      resetBtn.className = "reset-section";
-      resetBtn.dataset.resetSection = sectionId;
-      resetBtn.textContent = section && section.resetLabel ? section.resetLabel : "Zurücksetzen";
-      const result = document.createElement("p");
-      result.className = "small result-text";
-      result.id = `result-${sectionId}`;
-      actionCard.appendChild(checkBtn);
-      actionCard.appendChild(resetBtn);
-      actionCard.appendChild(result);
-      wrapper.appendChild(actionCard);
+      if (!section || section.hideActions !== true) {
+        const actionCard = document.createElement("div");
+        actionCard.className = "card action-card";
+        const checkBtn = document.createElement("button");
+        checkBtn.type = "button";
+        checkBtn.className = "check-section";
+        checkBtn.dataset.checkSection = sectionId;
+        checkBtn.textContent = section && section.checkLabel ? section.checkLabel : "Abschnitt prüfen";
+        const resetBtn = document.createElement("button");
+        resetBtn.type = "button";
+        resetBtn.className = "reset-section";
+        resetBtn.dataset.resetSection = sectionId;
+        resetBtn.textContent = section && section.resetLabel ? section.resetLabel : "Zurücksetzen";
+        const result = document.createElement("p");
+        result.className = "small result-text";
+        result.id = `result-${sectionId}`;
+        actionCard.appendChild(checkBtn);
+        actionCard.appendChild(resetBtn);
+        actionCard.appendChild(result);
+        wrapper.appendChild(actionCard);
+      }
       return wrapper;
     }
 
@@ -3375,6 +3809,7 @@
       setupLearnSectionInteractions();
       bindSectionActionButtons();
       refreshAllInputHints();
+      initFastPacedSections();
     }
 
     initLearnSections();

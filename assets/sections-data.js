@@ -156,6 +156,41 @@
           ]
         }
       ]
+    },
+    {
+      id: "5",
+      tabLabel: "Abschnitt 5",
+      title: "5. Freies Training",
+      description: "Hier entsteht ein neuer Modus. Schau später wieder vorbei.",
+      tasks: [],
+      hideActions: true
+    },
+    {
+      id: "6",
+      tabLabel: "Abschnitt 6",
+      title: "6. Fast Paced Learning",
+      description: "Reagiere innerhalb von 8 Sekunden auf die angezeigte Kombination.",
+      fastPaced: {
+        rounds: 8,
+        timeLimitSeconds: 8,
+        optionsPerRound: 4,
+        combos: [
+          { label: "Kopieren", combo: "Ctrl+C" },
+          { label: "Einfügen", combo: "Ctrl+V" },
+          { label: "Ausschneiden", combo: "Ctrl+X" },
+          { label: "Alles markieren", combo: "Ctrl+A" },
+          { label: "Dokument speichern", combo: "Ctrl+S" },
+          { label: "Rückgängig", combo: "Ctrl+Z" },
+          { label: "Wiederholen", combo: "Ctrl+Y" },
+          { label: "Neuer Tab", combo: "Ctrl+N" },
+          { label: "Suche öffnen", combo: "Ctrl+F" },
+          { label: "Drucken", combo: "Ctrl+P" },
+          { label: "Speichern unter", combo: "Ctrl+Shift+S" },
+          { label: "Dokument öffnen", combo: "Ctrl+O" }
+        ]
+      },
+      tasks: [],
+      hideActions: true
     }
   ];
 
