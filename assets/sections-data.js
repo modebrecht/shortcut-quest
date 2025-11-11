@@ -191,7 +191,217 @@
       },
       tasks: [],
       hideActions: true
+    },
+    {
+      id: "7",
+      tabLabel: "Abschnitt 7",
+      title: "7. Story Modus",
+      description: "Hier entsteht das nächste Szenario.",
+      tasks: [],
+      hideActions: true
+    },
+    {
+      id: "10",
+      tabLabel: "Abschnitt 10",
+      title: "10. Lückentext – Bühne",
+      description: "Szenen rund um Sofias Präsentation.",
+      narrative: {
+        entries: [
+          {
+            scene: "Sofia bereitet ihre Präsentation vor und will die Änderungen sofort sichern.",
+            prompt: "Sofia drückt ____ + ____ um ihr Dokument zu sichern.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Alt", value: "Alt" },
+              { label: "Shift", value: "Shift" },
+              { label: "S", value: "S" },
+              { label: "P", value: "P" },
+              { label: "T", value: "T" }
+            ],
+            answers: ["Ctrl", "S"]
+          },
+          {
+            scene: "Sofia ist an der Reihe und möchte die anderen nicht warten lassen.",
+            prompt: "Sie drückt ____ um die Präsentation sofort zu starten.",
+            missingSlots: 1,
+            options: [
+              { label: "F5", value: "F5" },
+              { label: "Shift+F5", value: "Shift+F5" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Alt", value: "Alt" }
+            ],
+            answers: ["F5"]
+          },
+          {
+            scene: "Die Pause klingelt, Sofia schließt das PowerPoint blitzschnell.",
+            prompt: "Sie beendet das Programm mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Alt", value: "Alt" },
+              { label: "F4", value: "F4" },
+              { label: "Tab", value: "Tab" },
+              { label: "Esc", value: "Esc" },
+              { label: "Shift", value: "Shift" }
+            ],
+            answers: ["Alt", "F4"]
+          }
+        ]
+      },
+      tasks: [],
+      hideActions: true
+    },
+    {
+      id: "11",
+      tabLabel: "Abschnitt 11",
+      title: "11. Lückentext – Fokus",
+      description: "Schneller Wechsel und sofortige Kontrolle.",
+      narrative: {
+        entries: [
+          {
+            scene: "Nach dem Meeting sperrt Sofia ihren Rechner, bevor sie den Raum verlässt.",
+            prompt: "Sie sichert den Bildschirm mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "L", value: "L" },
+              { label: "K", value: "K" },
+              { label: "Alt", value: "Alt" },
+              { label: "P", value: "P" }
+            ],
+            answers: ["Win", "L"]
+          },
+          {
+            scene: "Im Büro muss Jonas rasch zwischen Chat und Terminal wechseln.",
+            prompt: "Er drückt ____ + ____ um die Anwendung zu wechseln.",
+            missingSlots: 2,
+            options: [
+              { label: "Alt", value: "Alt" },
+              { label: "Tab", value: "Tab" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Esc", value: "Esc" },
+              { label: "Win", value: "Win" }
+            ],
+            answers: ["Alt", "Tab"]
+          },
+          {
+            scene: "Sein Browser ist mit Tabs überfüllt, also öffnet er schnell ein privates Fenster.",
+            prompt: "Jonas startet den privaten Modus mit ____ + ____ + ____.",
+            missingSlots: 3,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Shift", value: "Shift" },
+              { label: "N", value: "N" },
+              { label: "T", value: "T" },
+              { label: "P", value: "P" }
+            ],
+            answers: ["Ctrl", "Shift", "N"]
+          }
+        ]
+      },
+      tasks: [],
+      hideActions: true
+    },
+    {
+      id: "12",
+      tabLabel: "Abschnitt 12",
+      title: "12. Lückentext – Produktivität",
+      description: "Beherrsche Emojis, Tools und Mikrofonsteuerung.",
+      narrative: {
+        entries: [
+          {
+            scene: "Kurz vor dem Kundencall merkt Jonas, dass der Bildschirm zu hell ist.",
+            prompt: "Er dunkelt schnell ab mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: ".", value: "." },
+              { label: ",", value: "," },
+              { label: "Alt", value: "Alt" }
+            ],
+            answers: ["Win", "."]
+          },
+          {
+            scene: "Seine Kollegin bittet ihn, die Bildschirm-Tastatur kurz einzublenden.",
+            prompt: "Er öffnet sie mit ____ + ____ + ____.",
+            missingSlots: 3,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "O", value: "O" },
+              { label: "Shift", value: "Shift" },
+              { label: "K", value: "K" }
+            ],
+            answers: ["Win", "Ctrl", "O"]
+          },
+          {
+            scene: "Während des Daily-Standups muss Jonas sein Mikro sofort muten.",
+            prompt: "Er nutzt ____ + ____ + ____ um das Mikro zu steuern.",
+            missingSlots: 3,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Shift", value: "Shift" },
+              { label: "M", value: "M" },
+              { label: "Alt", value: "Alt" },
+              { label: "V", value: "V" }
+            ],
+            answers: ["Ctrl", "Shift", "M"]
+          }
+        ]
+      },
+      tasks: [],
+      hideActions: true
+    },
+    {
+      id: "13",
+      tabLabel: "Abschnitt 13",
+      title: "13. Lückentext – Kontrolle",
+      description: "Fenster arrangieren und Tools sofort öffnen.",
+      narrative: {
+        entries: [
+          {
+            scene: "Nach Feierabend sichert Jonas seinen Rechner im Vorbeigehen.",
+            prompt: "Der Bildschirm wird gesperrt mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "L", value: "L" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "S", value: "S" },
+              { label: "Q", value: "Q" }
+            ],
+            answers: ["Win", "L"]
+          },
+          {
+            scene: "Er möchte zwei Fenster nebeneinander platzieren, um Zahlen zu vergleichen.",
+            prompt: "Jonas dockt das aktuelle Fenster mit ____ + ____ an die linke Seite.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Left", value: "Left" },
+              { label: "Right", value: "Right" },
+              { label: "Up", value: "Up" }
+            ],
+            answers: ["Win", "Left"]
+          },
+          {
+            scene: "Eine App hängt komplett, also ruft er den Task-Manager auf.",
+            prompt: "Er öffnet ihn mit ____ + ____ + ____.",
+            missingSlots: 3,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Shift", value: "Shift" },
+              { label: "Esc", value: "Esc" },
+              { label: "Alt", value: "Alt" }
+            ],
+            answers: ["Ctrl", "Shift", "Esc"]
+          }
+        ]
+      },
+      tasks: [],
+      hideActions: true
     }
+
   ];
 
   global.LEARN_SECTION_BLUEPRINTS = sections;

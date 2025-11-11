@@ -462,6 +462,85 @@
       font-weight: 700;
       box-shadow: 0 10px 20px rgba(245,158,11,0.25);
     }
+    .narrative-card {
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 1.4rem;
+      padding: 1.8rem;
+      margin-top: 1.2rem;
+      background: linear-gradient(150deg, rgba(15,23,42,0.85), rgba(30,41,59,0.9));
+      box-shadow: 0 20px 30px rgba(8,15,30,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-items: center;
+      text-align: center;
+    }
+    .narrative-scene {
+      max-width: 560px;
+    }
+    .narrative-prompt {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .narrative-blanks {
+      display: inline-flex;
+      gap: 0.6rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .narrative-blank {
+      min-width: 42px;
+      border-bottom: 2.5px solid rgba(248,250,252,0.7);
+      text-align: center;
+      padding: 0.3rem 0.5rem;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .narrative-blank.active {
+      border-bottom-color: rgba(245,158,11,0.9);
+      color: var(--accent);
+    }
+    .narrative-blank.correct {
+      border-bottom-color: rgba(34,197,94,0.85);
+      color: var(--good);
+    }
+    .narrative-blank.incorrect {
+      border-bottom-color: rgba(248,113,113,0.85);
+      color: var(--bad);
+    }
+    .narrative-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      max-width: 600px;
+    }
+    .narrative-option {
+      padding: 0.55rem 1.2rem;
+      border-radius: 1.1rem;
+      border: none;
+      background: rgba(248,248,255,0.98);
+      color: #1f2937;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 14px rgba(15,23,42,0.35);
+    }
+    .narrative-fly {
+      position: fixed;
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      background: rgba(248,248,255,0.95);
+      color: #1f2937;
+      font-weight: 700;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: left 0.35s ease, top 0.35s ease, transform 0.35s ease, opacity 0.35s ease;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.4);
+      z-index: 999;
+      opacity: 1;
+    }
     #overviewCard { margin-top: 0.5rem; }
     .hero-wrapper {
       display: flex;
@@ -3155,6 +3234,7 @@
     let allCheckables = [];
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
     const fastPacedSections = [];
+    const narrativeSectionStates = new Map();
     const inputHintRegistry = new Set();
 
     function resolveSectionId(section, fallbackIndex) {
@@ -3325,6 +3405,25 @@
       container.appendChild(targetsWrap);
     }
 
+    function animateNarrativeOptionFly(source, target) {
+      if (!source || !target || typeof document === "undefined") return;
+      const sourceRect = source.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const ghost = document.createElement("span");
+      ghost.className = "narrative-fly";
+      ghost.textContent = source.textContent;
+      ghost.style.left = `${sourceRect.left + sourceRect.width / 2}px`;
+      ghost.style.top = `${sourceRect.top + sourceRect.height / 2}px`;
+      document.body.appendChild(ghost);
+      requestAnimationFrame(() => {
+        ghost.style.left = `${targetRect.left + targetRect.width / 2}px`;
+        ghost.style.top = `${targetRect.top + targetRect.height / 2}px`;
+        ghost.style.transform = "translate(-50%, -50%) scale(0.85)";
+        ghost.style.opacity = "0.15";
+      });
+      ghost.addEventListener("transitionend", () => ghost.remove(), { once: true });
+    }
+
     function appendFastPacedBlock(container, config, sectionId) {
       if (!config || !Array.isArray(config.combos) || !config.combos.length) return;
       const block = document.createElement("div");
@@ -3441,6 +3540,109 @@
       const clamped = Math.max(0, Math.min(1, fraction || 0));
       const rotation = 360 * clamped;
       entryElements.hourglass.style.transform = `rotate(${rotation}deg)`;
+    }
+
+    function getNarrativeState(sectionId) {
+      if (!narrativeSectionStates.has(sectionId)) {
+        narrativeSectionStates.set(sectionId, { blanks: [] });
+      }
+      return narrativeSectionStates.get(sectionId);
+    }
+
+    function maybeAutoGradeNarrative(sectionId) {
+      const state = narrativeSectionStates.get(sectionId);
+      if (!state || !Array.isArray(state.blanks) || !state.blanks.length) return;
+      const filled = state.blanks.every(blank => (blank.dataset.value || "").trim());
+      if (!filled) return;
+      const correct = state.blanks.every(blank => (blank.dataset.value || "").trim().toLowerCase() === (blank.dataset.answer || "").trim().toLowerCase());
+      if (correct) {
+        setTimeout(() => gradeSection(sectionId), 350);
+      }
+    }
+
+    function appendNarrativeBlock(container, story, sectionId) {
+      if (!story) return;
+      const entries = Array.isArray(story.entries) && story.entries.length ? story.entries : [story];
+      entries.forEach(entry => {
+        if (!entry || !Array.isArray(entry.options) || !Array.isArray(entry.answers)) return;
+        const card = document.createElement("div");
+        card.className = "narrative-card";
+        const scene = document.createElement("p");
+        scene.className = "narrative-scene narrative-prompt";
+        scene.textContent = entry.scene || story.scene || "";
+        const prompt = document.createElement("div");
+        prompt.className = "narrative-prompt";
+        const sentenceWrapper = document.createElement("div");
+        sentenceWrapper.className = "narrative-blanks";
+        const answers = Array.isArray(entry.answers) ? entry.answers : [];
+        const slots = Math.max(1, entry.missingSlots || answers.length || 1);
+        const blankNodes = [];
+        const sectionState = getNarrativeState(sectionId);
+        if (!Array.isArray(sectionState.blanks)) sectionState.blanks = [];
+        let selectedBlank = null;
+        let blankIndex = 0;
+        function createBlank() {
+          const span = document.createElement("span");
+          span.className = "narrative-blank";
+          span.dataset.index = blankIndex;
+          span.dataset.answer = answers[blankIndex] || "";
+          span.dataset.value = "";
+          span.dataset.filled = "false";
+          span.addEventListener("click", () => {
+            blankNodes.forEach(b => b.classList.remove("active"));
+            if (span.dataset.filled === "true") {
+              span.textContent = "";
+              span.dataset.value = "";
+              span.dataset.filled = "false";
+            }
+            span.classList.add("active");
+            selectedBlank = span;
+          });
+          blankNodes.push(span);
+          sectionState.blanks.push(span);
+          blankIndex += 1;
+          return span;
+        }
+        const sentenceParts = String(entry.prompt || story.prompt || "").split(/(__+)/);
+        sentenceParts.forEach(part => {
+          if (/^__+$/.test(part)) {
+            sentenceWrapper.appendChild(createBlank());
+          } else if (part) {
+            const textNode = document.createElement("span");
+            textNode.textContent = part;
+            sentenceWrapper.appendChild(textNode);
+          }
+        });
+        while (blankNodes.length < slots) {
+          sentenceWrapper.appendChild(createBlank());
+        }
+        prompt.appendChild(sentenceWrapper);
+        const optionsRow = document.createElement("div");
+        optionsRow.className = "narrative-options";
+        shuffleArray(entry.options || []).forEach(option => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "narrative-option";
+          btn.textContent = option.label || option.value || option;
+          btn.dataset.value = option.value || option.label || option;
+          btn.addEventListener("click", () => {
+          const targetBlank = (selectedBlank && selectedBlank.dataset) ? selectedBlank : blankNodes.find(blank => blank.dataset.filled !== "true");
+          if (!targetBlank) return;
+            animateNarrativeOptionFly(btn, targetBlank);
+            targetBlank.textContent = btn.textContent;
+            targetBlank.dataset.value = btn.dataset.value;
+            targetBlank.dataset.filled = "true";
+            blankNodes.forEach(b => b.classList.remove("active"));
+            selectedBlank = null;
+            maybeAutoGradeNarrative(sectionId);
+          });
+          optionsRow.appendChild(btn);
+        });
+        card.appendChild(scene);
+        card.appendChild(prompt);
+        card.appendChild(optionsRow);
+        container.appendChild(card);
+      });
     }
 
     function initFastPacedSections() {
@@ -3673,6 +3875,8 @@
       });
       if (section && section.fastPaced) {
         appendFastPacedBlock(contentCard, section.fastPaced, sectionId);
+      } else if (section && section.narrative) {
+        appendNarrativeBlock(contentCard, section.narrative, sectionId);
       }
       wrapper.appendChild(contentCard);
 
@@ -5800,6 +6004,8 @@
           slotRef = field.querySelector(".drop-slot");
           if (slotRef) slotRef.classList.remove("correct", "incorrect");
           userValue = slotRef ? (slotRef.dataset.value || slotRef.textContent || "").trim() : "";
+        } else if (field.classList.contains("narrative-blank")) {
+          userValue = (field.dataset.value || field.textContent || "").trim();
         } else if (field.tagName === "SELECT") {
           userValue = field.value.trim();
         } else if (field.tagName === "INPUT") {
@@ -5876,6 +6082,11 @@
             delete slot.dataset.value;
             slot.classList.remove("correct", "incorrect");
           }
+        } else if (field.classList.contains("narrative-blank")) {
+          field.textContent = "";
+          field.dataset.value = "";
+          field.dataset.filled = "false";
+          field.classList.remove("active");
         }
       });
       reshuffleDndSection(section);
