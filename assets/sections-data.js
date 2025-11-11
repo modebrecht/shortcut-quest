@@ -162,8 +162,7 @@
       tabLabel: "Abschnitt 5",
       title: "5. Freies Training",
       description: "Hier entsteht ein neuer Modus. Schau später wieder vorbei.",
-      tasks: [],
-      hideActions: true
+      tasks: []
     },
     {
       id: "6",
@@ -197,15 +196,15 @@
       tabLabel: "Abschnitt 7",
       title: "7. Story Modus",
       description: "Hier entsteht das nächste Szenario.",
-      tasks: [],
-      hideActions: true
+      tasks: []
     },
     {
-      id: "10",
-      tabLabel: "Abschnitt 10",
-      title: "10. Lückentext – Bühne",
+      id: "8",
+      tabLabel: "Abschnitt 8",
+      title: "8. Lückentext – Bühne",
       description: "Szenen rund um Sofias Präsentation.",
       narrative: {
+        autoCheck: false,
         entries: [
           {
             scene: "Sofia bereitet ihre Präsentation vor und will die Änderungen sofort sichern.",
@@ -222,7 +221,7 @@
             answers: ["Ctrl", "S"]
           },
           {
-            scene: "Sofia ist an der Reihe und möchte die anderen nicht warten lassen.",
+            scene: "Sofia ist an der Reihe mit Präsentieren und möchte die anderen nicht warten lassen.",
             prompt: "Sie drückt ____ um die Präsentation sofort zu starten.",
             missingSlots: 1,
             options: [
@@ -248,15 +247,15 @@
           }
         ]
       },
-      tasks: [],
-      hideActions: true
+      tasks: []
     },
     {
-      id: "11",
-      tabLabel: "Abschnitt 11",
-      title: "11. Lückentext – Fokus",
+      id: "9",
+      tabLabel: "Abschnitt 9",
+      title: "9. Lückentext – Fokus",
       description: "Schneller Wechsel und sofortige Kontrolle.",
       narrative: {
+        autoCheck: false,
         entries: [
           {
             scene: "Nach dem Meeting sperrt Sofia ihren Rechner, bevor sie den Raum verlässt.",
@@ -299,15 +298,15 @@
           }
         ]
       },
-      tasks: [],
-      hideActions: true
+      tasks: []
     },
     {
-      id: "12",
-      tabLabel: "Abschnitt 12",
-      title: "12. Lückentext – Produktivität",
+      id: "10",
+      tabLabel: "Abschnitt 10",
+      title: "10. Lückentext – Produktivität",
       description: "Beherrsche Emojis, Tools und Mikrofonsteuerung.",
       narrative: {
+        autoCheck: false,
         entries: [
           {
             scene: "Kurz vor dem Kundencall merkt Jonas, dass der Bildschirm zu hell ist.",
@@ -349,15 +348,15 @@
           }
         ]
       },
-      tasks: [],
-      hideActions: true
+      tasks: []
     },
     {
-      id: "13",
-      tabLabel: "Abschnitt 13",
-      title: "13. Lückentext – Kontrolle",
+      id: "11",
+      tabLabel: "Abschnitt 11",
+      title: "11. Lückentext – Kontrolle",
       description: "Fenster arrangieren und Tools sofort öffnen.",
       narrative: {
+        autoCheck: false,
         entries: [
           {
             scene: "Nach Feierabend sichert Jonas seinen Rechner im Vorbeigehen.",
@@ -398,8 +397,7 @@
           }
         ]
       },
-      tasks: [],
-      hideActions: true
+      tasks: []
     }
 
   ];

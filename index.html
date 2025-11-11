@@ -3234,7 +3234,6 @@
     let allCheckables = [];
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
     const fastPacedSections = [];
-    const narrativeSectionStates = new Map();
     const inputHintRegistry = new Set();
 
     function resolveSectionId(section, fallbackIndex) {
@@ -3542,24 +3541,6 @@
       entryElements.hourglass.style.transform = `rotate(${rotation}deg)`;
     }
 
-    function getNarrativeState(sectionId) {
-      if (!narrativeSectionStates.has(sectionId)) {
-        narrativeSectionStates.set(sectionId, { blanks: [] });
-      }
-      return narrativeSectionStates.get(sectionId);
-    }
-
-    function maybeAutoGradeNarrative(sectionId) {
-      const state = narrativeSectionStates.get(sectionId);
-      if (!state || !Array.isArray(state.blanks) || !state.blanks.length) return;
-      const filled = state.blanks.every(blank => (blank.dataset.value || "").trim());
-      if (!filled) return;
-      const correct = state.blanks.every(blank => (blank.dataset.value || "").trim().toLowerCase() === (blank.dataset.answer || "").trim().toLowerCase());
-      if (correct) {
-        setTimeout(() => gradeSection(sectionId), 350);
-      }
-    }
-
     function appendNarrativeBlock(container, story, sectionId) {
       if (!story) return;
       const entries = Array.isArray(story.entries) && story.entries.length ? story.entries : [story];
@@ -3577,8 +3558,6 @@
         const answers = Array.isArray(entry.answers) ? entry.answers : [];
         const slots = Math.max(1, entry.missingSlots || answers.length || 1);
         const blankNodes = [];
-        const sectionState = getNarrativeState(sectionId);
-        if (!Array.isArray(sectionState.blanks)) sectionState.blanks = [];
         let selectedBlank = null;
         let blankIndex = 0;
         function createBlank() {
@@ -3599,7 +3578,6 @@
             selectedBlank = span;
           });
           blankNodes.push(span);
-          sectionState.blanks.push(span);
           blankIndex += 1;
           return span;
         }
@@ -3626,15 +3604,14 @@
           btn.textContent = option.label || option.value || option;
           btn.dataset.value = option.value || option.label || option;
           btn.addEventListener("click", () => {
-          const targetBlank = (selectedBlank && selectedBlank.dataset) ? selectedBlank : blankNodes.find(blank => blank.dataset.filled !== "true");
-          if (!targetBlank) return;
+            const targetBlank = (selectedBlank && selectedBlank.dataset) ? selectedBlank : blankNodes.find(blank => blank.dataset.filled !== "true");
+            if (!targetBlank) return;
             animateNarrativeOptionFly(btn, targetBlank);
             targetBlank.textContent = btn.textContent;
             targetBlank.dataset.value = btn.dataset.value;
             targetBlank.dataset.filled = "true";
             blankNodes.forEach(b => b.classList.remove("active"));
             selectedBlank = null;
-            maybeAutoGradeNarrative(sectionId);
           });
           optionsRow.appendChild(btn);
         });
