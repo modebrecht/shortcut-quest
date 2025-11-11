@@ -201,7 +201,28 @@
     {
       id: "8",
       tabLabel: "Abschnitt 8",
-      title: "8. Lückentext – Bühne",
+      title: "8. Coming Soon",
+      description: "Hier entsteht ein neues Kapitel. Bald gibt es mehr Übungen.",
+      tasks: []
+    },
+    {
+      id: "9",
+      tabLabel: "Abschnitt 9",
+      title: "9. Coming Soon",
+      description: "Dieser Bereich ist in Vorbereitung. Schau bald wieder vorbei.",
+      tasks: []
+    },
+    {
+      id: "10",
+      tabLabel: "Abschnitt 10",
+      title: "10. Coming Soon",
+      description: "Noch in Arbeit. Hier warten bald neue Challenges.",
+      tasks: []
+    },
+    {
+      id: "11",
+      tabLabel: "Abschnitt 11",
+      title: "11. Lückentext – Bühne",
       description: "Szenen rund um Sofias Präsentation.",
       narrative: {
         autoCheck: false,
@@ -250,9 +271,9 @@
       tasks: []
     },
     {
-      id: "9",
-      tabLabel: "Abschnitt 9",
-      title: "9. Lückentext – Fokus",
+      id: "12",
+      tabLabel: "Abschnitt 12",
+      title: "12. Lückentext – Fokus",
       description: "Schneller Wechsel und sofortige Kontrolle.",
       narrative: {
         autoCheck: false,
@@ -301,9 +322,9 @@
       tasks: []
     },
     {
-      id: "10",
-      tabLabel: "Abschnitt 10",
-      title: "10. Lückentext – Produktivität",
+      id: "13",
+      tabLabel: "Abschnitt 13",
+      title: "13. Lückentext – Produktivität",
       description: "Beherrsche Emojis, Tools und Mikrofonsteuerung.",
       narrative: {
         autoCheck: false,
@@ -351,9 +372,9 @@
       tasks: []
     },
     {
-      id: "11",
-      tabLabel: "Abschnitt 11",
-      title: "11. Lückentext – Kontrolle",
+      id: "14",
+      tabLabel: "Abschnitt 14",
+      title: "14. Lückentext – Kontrolle",
       description: "Fenster arrangieren und Tools sofort öffnen.",
       narrative: {
         autoCheck: false,
