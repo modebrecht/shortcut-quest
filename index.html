@@ -377,27 +377,11 @@
       stroke-width: 1.6;
       fill: none;
       transform-origin: 50% 50%;
+      transition: transform 0.35s ease;
     }
     .fast-paced-hourglass .hourglass-sand {
-      fill: rgba(245,158,11,0.65);
+      fill: rgba(245,158,11,0.75);
       stroke: none;
-    }
-    .fast-paced-active .fast-paced-hourglass {
-      animation: fastHourglassSpin 12s linear infinite;
-    }
-    .fast-paced-active .fast-paced-hourglass .hourglass-sand {
-      animation: fastHourglassPulse 3s ease-in-out infinite;
-    }
-    @keyframes fastHourglassSpin {
-      0% { transform: rotate(0deg); }
-      49% { transform: rotate(0deg); }
-      50% { transform: rotate(180deg); }
-      99% { transform: rotate(180deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes fastHourglassPulse {
-      0%,100% { opacity: 0.6; }
-      50% { opacity: 1; }
     }
     .fast-paced-prompt {
       font-size: 1.6rem;
@@ -3398,7 +3382,8 @@
           options,
           startBtn,
           progress,
-          result
+          result,
+          hourglass: hourglassIcon
         }
       });
     }
@@ -3451,6 +3436,13 @@
       return shuffleArray(filtered).slice(0, Math.max(0, count));
     }
 
+    function setHourglassProgress(entryElements, fraction) {
+      if (!entryElements || !entryElements.hourglass) return;
+      const clamped = Math.max(0, Math.min(1, fraction || 0));
+      const rotation = 360 * clamped;
+      entryElements.hourglass.style.transform = `rotate(${rotation}deg)`;
+    }
+
     function initFastPacedSections() {
       fastPacedSections.forEach(registerFastPacedController);
     }
@@ -3478,6 +3470,10 @@
 
       function resetOptions() {
         elements.options.innerHTML = "";
+      }
+
+      function updateHourglass(fraction) {
+        setHourglassProgress(elements, fraction);
       }
 
       function updateTimerDisplay(value) {
@@ -3538,6 +3534,7 @@
           elements.options.querySelectorAll("button").forEach(btn => btn.disabled = true);
           showResult("Richtig!", true);
         }
+        updateHourglass(1);
         endRound(success);
       }
 
@@ -3564,10 +3561,13 @@
         });
         updateProgress();
         updateTimerDisplay(fastState.remaining);
+        updateHourglass(0);
         stopTimer();
         fastState.timerId = setInterval(() => {
           fastState.remaining -= 1;
           updateTimerDisplay(fastState.remaining);
+          const elapsed = timeLimit - fastState.remaining;
+          updateHourglass(Math.min(1, Math.max(0, elapsed / timeLimit)));
           if (fastState.remaining <= 0) {
             stopTimer();
             showResult(`Zu langsam – gesucht: ${fastState.currentAnswer.display}`, false);
@@ -3578,6 +3578,7 @@
               }
               btn.disabled = true;
             });
+            updateHourglass(1);
             endRound(false);
           }
         }, 1000);
@@ -3591,6 +3592,7 @@
         updateTimerDisplay(timeLimit);
         resetOptions();
         elements.root.classList.remove("fast-paced-active");
+        updateHourglass(1);
         const reward = fastState.correct * COINS_PER_ACTION;
         if (reward > 0) {
           state.coins += reward;
@@ -3620,6 +3622,7 @@
         elements.progress.textContent = `0/${rounds}`;
         resetOptions();
         elements.root.classList.remove("fast-paced-active");
+        updateHourglass(0);
       }
 
       function startSession() {
