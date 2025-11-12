@@ -545,6 +545,92 @@
       z-index: 999;
       opacity: 1;
     }
+    .combo-builder {
+      margin-top: 1.2rem;
+      border: 1px dashed var(--border);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      background: rgba(15,23,42,0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .combo-builder h3 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .combo-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .combo-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 1rem;
+      padding: 0.9rem 1.1rem;
+      background: rgba(15,23,42,0.5);
+    }
+    .combo-prompt {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .combo-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .combo-text {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .combo-slots {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .combo-plus {
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .combo-slot select {
+      min-width: 90px;
+      padding: 0.5rem 0.7rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.35);
+      color: var(--text);
+      font-weight: 600;
+      text-transform: none;
+    }
+    .combo-slot select.correct {
+      border-color: var(--good);
+      background: var(--good-soft);
+      color: var(--good);
+    }
+    .combo-slot select.incorrect {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+      color: var(--bad);
+    }
+    @media (min-width: 720px) {
+      .combo-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .combo-prompt {
+        flex: 1 1 45%;
+      }
+      .combo-slots {
+        flex: 1 1 55%;
+        justify-content: flex-end;
+      }
+    }
     #overviewCard { margin-top: 0.5rem; }
     .hero-wrapper {
       display: flex;
@@ -3856,8 +3942,12 @@
       });
       if (section && section.fastPaced) {
         appendFastPacedBlock(contentCard, section.fastPaced, sectionId);
-      } else if (section && section.narrative) {
+      }
+      if (section && section.narrative) {
         appendNarrativeBlock(contentCard, section.narrative, sectionId);
+      }
+      if (section && section.comboBuilder) {
+        appendComboBuilderBlock(contentCard, section.comboBuilder, sectionId);
       }
       wrapper.appendChild(contentCard);
 
@@ -3990,6 +4080,110 @@
           resetSection(btn.dataset.resetSection);
         });
       });
+    }
+
+    function normalizeComboOption(entry) {
+      if (!entry) return null;
+      if (typeof entry === "string") {
+        return { value: entry, label: entry };
+      }
+      if (typeof entry === "object") {
+        const value = entry.value || entry.label || "";
+        if (!value) return null;
+        return { value, label: entry.label || entry.value };
+      }
+      return null;
+    }
+
+    function buildComboOptionList(source, answers) {
+      const list = [];
+      const seen = new Set();
+      const push = meta => {
+        if (!meta || !meta.value || seen.has(meta.value)) return;
+        seen.add(meta.value);
+        list.push(meta);
+      };
+      (Array.isArray(source) ? source : []).forEach(entry => push(normalizeComboOption(entry)));
+      (Array.isArray(answers) ? answers : []).forEach(entry => push(normalizeComboOption(entry)));
+      return list;
+    }
+
+    function appendComboBuilderBlock(container, config, sectionId) {
+      if (!config) return;
+      const combos = Array.isArray(config.combos) ? config.combos : [];
+      if (!combos.length) return;
+      const block = document.createElement("div");
+      block.className = "combo-builder";
+      const heading = document.createElement("h3");
+      heading.textContent = config.title || "Combo Builder";
+      block.appendChild(heading);
+      if (config.instructions) {
+        const info = document.createElement("p");
+        info.className = "small";
+        info.textContent = config.instructions;
+        block.appendChild(info);
+      }
+      const rows = document.createElement("div");
+      rows.className = "combo-rows";
+      combos.forEach((combo, comboIndex) => {
+        if (!combo) return;
+        const row = document.createElement("div");
+        row.className = "combo-row";
+        const promptWrap = document.createElement("div");
+        promptWrap.className = "combo-prompt";
+        if (combo.title) {
+          const comboTitle = document.createElement("div");
+          comboTitle.className = "combo-title";
+          comboTitle.textContent = combo.title;
+          promptWrap.appendChild(comboTitle);
+        }
+        if (combo.prompt) {
+          const comboText = document.createElement("p");
+          comboText.className = "combo-text";
+          comboText.textContent = combo.prompt;
+          promptWrap.appendChild(comboText);
+        }
+        const slotsWrap = document.createElement("div");
+        slotsWrap.className = "combo-slots";
+        const answers = Array.isArray(combo.answers) ? combo.answers : [];
+        const optionPool = buildComboOptionList(
+          Array.isArray(combo.options) && combo.options.length ? combo.options :
+          (Array.isArray(config.defaultOptions) ? config.defaultOptions : []),
+          answers
+        );
+        answers.forEach((answer, slotIndex) => {
+          if (slotIndex > 0) {
+            const plus = document.createElement("span");
+            plus.className = "combo-plus";
+            plus.textContent = "+";
+            slotsWrap.appendChild(plus);
+          }
+          const slot = document.createElement("div");
+          slot.className = "combo-slot";
+          const select = document.createElement("select");
+          const answerMeta = normalizeComboOption(answer);
+          select.dataset.answer = answerMeta ? answerMeta.value : (typeof answer === "string" ? answer : "");
+          select.dataset.comboSlot = `${sectionId}-${comboIndex}-${slotIndex}`;
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "auswählen";
+          placeholder.selected = true;
+          select.appendChild(placeholder);
+          optionPool.forEach(optionMeta => {
+            const opt = document.createElement("option");
+            opt.value = optionMeta.value;
+            opt.textContent = optionMeta.label;
+            select.appendChild(opt);
+          });
+          slot.appendChild(select);
+          slotsWrap.appendChild(slot);
+        });
+        row.appendChild(promptWrap);
+        row.appendChild(slotsWrap);
+        rows.appendChild(row);
+      });
+      block.appendChild(rows);
+      container.appendChild(block);
     }
 
     function initLearnSections() {

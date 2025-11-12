@@ -419,6 +419,64 @@
         ]
       },
       tasks: []
+    },
+    {
+      id: "21",
+      tabLabel: "Abschnitt 21",
+      title: "21. Combo Builder",
+      description: "Baue komplette Tastenkombinationen aus einzelnen Tastenbausteinen.",
+      comboBuilder: {
+        title: "Combo Builder",
+        instructions: "Wähle für jede Aufgabe die richtigen Tasten in der richtigen Reihenfolge. Jede Auswahl repräsentiert einen Teil der Combo.",
+        defaultOptions: ["Ctrl", "Shift", "Win", "Esc", "D", "S"],
+        combos: [
+          {
+            title: "Task-Manager-Notfall",
+            prompt: "Eine App reagiert nicht mehr – welche Combo öffnet sofort den Task-Manager?",
+            answers: ["Ctrl", "Shift", "Esc"]
+          },
+          {
+            title: "Screenshot-Sniper",
+            prompt: "Du willst nur einen Ausschnitt des Bildschirms speichern.",
+            answers: ["Win", "Shift", "S"]
+          },
+          {
+            title: "Sofort sperren",
+            prompt: "Schütze den Arbeitsplatz schnell – welche Combo sperrt den Bildschirm?",
+            answers: ["Win", "L"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "22",
+      tabLabel: "Abschnitt 22",
+      title: "22. Combo Builder – Fokus",
+      description: "Weitere Kombos in kleineren Häppchen trainieren.",
+      comboBuilder: {
+        title: "Combo Builder",
+        instructions: "Wähle für jede Aufgabe die richtigen Tasten in der richtigen Reihenfolge. Jede Auswahl repräsentiert einen Teil der Combo.",
+        defaultOptions: ["Ctrl", "Shift", "Win", ".", "Z", "N"],
+        combos: [
+          {
+            title: "Emoji Express",
+            prompt: "Öffne das Emoji-Panel, um Reaktionen einzufügen.",
+            answers: ["Win", "."]
+          },
+          {
+            title: "Snap Layout Studio",
+            prompt: "Starte die Windows-Snap-Layouts, um Fenster perfekt auszurichten.",
+            answers: ["Win", "Z"]
+          },
+          {
+            title: "Privacy Booster",
+            prompt: "Schalte im Browser sofort in ein privates Fenster.",
+            answers: ["Ctrl", "Shift", "N"]
+          }
+        ]
+      },
+      tasks: []
     }
 
   ];
