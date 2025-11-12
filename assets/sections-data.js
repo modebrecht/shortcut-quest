@@ -134,7 +134,35 @@
     {
       id: "4",
       tabLabel: "Abschnitt 4",
-      title: "4. Drag und Drop – Basics",
+      title: "4. Coming Soon",
+      description: "Hier entsteht ein neues Kapitel. Bald gibt es mehr Übungen.",
+      tasks: []
+    },
+    {
+      id: "5",
+      tabLabel: "Abschnitt 5",
+      title: "5. Coming Soon",
+      description: "Dieser Bereich ist in Vorbereitung. Schau bald wieder vorbei.",
+      tasks: []
+    },
+    {
+      id: "6",
+      tabLabel: "Abschnitt 6",
+      title: "6. Coming Soon",
+      description: "Noch in Arbeit. Hier warten bald neue Challenges.",
+      tasks: []
+    },
+    {
+      id: "7",
+      tabLabel: "Abschnitt 7",
+      title: "7. Story Modus",
+      description: "Hier entsteht das nächste Szenario.",
+      tasks: []
+    },
+    {
+      id: "8",
+      tabLabel: "Abschnitt 8",
+      title: "8. Drag und Drop – Basics",
       description: "Ziehe die Grundkürzel auf die passende Beschreibung.",
       tasks: [
         {
@@ -154,9 +182,9 @@
       ]
     },
     {
-      id: "5",
-      tabLabel: "Abschnitt 5",
-      title: "5. Drag und Drop – Aufbau",
+      id: "9",
+      tabLabel: "Abschnitt 9",
+      title: "9. Drag und Drop – Aufbau",
       description: "Zweite Runde Drag und Drop mit weiteren Kürzeln.",
       tasks: [
         {
@@ -176,9 +204,9 @@
       ]
     },
     {
-      id: "6",
-      tabLabel: "Abschnitt 6",
-      title: "6. Fast Paced Learning",
+      id: "10",
+      tabLabel: "Abschnitt 10",
+      title: "10. Fast Paced Learning",
       description: "Reagiere innerhalb von 8 Sekunden auf die angezeigte Kombination.",
       fastPaced: {
         rounds: 8,
@@ -201,34 +229,6 @@
       },
       tasks: [],
       hideActions: true
-    },
-    {
-      id: "7",
-      tabLabel: "Abschnitt 7",
-      title: "7. Story Modus",
-      description: "Hier entsteht das nächste Szenario.",
-      tasks: []
-    },
-    {
-      id: "8",
-      tabLabel: "Abschnitt 8",
-      title: "8. Coming Soon",
-      description: "Hier entsteht ein neues Kapitel. Bald gibt es mehr Übungen.",
-      tasks: []
-    },
-    {
-      id: "9",
-      tabLabel: "Abschnitt 9",
-      title: "9. Coming Soon",
-      description: "Dieser Bereich ist in Vorbereitung. Schau bald wieder vorbei.",
-      tasks: []
-    },
-    {
-      id: "10",
-      tabLabel: "Abschnitt 10",
-      title: "10. Coming Soon",
-      description: "Noch in Arbeit. Hier warten bald neue Challenges.",
-      tasks: []
     },
     {
       id: "11",
