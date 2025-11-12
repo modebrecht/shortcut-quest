@@ -119,17 +119,8 @@
       id: "3",
       tabLabel: "Abschnitt 3",
       title: "3. Windows Navigation",
-      description: "Gib Tastenkombinationen mit der Win-Taste ein.",
-      tasks: [
-        { type: "input", prompt: "17. Desktop anzeigen", answer: "Win+D", hint: "Win+D" },
-        { type: "input", prompt: "18. Einstellungen öffnen", answer: "Win+I", hint: "Win+I" },
-        { type: "input", prompt: "19. Explorer starten", answer: "Win+E", hint: "Win+E" },
-        { type: "input", prompt: "20. Task-Ansicht", answer: "Win+Tab", hint: "Win+Tab" },
-        { type: "input", prompt: "21. Fenster fix nach links", answer: "Win+Left", hint: "Win+Left" },
-        { type: "input", prompt: "22. Fenster fix nach rechts", answer: "Win+Right", hint: "Win+Right" },
-        { type: "input", prompt: "23. Schnellmenü", answer: "Win+X", hint: "Win+X" },
-        { type: "input", prompt: "24. Ausführen öffnen", answer: "Win+R", hint: "Win+R" }
-      ]
+      description: "Dieser Abschnitt zieht um – die Aufgaben findest du jetzt in Abschnitt 13 und 15.",
+      tasks: []
     },
     {
       id: "4",
@@ -335,7 +326,63 @@
     {
       id: "13",
       tabLabel: "Abschnitt 13",
-      title: "13. Lückentext – Produktivität",
+      title: "13. Windows Navigation – Basics",
+      description: "Gib Tastenkombinationen mit der Win-Taste ein.",
+      tasks: [
+        { type: "input", prompt: "17. Desktop anzeigen", answer: "Win+D", hint: "Win+D" },
+        { type: "input", prompt: "18. Einstellungen öffnen", answer: "Win+I", hint: "Win+I" },
+        { type: "input", prompt: "19. Explorer starten", answer: "Win+E", hint: "Win+E" },
+        { type: "input", prompt: "20. Task-Ansicht", answer: "Win+Tab", hint: "Win+Tab" }
+      ]
+    },
+    {
+      id: "14",
+      tabLabel: "Abschnitt 14",
+      title: "14. Windows Picks",
+      description: "Wähle das passende Windows-Tastenkürzel.",
+      tasks: [
+        {
+          type: "select",
+          prompt: "25. Zwischenablage-Verlauf öffnen",
+          answer: "Win+V",
+          options: ["Win+Shift+V", "Win+Alt+V", "Win+V", "Win+C", "Win+B"]
+        },
+        {
+          type: "select",
+          prompt: "26. Emoji-Panel anzeigen",
+          answer: "Win+.",
+          options: ["Win+,", "Win+Ctrl+.", "Win+.", "Win+Shift+;", "Win+E"]
+        },
+        {
+          type: "select",
+          prompt: "27. Explorer öffnen",
+          answer: "Win+E",
+          options: ["Win+Shift+E", "Win+Alt+E", "Win+E", "Win+C", "Win+Ctrl+E"]
+        },
+        {
+          type: "select",
+          prompt: "28. Desktop anzeigen",
+          answer: "Win+D",
+          options: ["Win+Ctrl+D", "Win+Shift+D", "Win+Alt+D", "Win+D", "Win+Home"]
+        }
+      ]
+    },
+    {
+      id: "15",
+      tabLabel: "Abschnitt 15",
+      title: "15. Windows Navigation – Aufbau",
+      description: "Trainiere Snap-Layouts, Schnellmenü und weitere Win-Kürzel.",
+      tasks: [
+        { type: "input", prompt: "21. Fenster fix nach links", answer: "Win+Left", hint: "Win+Left" },
+        { type: "input", prompt: "22. Fenster fix nach rechts", answer: "Win+Right", hint: "Win+Right" },
+        { type: "input", prompt: "23. Schnellmenü", answer: "Win+X", hint: "Win+X" },
+        { type: "input", prompt: "24. Ausführen öffnen", answer: "Win+R", hint: "Win+R" }
+      ]
+    },
+    {
+      id: "16",
+      tabLabel: "Abschnitt 16",
+      title: "16. Lückentext – Produktivität",
       description: "Beherrsche Emojis, Tools und Mikrofonsteuerung.",
       narrative: {
         autoCheck: false,
@@ -383,9 +430,9 @@
       tasks: []
     },
     {
-      id: "14",
-      tabLabel: "Abschnitt 14",
-      title: "14. Lückentext – Kontrolle",
+      id: "17",
+      tabLabel: "Abschnitt 17",
+      title: "17. Lückentext – Kontrolle",
       description: "Fenster arrangieren und Tools sofort öffnen.",
       narrative: {
         autoCheck: false,
@@ -430,6 +477,81 @@
         ]
       },
       tasks: []
+    },
+    {
+      id: "18",
+      tabLabel: "Abschnitt 18",
+      title: "18. Drag und Drop – Windows Basics",
+      description: "Ordne die häufigsten Windows-Kombinationen zu ihren Aktionen.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Win+D", "Win+L", "Win+V", "Win+E", "Win+Tab", "Win+X", "Win+R", "Win+A"],
+          targets: [
+            { label: "Desktop sofort anzeigen", answer: "Win+D" },
+            { label: "PC sperren", answer: "Win+L" },
+            { label: "Zwischenablage-Verlauf öffnen", answer: "Win+V" },
+            { label: "Explorer öffnen", answer: "Win+E" },
+            { label: "Task-Ansicht öffnen", answer: "Win+Tab" },
+            { label: "Schnellmenü anzeigen", answer: "Win+X" },
+            { label: "Ausführen-Dialog starten", answer: "Win+R" },
+            { label: "Benachrichtigungscenter öffnen", answer: "Win+A" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "19",
+      tabLabel: "Abschnitt 19",
+      title: "19. Drag und Drop – Windows Aufbau",
+      description: "Trainiere erweiterte Shortcuts rund um Desktops, Screenshots und Cast.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Win+Ctrl+D", "Win+Ctrl+Left", "Win+Ctrl+Right", "Win+Shift+S", "Win+K", "Win+P", "Win+Space", "Win+Ctrl+F"],
+          targets: [
+            { label: "Neuen virtuellen Desktop erstellen", answer: "Win+Ctrl+D" },
+            { label: "Zum linken virtuellen Desktop springen", answer: "Win+Ctrl+Left" },
+            { label: "Zum rechten virtuellen Desktop springen", answer: "Win+Ctrl+Right" },
+            { label: "Screenshot-Ausschnitt aufnehmen", answer: "Win+Shift+S" },
+            { label: "Drahtlose Anzeige/Device verbinden", answer: "Win+K" },
+            { label: "Projektionsmenü öffnen (Monitor umschalten)", answer: "Win+P" },
+            { label: "Sprache/Eingabelayout wechseln", answer: "Win+Space" },
+            { label: "Computer im Netzwerk suchen", answer: "Win+Ctrl+F" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "20",
+      tabLabel: "Abschnitt 20",
+      title: "20. Fast Paced Learning – Windows",
+      description: "Reagiere innerhalb von 8 Sekunden auf die angezeigte Kombination.",
+      fastPaced: {
+        rounds: 8,
+        timeLimitSeconds: 8,
+        optionsPerRound: 4,
+        combos: [
+          { label: "Desktop anzeigen", combo: "Win+D" },
+          { label: "PC sperren", combo: "Win+L" },
+          { label: "Zwischenablage-Verlauf", combo: "Win+V" },
+          { label: "Emoji-Panel", combo: "Win+." },
+          { label: "Explorer öffnen", combo: "Win+E" },
+          { label: "Task-Ansicht", combo: "Win+Tab" },
+          { label: "Schnellmenü", combo: "Win+X" },
+          { label: "Ausführen-Dialog", combo: "Win+R" },
+          { label: "Benachrichtigungen", combo: "Win+A" },
+          { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
+          { label: "Virtueller Desktop erstellen", combo: "Win+Ctrl+D" },
+          { label: "Virtueller Desktop links", combo: "Win+Ctrl+Left" },
+          { label: "Virtueller Desktop rechts", combo: "Win+Ctrl+Right" },
+          { label: "Cast/Verbinden", combo: "Win+K" },
+          { label: "Projektionsmenü", combo: "Win+P" },
+          { label: "Sprache wechseln", combo: "Win+Space" }
+        ]
+      },
+      tasks: [],
+      hideActions: true
     },
     {
       id: "21",
