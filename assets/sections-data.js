@@ -134,12 +134,12 @@
     {
       id: "4",
       tabLabel: "Abschnitt 4",
-      title: "4. Drag und Drop",
-      description: "Ziehe jedes Tastenkürzel auf die passende Beschreibung.",
+      title: "4. Drag und Drop – Basics",
+      description: "Ziehe die Grundkürzel auf die passende Beschreibung.",
       tasks: [
         {
           type: "dnd",
-          tokens: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+F", "Ctrl+S", "Ctrl+Z", "Ctrl+Y", "Ctrl+N", "Ctrl+P", "Ctrl+A", "Ctrl+O", "Ctrl+Shift+S"],
+          tokens: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+F", "Ctrl+S", "Ctrl+Z", "Ctrl+A", "Ctrl+N"],
           targets: [
             { label: "Markiertes kopieren", answer: "Ctrl+C" },
             { label: "Markiertes einfügen", answer: "Ctrl+V" },
@@ -147,12 +147,8 @@
             { label: "Inhalt durchsuchen", answer: "Ctrl+F" },
             { label: "Datei speichern", answer: "Ctrl+S" },
             { label: "Aktion rückgängig", answer: "Ctrl+Z" },
-            { label: "Aktion wiederholen", answer: "Ctrl+Y" },
-            { label: "Neues Dokument", answer: "Ctrl+N" },
-            { label: "Drucken", answer: "Ctrl+P" },
             { label: "Alles markieren", answer: "Ctrl+A" },
-            { label: "Dokument öffnen", answer: "Ctrl+O" },
-            { label: "Speichern unter", answer: "Ctrl+Shift+S" }
+            { label: "Neues Dokument", answer: "Ctrl+N" }
           ]
         }
       ]
@@ -160,9 +156,24 @@
     {
       id: "5",
       tabLabel: "Abschnitt 5",
-      title: "5. Freies Training",
-      description: "Hier entsteht ein neuer Modus. Schau später wieder vorbei.",
-      tasks: []
+      title: "5. Drag und Drop – Aufbau",
+      description: "Zweite Runde Drag und Drop mit weiteren Kürzeln.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+P", "Ctrl+O", "Ctrl+Shift+S", "Ctrl+W", "Ctrl+Shift+N", "Ctrl+B"],
+          targets: [
+            { label: "Aktion wiederholen", answer: "Ctrl+Y" },
+            { label: "Aktion wiederherstellen (Variante)", answer: "Ctrl+Shift+Z" },
+            { label: "Drucken", answer: "Ctrl+P" },
+            { label: "Dokument öffnen", answer: "Ctrl+O" },
+            { label: "Speichern unter", answer: "Ctrl+Shift+S" },
+            { label: "Aktuelles Fenster schließen", answer: "Ctrl+W" },
+            { label: "Privates Fenster öffnen", answer: "Ctrl+Shift+N" },
+            { label: "Text fett formatieren", answer: "Ctrl+B" }
+          ]
+        }
+      ]
     },
     {
       id: "6",
