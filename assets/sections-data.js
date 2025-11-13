@@ -674,7 +674,7 @@
       comboBuilder: {
         title: "Combo Builder",
         instructions: "Wähle für jede Aufgabe die richtigen Tasten in der richtigen Reihenfolge. Jede Auswahl repräsentiert einen Teil der Combo.",
-        defaultOptions: ["Ctrl", "Shift", "Win", ".", "Z", "N"],
+        defaultOptions: ["Ctrl", "Shift", "Win", ".", "Z", "N", "S"],
         combos: [
           {
             title: "Emoji Express",
@@ -682,14 +682,25 @@
             answers: ["Win", "."]
           },
           {
-            title: "Snap Layout Studio",
-            prompt: "Starte die Windows-Snap-Layouts, um Fenster perfekt auszurichten.",
-            answers: ["Win", "Z"]
+            title: "Explorer",
+            prompt: "Öffne den Windows Explorer.",
+            answers: ["Win", "E"]
           },
           {
-            title: "Privacy Booster",
-            prompt: "Schalte im Browser sofort in ein privates Fenster.",
-            answers: ["Ctrl", "Shift", "N"]
+            title: "Einstellungen",
+            prompt: "Öffne die Windows-Einstellungen.",
+            answers: ["Win", "I"]
+          },
+          {
+            title: "Search Helper",
+            prompt: "Starte die Windows-Suche.",
+            answers: ["Win", "S"]
+          }
+          ,
+          {
+            title: "On-Screen Keyboard",
+            prompt: "Öffne die Bildschirmtastatur mit ____ + ____ + ____.",
+            answers: ["Win", "Ctrl", "O"]
           }
         ]
       },
