@@ -620,6 +620,24 @@
       hideActions: true
     },
     {
+      id: "21",
+      tabLabel: "Abschnitt 21",
+      title: "21. Drag und Drop – Windows Wiederholung",
+      description: "Eine erneute Runde mit den erweiterten Windows-Kombinationen.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Win+PfeiltasteLinks", "Win+PfeiltasteRechts", "Win+PfeiltasteOben", "Win+PfeiltasteUnten"],
+          targets: [
+            { label: "Fenster nach links andocken", answer: "Win+PfeiltasteLinks" },
+            { label: "Fenster nach rechts andocken", answer: "Win+PfeiltasteRechts" },
+            { label: "Fenster maximieren", answer: "Win+PfeiltasteOben" },
+            { label: "Fenster minimieren", answer: "Win+PfeiltasteUnten" },
+          ]
+        }
+      ]
+    },
+    {
       id: "22",
       tabLabel: "Abschnitt 22",
       title: "22. Combo Builder",
