@@ -447,8 +447,8 @@
       title: "15. Windows Navigation – Aufbau",
       description: "Trainiere Snap-Layouts, Schnellmenü und weitere Win-Kürzel.",
       tasks: [
-        { type: "input", prompt: "Fenster fix nach links", answer: "Win+Left", hint: "Win+Left" },
-        { type: "input", prompt: "Fenster fix nach rechts", answer: "Win+Right", hint: "Win+Right" },
+        { type: "input", prompt: "Fenster fix nach links", answer: "Win+PfeiltasteLinks", hint: "Win+PfeiltasteLinks" },
+        { type: "input", prompt: "Fenster fix nach rechts", answer: "Win+PfeiltasteRechts", hint: "Win+PfeiltasteRechts" },
         { type: "input", prompt: "Schnellmenü", answer: "Win+X", hint: "Win+X" },
         { type: "input", prompt: "Ausführen öffnen", answer: "Win+R", hint: "Win+R" }
       ]
@@ -463,15 +463,15 @@
         entries: [
           {
             scene: "Kurz vor dem Kundencall merkt Jonas, dass der Bildschirm zu hell ist.",
-            prompt: "Er dunkelt schnell ab mit ____ + ____.",
+            prompt: "Er öffnet das Schnelleinstellungsfenster mit ____ + ____.",
             missingSlots: 2,
             options: [
               { label: "Win", value: "Win" },
+              { label: "A", value: "A" },
               { label: ".", value: "." },
-              { label: ",", value: "," },
-              { label: "Alt", value: "Alt" }
+              { label: ",", value: "," }
             ],
-            answers: ["Win", "."]
+            answers: ["Win", "A"]
           },
           {
             scene: "Seine Kollegin bittet ihn, die Bildschirm-Tastatur kurz einzublenden.",
@@ -487,17 +487,17 @@
             answers: ["Win", "Ctrl", "O"]
           },
           {
-            scene: "Während des Daily-Standups muss Jonas sein Mikro sofort muten.",
-            prompt: "Er nutzt ____ + ____ + ____ um das Mikro zu steuern.",
-            missingSlots: 3,
+            scene: "Jetzt möchte er den Zwischenablage-Verlauf öffnen, um eine kopierte Idee noch einmal zu sehen.",
+            prompt: "Er nutzt ____ + ____ um den Verlauf aufzurufen.",
+            missingSlots: 2,
             options: [
-              { label: "Ctrl", value: "Ctrl" },
-              { label: "Shift", value: "Shift" },
-              { label: "M", value: "M" },
-              { label: "Alt", value: "Alt" },
-              { label: "V", value: "V" }
+              { label: "Win", value: "Win" },
+              { label: "V", value: "V" },
+              { label: "X", value: "X" },
+              { label: "C", value: "C" },
+              { label: "A", value: "A" }
             ],
-            answers: ["Ctrl", "Shift", "M"]
+            answers: ["Win", "V"]
           }
         ]
       },
@@ -513,7 +513,7 @@
         entries: [
           {
             scene: "Nach Feierabend sichert Jonas seinen Rechner im Vorbeigehen.",
-            prompt: "Der Bildschirm wird gesperrt mit ____ + ____.",
+            prompt: "Der Computer wird gesperrt mit ____ + ____.",
             missingSlots: 2,
             options: [
               { label: "Win", value: "Win" },
@@ -530,15 +530,15 @@
             missingSlots: 2,
             options: [
               { label: "Win", value: "Win" },
-              { label: "Left", value: "Left" },
-              { label: "Right", value: "Right" },
+              { label: "PfeiltasteLinks", value: "Left" },
+              { label: "PfeiltasteRechts", value: "Right" },
               { label: "Up", value: "Up" }
             ],
-            answers: ["Win", "Left"]
+            answers: ["Win", "PfeiltasteLinks"]
           },
           {
             scene: "Eine App hängt komplett, also ruft er den Task-Manager auf.",
-            prompt: "Er öffnet ihn mit ____ + ____ + ____.",
+            prompt: "Er öffnet den Task-Manager mittels ____ + ____ + ____.",
             missingSlots: 3,
             options: [
               { label: "Ctrl", value: "Ctrl" },
@@ -595,10 +595,10 @@
         },
         {
           type: "dnd",
-          tokens: ["Win+Left", "Win+Right", "Win+Up", "Win+Down", "Win+Ctrl+Left", "Win+Ctrl+Right"],
+          tokens: ["Win+PfeiltasteLinks", "Win+PfeiltasteRechts", "Win+Up", "Win+Down", "Win+Ctrl+Left", "Win+Ctrl+Right"],
           targets: [
-            { label: "Fenster nach links andocken", answer: "Win+Left" },
-            { label: "Fenster nach rechts andocken", answer: "Win+Right" },
+            { label: "Fenster nach links andocken", answer: "Win+PfeiltasteLinks" },
+            { label: "Fenster nach rechts andocken", answer: "Win+PfeiltasteRechts" },
             { label: "Fenster maximieren", answer: "Win+Up" },
             { label: "Fenster minimieren", answer: "Win+Down" },
             { label: "Zum vorherigen virtuellen Desktop wechseln", answer: "Win+Ctrl+Left" },
