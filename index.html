@@ -4246,12 +4246,19 @@
         elements.root.classList.remove("fast-paced-active");
         updateHourglass(1);
         const reward = fastState.correct * COINS_PER_ACTION;
+        const completionPercent = Math.round((fastState.correct / rounds) * 100);
         if (reward > 0) {
           state.coins += reward;
           pendingCoinAnimation = { amount: reward, anchor: elements.startBtn, variant: "gain" };
           showResult(`Belohnung: +${reward} Coins`, true);
         } else {
           showResult("Keine Coins in dieser Runde.", false);
+        }
+        if (completionPercent >= 70) {
+          const currentClears = state.sectionClears[sectionId] || 0;
+          state.sectionClears[sectionId] = Math.max(currentClears, 1);
+          updateSectionCompletionClasses();
+          saveState();
         }
         updateUI();
         updateOverallSummary();

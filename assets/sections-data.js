@@ -259,7 +259,7 @@
           { label: "Dokument speichern", combo: "Ctrl+S" },
           { label: "Rückgängig", combo: "Ctrl+Z" },
           { label: "Wiederholen", combo: "Ctrl+Y" },
-          { label: "Neuer Tab", combo: "Ctrl+N" },
+          { label: "Neues Dokument", combo: "Ctrl+N" },
           { label: "Suche öffnen", combo: "Ctrl+F" },
           { label: "Drucken", combo: "Ctrl+P" },
           { label: "Dokument öffnen", combo: "Ctrl+O" }
