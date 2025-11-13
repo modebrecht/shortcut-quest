@@ -62,56 +62,32 @@
     {
       id: "2",
       tabLabel: "Abschnitt 2",
-      title: "2. Grundlagen",
+      title: "2. Grundlagen – Basics",
       description: "Wähle das passende Tastenkürzel für die Aktion.",
       tasks: [
         {
           type: "select",
           prompt: "9. Kopieren",
           answer: "Ctrl+C",
-          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V"]
+          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Shift+C", "Ctrl+Alt+C"]
         },
         {
           type: "select",
           prompt: "10. Einfügen",
           answer: "Ctrl+V",
-          options: ["Ctrl+S", "Ctrl+V", "Ctrl+Z"]
+          options: ["Ctrl+S", "Ctrl+V", "Ctrl+Z", "Ctrl+Shift+V", "Ctrl+Alt+V"]
         },
         {
           type: "select",
           prompt: "11. Ausschneiden",
           answer: "Ctrl+X",
-          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V"]
+          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Shift+X", "Ctrl+Alt+X"]
         },
         {
           type: "select",
           prompt: "12. Alles markieren",
           answer: "Ctrl+A",
-          options: ["Ctrl+P", "Ctrl+A", "Ctrl+F"]
-        },
-        {
-          type: "select",
-          prompt: "13. Speichern",
-          answer: "Ctrl+S",
-          options: ["Ctrl+S", "Ctrl+O", "Ctrl+Shift+S"]
-        },
-        {
-          type: "select",
-          prompt: "14. Neues Dokument",
-          answer: "Ctrl+N",
-          options: ["Ctrl+O", "Ctrl+N", "Ctrl+P"]
-        },
-        {
-          type: "select",
-          prompt: "15. Drucken",
-          answer: "Ctrl+P",
-          options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F"]
-        },
-        {
-          type: "select",
-          prompt: "16. Rückgängig",
-          answer: "Ctrl+Z",
-          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z"]
+          options: ["Ctrl+P", "Ctrl+A", "Ctrl+F", "Ctrl+Shift+A", "Ctrl+Alt+A"]
         }
       ]
     },
@@ -125,9 +101,34 @@
     {
       id: "4",
       tabLabel: "Abschnitt 4",
-      title: "4. Coming Soon",
-      description: "Hier entsteht ein neues Kapitel. Bald gibt es mehr Übungen.",
-      tasks: []
+      title: "4. Grundlagen – Aufbau",
+      description: "Noch vier weitere Klassiker für sichere Copy-&-Save-Skills.",
+      tasks: [
+        {
+          type: "select",
+          prompt: "13. Speichern",
+          answer: "Ctrl+S",
+          options: ["Ctrl+S", "Ctrl+O", "Ctrl+Shift+S", "Ctrl+Alt+S", "Ctrl+P"]
+        },
+        {
+          type: "select",
+          prompt: "14. Neues Dokument",
+          answer: "Ctrl+N",
+          options: ["Ctrl+O", "Ctrl+N", "Ctrl+P", "Ctrl+Shift+N", "Ctrl+Alt+N"]
+        },
+        {
+          type: "select",
+          prompt: "15. Drucken",
+          answer: "Ctrl+P",
+          options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F", "Ctrl+Alt+P", "Ctrl+Shift+F"]
+        },
+        {
+          type: "select",
+          prompt: "16. Rückgängig",
+          answer: "Ctrl+Z",
+          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+Alt+Z", "Ctrl+Shift+Y"]
+        }
+      ]
     },
     {
       id: "5",
