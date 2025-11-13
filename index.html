@@ -353,7 +353,7 @@
       background: transparent;
     }
     .memory-header {
-      padding: 0.8rem 1.2rem;
+      padding: 1rem 2rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -367,7 +367,7 @@
       letter-spacing: 0.02em;
     }
     .memory-status {
-      margin: 14px 14px 6px 14px;
+      margin: 12px 14px 0;
       font-size: 0.95rem;
       color: #1f2937;
       font-weight: 600;
@@ -378,31 +378,32 @@
       box-shadow: 0 3px 12px rgba(245,158,11,0.25);
     }
     .memory-status + .memory-grid {
-      margin-top: 0.6rem;
+      margin-top: 0;
     }
     .memory-grid {
       margin: 0 auto;
       display: grid;
-      gap: 0.8rem;
+      gap: 0.7rem;
       grid-template-columns: repeat(auto-fill, minmax(var(--memory-card-size), var(--memory-card-size)));
-      justify-content: center;
+      justify-content: start;
       justify-items: center;
+      padding-top: 0;
     }
-    .section[data-section="3"] > .card:not(.action-card) {
-      padding: 0;
+    .memory-section-card {
+      padding: 0.2rem 0 0;
       position: relative;
       z-index: 0;
     }
-    .section[data-section="3"] > .card:not(.action-card) > h2,
-    .section[data-section="3"] > .card:not(.action-card) > p.small {
+    .memory-section-card > h2,
+    .memory-section-card > p.small {
       margin: 0;
-      padding: 0.8rem 1.2rem 0;
+      padding: 0.5rem 1.2rem 0;
     }
-    .section[data-section="3"] > .card:not(.action-card) > p.small:last-of-type {
-      padding-bottom: 0.8rem;
+    .memory-section-card > p.small:last-of-type {
+      padding-bottom: 0.4rem;
     }
-    .section[data-section="3"] .memory-grid {
-      margin: 1rem 0 1.2rem;
+    .memory-section-card .memory-grid {
+      margin: 2rem 1REM 1rem 2rem;
       z-index: 0;
     }
     .memory-card {
@@ -425,7 +426,7 @@
       outline-offset: 4px;
     }
     .memory-card-inner {
-      position: absolute;
+      position: relative;
       width: 100%;
       height: 100%;
       border-radius: var(--memory-card-radius);
@@ -4233,6 +4234,7 @@
 
       const contentCard = document.createElement("div");
       contentCard.className = "card";
+      if (section && section.memoryGame) contentCard.classList.add("memory-section-card");
       const heading = document.createElement("h2");
       heading.textContent = section && section.title ? section.title : `Abschnitt ${sectionId}`;
       contentCard.appendChild(heading);

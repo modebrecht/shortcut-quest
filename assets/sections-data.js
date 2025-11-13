@@ -95,7 +95,7 @@
       id: "3",
       tabLabel: "Abschnitt 3",
       title: "3. Shortcut Memory",
-      description: "Decke Karten auf und finde jeweils Aktion und Tastenkombi.",
+      description: "",
       memoryGame: {
         title: "Shortcut Memory",
         instructions: "Es gibt 6 Paare. Finde immer die passende Beschreibung zur Tastenkombination.",
