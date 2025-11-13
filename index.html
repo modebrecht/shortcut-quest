@@ -3275,6 +3275,9 @@
     const STORAGE_KEY = "shortcutRitter_v1";
     const COINS_PER_ACTION = 10;
     const COINS_PER_ACTION_AFTER_RESET = 5;
+    const RUNEN_AMULET_KEY = "runen_amulet";
+    const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 5, 2: 10, 3: 15, 4: 20 });
+    const RUNEN_AMULET_DYNAMIC_CAP = 55;
     const BASE_ATK = 1;
     const BASE_DEF = 0;
     const BASE_HP = 12;
@@ -4248,9 +4251,12 @@
         const reward = fastState.correct * COINS_PER_ACTION;
         const completionPercent = Math.round((fastState.correct / rounds) * 100);
         if (reward > 0) {
-          state.coins += reward;
-          pendingCoinAnimation = { amount: reward, anchor: elements.startBtn, variant: "gain" };
-          showResult(`Belohnung: +${reward} Coins`, true);
+          const bonusPercent = getRunenAmuletCoinBonusPercent();
+          const finalReward = applyCoinBonus(reward);
+          state.coins += finalReward;
+          pendingCoinAnimation = { amount: finalReward, anchor: elements.startBtn, variant: "gain" };
+          const bonusText = bonusPercent ? ` (Runenbonus +${bonusPercent}%)` : "";
+          showResult(`Belohnung: +${finalReward} Coins${bonusText}`, true);
         } else {
           showResult("Keine Coins in dieser Runde.", false);
         }
@@ -4870,7 +4876,9 @@
       { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "", theme: "knight", category: "armor" },
       { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "", theme: "knight", category: "armor" },
       { key: "falken_cape", name: "Falkencape", atk: 1, def: 0, icon: "gloves", slot: "gloves", description: "", theme: "knight", category: "accessory" },
-      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 1, icon: "talisman", slot: "necklace", description: "", theme: "knight", category: "accessory" },
+      { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 0, icon: "talisman", slot: "necklace", description: "Verleiht Bonus-Münzen je nach Tier.", theme: "knight", category: "accessory" },
+      { key: "lebens_ring", name: "Lebensring", atk: 0, def: 0, hp: 15, icon: "talisman", slot: "ring_left", description: "Speichert ein wenig Lebenskraft.", theme: "knight", category: "accessory" },
+      { key: "gluecks_ring", name: "Glücksring", atk: 1, def: 0, icon: "talisman", slot: "ring_right", description: "Ein Ring der den Fokus erhoeht.", theme: "knight", category: "accessory" },
       { key: "stahl_stiefel", name: "Stahl-Stiefel", atk: 0, def: 2, icon: "boots", slot: "boots", description: "", theme: "knight", category: "armor" },
       { key: "wind_stiefel", name: "Windlaeufer-Stiefel", atk: 1, def: 1, icon: "boots", slot: "boots", description: "", theme: "knight", category: "armor" }
     ];
@@ -5457,6 +5465,31 @@
       });
       return items;
     }
+    function getCompletedSectionCount() {
+      if (!state || typeof state.sectionClears !== "object") return 0;
+      let count = 0;
+      Object.keys(state.sectionClears).forEach(sectionId => {
+        if (state.sectionClears[sectionId] > 0) count += 1;
+      });
+      return count;
+    }
+    function getRunenAmuletCoinBonusPercent() {
+      const equippedRunen = getEquippedItems().find(item => item && item.key === RUNEN_AMULET_KEY);
+      if (!equippedRunen) return 0;
+      const tier = Math.max(1, Math.floor(equippedRunen.tier || 1));
+      if (tier >= 5) {
+        const completed = getCompletedSectionCount();
+        return Math.min(RUNEN_AMULET_DYNAMIC_CAP, completed);
+      }
+      return RUNEN_AMULET_TIER_BONUS[tier] || RUNEN_AMULET_TIER_BONUS[4];
+    }
+    function applyCoinBonus(baseAmount) {
+      const amount = Number(baseAmount) || 0;
+      if (amount <= 0) return amount;
+      const bonusPercent = getRunenAmuletCoinBonusPercent();
+      if (!bonusPercent) return amount;
+      return Math.max(0, Math.round(amount * (1 + bonusPercent / 100)));
+    }
     function recalcStats() {
       let atk = BASE_ATK;
       let def = BASE_DEF;
@@ -5546,7 +5579,13 @@
         atkBadge.textContent = `ATK +${item.atk}`;
         stats.appendChild(atkBadge);
       }
-      if (Number(item.def) > 0) {
+      if (item.key === RUNEN_AMULET_KEY) {
+        const coinBonus = getRunenAmuletCoinBonusPercent();
+        const bonusBadge = document.createElement("span");
+        bonusBadge.className = "badge def";
+        bonusBadge.textContent = `Coins +${coinBonus}%`;
+        stats.appendChild(bonusBadge);
+      } else if (Number(item.def) > 0) {
         const defBadge = document.createElement("span");
         defBadge.className = "badge def";
         defBadge.textContent = `DEF +${item.def}`;
@@ -5993,13 +6032,22 @@
       if (!item) return [];
       const stats = [];
       const push = (label, value, className) => {
-        const numeric = Number(value) || 0;
-        if (numeric > 0) {
+        if (value === undefined || value === null) return;
+        const numeric = Number(value);
+        if (!Number.isNaN(numeric)) {
+          if (numeric === 0) return;
           stats.push({ label, value: numeric, className });
+          return;
         }
+        if (String(value).trim()) stats.push({ label, value: String(value), className });
       };
       push("ATK", item.atk, "atk");
-      push("DEF", item.def, "def");
+      if (item.key === RUNEN_AMULET_KEY) {
+        const bonus = `${getRunenAmuletCoinBonusPercent()}%`;
+        stats.push({ label: "Coins", value: bonus, className: "atk" });
+      } else {
+        push("DEF", item.def, "def");
+      }
       return stats;
     }
     function renderEquipmentSlots() {
@@ -6632,9 +6680,12 @@
         }
         state.sectionClears[sectionId] = clears + 1;
         if (reward > 0) {
-          state.coins += reward;
-          pendingCoinAnimation = { amount: reward, anchor: triggerBtn || null, variant: "gain" };
-          resultMsg += ` | +${reward} Coins`;
+          const bonusPercent = getRunenAmuletCoinBonusPercent();
+          const finalReward = applyCoinBonus(reward);
+          state.coins += finalReward;
+          pendingCoinAnimation = { amount: finalReward, anchor: triggerBtn || null, variant: "gain" };
+          const bonusText = bonusPercent ? ` (Runenbonus +${bonusPercent}%)` : "";
+          resultMsg += ` | +${finalReward} Coins${bonusText}`;
         } else if (clears > 0) {
           resultMsg += " | fuer mehr Coins erst zuruecksetzen.";
         }
