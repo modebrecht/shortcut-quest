@@ -2496,32 +2496,6 @@
       display: block;
       filter: drop-shadow(0 12px 24px rgba(8,15,30,0.65));
     }
-    .battle-victory-chest-coins {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-    .battle-victory-chest-coins span {
-      position: absolute;
-      left: 50%;
-      bottom: 40%;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #fff7c2, #facc15 55%, #b45309 92%);
-      box-shadow: 0 4px 12px rgba(250,204,21,0.45);
-      opacity: 0;
-      transform: translate(-50%, 8px) scale(0.5);
-    }
-    .battle-victory-chest.visible .battle-victory-chest-coins span {
-      animation: battleRewardCoin 1.25s ease-out forwards;
-      animation-delay: var(--coin-delay, 0s);
-    }
-    .battle-victory-chest-coins span:nth-child(1) { --coin-shift-x: -30px; --coin-delay: 0s; }
-    .battle-victory-chest-coins span:nth-child(2) { --coin-shift-x: 15px; --coin-delay: 0.08s; }
-    .battle-victory-chest-coins span:nth-child(3) { --coin-shift-x: -5px; --coin-delay: 0.15s; }
-    .battle-victory-chest-coins span:nth-child(4) { --coin-shift-x: 24px; --coin-delay: 0.25s; }
-    .battle-victory-chest-coins span:nth-child(5) { --coin-shift-x: -18px; --coin-delay: 0.32s; }
     .battle-reward[hidden] {
       display: none;
     }
@@ -3530,7 +3504,19 @@
     const HP_PER_DEF = 6;
     const MAX_ITEM_TIER = 5;
     const MAX_SKILL_TIER = 6;
-    const BATTLE_LEVEL_REWARDS = Object.freeze({ 1: 5, 2: 6 });
+    const BATTLE_LEVEL_REWARDS = Object.freeze({
+      1: 1,
+      2: 1,
+      3: 2,
+      4: 2,
+      5: 3,
+      6: 4,
+      7: 4,
+      8: 4,
+      9: 5,
+      10: 5,
+      11: 100
+    });
     const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
     const INLINE_SKILL_HOTKEYS = Array.isArray(window.SKILL_HOTKEY_BLUEPRINTS) ? window.SKILL_HOTKEY_BLUEPRINTS : [];
@@ -7644,7 +7630,7 @@
       cancelBattleSimHide();
       battleSimHideTimer = setTimeout(() => {
         hideBattleSimulation(true);
-      }, 10000);
+      }, 8000);
     }
 
     function resetBattleArena() {
@@ -7698,13 +7684,6 @@
       chest.className = "battle-victory-chest";
       chest.innerHTML = `
         <object class="chest-svg" type="image/svg+xml" data="assets/chest.svg" aria-label="Belohnung"></object>
-        <div class="battle-victory-chest-coins" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
       `;
       battleArena.appendChild(chest);
       requestAnimationFrame(() => chest.classList.add("visible"));
