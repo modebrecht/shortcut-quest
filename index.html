@@ -21,6 +21,7 @@
       --icon-visual-size: 116px;
       --inventory-icon-frame: 96px;
       --memory-card-size: clamp(8rem, 12vw, 11rem);
+      --memory-card-radius: 18px;
     }
     * { box-sizing: border-box; }
     body {
@@ -329,8 +330,8 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .memory-grid {
-        grid-template-columns: repeat(2, minmax(calc(var(--memory-card-size) * 0.8), 1fr));
-        gap: 1.2rem;
+        grid-template-columns: repeat(2, var(--memory-card-size));
+        gap: 0.8rem;
       }
     }
     @media (max-width: 520px) {
@@ -338,8 +339,8 @@
         grid-template-columns: 1fr;
       }
       .memory-grid {
-        grid-template-columns: minmax(calc(var(--memory-card-size) * 0.8), 1fr);
-        gap: 1rem;
+        grid-template-columns: var(--memory-card-size);
+        gap: 0.7rem;
       }
     }
     .memory-game {
@@ -380,8 +381,9 @@
     .memory-grid {
       margin: 0 auto;
       display: grid;
-      gap: 1.1rem;
-      grid-template-columns: repeat(auto-fit, minmax(calc(var(--memory-card-size) + 0.5rem), 1fr));
+      gap: 0.8rem;
+      grid-template-columns: repeat(auto-fill, minmax(var(--memory-card-size), var(--memory-card-size)));
+      justify-content: center;
       justify-items: center;
     }
     .section[data-section="3"] > .card:not(.action-card) {
@@ -419,11 +421,12 @@
     }
     .memory-card-inner {
       position: absolute;
-      inset: 0;
-      border-radius: 1rem;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--memory-card-radius);
       transform-style: preserve-3d;
       transition: transform 0.65s cubic-bezier(0.25, 0.8, 0.25, 1);
-      box-shadow: none;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.35);
     }
     .memory-card.revealed .memory-card-inner,
     .memory-card.matched .memory-card-inner {
@@ -431,34 +434,45 @@
     }
     .memory-card-face {
       position: absolute;
-      inset: 0;
-      border-radius: 1rem;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--memory-card-radius);
       display: flex;
       align-items: center;
       justify-content: center;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       padding: 0;
-      overflow: visible;
-      background: transparent;
-      border: none;
+      background: #e5e7eb;
+      border: 1px solid rgba(148,163,184,0.35);
+      box-sizing: border-box;
     }
     .memory-card-back {
-      background: transparent;
+      background: #e5e7eb;
     }
     .memory-card-icon {
-      font-size: var(--memory-card-size);
-      text-shadow: 0 6px 18px rgba(2,6,23,0.55);
+      display: block;
+      width: 86%;
+      height: 86%;
+      object-fit: contain;
+      pointer-events: none;
     }
     .memory-card-front {
-      background: transparent;
-      border: none;
+      background: #e5e7eb;
+      border: 1px solid rgba(148,163,184,0.35);
       transform: rotateY(180deg);
-      color: var(--text);
-      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      color: #1f2937;
+      font-size: clamp(0.9rem, 1.4vw, 1.1rem);
       font-weight: 600;
       text-align: center;
       line-height: 1.2;
+      width: 100%;
+      height: 100%;
+      padding: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
     }
     .fast-paced {
       border: 1px solid rgba(148,163,184,0.35);
@@ -3699,9 +3713,10 @@
         inner.className = "memory-card-inner";
         const back = document.createElement("div");
         back.className = "memory-card-face memory-card-back";
-        const icon = document.createElement("span");
+        const icon = document.createElement("img");
         icon.className = "memory-card-icon";
-        icon.textContent = "🃏";
+        icon.src = "https://twemoji.maxcdn.com/v/latest/svg/1f0cf.svg";
+        icon.alt = "Joker Karte";
         back.appendChild(icon);
         const front = document.createElement("div");
         front.className = "memory-card-face memory-card-front";
