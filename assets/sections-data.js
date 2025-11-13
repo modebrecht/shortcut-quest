@@ -937,7 +937,483 @@
     {
       id: "34",
       tabLabel: "Abschnitt 34",
-      title: "34. Grundlagen – Input",
+      title: "34. Kreativatelier – Szene",
+      description: "In Kiras Agentur zählt nur Tempo. Tippe die passenden Kombos in der Szene.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Kira skizziert Ideen und kopiert das beste Layout sofort.",
+            prompt: "Sie dupliziert die Auswahl mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "C", value: "C" },
+              { label: "V", value: "V" },
+              { label: "X", value: "X" }
+            ],
+            answers: ["Ctrl", "C"]
+          },
+          {
+            scene: "Der Kunde ruft rein – der finale Text muss eingefügt werden.",
+            prompt: "Kira fügt ihn per ____ + ____ ein.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "V", value: "V" },
+              { label: "F", value: "F" },
+              { label: "S", value: "S" }
+            ],
+            answers: ["Ctrl", "V"]
+          },
+          {
+            scene: "Bevor sie das Studio verlässt, speichert sie alles sauber.",
+            prompt: "Der Speichervorgang läuft mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "S", value: "S" },
+              { label: "P", value: "P" },
+              { label: "Z", value: "Z" }
+            ],
+            answers: ["Ctrl", "S"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "35",
+      tabLabel: "Abschnitt 35",
+      title: "35. Desktop-Werkbank",
+      description: "Ordne Kombos kreativen Werkzeugen zu.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Ctrl+O", "Ctrl+P", "Ctrl+F", "Ctrl+Esc"],
+          targets: [
+            { label: "Datei öffnen", answer: "Ctrl+O" },
+            { label: "Sofort drucken", answer: "Ctrl+P" },
+            { label: "Inhalt durchsuchen", answer: "Ctrl+F" },
+            { label: "Startmenü über Tastatur öffnen", answer: "Ctrl+Esc" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "36",
+      tabLabel: "Abschnitt 36",
+      title: "36. Flowfloor – Szene",
+      description: "Jonas jongliert Fenster und braucht deine Hilfe.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Sein Mailfenster soll an die linke Bildschirmhälfte schnappen.",
+            prompt: "Jonas drückt ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "PfeiltasteLinks", value: "PfeiltasteLinks" },
+              { label: "PfeiltasteRechts", value: "PfeiltasteRechts" },
+              { label: "Tab", value: "Tab" }
+            ],
+            answers: ["Win", "PfeiltasteLinks"]
+          },
+          {
+            scene: "Er braucht sofort die Vogelperspektive auf alle Apps.",
+            prompt: "Er nutzt ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Tab", value: "Tab" },
+              { label: "Alt", value: "Alt" },
+              { label: "Esc", value: "Esc" }
+            ],
+            answers: ["Win", "Tab"]
+          },
+          {
+            scene: "Nach dem Vergleich kehrt er zurück zur vorherigen App.",
+            prompt: "Welche Kombination drückt er? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Alt", value: "Alt" },
+              { label: "Tab", value: "Tab" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "P", value: "P" }
+            ],
+            answers: ["Alt", "Tab"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "37",
+      tabLabel: "Abschnitt 37",
+      title: "37. System-Mixer",
+      description: "Baue Kombos für Einstellungen und Services.",
+      comboBuilder: {
+        title: "System-Mixer",
+        instructions: "Wähle die richtigen Tasten in der passenden Reihenfolge.",
+        defaultOptions: ["Win", "Ctrl", "Shift", "L", "R", "I", "V", "."],
+        combos: [
+          { title: "Bildschirm sperren", prompt: "Sicher den Arbeitsplatz ab.", answers: ["Win", "L"] },
+          { title: "Befehlseingabe", prompt: "Starte den Ausführen-Dialog.", answers: ["Win", "R"] },
+          { title: "Einstellungen", prompt: "Öffne Settings sofort.", answers: ["Win", "I"] },
+          { title: "Emoji-Panel", prompt: "Bring Emojis ins Meeting.", answers: ["Win", "."] }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "38",
+      tabLabel: "Abschnitt 38",
+      title: "38. Operationszentrale – Szene",
+      description: "Leite die System-Checks über reine Tastenkürzel.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Vor Feierabend sperrt Maya den PC.",
+            prompt: "Sie nutzt ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "L", value: "L" },
+              { label: "V", value: "V" },
+              { label: "Shift", value: "Shift" }
+            ],
+            answers: ["Win", "L"]
+          },
+          {
+            scene: "Die Zwischenablage braucht sie als Mini-Archiv.",
+            prompt: "Sie öffnet sie per ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "V", value: "V" },
+              { label: "R", value: "R" },
+              { label: "Ctrl", value: "Ctrl" }
+            ],
+            answers: ["Win", "V"]
+          },
+          {
+            scene: "Um Screenshots zu kommentieren, startet sie schnell den Ausschnittmodus.",
+            prompt: "Welche Kombi? ____ + ____ + ____",
+            missingSlots: 3,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Shift", value: "Shift" },
+              { label: "S", value: "S" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "O", value: "O" }
+            ],
+            answers: ["Win", "Shift", "S"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "39",
+      tabLabel: "Abschnitt 39",
+      title: "39. Kreativlabor – Window Mix",
+      description: "Ein Mix aus Szene und kurzer Zuordnungsaufgabe rund um Fensternavigation.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Lukas will zwei Browserfenster nebeneinander legen.",
+            prompt: "Er dockt das erste Fenster an die rechte Seite mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "PfeiltasteRechts", value: "PfeiltasteRechts" },
+              { label: "PfeiltasteLinks", value: "PfeiltasteLinks" },
+              { label: "Alt", value: "Alt" }
+            ],
+            answers: ["Win", "PfeiltasteRechts"]
+          },
+          {
+            scene: "Zum Vergleich wechselt er kurz in ein anderes Programm.",
+            prompt: "Welche Kombi nutzt er? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Alt", value: "Alt" },
+              { label: "Tab", value: "Tab" },
+              { label: "Win", value: "Win" },
+              { label: "Ctrl", value: "Ctrl" }
+            ],
+            answers: ["Alt", "Tab"]
+          }
+        ]
+      },
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Win+Tab", "Win+D", "Ctrl+Esc"],
+          targets: [
+            { label: "Task-Ansicht öffnen", answer: "Win+Tab" },
+            { label: "Desktop sofort zeigen", answer: "Win+D" },
+            { label: "Startmenü per Tastatur", answer: "Ctrl+Esc" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "40",
+      tabLabel: "Abschnitt 40",
+      title: "40. System-Sprint",
+      description: "Fast-Paced-Drill rund um Suche, Sperre und Tools.",
+      fastPaced: {
+        rounds: 7,
+        timeLimitSeconds: 7,
+        optionsPerRound: 4,
+        combos: [
+          { label: "Startmenü öffnen", combo: "Ctrl+Esc" },
+          { label: "Zum Dokumentanfang springen", combo: "Ctrl+Home" },
+          { label: "Zum Ende springen", combo: "Ctrl+End" },
+          { label: "Ausführen-Dialog", combo: "Win+R" },
+          { label: "Emoji-Panel", combo: "Win+." },
+          { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
+          { label: "Bildschirmtastatur", combo: "Win+Ctrl+O" }
+        ]
+      },
+      tasks: [],
+      hideActions: true
+    },
+    {
+      id: "41",
+      tabLabel: "Abschnitt 41",
+      title: "41. Archiv-Jagd",
+      description: "Eine Mini-Story mit drei schnellen Entscheidungen.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Mira durchforstet einen Vertrag und markiert die relevanten Zeilen.",
+            prompt: "Sie kopiert den Abschnitt mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "C", value: "C" },
+              { label: "X", value: "X" },
+              { label: "V", value: "V" }
+            ],
+            answers: ["Ctrl", "C"]
+          },
+          {
+            scene: "Der nächste Absatz kommt an eine neue Stelle.",
+            prompt: "Mira fügt ihn dort ein mit ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "V", value: "V" },
+              { label: "Z", value: "Z" },
+              { label: "F", value: "F" }
+            ],
+            answers: ["Ctrl", "V"]
+          },
+          {
+            scene: "Um einen Begriff zu prüfen, sucht sie blitzschnell.",
+            prompt: "Welche Kombination nutzt sie? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "F", value: "F" },
+              { label: "S", value: "S" },
+              { label: "P", value: "P" }
+            ],
+            answers: ["Ctrl", "F"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "42",
+      tabLabel: "Abschnitt 42",
+      title: "42. Navigator-Puzzle",
+      description: "Ordne die Fensternavigation den Aktionen zu.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Ctrl+Esc", "Alt+Tab", "Win+Tab", "Win+D", "Win+E", "Win+S", "Win+PfeiltasteLinks", "Win+PfeiltasteRechts"],
+          targets: [
+            { label: "Startmenü ohne Maus öffnen", answer: "Ctrl+Esc" },
+            { label: "Zwischen Programmen springen", answer: "Alt+Tab" },
+            { label: "Task-Ansicht starten", answer: "Win+Tab" },
+            { label: "Desktop sofort anzeigen", answer: "Win+D" },
+            { label: "Explorer öffnen", answer: "Win+E" },
+            { label: "Systemsuche öffnen", answer: "Win+S" },
+            { label: "Fenster links andocken", answer: "Win+PfeiltasteLinks" },
+            { label: "Fenster rechts andocken", answer: "Win+PfeiltasteRechts" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "43",
+      tabLabel: "Abschnitt 43",
+      title: "43. Launch Pad",
+      description: "Baue essentielle Windows-Kombos zusammen.",
+      comboBuilder: {
+        title: "Launch Pad",
+        instructions: "Setze die richtigen Tasten in die richtige Reihenfolge.",
+        defaultOptions: ["Win", "Ctrl", "R", "E", "I", ".", "O"],
+        combos: [
+          { title: "Ausführen-Dialog", prompt: "Direkt Befehle starten.", answers: ["Win", "R"] },
+          { title: "Explorer-Lift", prompt: "Dateien sofort sehen.", answers: ["Win", "E"] },
+          { title: "Einstellungen öffnen", prompt: "Systemparameter ändern.", answers: ["Win", "I"] },
+          { title: "Bildschirmtastatur", prompt: "Virtuelles Keyboard starten.", answers: ["Win", "Ctrl", "O"] }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "44",
+      tabLabel: "Abschnitt 44",
+      title: "44. System-Checks",
+      description: "Wähle das passende Kürzel.",
+      tasks: [
+        {
+          type: "select",
+          prompt: "Task-Manager sofort öffnen",
+          answer: "Ctrl+Shift+Esc",
+          options: ["Ctrl+Shift+Esc", "Ctrl+Alt+Esc", "Ctrl+Esc", "Ctrl+Shift+Del", "Win+R"]
+        },
+        {
+          type: "select",
+          prompt: "Zum Dokumentanfang springen",
+          answer: "Ctrl+Home",
+          options: ["Ctrl+Home", "Ctrl+End", "Ctrl+Up", "Ctrl+Shift+Home", "Ctrl+Alt+Home"]
+        },
+        {
+          type: "select",
+          prompt: "Zum Dokumentende springen",
+          answer: "Ctrl+End",
+          options: ["Ctrl+End", "Ctrl+Shift+End", "Ctrl+Down", "Ctrl+Alt+End", "Ctrl+PageDown"]
+        },
+        {
+          type: "select",
+          prompt: "Speichern anstoßen",
+          answer: "Ctrl+S",
+          options: ["Ctrl+S", "Ctrl+Shift+S", "Ctrl+Alt+S", "Win+S", "Ctrl+P"]
+        }
+      ]
+    },
+    {
+      id: "45",
+      tabLabel: "Abschnitt 45",
+      title: "45. Focus Board",
+      description: "Trage die passenden Eingaben ein.",
+      tasks: [
+        { type: "input", prompt: "Zum Dokumentanfang springen", answer: "Ctrl+Home" },
+        { type: "input", prompt: "Zum Dokumentende springen", answer: "Ctrl+End" },
+        { type: "input", prompt: "Task-Manager öffnen", answer: "Ctrl+Shift+Esc" }
+      ]
+    },
+    {
+      id: "46",
+      tabLabel: "Abschnitt 46",
+      title: "46. Screenshot Studio",
+      description: "Maya dokumentiert ihr Projekt nur per Tastatur.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Sie will nur einen Ausschnitt abfotografieren.",
+            prompt: "Maya drückt ____ + ____ + ____.",
+            missingSlots: 3,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Shift", value: "Shift" },
+              { label: "S", value: "S" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "V", value: "V" }
+            ],
+            answers: ["Win", "Shift", "S"]
+          },
+          {
+            scene: "Den Bildausschnitt klebt sie direkt in ihr Board.",
+            prompt: "Welche Tastenkombination nutzt sie zum Einfügen? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "V", value: "V" },
+              { label: "Shift", value: "Shift" },
+              { label: "X", value: "X" }
+            ],
+            answers: ["Ctrl", "V"]
+          },
+          {
+            scene: "Zum Schluss öffnet sie kurz die Suche im System.",
+            prompt: "Sie drückt ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "S", value: "S" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "P", value: "P" }
+            ],
+            answers: ["Win", "S"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "47",
+      tabLabel: "Abschnitt 47",
+      title: "47. Control Room",
+      description: "Ordne grundlegende Service-Kürzel zu.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Win+L", "Win+R", "Ctrl+Esc", "Ctrl+Shift+Esc"],
+          targets: [
+            { label: "PC sofort sperren", answer: "Win+L" },
+            { label: "Ausführen-Dialog aufrufen", answer: "Win+R" },
+            { label: "Startmenü über Tastatur öffnen", answer: "Ctrl+Esc" },
+            { label: "Task-Manager aufrufen", answer: "Ctrl+Shift+Esc" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "48",
+      tabLabel: "Abschnitt 48",
+      title: "48. Navigation Matrix",
+      description: "Baue Snap- und Ansichtskombinationen zusammen.",
+      comboBuilder: {
+        title: "Navigation Matrix",
+        instructions: "Setze die Tastenblöcke richtig zusammen.",
+        defaultOptions: ["Win", "Alt", "Tab", "PfeiltasteLinks"],
+        combos: [
+          { title: "Task-Ansicht", prompt: "Alle Fenster zeigen.", answers: ["Win", "Tab"] },
+          { title: "Fenster links andocken", prompt: "Snap nach links.", answers: ["Win", "PfeiltasteLinks"] },
+          { title: "Zwischen Programmen wechseln", prompt: "Bleibe in Flow ohne Maus.", answers: ["Alt", "Tab"] }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "49",
+      tabLabel: "Abschnitt 49",
+      title: "49. Creative Deck",
+      description: "Ein selektiver Mix aus Kreativ-Kürzeln.",
+      tasks: [
+        { type: "input", prompt: "Neues Dokument öffnen", answer: "Ctrl+N" },
+        { type: "input", prompt: "Datei öffnen", answer: "Ctrl+O" },
+        { type: "input", prompt: "Alles markieren", answer: "Ctrl+A" },
+        { type: "input", prompt: "Desktop anzeigen", answer: "Win+D" }
+      ]
+    },
+    {
+      id: "51",
+      tabLabel: "Abschnitt 51",
+      title: "51. Grundlagen",
       description: "Die klassischen Basics – nur Eingaben, keine Auswahl.",
       tasks: [
         { type: "input", prompt: "Speichern", answer: "Ctrl+S" },
@@ -947,9 +1423,9 @@
       ]
     },
     {
-      id: "35",
-      tabLabel: "Abschnitt 35",
-      title: "35. Selber tippen – Teil 2 again",
+      id: "52",
+      tabLabel: "Abschnitt 52",
+      title: "52. Selber tippen – Teil 2 again",
       description: "Der zweite Teil nochmal als reine Eingabeübung.",
       tasks: [
         { type: "input", prompt: "Alles markieren", answer: "Ctrl+A" },
@@ -959,9 +1435,9 @@
       ]
     },
     {
-      id: "36",
-      tabLabel: "Abschnitt 36",
-      title: "36. Quick Wins – Input",
+      id: "53",
+      tabLabel: "Abschnitt 53",
+      title: "53. Quick Wins – Input",
       description: "Die Überraschungskombinationen als einfache Eingabefelder.",
       tasks: [
         { type: "input", prompt: "Browser-Tab wechseln", answer: "Ctrl+Tab" },
@@ -969,7 +1445,6 @@
         { type: "input", prompt: "Task-Manager öffnen", answer: "Ctrl+Shift+Esc" },
         { type: "input", prompt: "Desktop anzeigen", answer: "Win+D" },
         { type: "input", prompt: "Screenshot-Ausschnitt", answer: "Win+Shift+S" },
-        { type: "input", prompt: "Drahtlose Anzeige/Device verbinden", answer: "Win+K" }
       ]
     }
   ];

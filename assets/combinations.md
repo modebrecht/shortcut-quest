@@ -13,13 +13,12 @@
 - CTRL+F
 - CTRL+N
 - CTRL+O
+- CTRL+ESC
 
 ## 2. Navigation & Bedienung des Systems optimieren
 
-- CTRL+Esc
 - CTRL+Home
 - CTRL+End
-- CTRL+SHIFT+ESC
 - ALT+TAB
 - WIN+TAB
 - WIN+D
@@ -29,10 +28,10 @@
 
 ## 3. Systemfunktionen und Einstellungen direkt über die Tastatur öffnen
 
+- CTRL+SHIFT+ESC
 - WIN+L
 - WIN+R
 - WIN+I
 - WIN+V
 - WIN+SHIFT+S
-- WIN+CTRL+O
 - WIN+.
