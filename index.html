@@ -108,19 +108,6 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .section-tab {
-      padding: 0.4rem 0.85rem;
-      border-radius: 0.75rem;
-      border: 1px solid transparent;
-      background: rgba(148,163,184,0.12);
-      color: var(--text);
-      font-size: 0.82rem;
-      cursor: pointer;
-    }
-    .section-tab.active {
-      border-color: rgba(245,158,11,0.45);
-      background: var(--accent-soft);
-    }
     .section {
       display: none;
       flex-direction: column;
@@ -367,12 +354,48 @@
       gap: 0.9rem;
       background: rgba(15,23,42,0.35);
       border-bottom: 1px solid rgba(148,163,184,0.12);
+      transition: background 150ms ease;
     }
-    .card-header h2,
-    .card-header h3 {
+    .card-header.completed {
+      background: rgba(15,23,42,0.35);
+      border-color: rgba(245,158,11,0.35);
+      box-shadow: 0 0 0 1px rgba(245,158,11,0.35);
+    }
+    .card-header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .card-header-text h2,
+    .card-header-text h3 {
       margin: 0;
       font-size: 1.05rem;
       letter-spacing: 0.02em;
+    }
+    .section-tab {
+      padding: 0.4rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid transparent;
+      background: rgba(148,163,184,0.12);
+      color: var(--text);
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: background 150ms ease, border 150ms ease;
+    }
+    .section-tab.active {
+      border-color: rgba(245,158,11,0.45);
+      background: var(--accent-soft);
+    }
+    .section-tab.completed {
+      background: linear-gradient(180deg, var(--accent) 0%, #fbbf24 100%);
+      border-color: rgba(210,125,18,0.6);
+      color: #1f2937;
+    }
+    .section-tab-label {
+      white-space: nowrap;
     }
     .memory-game h3 {
       margin: 0;
@@ -3505,7 +3528,14 @@
       tab.className = "section-tab";
       if (isActive) tab.classList.add("active");
       tab.dataset.goto = sectionId;
-      tab.textContent = section && section.tabLabel ? section.tabLabel : `Abschnitt ${sectionId}`;
+      tab.dataset.sectionId = sectionId;
+      const baseLabel = section && section.tabLabel ? section.tabLabel : `Abschnitt ${sectionId}`;
+      tab.dataset.baseLabel = baseLabel;
+      const labelSpan = document.createElement("span");
+      labelSpan.className = "section-tab-label";
+      labelSpan.textContent = baseLabel;
+      tab.appendChild(labelSpan);
+      updateTabCompletionState(tab, sectionId);
       return tab;
     }
 
@@ -3540,6 +3570,42 @@
       svg.appendChild(sandTop);
       svg.appendChild(sandBottom);
       return svg;
+    }
+
+    function sectionCompleted(sectionId) {
+      if (!sectionId) return false;
+      const id = String(sectionId);
+      return Boolean(state.sectionClears && state.sectionClears[id]);
+    }
+
+    function deriveCompletedLabel(baseLabel) {
+      if (!baseLabel) return baseLabel;
+      const match = baseLabel.match(/\d+/);
+      return match ? match[0] : baseLabel;
+    }
+
+    function updateTabCompletionState(tab, sectionId) {
+      if (!tab) return;
+      const labelSpan = tab.querySelector(".section-tab-label");
+      const baseLabel = tab.dataset.baseLabel || tab.textContent || "";
+      const completed = sectionCompleted(sectionId);
+      if (labelSpan) {
+        labelSpan.textContent = completed ? deriveCompletedLabel(baseLabel) : baseLabel;
+      }
+      tab.classList.toggle("completed", completed);
+    }
+
+    function updateSectionCompletionClasses() {
+      document.querySelectorAll(".section").forEach(section => {
+        const sectionId = section.dataset.section;
+        const header = section.querySelector(".card-header");
+        if (header) {
+          header.classList.toggle("completed", sectionCompleted(sectionId));
+        }
+      });
+      document.querySelectorAll(".section-tab").forEach(tab => {
+        updateTabCompletionState(tab, tab.dataset.goto || tab.dataset.sectionId);
+      });
     }
 
     function reshuffleDndSection(section) {
@@ -4239,15 +4305,19 @@
       if (sectionTitle || hasDescription) {
         const header = document.createElement("div");
         header.className = "card-header";
+        const headerText = document.createElement("div");
+        headerText.className = "card-header-text";
         const heading = document.createElement("h2");
         heading.textContent = sectionTitle;
-        header.appendChild(heading);
+        headerText.appendChild(heading);
         if (hasDescription) {
           const description = document.createElement("span");
           description.className = "small";
           description.textContent = section.description;
-          header.appendChild(description);
+          headerText.appendChild(description);
         }
+        header.appendChild(headerText);
+        header.classList.toggle("completed", sectionCompleted(sectionId));
         contentCard.appendChild(header);
         contentCard.classList.add("has-card-header");
       }
@@ -4319,6 +4389,7 @@
         sectionTabsHost.appendChild(tab);
         learnSectionsHost.appendChild(sectionEl);
       });
+      updateSectionCompletionClasses();
     }
 
     function setupLearnSectionInteractions() {
@@ -6475,6 +6546,7 @@
       updateGachaRemainingDisplays();
       renderBattleSkillBar();
       if (canRenderBattlePreview) updateBattlePreview();
+      updateSectionCompletionClasses();
     }
     function updateOverallSummary() {
       if (!overallSummary) return;
