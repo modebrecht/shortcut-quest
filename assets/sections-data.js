@@ -886,8 +886,92 @@
       },
       tasks: [],
       hideActions: true
+    },
+    {
+      id: "31",
+      tabLabel: "Abschnitt 31",
+      title: "31. Selber tippen – Schnellrunde",
+      description: "Wiederhole die ersten Kürzel nur mit einem Eingabefeld.",
+      tasks: [
+        { type: "input", prompt: "Drucken", answer: "Ctrl+P" },
+        { type: "input", prompt: "Neuer Tab", answer: "Ctrl+N" },
+        { type: "input", prompt: "Fenster schließen", answer: "Ctrl+W" },
+        { type: "input", prompt: "Screenshot-Ausschnitt", answer: "Win+Shift+S" }
+      ]
+    },
+    {
+      id: "32",
+      tabLabel: "Abschnitt 32",
+      title: "32. Grundlagen – Input-Check",
+      description: "Gib die Kürzel von Grundfunktionen einfach ein.",
+      tasks: [
+        { type: "input", prompt: "Kopieren", answer: "Ctrl+C" },
+        { type: "input", prompt: "Einfügen", answer: "Ctrl+V" },
+        { type: "input", prompt: "Ausschneiden", answer: "Ctrl+X" },
+        { type: "input", prompt: "Alles markieren", answer: "Ctrl+A" }
+      ]
+    },
+    {
+      id: "33",
+      tabLabel: "Abschnitt 33",
+      title: "33. Windows Memory",
+      description: "Finde die Kombinationenpaare für wichtige Windows-Steuerbefehle.",
+      memoryGame: {
+        title: "Windows Memory",
+        instructions: "Verbinde Beschreibung und Shortcut der zehn Windows-Highlights.",
+        pairs: [
+          { id: "desktop", cards: ["Desktop anzeigen", "Win+D"] },
+          { id: "lock", cards: ["PC sperren", "Win+L"] },
+          { id: "explorer", cards: ["Explorer öffnen", "Win+E"] },
+          { id: "search", cards: ["Suche starten", "Win+S"] },
+          { id: "settings", cards: ["Einstellungen öffnen", "Win+I"] },
+          { id: "clipboard", cards: ["Zwischenablage-Verlauf", "Win+V"] },
+          { id: "screenshot", cards: ["Screenshot-Ausschnitt", "Win+Shift+S"] },
+          { id: "keyboard", cards: ["Bildschirmtastatur", "Win+Ctrl+O"] },
+          { id: "emoji", cards: ["Emoji-Panel", "Win+."] },
+          { id: "task", cards: ["Task-Ansicht", "Win+Tab"] }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "34",
+      tabLabel: "Abschnitt 34",
+      title: "34. Grundlagen – Input",
+      description: "Die klassischen Basics – nur Eingaben, keine Auswahl.",
+      tasks: [
+        { type: "input", prompt: "Speichern", answer: "Ctrl+S" },
+        { type: "input", prompt: "Neues Dokument", answer: "Ctrl+N" },
+        { type: "input", prompt: "Drucken", answer: "Ctrl+P" },
+        { type: "input", prompt: "Rückgängig", answer: "Ctrl+Z" }
+      ]
+    },
+    {
+      id: "35",
+      tabLabel: "Abschnitt 35",
+      title: "35. Selber tippen – Teil 2 again",
+      description: "Der zweite Teil nochmal als reine Eingabeübung.",
+      tasks: [
+        { type: "input", prompt: "Alles markieren", answer: "Ctrl+A" },
+        { type: "input", prompt: "Suche öffnen", answer: "Ctrl+F" },
+        { type: "input", prompt: "Wiederholen", answer: "Ctrl+Y" },
+        { type: "input", prompt: "Fett formatieren", answer: "Ctrl+B" }
+      ]
+    },
+    {
+      id: "36",
+      tabLabel: "Abschnitt 36",
+      title: "36. Quick Wins – Input",
+      description: "Die Überraschungskombinationen als einfache Eingabefelder.",
+      tasks: [
+        { type: "input", prompt: "Browser-Tab wechseln", answer: "Ctrl+Tab" },
+        { type: "input", prompt: "Zwischen aktiven Fenstern wechseln", answer: "Alt+Tab" },
+        { type: "input", prompt: "Task-Manager öffnen", answer: "Ctrl+Shift+Esc" },
+        { type: "input", prompt: "Desktop anzeigen", answer: "Win+D" },
+        { type: "input", prompt: "Screenshot-Ausschnitt", answer: "Win+Shift+S" },
+        { type: "input", prompt: "Drahtlose Anzeige/Device verbinden", answer: "Win+K" }
+      ]
     }
-
   ];
 
   global.LEARN_SECTION_BLUEPRINTS = sections;
