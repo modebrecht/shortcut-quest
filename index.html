@@ -1179,7 +1179,8 @@
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      flex: 1;
+      flex: 1 1 55%;
+      min-width: 260px;
     }
     .item-icon {
       width: var(--inventory-icon-frame);
@@ -1218,12 +1219,35 @@
     .item-text strong { font-size: 0.85rem; }
     .item-text span { font-size: 0.75rem; color: var(--muted); }
     .item-meta { font-size: 0.75rem; color: rgba(226,232,240,0.85); }
-    .item-stats { display: flex; gap: 0.4rem; }
+    .item-stats {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-right: auto;
+    }
     .item-controls {
       display: flex;
       align-items: flex-start;
+      justify-content: flex-start;
       gap: 0.6rem;
+      flex: 1 1 45%;
       flex-wrap: wrap;
+      min-width: 220px;
+    }
+    @media (max-width: 640px) {
+      .inventory-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .inventory-item .item-left,
+      .inventory-item .item-controls {
+        flex: 1 1 100%;
+        min-width: 0;
+        width: 100%;
+      }
+      .inventory-item .item-controls {
+        justify-content: flex-start;
+      }
     }
     .item-equip {
       padding: 0.4rem 0.9rem;
@@ -1406,6 +1430,18 @@
     }
     .inventory-item[data-skill-key] .item-controls {
       flex: 1 1 48%;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .inventory-item[data-skill-key] .item-stats {
+      justify-content: flex-start;
+    }
+    .inventory-item .skill-bonus-indicator { margin-left: auto; }
+    .inventory-list .inventory-item .skill-bonus-indicator {
+      flex: 1 1 100%;
+      width: 100%;
+      margin-left: 0;
     }
     .inventory-item[data-skill-key] .skill-bonus-indicator {
       flex: 1 1 280px;
