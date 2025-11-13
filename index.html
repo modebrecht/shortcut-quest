@@ -2347,6 +2347,9 @@
     .fighter.enemy::after {
       display: none;
     }
+    .fighter.enemy.defeated .fighter-sprite {
+      animation: battleEnemyVanish 0.8s ease forwards;
+    }
     .fighter-sprite {
       position: absolute;
       width: 240px;
@@ -2406,6 +2409,184 @@
       min-height: 1.4rem;
       font-size: 0.9rem;
       color: var(--muted);
+    }
+    .battle-reward[hidden] {
+      display: none;
+    }
+    .battle-reward {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.4rem 0 0.8rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .battle-reward.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .battle-reward-chest {
+      position: relative;
+      width: 92px;
+      height: 92px;
+    }
+    .battle-reward-chest .chest-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 10px 18px rgba(15,23,42,0.6));
+    }
+    .battle-reward-coins {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .battle-reward-coins span {
+      position: absolute;
+      left: 50%;
+      bottom: 36%;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff7c2, #facc15 55%, #b45309 92%);
+      box-shadow: 0 4px 12px rgba(250,204,21,0.45);
+      opacity: 0;
+      transform: translate(-50%, 10px) scale(0.5);
+    }
+    .battle-reward.visible .battle-reward-coins span {
+      animation: battleRewardCoin 1.4s ease-out forwards;
+      animation-delay: var(--coin-delay, 0s);
+    }
+    .battle-reward-coins span:nth-child(1) { --coin-shift-x: -40px; --coin-delay: 0s; }
+    .battle-reward-coins span:nth-child(2) { --coin-shift-x: 10px; --coin-delay: 0.08s; }
+    .battle-reward-coins span:nth-child(3) { --coin-shift-x: -5px; --coin-delay: 0.15s; }
+    .battle-reward-coins span:nth-child(4) { --coin-shift-x: 24px; --coin-delay: 0.25s; }
+    .battle-reward-coins span:nth-child(5) { --coin-shift-x: -22px; --coin-delay: 0.32s; }
+    .battle-reward-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .battle-reward-copy strong {
+      font-size: 0.95rem;
+      color: #facc15;
+    }
+    .battle-reward-copy small {
+      font-size: 0.75rem;
+      color: rgba(226,232,240,0.8);
+    }
+    .battle-victory-chest {
+      position: absolute;
+      left: 50%;
+      bottom: 10px;
+      transform: translate(-50%, 50px) scale(0.5);
+      opacity: 0;
+      transition: transform 4.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 4.5s ease;
+      pointer-events: none;
+      z-index: 30;
+    }
+    .battle-victory-chest.visible {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1.1);
+    }
+    .battle-victory-chest .chest-svg {
+      width: 180px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 12px 24px rgba(8,15,30,0.65));
+    }
+    .battle-victory-chest-coins {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .battle-victory-chest-coins span {
+      position: absolute;
+      left: 50%;
+      bottom: 40%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff7c2, #facc15 55%, #b45309 92%);
+      box-shadow: 0 4px 12px rgba(250,204,21,0.45);
+      opacity: 0;
+      transform: translate(-50%, 8px) scale(0.5);
+    }
+    .battle-victory-chest.visible .battle-victory-chest-coins span {
+      animation: battleRewardCoin 1.25s ease-out forwards;
+      animation-delay: var(--coin-delay, 0s);
+    }
+    .battle-victory-chest-coins span:nth-child(1) { --coin-shift-x: -30px; --coin-delay: 0s; }
+    .battle-victory-chest-coins span:nth-child(2) { --coin-shift-x: 15px; --coin-delay: 0.08s; }
+    .battle-victory-chest-coins span:nth-child(3) { --coin-shift-x: -5px; --coin-delay: 0.15s; }
+    .battle-victory-chest-coins span:nth-child(4) { --coin-shift-x: 24px; --coin-delay: 0.25s; }
+    .battle-victory-chest-coins span:nth-child(5) { --coin-shift-x: -18px; --coin-delay: 0.32s; }
+    .battle-reward[hidden] {
+      display: none;
+    }
+    .battle-reward {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.4rem 0 0.8rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .battle-reward.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .battle-reward-chest {
+      position: relative;
+      width: 92px;
+      height: 92px;
+    }
+    .battle-reward-chest img {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 10px 18px rgba(15,23,42,0.6));
+    }
+    .battle-reward-coins {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .battle-reward-coins span {
+      position: absolute;
+      left: 50%;
+      bottom: 36%;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff7c2, #facc15 55%, #b45309 92%);
+      box-shadow: 0 4px 12px rgba(250,204,21,0.45);
+      opacity: 0;
+      transform: translate(-50%, 10px) scale(0.5);
+    }
+    .battle-reward.visible .battle-reward-coins span {
+      animation: battleRewardCoin 1.4s ease-out forwards;
+      animation-delay: var(--coin-delay, 0s);
+    }
+    .battle-reward-coins span:nth-child(1) { --coin-shift-x: -40px; --coin-delay: 0s; }
+    .battle-reward-coins span:nth-child(2) { --coin-shift-x: 10px; --coin-delay: 0.08s; }
+    .battle-reward-coins span:nth-child(3) { --coin-shift-x: -5px; --coin-delay: 0.15s; }
+    .battle-reward-coins span:nth-child(4) { --coin-shift-x: 24px; --coin-delay: 0.25s; }
+    .battle-reward-coins span:nth-child(5) { --coin-shift-x: -22px; --coin-delay: 0.32s; }
+    .battle-reward-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .battle-reward-copy strong {
+      font-size: 0.95rem;
+      color: #facc15;
+    }
+    .battle-reward-copy small {
+      font-size: 0.75rem;
+      color: rgba(226,232,240,0.8);
     }
     .battle-skill-bar {
       display: flex;
@@ -2552,6 +2733,20 @@
       0% { filter: brightness(1); transform: translateY(0); }
       25% { filter: brightness(1.8); transform: translateY(-6px); }
       100% { filter: brightness(1); transform: translateY(0); }
+    }
+    @keyframes battleEnemyVanish {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      60% {
+        transform: translate(-50%, -55%) scale(0.6);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translate(-50%, -60%) scale(0);
+        opacity: 0;
+      }
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     #coinAnimationLayer {
@@ -2715,6 +2910,22 @@
       35% { transform: scale(1.18); box-shadow: 0 0 32px 10px rgba(248,113,113,0.3); }
       70% { transform: scale(0.96); box-shadow: 0 0 12px 4px rgba(248,113,113,0.18); }
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(248,113,113,0); }
+    }
+    @keyframes battleRewardCoin {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 20px) scale(0.4);
+      }
+      30% {
+        opacity: 1;
+      }
+      70% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--coin-shift-x, 0px)), -120px) scale(0.95);
+      }
     }
     @media (max-width: 720px) {
       header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
@@ -3218,6 +3429,22 @@
             </div>
             <div class="battle-foot">
               <p class="battle-result" id="battleResult"></p>
+              <div class="battle-reward" id="battleReward" hidden>
+                <div class="battle-reward-chest">
+                  <object id="battleRewardChest" class="chest-svg" type="image/svg+xml" data="assets/chest.svg" aria-label="Belohnungstruhe"></object>
+                  <div class="battle-reward-coins" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                <div class="battle-reward-copy">
+                  <strong id="battleRewardText">+0 Coins</strong>
+                  <small id="battleRewardBreakdown">Basis +0 • Skills +0</small>
+                </div>
+              </div>
               <button type="button" class="battle-next hidden" id="battleNextBtn">Naechstes Level starten</button>
             </div>
           </div>
@@ -3303,6 +3530,7 @@
     const HP_PER_DEF = 6;
     const MAX_ITEM_TIER = 5;
     const MAX_SKILL_TIER = 6;
+    const BATTLE_LEVEL_REWARDS = Object.freeze({ 1: 5, 2: 6 });
     const DEFAULT_SKILL_INPUT_MODE = "hotkeys"; // set to "legacy" to fall back to 1-9 keys
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
     const INLINE_SKILL_HOTKEYS = Array.isArray(window.SKILL_HOTKEY_BLUEPRINTS) ? window.SKILL_HOTKEY_BLUEPRINTS : [];
@@ -3310,6 +3538,7 @@
     const activeSkillKeys = new Set();
     const activeSkillComboLatch = new Set();
     let battleSkillStates = [];
+    let battleSkillUseCount = 0;
     const VALID_MODIFIER_KEYS = new Map([
       ["control", "CTRL"],
       ["ctrl", "CTRL"],
@@ -4703,6 +4932,10 @@
     const heroHpValue = document.getElementById("heroHpValue");
     const enemyHpValue = document.getElementById("enemyHpValue");
     const battleResult = document.getElementById("battleResult");
+    const battleReward = document.getElementById("battleReward");
+    const battleRewardText = document.getElementById("battleRewardText");
+    const battleRewardBreakdown = document.getElementById("battleRewardBreakdown");
+    const battleRewardChest = document.getElementById("battleRewardChest");
     const battleNextBtn = document.getElementById("battleNextBtn");
     const testAnimationBtn = document.getElementById("testAnimationBtn");
     const battleButtonContainer = document.getElementById("battleButtons");
@@ -6529,6 +6762,7 @@
     }
     let displayedCoins = state.coins;
     let pendingCoinAnimation = null;
+    let coinAnimationSuppressOnce = false;
 
     function spawnCoinAnimation(amount, anchor, variant = "gain") {
       const anchorEl = anchor || coinTop;
@@ -6750,8 +6984,11 @@
         spawnCoinAnimation(info.amount, info.anchor, info.variant || (info.amount < 0 ? "loss" : "gain"));
         pendingCoinAnimation = null;
       } else if (diff !== 0) {
-        spawnCoinAnimation(diff, null, diff < 0 ? "loss" : "gain");
+        if (!coinAnimationSuppressOnce) {
+          spawnCoinAnimation(diff, null, diff < 0 ? "loss" : "gain");
+        }
       }
+      coinAnimationSuppressOnce = false;
       displayedCoins = state.coins;
       if (coinTop) coinTop.textContent = "Coins: " + state.coins;
       if (atkDisplay) atkDisplay.textContent = "ATK " + state.atk;
@@ -7189,6 +7426,7 @@
           break;
         }
       }
+      battleSkillUseCount += 1;
       if (entry.mode === "combo") {
         const usedByOthers = new Set();
         battleSkillStates.forEach(other => {
@@ -7322,6 +7560,8 @@
       showBattleSimulation();
       if (battleCloseBtn) battleCloseBtn.disabled = true;
       clearBattleSideState();
+      battleSkillUseCount = 0;
+      resetBattleReward();
       if (battleResult) battleResult.textContent = "Der Kampf beginnt!";
       if (battleNextBtn) {
         battleNextBtn.classList.add("hidden");
@@ -7404,12 +7644,78 @@
       cancelBattleSimHide();
       battleSimHideTimer = setTimeout(() => {
         hideBattleSimulation(true);
-      }, 1000);
+      }, 10000);
     }
 
     function resetBattleArena() {
       if (!battleArena) return;
       battleArena.querySelectorAll(".damage-float").forEach(el => el.remove());
+      battleArena.querySelectorAll(".battle-victory-chest").forEach(el => el.remove());
+      if (battleEnemy) {
+        battleEnemy.classList.remove("defeated");
+      }
+    }
+
+    function resetBattleReward() {
+      if (!battleReward) return;
+      battleReward.hidden = true;
+      battleReward.classList.remove("visible");
+      if (battleRewardText) battleRewardText.textContent = "";
+      if (battleRewardBreakdown) battleRewardBreakdown.textContent = "";
+    }
+
+    function showBattleReward(totalCoins, baseReward, skillReward) {
+      if (!battleReward) return;
+      const base = Math.max(0, baseReward || 0);
+      const skills = Math.max(0, skillReward || 0);
+      const rawTotal = base + skills;
+      const bonusExtra = Math.max(0, (totalCoins || 0) - rawTotal);
+      if (battleRewardText) {
+        battleRewardText.textContent = `+${totalCoins} Coins`;
+      }
+      if (battleRewardBreakdown) {
+        const baseText = `Basis +${base}`;
+        const skillText = `Skills +${skills}`;
+        const bonusText = bonusExtra ? ` • Bonus +${bonusExtra}` : "";
+        battleRewardBreakdown.textContent = `${baseText} • ${skillText}${bonusText}`;
+      }
+      battleReward.hidden = false;
+      battleReward.classList.remove("visible");
+      void battleReward.offsetWidth;
+      battleReward.classList.add("visible");
+    }
+
+    function animateEnemyDefeat() {
+      if (!battleEnemy) return;
+      battleEnemy.classList.add("defeated");
+    }
+
+    function spawnArenaChestReward(finalReward) {
+      if (!battleArena) return;
+      const existing = battleArena.querySelector(".battle-victory-chest");
+      if (existing) existing.remove();
+      const chest = document.createElement("div");
+      chest.className = "battle-victory-chest";
+      chest.innerHTML = `
+        <object class="chest-svg" type="image/svg+xml" data="assets/chest.svg" aria-label="Belohnung"></object>
+        <div class="battle-victory-chest-coins" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+      battleArena.appendChild(chest);
+      requestAnimationFrame(() => chest.classList.add("visible"));
+      const coinDelay = 4300;
+      if (finalReward > 0) {
+        setTimeout(() => {
+          spawnCoinAnimation(finalReward, chest, "gain");
+        }, coinDelay);
+      }
+      setTimeout(() => chest.classList.remove("visible"), 5200);
+      setTimeout(() => chest.remove(), 6200);
     }
 
     function createHeroState() {
@@ -7470,6 +7776,7 @@
     function finishBattle(hero, enemy, level, heroWon) {
       const remainingHeroHp = Math.max(0, Math.round(hero.hp));
       if (heroWon) {
+        animateEnemyDefeat();
         state.battleClears[level] = true;
         const nextLevel = level + 1;
         let unlockText = "";
@@ -7492,6 +7799,20 @@
         if (unlockText) {
           pushBattleLog("Rang " + nextLevel + " freigeschaltet.", "system");
         }
+        const baseReward = BATTLE_LEVEL_REWARDS[level] || 0;
+        const skillReward = battleSkillUseCount;
+        const totalReward = baseReward + skillReward;
+        const finalReward = totalReward > 0 ? applyCoinBonus(totalReward) : 0;
+        if (finalReward > 0) {
+          state.coins += finalReward;
+          showBattleReward(finalReward, baseReward, skillReward);
+          pushBattleLog(`Belohnung: +${finalReward} Coins (Basis ${baseReward} • Skills ${skillReward}).`, "system");
+          coinAnimationSuppressOnce = true;
+          updateUI();
+        } else {
+          resetBattleReward();
+        }
+        spawnArenaChestReward(finalReward);
       } else {
         if (battleResult) battleResult.textContent = "Niederlage gegen " + enemy.name + ". Versuche es erneut.";
         pushBattleLog(enemy.name + " besiegt den Ritter. Versuche es erneut.", "enemy");
@@ -7499,7 +7820,9 @@
           battleNextBtn.classList.add("hidden");
           battleNextBtn.removeAttribute("data-target-level");
         }
+        resetBattleReward();
       }
+      battleSkillUseCount = 0;
       updateBattleButtons();
       currentBattleContext = null;
       renderBattleSkillBar();
