@@ -6,7 +6,7 @@
     {
       id: "1",
       tabLabel: "Abschnitt 1",
-      title: "1. Selber tippen – Teil 1",
+      title: "1. Selber tippen",
       description: "Löse die ersten vier Kürzel, um dein Muscle Memory aufzuwärmen.",
       tasks: [
         {
@@ -354,17 +354,17 @@
             answers: ["Alt", "Tab"]
           },
           {
-            scene: "Sein Browser ist mit Tabs überfüllt, also öffnet er schnell ein privates Fenster.",
-            prompt: "Jonas startet den privaten Modus mit ____ + ____ + ____.",
-            missingSlots: 3,
+            scene: "Sein Browser ist mit Tabs überfüllt. Welche Kombination empfiehlst du ihm, um Tabs schnell zu schliessen?",
+            prompt: "Jonas nutzt ____ + ____ um den aktuellen Tab zu schließen.",
+            missingSlots: 2,
             options: [
               { label: "Ctrl", value: "Ctrl" },
+              { label: "Alt", value: "Alt" },
               { label: "Shift", value: "Shift" },
-              { label: "N", value: "N" },
-              { label: "T", value: "T" },
-              { label: "P", value: "P" }
+              { label: "W", value: "W" },
+              { label: "F4", value: "F4" }
             ],
-            answers: ["Ctrl", "Shift", "N"]
+            answers: ["Ctrl", "W"]
           }
         ]
       },
@@ -396,9 +396,16 @@
         },
         {
           type: "select",
-          prompt: "20. Task-Ansicht",
+          prompt: "20. Task-Ansicht öffnen",
           answer: "Win+Tab",
           options: ["Win+Tab", "Win+Ctrl+Alt+Tab", "Alt+Tab", "Win+Shift+Tab", "Win+Ctrl+Tab"]
+        }
+        ,
+        {
+          type: "select",
+          prompt: "21. Zwischen Fenstern wechseln",
+          answer: "Alt+Tab",
+          options: ["Alt+Tab", "Win+Tab", "Ctrl+Tab", "Ctrl+Alt+Del", "Win+Shift+Tab"]
         }
       ]
     },
