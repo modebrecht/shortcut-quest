@@ -95,10 +95,9 @@
       id: "3",
       tabLabel: "Abschnitt 3",
       title: "3. Shortcut Memory",
-      description: "",
+      description: "Es gibt 6 Paare. Finde immer die passende Beschreibung zur Tastenkombination.",
       memoryGame: {
         title: "3. Shortcut Memory",
-        instructions: "Es gibt 6 Paare. Finde immer die passende Beschreibung zur Tastenkombination.",
         pairs: [
           { id: "copy", cards: ["Kopieren", "Ctrl+C"] },
           { id: "paste", cards: ["Einfügen", "Ctrl+V"] },
@@ -160,10 +159,9 @@
       id: "7",
       tabLabel: "Abschnitt 7",
       title: "7. Shortcut Memory – Windows",
-      description: "Merke dir Windows-Kombinationen und decke passende Paare auf.",
+      description: "Merke dir Windows-Kombinationen. 6 Paare mit Win-Tasten warten auf dich. Finde immer Aktion und Kombi.",
       memoryGame: {
         title: "Windows Memory",
-        instructions: "6 Paare mit Win-Tasten warten auf dich. Finde immer Aktion und Kombi.",
         pairs: [
           { id: "desktop", cards: ["Desktop anzeigen", "Win+D"] },
           { id: "lock", cards: ["PC sperren", "Win+L"] },
