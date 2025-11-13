@@ -4110,7 +4110,8 @@
         timerId: null,
         remaining: timeLimit,
         awaitingInput: false,
-        currentAnswer: null
+        currentAnswer: null,
+        usedCombos: new Set()
       };
 
       function resetOptions() {
@@ -4188,9 +4189,15 @@
         fastState.remaining = timeLimit;
         fastState.awaitingInput = true;
         elements.options.innerHTML = "";
-        const pool = shuffleArray(normalizedCombos);
+        let unused = normalizedCombos.filter(item => !fastState.usedCombos.has(item.combo));
+        if (!unused.length) {
+          fastState.usedCombos.clear();
+          unused = normalizedCombos.slice();
+        }
+        const pool = shuffleArray(unused);
         const answer = pool[0];
         fastState.currentAnswer = answer;
+        fastState.usedCombos.add(answer.combo);
         const promptLabel = answer.label || answer.display;
         elements.prompt.textContent = promptLabel;
         const distractors = pickRandomCombos(normalizedCombos, optionsPerRound - 1, answer.combo);
@@ -4259,6 +4266,7 @@
         fastState.correct = 0;
         fastState.awaitingInput = false;
         fastState.currentAnswer = null;
+        fastState.usedCombos.clear();
         elements.prompt.textContent = "Bereit?";
         showResult("Klicke auf Start, um zu beginnen.", null);
         updateTimerDisplay(timeLimit);

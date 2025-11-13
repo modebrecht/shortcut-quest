@@ -229,15 +229,14 @@
       tasks: [
         {
           type: "dnd",
-          tokens: ["Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+P", "Ctrl+O", "Win+Shift+S", "Ctrl+W", "Ctrl+Shift+N", "Ctrl+B"],
+          tokens: ["Ctrl+Y", "Ctrl+Z", "Ctrl+P", "Ctrl+O", "Win+Shift+S", "Ctrl+W", "Ctrl+B"],
           targets: [
             { label: "Aktion wiederholen", answer: "Ctrl+Y" },
-            { label: "Aktion wiederherstellen", answer: "Ctrl+Shift+Z" },
-            { label: "Drucken", answer: "Ctrl+P" },
+            { label: "Aktion rückgängig", answer: "Ctrl+Z" },
+            { label: "Druckdialog öffnen", answer: "Ctrl+P" },
             { label: "Dokument öffnen", answer: "Ctrl+O" },
-          { label: "Speichern unter", answer: "Win+Shift+S" },
-            { label: "Aktuelles Fenster schließen", answer: "Ctrl+W" },
-            { label: "Privates Fenster öffnen", answer: "Ctrl+Shift+N" },
+            { label: "Screenshot Ausschnitt erstellen", answer: "Win+Shift+S" },
+            { label: "Tab schliessen", answer: "Ctrl+W" },
             { label: "Text fett formatieren", answer: "Ctrl+B" }
           ]
         }
@@ -263,7 +262,6 @@
           { label: "Neuer Tab", combo: "Ctrl+N" },
           { label: "Suche öffnen", combo: "Ctrl+F" },
           { label: "Drucken", combo: "Ctrl+P" },
-          { label: "Speichern unter", combo: "Win+Shift+S" },
           { label: "Dokument öffnen", combo: "Ctrl+O" }
         ]
       },
@@ -376,12 +374,32 @@
       id: "13",
       tabLabel: "Abschnitt 13",
       title: "13. Windows Navigation – Basics",
-      description: "Gib Tastenkombinationen mit der Win-Taste ein.",
+      description: "Wähle passgenau die richtigen Win-Kürzel.",
       tasks: [
-        { type: "input", prompt: "17. Desktop anzeigen", answer: "Win+D", hint: "Win+D" },
-        { type: "input", prompt: "18. Einstellungen öffnen", answer: "Win+I", hint: "Win+I" },
-        { type: "input", prompt: "19. Explorer starten", answer: "Win+E", hint: "Win+E" },
-        { type: "input", prompt: "20. Task-Ansicht", answer: "Win+Tab", hint: "Win+Tab" }
+        {
+          type: "select",
+          prompt: "17. Desktop anzeigen",
+          answer: "Win+D",
+          options: ["Win+Shift+D", "Win+D", "Win+M", "Win+Home", "Win+Ctrl+D"]
+        },
+        {
+          type: "select",
+          prompt: "18. Einstellungen öffnen",
+          answer: "Win+I",
+          options: ["Win+I", "Win+Pause", "Win+J", "Win+Ctrl+I", "Win+R"]
+        },
+        {
+          type: "select",
+          prompt: "19. Explorer starten",
+          answer: "Win+E",
+          options: ["Win+R", "Win+C", "Win+E", "Win+Shift+E", "Win+Ctrl+E"]
+        },
+        {
+          type: "select",
+          prompt: "20. Task-Ansicht",
+          answer: "Win+Tab",
+          options: ["Win+Tab", "Win+Ctrl+Alt+Tab", "Alt+Tab", "Win+Shift+Tab", "Win+Ctrl+Tab"]
+        }
       ]
     },
     {
@@ -553,20 +571,31 @@
       id: "19",
       tabLabel: "Abschnitt 19",
       title: "19. Drag und Drop – Windows Aufbau",
-      description: "Trainiere erweiterte Shortcuts rund um Desktops, Screenshots und Cast.",
+      description: "Die restlichen Win-Kombinationen: Einstellungen, Emoji, Suche, Snap und Tools.",
       tasks: [
         {
           type: "dnd",
-          tokens: ["Win+Ctrl+D", "Win+Ctrl+Left", "Win+Ctrl+Right", "Win+Shift+S", "Win+K", "Win+P", "Win+Space", "Win+Ctrl+F"],
+          tokens: ["Win+I", "Win+.", "Win+S", "Win+Shift+S", "Win+K", "Win+P", "Win+Space"],
           targets: [
-            { label: "Neuen virtuellen Desktop erstellen", answer: "Win+Ctrl+D" },
-            { label: "Zum linken virtuellen Desktop springen", answer: "Win+Ctrl+Left" },
-            { label: "Zum rechten virtuellen Desktop springen", answer: "Win+Ctrl+Right" },
+            { label: "Einstellungen öffnen", answer: "Win+I" },
+            { label: "Emoji-Panel öffnen", answer: "Win+." },
+            { label: "Suche starten", answer: "Win+S" },
             { label: "Screenshot-Ausschnitt aufnehmen", answer: "Win+Shift+S" },
             { label: "Drahtlose Anzeige/Device verbinden", answer: "Win+K" },
             { label: "Projektionsmenü öffnen (Monitor umschalten)", answer: "Win+P" },
-            { label: "Sprache/Eingabelayout wechseln", answer: "Win+Space" },
-            { label: "Computer im Netzwerk suchen", answer: "Win+Ctrl+F" }
+            { label: "Spracheingabe/Touch-Tastatur öffnen", answer: "Win+Space" }
+          ]
+        },
+        {
+          type: "dnd",
+          tokens: ["Win+Left", "Win+Right", "Win+Up", "Win+Down", "Win+Ctrl+Left", "Win+Ctrl+Right"],
+          targets: [
+            { label: "Fenster nach links andocken", answer: "Win+Left" },
+            { label: "Fenster nach rechts andocken", answer: "Win+Right" },
+            { label: "Fenster maximieren", answer: "Win+Up" },
+            { label: "Fenster minimieren", answer: "Win+Down" },
+            { label: "Zum vorherigen virtuellen Desktop wechseln", answer: "Win+Ctrl+Left" },
+            { label: "Zum nächsten virtuellen Desktop wechseln", answer: "Win+Ctrl+Right" }
           ]
         }
       ]
