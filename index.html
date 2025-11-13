@@ -20,6 +20,7 @@
       --slot-row-height: 200px;
       --icon-visual-size: 116px;
       --inventory-icon-frame: 96px;
+      --memory-card-size: clamp(8rem, 12vw, 11rem);
     }
     * { box-sizing: border-box; }
     body {
@@ -327,11 +328,137 @@
       .dnd-targets {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+      .memory-grid {
+        grid-template-columns: repeat(2, minmax(calc(var(--memory-card-size) * 0.8), 1fr));
+        gap: 1.2rem;
+      }
     }
     @media (max-width: 520px) {
       .dnd-targets {
         grid-template-columns: 1fr;
       }
+      .memory-grid {
+        grid-template-columns: minmax(calc(var(--memory-card-size) * 0.8), 1fr);
+        gap: 1rem;
+      }
+    }
+    .memory-game {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      background: transparent;
+    }
+    .memory-header {
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      background: rgba(15,23,42,0.35);
+      border-bottom: 1px solid rgba(148,163,184,0.12);
+    }
+    .memory-game h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+    }
+    .memory-status {
+      margin: 14px 14px 6px 14px;
+      font-size: 0.95rem;
+      color: #1f2937;
+      font-weight: 600;
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 1px solid rgba(245,158,11,0.65);
+      box-shadow: 0 3px 12px rgba(245,158,11,0.25);
+    }
+    .memory-status + .memory-grid {
+      margin-top: 0.6rem;
+    }
+    .memory-grid {
+      margin: 0 auto;
+      display: grid;
+      gap: 1.1rem;
+      grid-template-columns: repeat(auto-fit, minmax(calc(var(--memory-card-size) + 0.5rem), 1fr));
+      justify-items: center;
+    }
+    .section[data-section="3"] > .card:not(.action-card) {
+      padding: 0;
+    }
+    .section[data-section="3"] > .card:not(.action-card) > h2,
+    .section[data-section="3"] > .card:not(.action-card) > p.small {
+      margin: 0;
+      padding: 0.8rem 1.2rem 0;
+    }
+    .section[data-section="3"] > .card:not(.action-card) > p.small:last-of-type {
+      padding-bottom: 0.8rem;
+    }
+    .section[data-section="3"] .memory-grid {
+      margin: 0;
+    }
+    .memory-card {
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      position: relative;
+      width: var(--memory-card-size);
+      height: var(--memory-card-size);
+      perspective: 900px;
+      border: none;
+      background: transparent;
+      transition: transform 0.25s ease;
+    }
+    .memory-card:not(.matched):not(.revealed):hover {
+      transform: translateY(-4px);
+    }
+    .memory-card:focus-visible {
+      outline: 2px solid rgba(250,204,21,0.85);
+      outline-offset: 4px;
+    }
+    .memory-card-inner {
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: none;
+    }
+    .memory-card.revealed .memory-card-inner,
+    .memory-card.matched .memory-card-inner {
+      transform: rotateY(180deg);
+    }
+    .memory-card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      padding: 0;
+      overflow: visible;
+      background: transparent;
+      border: none;
+    }
+    .memory-card-back {
+      background: transparent;
+    }
+    .memory-card-icon {
+      font-size: var(--memory-card-size);
+      text-shadow: 0 6px 18px rgba(2,6,23,0.55);
+    }
+    .memory-card-front {
+      background: transparent;
+      border: none;
+      transform: rotateY(180deg);
+      color: var(--text);
+      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.2;
     }
     .fast-paced {
       border: 1px solid rgba(148,163,184,0.35);
@@ -3329,6 +3456,7 @@
     let allCheckables = [];
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
     const fastPacedSections = [];
+    const memoryGameControllers = new Map();
     const inputHintRegistry = new Set();
 
     function resolveSectionId(section, fallbackIndex) {
@@ -3497,6 +3625,165 @@
         targetsWrap.appendChild(targetEl);
       });
       container.appendChild(targetsWrap);
+    }
+
+    function appendMemoryGameBlock(container, config, sectionId) {
+      if (!config) return;
+      const pairs = Array.isArray(config.pairs) ? config.pairs.filter(pair => pair && (pair.id || pair.cards)) : [];
+      if (!pairs.length) return;
+      const block = document.createElement("div");
+      block.className = "memory-game";
+      if (config.title || config.instructions) {
+        const header = document.createElement("div");
+        header.className = "memory-header";
+        if (config.title) {
+          const title = document.createElement("h3");
+          title.textContent = config.title;
+          header.appendChild(title);
+        }
+        if (config.instructions) {
+          const subtitle = document.createElement("span");
+          subtitle.className = "small";
+          subtitle.textContent = config.instructions;
+          header.appendChild(subtitle);
+        }
+        block.appendChild(header);
+      }
+      const status = document.createElement("p");
+      status.className = "small memory-status";
+      block.appendChild(status);
+      const grid = document.createElement("div");
+      grid.className = "memory-grid";
+      block.appendChild(grid);
+      const totalPairs = pairs.length;
+      const progressInputs = new Map();
+      const pairIdMap = new Map();
+      pairs.forEach(pair => {
+        const pairId = String(pair.id || `pair-${Math.random().toString(36).slice(2)}`);
+        pairIdMap.set(pair, pairId);
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.dataset.answer = pairId;
+        hidden.className = "memory-progress";
+        hidden.hidden = true;
+        block.appendChild(hidden);
+        progressInputs.set(pairId, hidden);
+      });
+      const cardData = [];
+      pairs.forEach(pair => {
+        const pairId = pairIdMap.get(pair);
+        const entries = Array.isArray(pair.cards) ? pair.cards : Array.isArray(pair.labels) ? pair.labels : [];
+        const normalized = entries.slice(0, 2).map(entry => {
+          if (typeof entry === "string") return entry;
+          if (entry && typeof entry === "object") return entry.label || entry.text || entry.value || "";
+          return "";
+        }).filter(Boolean);
+        if (normalized.length < 2) return;
+        normalized.forEach((label, index) => {
+          cardData.push({
+            id: `${pairId}-${index}`,
+            label,
+            pairId
+          });
+        });
+      });
+      const cards = [];
+      shuffleArray(cardData).forEach(card => {
+        if (!card.label) return;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "memory-card";
+        btn.dataset.card = card.id;
+        btn.dataset.pair = card.pairId;
+        const inner = document.createElement("div");
+        inner.className = "memory-card-inner";
+        const back = document.createElement("div");
+        back.className = "memory-card-face memory-card-back";
+        const icon = document.createElement("span");
+        icon.className = "memory-card-icon";
+        icon.textContent = "🃏";
+        back.appendChild(icon);
+        const front = document.createElement("div");
+        front.className = "memory-card-face memory-card-front";
+        front.textContent = card.label;
+        inner.appendChild(back);
+        inner.appendChild(front);
+        btn.appendChild(inner);
+        grid.appendChild(btn);
+        cards.push(btn);
+      });
+      const state = { openCards: [], lock: false, matched: 0 };
+      const updateStatus = () => {
+        status.textContent = `${state.matched}/${totalPairs} Paare gefunden`;
+      };
+      updateStatus();
+
+      function closeOpenCards(delay = 650) {
+        const toHide = state.openCards.slice();
+        state.lock = true;
+        setTimeout(() => {
+          toHide.forEach(card => card.classList.remove("revealed"));
+          state.openCards = [];
+          state.lock = false;
+        }, delay);
+      }
+
+      function markPairMatched(pairId, first, second) {
+        first.classList.add("matched");
+        second.classList.add("matched");
+        first.classList.remove("revealed");
+        second.classList.remove("revealed");
+        first.disabled = true;
+        second.disabled = true;
+        state.openCards = [];
+        state.lock = false;
+        state.matched += 1;
+        updateStatus();
+        const hidden = progressInputs.get(pairId);
+        if (hidden) {
+          hidden.value = pairId;
+          hidden.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+
+      function handleCard(card) {
+        if (!card || state.lock || card.classList.contains("revealed") || card.classList.contains("matched")) return;
+        card.classList.add("revealed");
+        state.openCards.push(card);
+        if (state.openCards.length === 2) {
+          state.lock = true;
+          const [first, second] = state.openCards;
+          if (first.dataset.pair === second.dataset.pair) {
+            setTimeout(() => markPairMatched(first.dataset.pair, first, second), 220);
+          } else {
+            closeOpenCards();
+          }
+        }
+      }
+
+      cards.forEach(card => {
+        card.addEventListener("click", () => handleCard(card));
+      });
+
+      function resetGame() {
+        state.openCards = [];
+        state.lock = false;
+        state.matched = 0;
+        updateStatus();
+        progressInputs.forEach(input => {
+          input.value = "";
+          input.classList.remove("correct", "incorrect");
+        });
+        cards.forEach(card => {
+          card.classList.remove("revealed", "matched", "incorrect", "correct");
+          card.disabled = false;
+        });
+        const shuffledElements = shuffleArray(cards.slice());
+        shuffledElements.forEach(card => grid.appendChild(card));
+      }
+
+      memoryGameControllers.set(String(sectionId), { reset: resetGame });
+      container.appendChild(block);
     }
 
     function animateNarrativeOptionFly(source, target) {
@@ -3945,6 +4232,9 @@
           if (field) contentCard.appendChild(field);
         }
       });
+      if (section && section.memoryGame) {
+        appendMemoryGameBlock(contentCard, section.memoryGame, sectionId);
+      }
       if (section && section.fastPaced) {
         appendFastPacedBlock(contentCard, section.fastPaced, sectionId);
       }
@@ -3984,6 +4274,7 @@
       if (!sectionTabsHost || !learnSectionsHost) return;
       sectionTabsHost.innerHTML = "";
       learnSectionsHost.innerHTML = "";
+      memoryGameControllers.clear();
       if (!SECTION_BLUEPRINTS.length) {
         const fallback = document.createElement("p");
         fallback.className = "small";
@@ -6270,6 +6561,10 @@
         }
       });
       reshuffleDndSection(section);
+      const memoryController = memoryGameControllers.get(String(sectionId));
+      if (memoryController && typeof memoryController.reset === "function") {
+        memoryController.reset();
+      }
       const resultEl = document.getElementById(`result-${sectionId}`);
       if (resultEl) resultEl.textContent = "Abschnitt wurde zurueckgesetzt.";
       state.sectionResets[sectionId] = (state.sectionResets[sectionId] || 0) + 1;

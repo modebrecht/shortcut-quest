@@ -94,8 +94,20 @@
     {
       id: "3",
       tabLabel: "Abschnitt 3",
-      title: "3. Windows Navigation",
-      description: "Dieser Abschnitt zieht um – die Aufgaben findest du jetzt in Abschnitt 13 und 15.",
+      title: "3. Shortcut Memory",
+      description: "Decke Karten auf und finde jeweils Aktion und Tastenkombi.",
+      memoryGame: {
+        title: "Shortcut Memory",
+        instructions: "Es gibt 6 Paare. Finde immer die passende Beschreibung zur Tastenkombination.",
+        pairs: [
+          { id: "copy", cards: ["Kopieren", "Ctrl+C"] },
+          { id: "paste", cards: ["Einfügen", "Ctrl+V"] },
+          { id: "cut", cards: ["Ausschneiden", "Ctrl+X"] },
+          { id: "undo", cards: ["Rückgängig", "Ctrl+Z"] },
+          { id: "save", cards: ["Speichern", "Ctrl+S"] },
+          { id: "selectall", cards: ["Alles markieren", "Ctrl+A"] }
+        ]
+      },
       tasks: []
     },
     {
@@ -147,8 +159,20 @@
     {
       id: "7",
       tabLabel: "Abschnitt 7",
-      title: "7. Story Modus",
-      description: "Hier entsteht das nächste Szenario.",
+      title: "7. Shortcut Memory – Windows",
+      description: "Merke dir Windows-Kombinationen und decke passende Paare auf.",
+      memoryGame: {
+        title: "Windows Memory",
+        instructions: "6 Paare mit Win-Tasten warten auf dich. Finde immer Aktion und Kombi.",
+        pairs: [
+          { id: "desktop", cards: ["Desktop anzeigen", "Win+D"] },
+          { id: "lock", cards: ["PC sperren", "Win+L"] },
+          { id: "clipboard", cards: ["Zwischenablage-Verlauf", "Win+V"] },
+          { id: "emoji", cards: ["Emoji-Panel", "Win+."] },
+          { id: "explorer", cards: ["Explorer öffnen", "Win+E"] },
+          { id: "snip", cards: ["Screenshot-Ausschnitt", "Win+Shift+S"] }
+        ]
+      },
       tasks: []
     },
     {
