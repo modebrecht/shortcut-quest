@@ -95,9 +95,10 @@
       id: "3",
       tabLabel: "Abschnitt 3",
       title: "3. Shortcut Memory",
+      hideTitle: true,
       description: "",
       memoryGame: {
-        title: "Shortcut Memory",
+        title: "3. Shortcut Memory",
         instructions: "Es gibt 6 Paare. Finde immer die passende Beschreibung zur Tastenkombination.",
         pairs: [
           { id: "copy", cards: ["Kopieren", "Ctrl+C"] },

@@ -390,7 +390,7 @@
       padding-top: 0;
     }
     .memory-section-card {
-      padding: 0.2rem 0 0;
+      padding: 0;
       position: relative;
       z-index: 0;
     }
@@ -4235,9 +4235,12 @@
       const contentCard = document.createElement("div");
       contentCard.className = "card";
       if (section && section.memoryGame) contentCard.classList.add("memory-section-card");
-      const heading = document.createElement("h2");
-      heading.textContent = section && section.title ? section.title : `Abschnitt ${sectionId}`;
-      contentCard.appendChild(heading);
+      const shouldShowHeading = !(section && section.hideTitle);
+      if (shouldShowHeading) {
+        const heading = document.createElement("h2");
+        heading.textContent = section && section.title ? section.title : `Abschnitt ${sectionId}`;
+        contentCard.appendChild(heading);
+      }
       if (section && section.description) {
         const description = document.createElement("p");
         description.className = "small";
