@@ -705,6 +705,187 @@
         ]
       },
       tasks: []
+    },
+    {
+      id: "24",
+      tabLabel: "Abschnitt 24",
+      title: "24. CTRL Basics Review",
+      description: "Wiederhole die wichtigsten CTRL-Kombinationen im Schnelldurchlauf.",
+      tasks: [
+        {
+          type: "select",
+          prompt: "Speichere deine Datei",
+          answer: "Ctrl+S",
+          options: ["Ctrl+S", "Ctrl+Q", "Ctrl+P", "Ctrl+Shift+S", "Ctrl+Space"]
+        },
+        {
+          type: "select",
+          prompt: "Wiederhole die letzte Aktion",
+          answer: "Ctrl+Y",
+          options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+Shift+Y", "Ctrl+R", "Alt+Y"]
+        },
+        {
+          type: "select",
+          prompt: "Rufe den Druckdialog auf",
+          answer: "Ctrl+P",
+          options: ["Ctrl+P", "Ctrl+Alt+P", "Ctrl+Shift+P", "Alt+P", "Win+P"]
+        },
+        {
+          type: "select",
+          prompt: "Suche im Dokument",
+          answer: "Ctrl+F",
+          options: ["Ctrl+F", "Ctrl+H", "Ctrl+R", "Ctrl+Shift+F", "Alt+F"]
+        }
+      ]
+    },
+    {
+      id: "25",
+      tabLabel: "Abschnitt 25",
+      title: "25. Navigation-Puzzle",
+      description: "Mastere alte und neue Fensternavigation durch Drag & Drop.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Alt+Tab", "Win+Tab", "Ctrl+Esc", "Win+D", "Win+E", "Win+S", "Win+PfeiltasteLinks", "Win+PfeiltasteRechts"],
+          targets: [
+            { label: "Zwischen Anwendungen wechseln", answer: "Alt+Tab" },
+            { label: "Task-Ansicht öffnen", answer: "Win+Tab" },
+            { label: "Startmenü schnell öffnen", answer: "Ctrl+Esc" },
+            { label: "Desktop zeigen", answer: "Win+D" },
+            { label: "Explorer öffnen", answer: "Win+E" },
+            { label: "Suche öffnen", answer: "Win+S" },
+            { label: "Fenster links andocken", answer: "Win+PfeiltasteLinks" },
+            { label: "Fenster rechts andocken", answer: "Win+PfeiltasteRechts" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "26",
+      tabLabel: "Abschnitt 26",
+      title: "26. System Quick Access",
+      description: "Öffne Einstellungen, Sperren und Zwischenablage mit der Win-Taste.",
+      tasks: [
+        {
+          type: "select",
+          prompt: "Sperre sofort deinen Rechner",
+          answer: "Win+L",
+          options: ["Win+L", "Ctrl+L", "Alt+F4", "Win+R", "Win+U"]
+        },
+        {
+          type: "select",
+          prompt: "Starte Einstellungen",
+          answer: "Win+I",
+          options: ["Win+I", "Win+P", "Win+Shift+I", "Ctrl+I", "Win+Ctrl+O"]
+        },
+        {
+          type: "select",
+          prompt: "Zwischenablage-Verlauf anzeigen",
+          answer: "Win+V",
+          options: ["Win+V", "Ctrl+V", "Win+Shift+V", "Ctrl+Shift+V", "Win+Alt+V"]
+        }
+      ]
+    },
+    {
+      id: "27",
+      tabLabel: "Abschnitt 27",
+      title: "27. Window Snap Stories",
+      description: "Erzählung mit Entscheidungen zu Snap- und Fenstersteuerung.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Ein Projekt braucht volle Konzentration, zwei Apps sollen nebeneinander.",
+            prompt: "Jonas zieht mit ____ + ____ das Fenster nach links.",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "PfeiltasteLinks", value: "PfeiltasteLinks" },
+              { label: "Alt", value: "Alt" },
+              { label: "PfeiltasteRechts", value: "PfeiltasteRechts" }
+            ],
+            answers: ["Win", "PfeiltasteLinks"]
+          },
+          {
+            scene: "Das andere Fenster schickst du mit ____ + ____ nach rechts.",
+            prompt: "Wähle die Kombination:",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "PfeiltasteRechts", value: "PfeiltasteRechts" },
+              { label: "Alt", value: "Alt" },
+              { label: "PfeiltasteLinks", value: "PfeiltasteLinks" }
+            ],
+            answers: ["Win", "PfeiltasteRechts"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "28",
+      tabLabel: "Abschnitt 28",
+      title: "28. System Combo Builder",
+      description: "Baue Settings-, Search- und Lock-Kombos aus Bausteinen.",
+      comboBuilder: {
+        title: "System Combo Builder",
+        instructions: "Setze jeweils die richtige Reihenfolge zusammen.",
+        defaultOptions: ["Ctrl", "Shift", "Win", "Alt", "S", "L", "I", "V", "P", "E"],
+        combos: [
+          { title: "Lock-In-Place", prompt: "Sperre das Gerät sofort.", answers: ["Win", "L"] },
+          { title: "Search Recall", prompt: "Starte die Suche wieder.", answers: ["Win", "S"] },
+          { title: "Settings", prompt: "Einstellungen öffnen.", answers: ["Win", "I"] },
+          { title: "Clip Explorer", prompt: "Zwischenablage-Verlauf.", answers: ["Win", "V"] }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "29",
+      tabLabel: "Abschnitt 29",
+      title: "29. Shortcut Shuffle",
+      description: "Eine kreative Mischung aus Drag & Drop und Selects für frische Kombinationen.",
+      tasks: [
+        {
+          type: "dnd",
+          tokens: ["Win+.", "Win+Shift+S", "Alt+Tab", "Win+Ctrl+O"],
+          targets: [
+            { label: "Emoji-Panel für Reaktionen starten", answer: "Win+." },
+            { label: "Screenshot-Ausschnitt aufnehmen", answer: "Win+Shift+S" },
+            { label: "Zwischen laufenden Programmen wechseln", answer: "Alt+Tab" },
+            { label: "Bildschirmtastatur öffnen", answer: "Win+Ctrl+O" }
+          ]
+        },
+        {
+          type: "select",
+          prompt: "Wähle die Kombination für Systemsuche.",
+          answer: "Win+S",
+          options: ["Win+S", "Ctrl+S", "Win+P", "Win+Ctrl+S"]
+        }
+      ]
+    },
+    {
+      id: "30",
+      tabLabel: "Abschnitt 30",
+      title: "30. Schnellcheck – Systemkürzel",
+      description: "Teste die zentralen Windows-Kombinationen im Countdown-Modus.",
+      fastPaced: {
+        rounds: 6,
+        timeLimitSeconds: 6,
+        optionsPerRound: 3,
+        combos: [
+          { label: "PC Sperren", combo: "Win+L" },
+          { label: "Einstellungen", combo: "Win+I" },
+          { label: "Suche", combo: "Win+S" },
+          { label: "Zwischenablage-Verlauf", combo: "Win+V" },
+          { label: "Explorer", combo: "Win+E" },
+          { label: "Fenster Links ausrichten", combo: "Win+PfeiltasteLinks" }
+        ]
+      },
+      tasks: [],
+      hideActions: true
     }
 
   ];
