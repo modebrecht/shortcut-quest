@@ -4877,7 +4877,6 @@
       { key: "feuer_klinge", name: "Feuerklinge", atk: 4, def: 0, icon: "sword_fire", slot: "weapon", description: "", theme: "knight", category: "weapon" },
 
       { key: "stahl_sword", name: "Stahlklinge", atk: 3, def: 0, icon: "sword_steel", slot: "weapon", description: "", theme: "knight", category: "weapon" },
-      { key: "eichen_schild", name: "Eichenschild", atk: 0, def: 2, icon: "shield", slot: "offhand", description: "", theme: "knight", category: "armor" },
       { key: "turm_schild", name: "Turmschild", atk: 0, def: 3, icon: "shield", slot: "offhand", description: "", theme: "knight", category: "armor" },
       { key: "taktik_helm", name: "Taktikhelm", atk: 1, def: 1, icon: "helm", slot: "helm", description: "", theme: "knight", category: "armor" },
       { key: "panzerhandschuhe", name: "Panzerhandschuhe", atk: 0, def: 1, icon: "panzerhandschuhe", slot: "gloves", description: "Robuste Handschuhe für sicheren Griff.", theme: "knight", category: "armor" },
@@ -6380,29 +6379,53 @@
       if (!category || category === "any") return GACHA_CATEGORY_LABELS.any || "Items";
       return category.charAt(0).toUpperCase() + category.slice(1);
     }
-    function getRemainingCopiesForCategory(category) {
+    function getShopAvailabilitySummary(category) {
       if (category === "skill") {
-        return Infinity;
+        const total = SKILL_POOL.length || Infinity;
+        return {
+          uniqueAvailable: Infinity,
+          remainingCopies: Infinity,
+          totalTemplates: total
+        };
       }
       const pool = (!category || category === "any")
         ? KNIGHT_POOL
         : KNIGHT_POOL.filter(item => item.category === category);
-      if (!pool.length) return 0;
-      return pool.reduce((sum, template) => {
-        return sum + Math.max(0, getRemainingShopCopies(template));
-      }, 0);
+      if (!pool.length) {
+        return { uniqueAvailable: 0, remainingCopies: 0, totalTemplates: 0 };
+      }
+      let uniqueAvailable = 0;
+      let remainingCopies = 0;
+      pool.forEach(template => {
+        const remaining = Math.max(0, getRemainingShopCopies(template));
+        if (remaining > 0) {
+          uniqueAvailable += 1;
+          remainingCopies += remaining;
+        }
+      });
+      return {
+        uniqueAvailable,
+        remainingCopies,
+        totalTemplates: pool.length
+      };
     }
-    function formatRemainingCopyText(category, amount) {
-      if (!isFinite(amount)) return "∞ übrig";
-      if (amount <= 0) return "Ausverkauft";
-      return amount + "x übrig";
+    function formatRemainingAvailability(category, summary) {
+      if (!summary) return "Ausverkauft";
+      if (category === "skill" || !Number.isFinite(summary.uniqueAvailable)) {
+        return "∞ übrig";
+      }
+      if (summary.totalTemplates <= 0) return "Keine Items";
+      if (summary.uniqueAvailable <= 0) return "Ausverkauft";
+      return `${summary.uniqueAvailable}/${summary.totalTemplates} Items`;
     }
     function updateGachaRemainingDisplays() {
       if (!gachaRemainingLabels || !gachaRemainingLabels.length) return;
       gachaRemainingLabels.forEach(label => {
         const category = label.getAttribute("data-remaining-category");
-        const remaining = getRemainingCopiesForCategory(category);
-        label.textContent = formatRemainingCopyText(category, remaining);
+        const summary = getShopAvailabilitySummary(category);
+        label.textContent = formatRemainingAvailability(category, summary);
+        label.dataset.uniqueAvailable = String(summary.uniqueAvailable);
+        label.dataset.remainingCopies = String(summary.remainingCopies);
       });
     }
     let displayedCoins = state.coins;
