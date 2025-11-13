@@ -3275,6 +3275,7 @@
     const STORAGE_KEY = "shortcutRitter_v1";
     const COINS_PER_ACTION = 10;
     const COINS_PER_ACTION_AFTER_RESET = 5;
+    const CONSTANTS_DEBUG = true;
     const RUNEN_AMULET_KEY = "runen_amulet";
     const LEBENS_RING_KEY = "lebens_ring";
     const GLUECKS_RING_KEY = "gluecks_ring";
@@ -6411,12 +6412,68 @@
     }
     function formatRemainingAvailability(category, summary) {
       if (!summary) return "Ausverkauft";
-      if (category === "skill" || !Number.isFinite(summary.uniqueAvailable)) {
+      if (category === "skill" || !Number.isFinite(summary.remainingCopies)) {
         return "∞ übrig";
       }
-      if (summary.totalTemplates <= 0) return "Keine Items";
-      if (summary.uniqueAvailable <= 0) return "Ausverkauft";
-      return `${summary.uniqueAvailable}/${summary.totalTemplates} Items`;
+      if (summary.remainingCopies <= 0) return "Ausverkauft";
+      return `${summary.remainingCopies}x übrig`;
+    }
+    const SHOP_DEBUG_CATEGORIES = ["weapon", "armor", "accessory", "skill"];
+    const SHOP_DEBUG_STATE = {
+      availability: new Map(),
+      inventory: new Map()
+    };
+    function debugLogShopAvailability() {
+      if (!CONSTANTS_DEBUG || typeof console === "undefined" || !console.log) return;
+      const labelFor = cat => (GACHA_CATEGORY_LABELS[cat] || cat || "").toUpperCase();
+      const availabilityLines = [];
+      const inventoryLines = [];
+      SHOP_DEBUG_CATEGORIES.forEach(cat => {
+        const summary = getShopAvailabilitySummary(cat);
+        const availabilityKey = summary
+          ? `${summary.remainingCopies ?? "inf"}|${summary.uniqueAvailable ?? "inf"}|${summary.totalTemplates ?? "inf"}`
+          : "none";
+        const prevAvailability = SHOP_DEBUG_STATE.availability.get(cat);
+        if (availabilityKey !== prevAvailability) {
+          const availableText = summary && Number.isFinite(summary.remainingCopies)
+            ? `${summary.remainingCopies}x`
+            : "∞x";
+          const uniqueText = summary
+            ? `${summary.uniqueAvailable}/${summary.totalTemplates}`
+            : "0/0";
+          availabilityLines.push(`${availableText} ${labelFor(cat)} AVAILABLE (unique ${uniqueText})`);
+          SHOP_DEBUG_STATE.availability.set(cat, availabilityKey);
+        }
+        let ownedCount = 0;
+        if (cat === "skill") {
+          ownedCount = state.skills.reduce((sum, skill) => {
+            if (!skill) return sum;
+            const copies = Number(skill.totalCopies || 1);
+            return sum + Math.max(1, copies);
+          }, 0);
+        } else {
+          ownedCount = state.items.reduce((sum, item) => {
+            if (!item) return sum;
+            if (normalizeItemCategory(item.category) !== cat) return sum;
+            const copies = Number(item.totalCopies || 1);
+            return sum + Math.max(1, copies);
+          }, 0);
+        }
+        const inventoryKey = `${ownedCount}`;
+        const prevInventory = SHOP_DEBUG_STATE.inventory.get(cat);
+        if (inventoryKey !== prevInventory) {
+          inventoryLines.push(`${ownedCount} ${labelFor(cat)}`);
+          SHOP_DEBUG_STATE.inventory.set(cat, inventoryKey);
+        }
+      });
+      if (availabilityLines.length) {
+        console.log("Shop availability update:");
+        availabilityLines.forEach(line => console.log(line));
+      }
+      if (inventoryLines.length) {
+        console.log("Inventory update:");
+        inventoryLines.forEach(line => console.log(line));
+      }
     }
     function updateGachaRemainingDisplays() {
       if (!gachaRemainingLabels || !gachaRemainingLabels.length) return;
@@ -6426,7 +6483,9 @@
         label.textContent = formatRemainingAvailability(category, summary);
         label.dataset.uniqueAvailable = String(summary.uniqueAvailable);
         label.dataset.remainingCopies = String(summary.remainingCopies);
+        label.dataset.totalTemplates = String(summary.totalTemplates);
       });
+      debugLogShopAvailability();
     }
     let displayedCoins = state.coins;
     let pendingCoinAnimation = null;
