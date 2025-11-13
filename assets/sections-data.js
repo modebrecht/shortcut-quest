@@ -11,25 +11,25 @@
       tasks: [
         {
           type: "input",
-          prompt: "1. Drucken",
+          prompt: "Drucken",
           answer: "Ctrl+P",
           hint: "Ctrl+P"
         },
         {
           type: "input",
-          prompt: "2. Neuer Tab",
+          prompt: "Neuer Tab",
           answer: "Ctrl+N",
           hint: "Ctrl+N"
         },
         {
           type: "input",
-          prompt: "3. Fenster schließen",
+          prompt: "Fenster schließen",
           answer: "Ctrl+W",
           hint: "Ctrl+W"
         },
         {
           type: "input",
-          prompt: "4. Screenshot-Ausschnitt",
+          prompt: "Screenshot-Ausschnitt",
           answer: "Win+Shift+S",
           hint: "Win+Shift+S"
         }
@@ -43,25 +43,25 @@
       tasks: [
         {
           type: "select",
-          prompt: "9. Kopieren",
+          prompt: "Kopieren",
           answer: "Ctrl+C",
           options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Shift+C", "Ctrl+Alt+C"]
         },
         {
           type: "select",
-          prompt: "10. Einfügen",
+          prompt: "Einfügen",
           answer: "Ctrl+V",
           options: ["Ctrl+S", "Ctrl+V", "Ctrl+Z", "Ctrl+Shift+V", "Ctrl+Alt+V"]
         },
         {
           type: "select",
-          prompt: "11. Ausschneiden",
+          prompt: "Ausschneiden",
           answer: "Ctrl+X",
           options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Shift+X", "Ctrl+Alt+X"]
         },
         {
           type: "select",
-          prompt: "12. Alles markieren",
+          prompt: "Alles markieren",
           answer: "Ctrl+A",
           options: ["Ctrl+P", "Ctrl+A", "Ctrl+F", "Ctrl+Shift+A", "Ctrl+Alt+A"]
         }
@@ -93,25 +93,25 @@
       tasks: [
         {
           type: "select",
-          prompt: "13. Speichern",
+          prompt: "Speichern",
           answer: "Ctrl+S",
           options: ["Ctrl+S", "Ctrl+O", "Win+Shift+S", "Ctrl+Alt+S", "Ctrl+P"]
         },
         {
           type: "select",
-          prompt: "14. Neues Dokument",
+          prompt: "Neues Dokument",
           answer: "Ctrl+N",
           options: ["Ctrl+O", "Ctrl+N", "Ctrl+P", "Ctrl+Shift+N", "Ctrl+Alt+N"]
         },
         {
           type: "select",
-          prompt: "15. Drucken",
+          prompt: "Drucken",
           answer: "Ctrl+P",
           options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F", "Ctrl+Alt+P", "Ctrl+Shift+F"]
         },
         {
           type: "select",
-          prompt: "16. Rückgängig",
+          prompt: "Rückgängig",
           answer: "Ctrl+Z",
           options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+Alt+Z", "Ctrl+Shift+Y"]
         }
@@ -125,25 +125,25 @@
       tasks: [
         {
           type: "select",
-          prompt: "5. Alles markieren",
+          prompt: "Alles markieren",
           answer: "Ctrl+A",
           options: ["Ctrl+A", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+P"]
         },
         {
           type: "select",
-          prompt: "6. Suche öffnen",
+          prompt: "Suche öffnen",
           answer: "Ctrl+F",
           options: ["Ctrl+F", "Ctrl+H", "Ctrl+G", "Ctrl+Space", "Ctrl+Shift+F"]
         },
         {
           type: "select",
-          prompt: "7. Wiederholen",
+          prompt: "Wiederholen",
           answer: "Ctrl+Y",
           options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+Shift+Z", "Ctrl+R", "Ctrl+Q"]
         },
         {
           type: "select",
-          prompt: "8. Fett formatieren",
+          prompt: "Fett formatieren",
           answer: "Ctrl+B",
           options: ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+Shift+B", "Ctrl+T"]
         }
@@ -157,25 +157,25 @@
       tasks: [
         {
           type: "input",
-          prompt: "17. Browser-Tab wechseln",
+          prompt: "Browser-Tab wechseln",
           answer: "Ctrl+Tab",
           hint: "Ctrl+Tab"
         },
         {
           type: "input",
-          prompt: "18. Zwischen aktiven Fenstern wechseln",
+          prompt: "Zwischen aktiven Fenstern wechseln",
           answer: "Alt+Tab",
           hint: "Alt+Tab"
         },
         {
           type: "select",
-          prompt: "19. Task-Manager öffnen",
+          prompt: "Task-Manager öffnen",
           answer: "Ctrl+Shift+Esc",
           options: ["Ctrl+Alt+Del", "Ctrl+Shift+Esc", "Alt+F4", "Win+T"]
         },
         {
           type: "select",
-          prompt: "20. Desktop anzeigen",
+          prompt: "Desktop anzeigen",
           answer: "Win+D",
           options: ["Win+M", "Win+D", "Alt+F4", "Ctrl+Alt+Del"]
         }
@@ -378,32 +378,32 @@
       tasks: [
         {
           type: "select",
-          prompt: "17. Desktop anzeigen",
+          prompt: "Desktop anzeigen",
           answer: "Win+D",
           options: ["Win+Shift+D", "Win+D", "Win+M", "Win+Home", "Win+Ctrl+D"]
         },
         {
           type: "select",
-          prompt: "18. Einstellungen öffnen",
+          prompt: "Einstellungen öffnen",
           answer: "Win+I",
           options: ["Win+I", "Win+Pause", "Win+J", "Win+Ctrl+I", "Win+R"]
         },
         {
           type: "select",
-          prompt: "19. Explorer starten",
+          prompt: "Explorer starten",
           answer: "Win+E",
           options: ["Win+R", "Win+C", "Win+E", "Win+Shift+E", "Win+Ctrl+E"]
         },
         {
           type: "select",
-          prompt: "20. Task-Ansicht öffnen",
+          prompt: "Task-Ansicht öffnen",
           answer: "Win+Tab",
           options: ["Win+Tab", "Win+Ctrl+Alt+Tab", "Alt+Tab", "Win+Shift+Tab", "Win+Ctrl+Tab"]
         }
         ,
         {
           type: "select",
-          prompt: "21. Zwischen Fenstern wechseln",
+          prompt: "Zwischen Fenstern wechseln",
           answer: "Alt+Tab",
           options: ["Alt+Tab", "Win+Tab", "Ctrl+Tab", "Ctrl+Alt+Del", "Win+Shift+Tab"]
         }
@@ -417,25 +417,25 @@
       tasks: [
         {
           type: "select",
-          prompt: "25. Zwischenablage-Verlauf öffnen",
+          prompt: "Zwischenablage-Verlauf öffnen",
           answer: "Win+V",
           options: ["Win+Shift+V", "Win+Alt+V", "Win+V", "Win+C", "Win+B"]
         },
         {
           type: "select",
-          prompt: "26. Emoji-Panel anzeigen",
+          prompt: "Emoji-Panel anzeigen",
           answer: "Win+.",
           options: ["Win+,", "Win+Ctrl+.", "Win+.", "Win+Shift+;", "Win+E"]
         },
         {
           type: "select",
-          prompt: "27. Explorer öffnen",
+          prompt: "Explorer öffnen",
           answer: "Win+E",
           options: ["Win+Shift+E", "Win+Alt+E", "Win+E", "Win+C", "Win+Ctrl+E"]
         },
         {
           type: "select",
-          prompt: "28. Desktop anzeigen",
+          prompt: "Desktop anzeigen",
           answer: "Win+D",
           options: ["Win+Ctrl+D", "Win+Shift+D", "Win+Alt+D", "Win+D", "Win+Home"]
         }
@@ -447,10 +447,10 @@
       title: "15. Windows Navigation – Aufbau",
       description: "Trainiere Snap-Layouts, Schnellmenü und weitere Win-Kürzel.",
       tasks: [
-        { type: "input", prompt: "21. Fenster fix nach links", answer: "Win+Left", hint: "Win+Left" },
-        { type: "input", prompt: "22. Fenster fix nach rechts", answer: "Win+Right", hint: "Win+Right" },
-        { type: "input", prompt: "23. Schnellmenü", answer: "Win+X", hint: "Win+X" },
-        { type: "input", prompt: "24. Ausführen öffnen", answer: "Win+R", hint: "Win+R" }
+        { type: "input", prompt: "Fenster fix nach links", answer: "Win+Left", hint: "Win+Left" },
+        { type: "input", prompt: "Fenster fix nach rechts", answer: "Win+Right", hint: "Win+Right" },
+        { type: "input", prompt: "Schnellmenü", answer: "Win+X", hint: "Win+X" },
+        { type: "input", prompt: "Ausführen öffnen", answer: "Win+R", hint: "Win+R" }
       ]
     },
     {
