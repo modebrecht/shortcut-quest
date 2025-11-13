@@ -6,8 +6,8 @@
     {
       id: "1",
       tabLabel: "Abschnitt 1",
-      title: "1. Selber tippen",
-      description: "Schreibe jedes Tastenkürzel exakt in das Feld.",
+      title: "1. Selber tippen – Teil 1",
+      description: "Löse die ersten vier Kürzel, um dein Muscle Memory aufzuwärmen.",
       tasks: [
         {
           type: "input",
@@ -29,33 +29,9 @@
         },
         {
           type: "input",
-          prompt: "4. Speichern unter",
-          answer: "Ctrl+Shift+S",
-          hint: "Ctrl+Shift+S"
-        },
-        {
-          type: "input",
-          prompt: "5. Alles markieren",
-          answer: "Ctrl+A",
-          hint: "Ctrl+A"
-        },
-        {
-          type: "input",
-          prompt: "6. Suche öffnen",
-          answer: "Ctrl+F",
-          hint: "Ctrl+F"
-        },
-        {
-          type: "input",
-          prompt: "7. Wiederholen",
-          answer: "Ctrl+Y",
-          hint: "Ctrl+Y"
-        },
-        {
-          type: "input",
-          prompt: "8. Fett formatieren",
-          answer: "Ctrl+B",
-          hint: "Ctrl+B"
+          prompt: "4. Screenshot-Ausschnitt",
+          answer: "Win+Shift+S",
+          hint: "Win+Shift+S"
         }
       ]
     },
@@ -119,7 +95,7 @@
           type: "select",
           prompt: "13. Speichern",
           answer: "Ctrl+S",
-          options: ["Ctrl+S", "Ctrl+O", "Ctrl+Shift+S", "Ctrl+Alt+S", "Ctrl+P"]
+          options: ["Ctrl+S", "Ctrl+O", "Win+Shift+S", "Ctrl+Alt+S", "Ctrl+P"]
         },
         {
           type: "select",
@@ -144,16 +120,66 @@
     {
       id: "5",
       tabLabel: "Abschnitt 5",
-      title: "5. Coming Soon",
-      description: "Dieser Bereich ist in Vorbereitung. Schau bald wieder vorbei.",
-      tasks: []
+      title: "5. Selber tippen – Teil 2",
+      description: "Die zweite Hälfte deiner Tipparbeit: sichere dir die restlichen wichtigen Kürzel.",
+      tasks: [
+        {
+          type: "select",
+          prompt: "5. Alles markieren",
+          answer: "Ctrl+A",
+          options: ["Ctrl+A", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+P"]
+        },
+        {
+          type: "select",
+          prompt: "6. Suche öffnen",
+          answer: "Ctrl+F",
+          options: ["Ctrl+F", "Ctrl+H", "Ctrl+G", "Ctrl+Space", "Ctrl+Shift+F"]
+        },
+        {
+          type: "select",
+          prompt: "7. Wiederholen",
+          answer: "Ctrl+Y",
+          options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+Shift+Z", "Ctrl+R", "Ctrl+Q"]
+        },
+        {
+          type: "select",
+          prompt: "8. Fett formatieren",
+          answer: "Ctrl+B",
+          options: ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+Shift+B", "Ctrl+T"]
+        }
+      ]
     },
     {
       id: "6",
       tabLabel: "Abschnitt 6",
-      title: "6. Coming Soon",
-      description: "Noch in Arbeit. Hier warten bald neue Challenges.",
-      tasks: []
+      title: "6. Quick Wins",
+      description: "Ein Überraschungs-Mix aus Kombinationen, die im Alltag immer wieder helfen.",
+      tasks: [
+        {
+          type: "input",
+          prompt: "17. Browser-Tab wechseln",
+          answer: "Ctrl+Tab",
+          hint: "Ctrl+Tab"
+        },
+        {
+          type: "input",
+          prompt: "18. Zwischen aktiven Fenstern wechseln",
+          answer: "Alt+Tab",
+          hint: "Alt+Tab"
+        },
+        {
+          type: "select",
+          prompt: "19. Task-Manager öffnen",
+          answer: "Ctrl+Shift+Esc",
+          options: ["Ctrl+Alt+Del", "Ctrl+Shift+Esc", "Alt+F4", "Win+T"]
+        },
+        {
+          type: "select",
+          prompt: "20. Desktop anzeigen",
+          answer: "Win+D",
+          options: ["Win+M", "Win+D", "Alt+F4", "Ctrl+Alt+Del"]
+        }
+      ]
     },
     {
       id: "7",
@@ -203,13 +229,13 @@
       tasks: [
         {
           type: "dnd",
-          tokens: ["Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+P", "Ctrl+O", "Ctrl+Shift+S", "Ctrl+W", "Ctrl+Shift+N", "Ctrl+B"],
+          tokens: ["Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+P", "Ctrl+O", "Win+Shift+S", "Ctrl+W", "Ctrl+Shift+N", "Ctrl+B"],
           targets: [
             { label: "Aktion wiederholen", answer: "Ctrl+Y" },
-            { label: "Aktion wiederherstellen (Variante)", answer: "Ctrl+Shift+Z" },
+            { label: "Aktion wiederherstellen", answer: "Ctrl+Shift+Z" },
             { label: "Drucken", answer: "Ctrl+P" },
             { label: "Dokument öffnen", answer: "Ctrl+O" },
-            { label: "Speichern unter", answer: "Ctrl+Shift+S" },
+          { label: "Speichern unter", answer: "Win+Shift+S" },
             { label: "Aktuelles Fenster schließen", answer: "Ctrl+W" },
             { label: "Privates Fenster öffnen", answer: "Ctrl+Shift+N" },
             { label: "Text fett formatieren", answer: "Ctrl+B" }
@@ -237,7 +263,7 @@
           { label: "Neuer Tab", combo: "Ctrl+N" },
           { label: "Suche öffnen", combo: "Ctrl+F" },
           { label: "Drucken", combo: "Ctrl+P" },
-          { label: "Speichern unter", combo: "Ctrl+Shift+S" },
+          { label: "Speichern unter", combo: "Win+Shift+S" },
           { label: "Dokument öffnen", combo: "Ctrl+O" }
         ]
       },
