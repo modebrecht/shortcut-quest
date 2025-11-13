@@ -530,21 +530,23 @@
             missingSlots: 2,
             options: [
               { label: "Win", value: "Win" },
-              { label: "PfeiltasteLinks", value: "Left" },
-              { label: "PfeiltasteRechts", value: "Right" },
+              { label: "PfeiltasteLinks", value: "PfeiltasteLinks" },
+              { label: "PfeiltasteRechts", value: "PfeiltasteRechts" },
               { label: "Up", value: "Up" }
             ],
             answers: ["Win", "PfeiltasteLinks"]
           },
           {
             scene: "Eine App hängt komplett, also ruft er den Task-Manager auf.",
-            prompt: "Er öffnet den Task-Manager mittels ____ + ____ + ____.",
+            prompt: "Er öffnet den Task-Manager mit ____ + ____ + ____.",
             missingSlots: 3,
             options: [
               { label: "Ctrl", value: "Ctrl" },
               { label: "Shift", value: "Shift" },
               { label: "Esc", value: "Esc" },
-              { label: "Alt", value: "Alt" }
+              { label: "Alt", value: "Alt" },
+              { label: "Win", value: "Win" }
+
             ],
             answers: ["Ctrl", "Shift", "Esc"]
           }
@@ -588,23 +590,8 @@
             { label: "Emoji-Panel öffnen", answer: "Win+." },
             { label: "Suche starten", answer: "Win+S" },
             { label: "Screenshot-Ausschnitt aufnehmen", answer: "Win+Shift+S" },
-            { label: "Drahtlose Anzeige/Device verbinden", answer: "Win+K" },
-            { label: "Projektionsmenü öffnen (Monitor umschalten)", answer: "Win+P" },
-            { label: "Spracheingabe/Touch-Tastatur öffnen", answer: "Win+Space" }
           ]
         },
-        {
-          type: "dnd",
-          tokens: ["Win+PfeiltasteLinks", "Win+PfeiltasteRechts", "Win+Up", "Win+Down", "Win+Ctrl+Left", "Win+Ctrl+Right"],
-          targets: [
-            { label: "Fenster nach links andocken", answer: "Win+PfeiltasteLinks" },
-            { label: "Fenster nach rechts andocken", answer: "Win+PfeiltasteRechts" },
-            { label: "Fenster maximieren", answer: "Win+Up" },
-            { label: "Fenster minimieren", answer: "Win+Down" },
-            { label: "Zum vorherigen virtuellen Desktop wechseln", answer: "Win+Ctrl+Left" },
-            { label: "Zum nächsten virtuellen Desktop wechseln", answer: "Win+Ctrl+Right" }
-          ]
-        }
       ]
     },
     {
@@ -627,21 +614,15 @@
           { label: "Ausführen-Dialog", combo: "Win+R" },
           { label: "Benachrichtigungen", combo: "Win+A" },
           { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
-          { label: "Virtueller Desktop erstellen", combo: "Win+Ctrl+D" },
-          { label: "Virtueller Desktop links", combo: "Win+Ctrl+Left" },
-          { label: "Virtueller Desktop rechts", combo: "Win+Ctrl+Right" },
-          { label: "Cast/Verbinden", combo: "Win+K" },
-          { label: "Projektionsmenü", combo: "Win+P" },
-          { label: "Sprache wechseln", combo: "Win+Space" }
         ]
       },
       tasks: [],
       hideActions: true
     },
     {
-      id: "21",
-      tabLabel: "Abschnitt 21",
-      title: "21. Combo Builder",
+      id: "22",
+      tabLabel: "Abschnitt 22",
+      title: "22. Combo Builder",
       description: "Baue komplette Tastenkombinationen aus einzelnen Tastenbausteinen.",
       comboBuilder: {
         title: "Combo Builder",
@@ -668,9 +649,9 @@
       tasks: []
     },
     {
-      id: "22",
-      tabLabel: "Abschnitt 22",
-      title: "22. Combo Builder – Fokus",
+      id: "23",
+      tabLabel: "Abschnitt 23",
+      title: "23. Combo Builder – Fokus",
       description: "Weitere Kombos in kleineren Häppchen trainieren.",
       comboBuilder: {
         title: "Combo Builder",
