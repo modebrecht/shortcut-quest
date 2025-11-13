@@ -1289,6 +1289,12 @@
       cursor: default;
       user-select: none;
     }
+    .skill-bonus-indicator[data-item-upgrade="true"][data-item-upgrade-ready="true"],
+    .skill-bonus-indicator[data-skill-upgrade="true"][data-item-upgrade-ready="true"],
+    .skill-bonus-indicator[data-item-upgrade="true"][data-item-upgrade-ready="true"] *,
+    .skill-bonus-indicator[data-skill-upgrade="true"][data-skill-upgrade-ready="true"] {
+      cursor: pointer;
+    }
     .skill-bonus-indicator::after {
       content: "";
       position: absolute;
@@ -4696,18 +4702,31 @@
     let battleButtons = [];
     let currentBattleContext = null;
     let canRenderBattlePreview = false;
-    function handleUpgradeClick(container, upgradeFn) {
+    function handleUpgradeClick(container, selector, upgradeFn, readyAttr = "itemUpgradeReady") {
       if (!container) return;
       container.addEventListener("click", event => {
-        const btn = event.target.closest(".item-upgrade");
-        if (!btn || btn.disabled || btn.dataset.skillBonus === "true") return;
-        const key = btn.dataset.itemKey || btn.dataset.skillKey;
+        const target = event.target.closest(selector);
+        if (!target) return;
+        const isReady = target.dataset[readyAttr] === "true";
+        if (!isReady) return;
+        const key = target.dataset.itemKey || target.dataset.skillKey;
+        if (!key) return;
+        upgradeFn(key);
+      });
+      container.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const target = event.target.closest(selector);
+        if (!target) return;
+        event.preventDefault();
+        const isReady = target.dataset[readyAttr] === "true";
+        if (!isReady) return;
+        const key = target.dataset.itemKey || target.dataset.skillKey;
         if (!key) return;
         upgradeFn(key);
       });
     }
-    handleUpgradeClick(inventoryList, triggerItemUpgrade);
-    handleUpgradeClick(skillList, triggerSkillUpgrade);
+    handleUpgradeClick(inventoryList, "[data-item-upgrade]", triggerItemUpgrade, "itemUpgradeReady");
+    handleUpgradeClick(skillList, ".item-upgrade", triggerSkillUpgrade, "skillUpgradeReady");
     const handleSkillBonusActivation = target => {
       if (!target) return;
       if (target.dataset.skillBonusReady !== "true") return;
@@ -4919,7 +4938,8 @@
         label: "Handschuhe",
         hint: "Bereit fuer Handschuhe oder leichte Ruestung.",
         empty: "Noch keine Handschuhe.",
-        accepts: ["gloves", "hands", "cape", "accessory"]
+        accepts: [],
+        allowedKeys: ["panzerhandschuhe"]
       },
       helm: {
         label: "Helm",
@@ -4931,13 +4951,14 @@
         label: "Halskette",
         hint: "Runen, Amulette oder Halsketten.",
         empty: "Keine Halskette aktiv.",
-        accepts: ["necklace", "amulet", "talisman", "trinket", "accessory"]
+        accepts: [],
+        allowedKeys: ["runen_amulet"]
       },
       boots: {
         label: "Stiefel",
         hint: "Stiefel, Beinschienen oder leichte Panzerung.",
         empty: "Keine Stiefel aktiv.",
-        accepts: ["boots", "boot", "stiefel", "greaves", "legs", "armor"]
+        accepts: ["boots", "boot", "stiefel", "greaves", "legs"]
       },
       weapon: {
         label: "Schwert",
@@ -4955,13 +4976,15 @@
         label: "Ring / Amulett 1",
         hint: "Erster Ring- oder Amulett-Slot.",
         empty: "Kein Schmuck ausgeruestet.",
-        accepts: ["ring_left", "ring", "band", "amulet", "talisman", "trinket", "accessory"]
+        accepts: [],
+        allowedKeys: ["lebens_ring", "gluecks_ring"]
       },
       ring_right: {
         label: "Ring / Amulett 2",
         hint: "Zweiter Ring- oder Amulett-Slot.",
         empty: "Kein Schmuck ausgeruestet.",
-        accepts: ["ring_right", "ring", "band", "amulet", "talisman", "trinket", "accessory"]
+        accepts: [],
+        allowedKeys: ["lebens_ring", "gluecks_ring"]
       }
     };
     const EQUIPMENT_SLOT_KEYS = Object.keys(EQUIPMENT_SLOT_DEFS);
@@ -5482,6 +5505,10 @@
       const normalizedSlot = normalizeItemSlot(slotKey);
       if (!normalizedSlot) return false;
       const meta = EQUIPMENT_SLOT_DEFS[normalizedSlot];
+      const itemKey = item.key || item.name;
+      if (meta && Array.isArray(meta.allowedKeys) && meta.allowedKeys.length) {
+        return Boolean(itemKey && meta.allowedKeys.includes(itemKey));
+      }
       const tokenPool = [
         normalizeItemSlot(item.slot),
         (item.category || "").toLowerCase(),
@@ -5566,8 +5593,86 @@
       }
       return ITEM_ART[ik] || ITEM_ART.default;
     }
+    function buildItemTierIndicator(item, overrides = {}) {
+      if (!item) return null;
+      const indicator = document.createElement("div");
+      indicator.className = "skill-bonus-indicator";
+      const tierClassValue = overrides.tierClass ?? item.tier;
+      const indicatorTier = Math.max(1, Math.min(MAX_ITEM_TIER, Math.floor(tierClassValue || 1)));
+      indicator.classList.add(`tier-${indicatorTier}`);
+      indicator.dataset.skillBonusReady = "false";
+      indicator.setAttribute("aria-hidden", overrides.readOnly ? "true" : "false");
+      const headerRow = document.createElement("div");
+      headerRow.className = "skill-bonus-header";
+      const title = document.createElement("div");
+      title.className = "skill-bonus-title";
+      const progressLabel = document.createElement("span");
+      progressLabel.className = "skill-bonus-progress-label";
+      headerRow.appendChild(title);
+      headerRow.appendChild(progressLabel);
+      const bar = document.createElement("div");
+      bar.className = "skill-bonus-progress";
+      const fill = document.createElement("div");
+      fill.className = "skill-bonus-progress-fill";
+      bar.appendChild(fill);
+      const metaRow = document.createElement("div");
+      metaRow.className = "skill-bonus-meta";
+      const status = document.createElement("span");
+      const requirement = getNextTierRequirement(item);
+      const displayTier = overrides.displayTier ?? item.tier;
+      const nextTierDisplay = overrides.nextTier ?? (
+        displayTier >= MAX_ITEM_TIER ? displayTier : Math.min(displayTier + 1, MAX_ITEM_TIER)
+      );
+      title.textContent = displayTier >= MAX_ITEM_TIER
+        ? `Tier ${displayTier} (MAX)`
+        : `Tier ${displayTier} ➜ Tier ${nextTierDisplay}`;
+      let progressCap = overrides.progressMax;
+      let infiniteCap = false;
+      if (progressCap === Infinity) {
+        infiniteCap = true;
+      } else if (!Number.isFinite(progressCap) || progressCap <= 0) {
+        const baseRequirement = requirement === Infinity ? item.totalCopies || 1 : requirement;
+        if (baseRequirement === Infinity) {
+          infiniteCap = true;
+        } else {
+          progressCap = Math.max(1, baseRequirement);
+        }
+      }
+      let progressValue;
+      if (Number.isFinite(overrides.progressValue)) {
+        progressValue = Math.max(0, overrides.progressValue);
+      } else if (infiniteCap) {
+        progressValue = item.totalCopies || 0;
+      } else {
+        progressValue = Math.min(item.totalCopies, progressCap || 1);
+      }
+      const progressRatio = infiniteCap
+        ? 1
+        : (progressCap ? Math.min(1, Math.max(0, progressValue / (progressCap || 1))) : 0);
+      fill.style.width = `${progressRatio * 100}%`;
+      const progressLabelText = overrides.progressLabel
+        ? overrides.progressLabel
+        : (infiniteCap ? `${progressValue}/∞` : `${progressValue}/${progressCap}`);
+      progressLabel.textContent = progressLabelText;
+      if (overrides.statusText !== undefined) {
+        status.textContent = overrides.statusText;
+        if (overrides.statusClass) status.className = overrides.statusClass;
+      } else if (canUpgradeItem(item) && item.tier < MAX_ITEM_TIER) {
+        status.className = "skill-bonus-ready";
+        status.textContent = "Upgrade bereit";
+      } else if (item.tier >= MAX_ITEM_TIER) {
+        status.textContent = "Maximum erreicht";
+      } else {
+        status.textContent = "";
+      }
+      metaRow.appendChild(status);
+      indicator.appendChild(headerRow);
+      indicator.appendChild(bar);
+      indicator.appendChild(metaRow);
+      return indicator;
+    }
     function createInventoryRow(item, options = {}) {
-      const { showUpgrade = true, showProgressIndicator = false, progressIndicatorOverrides = null } = options;
+      const { showUpgrade = true, showProgressIndicator = true, progressIndicatorOverrides = null } = options;
       if (!item) return null;
       updateItemDerivedStats(item);
       const normalizedKey = item.key || item.name;
@@ -5640,95 +5745,18 @@
             controls.appendChild(equipBtn);
           });
         }
-      if (showUpgrade && item.tier < MAX_ITEM_TIER) {
-        const upgradeBtn = document.createElement("button");
-        const requirementText = requirement === Infinity ? "-" : requirement;
-        upgradeBtn.className = "item-upgrade";
-        upgradeBtn.dataset.itemKey = item.key || item.name;
-        const nextTier = Math.min(item.tier + 1, MAX_ITEM_TIER);
-        if (canUpgradeItem(item)) {
-          upgradeBtn.classList.add(`tier-${nextTier}`);
-        }
-        upgradeBtn.textContent = `Upgrade Tier ${item.tier + 1} (${item.totalCopies}/${requirementText})`;
-        upgradeBtn.disabled = !canUpgradeItem(item);
-        controls.appendChild(upgradeBtn);
-      }
       if (showProgressIndicator) {
-        const overrides = progressIndicatorOverrides || {};
-        const tierClassValue = overrides.tierClass ?? item.tier;
-        const indicatorTier = Math.max(1, Math.min(MAX_ITEM_TIER, Math.floor(tierClassValue)));
-        const displayTier = overrides.displayTier ?? item.tier;
-        const nextTierDisplay = overrides.nextTier ?? (
-          displayTier >= MAX_ITEM_TIER ? displayTier : Math.min(displayTier + 1, MAX_ITEM_TIER)
-        );
-        const indicator = document.createElement("div");
-        indicator.className = "skill-bonus-indicator";
-        indicator.classList.add(`tier-${indicatorTier}`);
-        indicator.dataset.skillBonusReady = "false";
-        indicator.setAttribute("aria-hidden", overrides.readOnly ? "true" : "false");
-        const headerRow = document.createElement("div");
-        headerRow.className = "skill-bonus-header";
-        const title = document.createElement("div");
-        title.className = "skill-bonus-title";
-        title.textContent = displayTier >= MAX_ITEM_TIER
-          ? `Tier ${displayTier} (MAX)`
-          : `Tier ${displayTier} ➜ Tier ${nextTierDisplay}`;
-        const progressLabel = document.createElement("span");
-        progressLabel.className = "skill-bonus-progress-label";
-        const bar = document.createElement("div");
-        bar.className = "skill-bonus-progress";
-        const fill = document.createElement("div");
-        fill.className = "skill-bonus-progress-fill";
-        let progressCap = overrides.progressMax;
-        let infiniteCap = false;
-        if (progressCap === Infinity) {
-          infiniteCap = true;
-        } else if (!Number.isFinite(progressCap) || progressCap <= 0) {
-          const baseRequirement = requirement === Infinity ? item.totalCopies || 1 : requirement;
-          if (baseRequirement === Infinity) {
-            infiniteCap = true;
-          } else {
-            progressCap = Math.max(1, baseRequirement);
-          }
+        const indicator = buildItemTierIndicator(item, progressIndicatorOverrides || {});
+        if (indicator) {
+          const canUpgrade = canUpgradeItem(item) && item.tier < MAX_ITEM_TIER;
+          indicator.dataset.itemUpgrade = "true";
+          indicator.dataset.itemKey = item.key || item.name;
+          indicator.dataset.itemUpgradeReady = String(canUpgrade);
+          indicator.tabIndex = canUpgrade ? 0 : -1;
+          indicator.setAttribute("role", canUpgrade ? "button" : "img");
+          indicator.setAttribute("aria-disabled", String(!canUpgrade));
+          controls.appendChild(indicator);
         }
-        let progressValue;
-        if (Number.isFinite(overrides.progressValue)) {
-          progressValue = Math.max(0, overrides.progressValue);
-        } else if (infiniteCap) {
-          progressValue = item.totalCopies || 0;
-        } else {
-          progressValue = Math.min(item.totalCopies, progressCap || 1);
-        }
-        const progressRatio = infiniteCap
-          ? 1
-          : (progressCap ? Math.min(1, Math.max(0, progressValue / progressCap)) : 0);
-        fill.style.width = `${progressRatio * 100}%`;
-        const progressLabelText = overrides.progressLabel
-          ? overrides.progressLabel
-          : (infiniteCap ? `${progressValue}/∞` : `${progressValue}/${progressCap}`);
-        progressLabel.textContent = progressLabelText;
-        bar.appendChild(fill);
-        headerRow.appendChild(title);
-        headerRow.appendChild(progressLabel);
-        const statusRow = document.createElement("div");
-        statusRow.className = "skill-bonus-meta";
-        const status = document.createElement("span");
-        if (overrides.statusText !== undefined) {
-          status.textContent = overrides.statusText;
-          if (overrides.statusClass) status.className = overrides.statusClass;
-        } else if (canUpgradeItem(item) && item.tier < MAX_ITEM_TIER) {
-          status.className = "skill-bonus-ready";
-          status.textContent = "Upgrade bereit";
-        } else if (item.tier >= MAX_ITEM_TIER) {
-          status.textContent = "Maximum erreicht";
-        } else {
-          status.textContent = "";
-        }
-        statusRow.appendChild(status);
-        indicator.appendChild(headerRow);
-        indicator.appendChild(bar);
-        indicator.appendChild(statusRow);
-        controls.appendChild(indicator);
       }
       row.appendChild(controls);
       return row;
@@ -6099,6 +6127,15 @@
         const statsEl = slotEl.querySelector(".slot-stats");
         const clearBtn = slotEl.querySelector(".slot-unequip");
         const headerLabel = slotEl.querySelector(".slot-header span");
+        let progressHost = slotEl.querySelector(".slot-progress");
+        if (!progressHost) {
+          const infoWrapper = slotEl.querySelector(".slot-info");
+          if (infoWrapper) {
+            progressHost = document.createElement("div");
+            progressHost.className = "slot-progress";
+            infoWrapper.appendChild(progressHost);
+          }
+        }
         const equippedKey = state.equipment[slotKey];
         const item = getItemByKey(equippedKey);
         for (let tier = 1; tier <= MAX_ITEM_TIER; tier += 1) {
@@ -6112,6 +6149,10 @@
           if (statsEl) statsEl.innerHTML = "";
           if (iconEl) iconEl.innerHTML = '<span class="slot-placeholder">?</span>';
           if (clearBtn) clearBtn.hidden = true;
+          if (progressHost) {
+            progressHost.innerHTML = "";
+            progressHost.style.display = "none";
+          }
           return;
         }
         slotEl.classList.add("equipped");
@@ -6120,9 +6161,7 @@
         if (headerLabel) headerLabel.textContent = item.name || meta.label || slotKey;
         if (nameEl) nameEl.textContent = item.name;
         if (metaEl) {
-          const tierValue = item.tier || 1;
-          const copyValue = item.totalCopies || 1;
-          metaEl.textContent = "Tier " + tierValue + " / Kopien " + copyValue;
+          metaEl.textContent = meta.label || slotKey;
         }
         const statBadges = collectItemStats(item);
         if (statsEl) {
@@ -6136,6 +6175,10 @@
         }
         if (iconEl) {
           iconEl.innerHTML = getItemIcon(item.icon, item.key);
+        }
+        if (progressHost) {
+          progressHost.innerHTML = "";
+          progressHost.style.display = "none";
         }
         if (clearBtn) {
           clearBtn.hidden = false;
