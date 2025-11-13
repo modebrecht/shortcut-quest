@@ -352,14 +352,27 @@
       padding: 0;
       background: transparent;
     }
-    .memory-header {
-      padding: 1rem 2rem 1rem;
+    .card--section {
+      padding: 0;
+      overflow: hidden;
+    }
+    .card-body {
+      padding: 1.2rem 1.4rem 1.4rem;
+    }
+    .card-header {
+      padding: 1rem 1.4rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.9rem;
       background: rgba(15,23,42,0.35);
       border-bottom: 1px solid rgba(148,163,184,0.12);
+    }
+    .card-header h2,
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
     }
     .memory-game h3 {
       margin: 0;
@@ -3655,7 +3668,7 @@
       block.className = "memory-game";
       if (config.title || config.instructions) {
         const header = document.createElement("div");
-        header.className = "memory-header";
+        header.className = "card-header";
         if (config.title) {
           const title = document.createElement("h3");
           title.textContent = config.title;
@@ -4233,41 +4246,49 @@
       wrapper.dataset.section = sectionId;
 
       const contentCard = document.createElement("div");
-      contentCard.className = "card";
+      contentCard.className = "card card--section";
       if (section && section.memoryGame) contentCard.classList.add("memory-section-card");
-      const shouldShowHeading = !(section && section.hideTitle);
-      if (shouldShowHeading) {
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-body";
+      const hasDescription = Boolean(section && section.description);
+      const sectionTitle = section && section.title ? section.title : `Abschnitt ${sectionId}`;
+      if (sectionTitle || hasDescription) {
+        const header = document.createElement("div");
+        header.className = "card-header";
         const heading = document.createElement("h2");
-        heading.textContent = section && section.title ? section.title : `Abschnitt ${sectionId}`;
-        contentCard.appendChild(heading);
+        heading.textContent = sectionTitle;
+        header.appendChild(heading);
+        if (hasDescription) {
+          const description = document.createElement("span");
+          description.className = "small";
+          description.textContent = section.description;
+          header.appendChild(description);
+        }
+        contentCard.appendChild(header);
+        contentCard.classList.add("has-card-header");
       }
-      if (section && section.description) {
-        const description = document.createElement("p");
-        description.className = "small";
-        description.textContent = section.description;
-        contentCard.appendChild(description);
-      }
+      contentCard.appendChild(cardBody);
       const tasks = Array.isArray(section && section.tasks) ? section.tasks : [];
       tasks.forEach(task => {
         if (!task) return;
         if (task.type === "dnd") {
-          appendDndBlock(contentCard, task);
+          appendDndBlock(cardBody, task);
         } else {
           const field = buildTaskField(task);
-          if (field) contentCard.appendChild(field);
+          if (field) cardBody.appendChild(field);
         }
       });
       if (section && section.memoryGame) {
-        appendMemoryGameBlock(contentCard, section.memoryGame, sectionId);
+        appendMemoryGameBlock(cardBody, section.memoryGame, sectionId);
       }
       if (section && section.fastPaced) {
-        appendFastPacedBlock(contentCard, section.fastPaced, sectionId);
+        appendFastPacedBlock(cardBody, section.fastPaced, sectionId);
       }
       if (section && section.narrative) {
-        appendNarrativeBlock(contentCard, section.narrative, sectionId);
+        appendNarrativeBlock(cardBody, section.narrative, sectionId);
       }
       if (section && section.comboBuilder) {
-        appendComboBuilderBlock(contentCard, section.comboBuilder, sectionId);
+        appendComboBuilderBlock(cardBody, section.comboBuilder, sectionId);
       }
       wrapper.appendChild(contentCard);
 

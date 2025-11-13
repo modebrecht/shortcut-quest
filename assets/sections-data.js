@@ -95,7 +95,6 @@
       id: "3",
       tabLabel: "Abschnitt 3",
       title: "3. Shortcut Memory",
-      hideTitle: true,
       description: "",
       memoryGame: {
         title: "3. Shortcut Memory",
