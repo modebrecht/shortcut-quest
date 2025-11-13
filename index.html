@@ -5700,16 +5700,6 @@
         desc.textContent = descText;
         text.appendChild(desc);
       }
-      const requirement = getNextTierRequirement(item);
-      const meta = document.createElement("span");
-      meta.className = "item-meta";
-      if (item.tier >= MAX_ITEM_TIER) {
-        meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Maximum erreicht`;
-      } else {
-        const progress = Math.min(item.totalCopies, requirement);
-        meta.textContent = `Tier ${item.tier} | x${item.totalCopies} | Fortschritt: ${progress}/${requirement}`;
-      }
-      text.appendChild(meta);
       left.appendChild(icon);
       left.appendChild(text);
       row.appendChild(left);
