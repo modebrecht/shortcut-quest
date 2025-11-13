@@ -1274,34 +1274,63 @@
     {
       id: "44",
       tabLabel: "Abschnitt 44",
-      title: "44. System-Checks",
-      description: "Wähle das passende Kürzel.",
-      tasks: [
-        {
-          type: "select",
-          prompt: "Task-Manager sofort öffnen",
-          answer: "Ctrl+Shift+Esc",
-          options: ["Ctrl+Shift+Esc", "Ctrl+Alt+Esc", "Ctrl+Esc", "Ctrl+Shift+Del", "Win+R"]
-        },
-        {
-          type: "select",
-          prompt: "Zum Dokumentanfang springen",
-          answer: "Ctrl+Home",
-          options: ["Ctrl+Home", "Ctrl+End", "Ctrl+Up", "Ctrl+Shift+Home", "Ctrl+Alt+Home"]
-        },
-        {
-          type: "select",
-          prompt: "Zum Dokumentende springen",
-          answer: "Ctrl+End",
-          options: ["Ctrl+End", "Ctrl+Shift+End", "Ctrl+Down", "Ctrl+Alt+End", "Ctrl+PageDown"]
-        },
-        {
-          type: "select",
-          prompt: "Speichern anstoßen",
-          answer: "Ctrl+S",
-          options: ["Ctrl+S", "Ctrl+Shift+S", "Ctrl+Alt+S", "Win+S", "Ctrl+P"]
-        }
-      ]
+      title: "44. System-Checks – Szene",
+      description: "Begleite die Datenspezialistin Lina durch ihr Abendritual.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Kurz nach Feierabend hängt eine App – sie braucht den Task-Manager sofort.",
+            prompt: "Lina öffnet ihn mit ____ + ____ + ____.",
+            missingSlots: 3,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Shift", value: "Shift" },
+              { label: "Esc", value: "Esc" },
+              { label: "Alt", value: "Alt" },
+              { label: "Del", value: "Del" }
+            ],
+            answers: ["Ctrl", "Shift", "Esc"]
+          },
+          {
+            scene: "Der Bericht ist lang – sie springt per Tastatur an den Anfang.",
+            prompt: "Welche Kombination? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "Home", value: "Home" },
+              { label: "End", value: "End" },
+              { label: "Shift", value: "Shift" }
+            ],
+            answers: ["Ctrl", "Home"]
+          },
+          {
+            scene: "Die letzte Kontrolle erfolgt ganz am Ende des Dokuments.",
+            prompt: "Sie springt mit ____ + ____ dorthin.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "End", value: "End" },
+              { label: "Shift", value: "Shift" },
+              { label: "Page Down", value: "PageDown" }
+            ],
+            answers: ["Ctrl", "End"]
+          },
+          {
+            scene: "Damit keine Änderung verloren geht, speichert Lina ein letztes Mal.",
+            prompt: "Sie nutzt ____ + ____.",
+            missingSlots: 2,
+            options: [
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "S", value: "S" },
+              { label: "P", value: "P" },
+              { label: "Win", value: "Win" }
+            ],
+            answers: ["Ctrl", "S"]
+          }
+        ]
+      },
+      tasks: []
     },
     {
       id: "45",
@@ -1411,6 +1440,37 @@
       ]
     },
     {
+      id: "50",
+      tabLabel: "Abschnitt 50",
+      title: "50. Fast-Paced Mastery",
+      description: "12 schnelle Runden à 5 Sekunden – nur für Shortcut-Profis.",
+      fastPaced: {
+        rounds: 12,
+        timeLimitSeconds: 10,
+        optionsPerRound: 8,
+        combos: [
+          { label: "PC sperren", combo: "Win+L" },
+          { label: "Einstellungen", combo: "Win+I" },
+          { label: "Ausführen-Dialog", combo: "Win+R" },
+          { label: "Zwischenablage-Verlauf", combo: "Win+V" },
+          { label: "Emoji-Panel", combo: "Win+." },
+          { label: "Suche", combo: "Win+S" },
+          { label: "Explorer öffnen", combo: "Win+E" },
+          { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
+          { label: "Bildschirmtastatur", combo: "Win+Ctrl+O" },
+          { label: "Task-Ansicht", combo: "Win+Tab" },
+          { label: "Zwischen Programmen wechseln", combo: "Alt+Tab" },
+          { label: "Task-Manager", combo: "Ctrl+Shift+Esc" },
+          { label: "Desktop anzeigen", combo: "Win+D" },
+          { label: "Startmenü öffnen", combo: "Ctrl+Esc" },
+          { label: "Fenster links andocken", combo: "Win+PfeiltasteLinks" },
+          { label: "Fenster rechts andocken", combo: "Win+PfeiltasteRechts" }
+        ]
+      },
+      tasks: [],
+      hideActions: true
+    },
+    {
       id: "51",
       tabLabel: "Abschnitt 51",
       title: "51. Grundlagen",
@@ -1446,6 +1506,87 @@
         { type: "input", prompt: "Desktop anzeigen", answer: "Win+D" },
         { type: "input", prompt: "Screenshot-Ausschnitt", answer: "Win+Shift+S" },
       ]
+    },
+    {
+      id: "54",
+      tabLabel: "Abschnitt 54",
+      title: "54. Agenten-Epilog",
+      description: "Neue Szene: Agentin Nova sichert ihr System vor dem Wochenendflug.",
+      narrative: {
+        autoCheck: false,
+        entries: [
+          {
+            scene: "Nova sperrt ihr Terminal, bevor sie den Projektraum verlässt.",
+            prompt: "Welche Kombi nutzt sie? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "L", value: "L" },
+              { label: "Shift", value: "Shift" },
+              { label: "Ctrl", value: "Ctrl" }
+            ],
+            answers: ["Win", "L"]
+          },
+          {
+            scene: "Anschließend startet sie den Ausführen-Dialog, um den Backup-Befehl zu tippen.",
+            prompt: "Wie öffnet sie ihn? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "R", value: "R" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "B", value: "B" }
+            ],
+            answers: ["Win", "R"]
+          },
+          {
+            scene: "Zum Schluss erstellt sie einen Screenshot-Ausschnitt der Statusübersicht und fügt ihn in einen Agentenbericht ein.",
+            prompt: "Zuerst nimmt sie den Ausschnitt mit ____ + ____ + ____, danach fügt sie ihn via ____ + ____ ein.",
+            missingSlots: 5,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Shift", value: "Shift" },
+              { label: "S", value: "S" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "V", value: "V" },
+              { label: "Alt", value: "Alt" }
+            ],
+            answers: ["Win", "Shift", "S", "Ctrl", "V"]
+          }
+        ]
+      },
+      tasks: []
+    },
+    {
+      id: "55",
+      tabLabel: "Abschnitt 55",
+      title: "55. Fast-Paced Mastery II",
+      description: "Noch schneller: 12 Runden à 5 Sekunden mit erweiterten System-Kombos.",
+      fastPaced: {
+        rounds: 12,
+        timeLimitSeconds: 5,
+        optionsPerRound: 5,
+        combos: [
+          { label: "PC sperren", combo: "Win+L" },
+          { label: "Einstellungen", combo: "Win+I" },
+          { label: "Ausführen-Dialog", combo: "Win+R" },
+          { label: "Zwischenablage-Verlauf", combo: "Win+V" },
+          { label: "Emoji-Panel", combo: "Win+." },
+          { label: "Suche", combo: "Win+S" },
+          { label: "Explorer öffnen", combo: "Win+E" },
+          { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
+          { label: "Bildschirmtastatur", combo: "Win+Ctrl+O" },
+          { label: "Task-Ansicht", combo: "Win+Tab" },
+          { label: "Zwischen Programmen wechseln", combo: "Alt+Tab" },
+          { label: "Task-Manager", combo: "Ctrl+Shift+Esc" },
+          { label: "Desktop anzeigen", combo: "Win+D" },
+          { label: "Startmenü öffnen", combo: "Ctrl+Esc" },
+          { label: "Fenster links andocken", combo: "Win+PfeiltasteLinks" },
+          { label: "Fenster rechts andocken", combo: "Win+PfeiltasteRechts" }
+        ]
+      },
+      tasks: [],
+      hideActions: true
     }
   ];
 
