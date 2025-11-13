@@ -1108,8 +1108,8 @@
     }
     .inventory-filter-buttons {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
+      flex-wrap: nowrap;
+      gap: 0.6rem;
       flex: 1 1 auto;
     }
     .inventory-filter-btn {
@@ -1607,8 +1607,8 @@
       color: inherit;
     }
     .battle-portrait {
-      width: 120px;
-      height: 120px;
+      width: 190px;
+      height: 190px;
       border-radius: 50%;
       border: 1px solid rgba(248,250,252,0.25);
       background: radial-gradient(circle at 40% 30%, rgba(248,250,252,0.2), transparent 60%),
@@ -2175,7 +2175,7 @@
       --battle-art-size: cover;
       --battle-art-position: center;
       position: relative;
-      height: 220px;
+      height: 230px;
       background-color: transparent;
       background-image: var(--battle-art);
       background-size: var(--battle-art-size);
@@ -2249,17 +2249,6 @@
       align-items: flex-start;
       gap: 0.6rem;
     }
-    .modal-card-art {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0.25rem 0 0.5rem;
-    }
-    .modal-card-art img {
-      width: 92px;
-      height: auto;
-      filter: drop-shadow(0 8px 16px rgba(2,6,23,0.55));
-    }
     .modal-card-head h4 {
       margin: 0.15rem 0 0;
       font-size: 1rem;
@@ -2308,8 +2297,8 @@
       width: 140px;
       height: 140px;
       border-radius: 0.85rem;
-      background: rgba(30,41,59,0.65);
-      border: 2px solid rgba(148,163,184,0.45);
+      background: transparent;
+      border: none;
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -2349,6 +2338,8 @@
     }
     .fighter.enemy {
       background: rgba(30,41,59,0.25);
+      margin-bottom: 12px;
+      margin-right: 6px;
     }
     .fighter.enemy::before {
       display: none;
@@ -2365,13 +2356,6 @@
       transform: translate(-50%, -50%);
       pointer-events: none;
       filter: drop-shadow(0 18px 34px rgba(3,7,18,0.75));
-    }
-    .fighter-name {
-      position: absolute;
-      bottom: -1.9rem;
-      font-size: 0.82rem;
-      letter-spacing: 0.02em;
-      color: var(--muted);
     }
     .fighter.attacking-left { animation: attackLeft 0.5s ease-out; }
     .fighter.attacking-right { animation: attackRight 0.5s ease-out; }
@@ -3172,12 +3156,9 @@
                 <span style="left:90%; animation-delay:4.6s;"></span>
                 <span style="left:5%; animation-delay:5.2s;"></span>
               </div>
-              <div class="fighter knight" id="battleKnight">
-                <div class="fighter-name">Ritter</div>
-              </div>
+              <div class="fighter knight" id="battleKnight"></div>
               <div class="fighter enemy goblin" id="battleEnemy">
                 <img id="battleEnemySprite" class="fighter-sprite" src="assets/enemy-kobold.png" alt="Goblin">
-                <div class="fighter-name" id="battleEnemyName">Goblin</div>
               </div>
             </div>
             <div class="modal-battle-overview">
@@ -3209,9 +3190,6 @@
                     <span class="battle-side-tier" id="modalEnemyTier">Rang 1</span>
                     <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
                   </div>
-                </div>
-                <div class="modal-card-art">
-                  <img id="modalEnemyIcon" src="assets/enemy-kobold.png" alt="Kobold">
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalEnemyAtk">0</strong></span>
@@ -3260,11 +3238,9 @@
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
                 <span class="battle-stat-badge def">DEF<strong id="battleHeroDefStat">0</strong></span>
-              </div>
-              <div class="battle-statline">
                 <span class="battle-stat-badge">HP<strong id="battleHeroHpStat">0</strong></span>
+                <span class="battle-stat-badge" id="battleHeroFlavor">Bereit fuer den naechsten Kampf.</span>
               </div>
-              <p class="battle-side-meta" id="battleHeroFlavor">Bereit fuer den naechsten Kampf.</p>
               <div class="battle-gear">
                 <span class="battle-gear-label">Gear</span>
                 <ul class="battle-gear-list" id="battleHeroGearList"></ul>
@@ -3283,7 +3259,7 @@
             <div class="battle-side enemy">
               <div class="battle-side-head">
                 <div>
-                  <span class="battle-side-label">Naechster Gegner</span>
+                  <span class="battle-side-label">Nächster Gegner</span>
                   <h3 id="battleEnemyPreviewName">Goblin</h3>
                 </div>
                 <div>
@@ -3299,11 +3275,9 @@
               <div class="battle-statline">
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
                 <span class="battle-stat-badge def">DEF<strong id="battleEnemyDefStat">0</strong></span>
-              </div>
-              <div class="battle-statline">
                 <span class="battle-stat-badge">HP<strong id="battleEnemyHpStat">0</strong></span>
+                <span class="battle-stat-badge" id="battleEnemyFlavor">Unbekannte Taktik.</span>
               </div>
-              <p class="battle-side-meta" id="battleEnemyFlavor">Unbekannte Taktik.</p>
             </div>
           </div>
         </div>
