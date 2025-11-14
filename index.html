@@ -7499,11 +7499,20 @@
           el.removeAttribute("title");
           el.setAttribute("aria-hidden", "true");
           el.removeAttribute("aria-label");
+          el.style.transform = "";
           return;
         }
         el.dataset.empty = "false";
         el.innerHTML = getItemIcon(item.icon, item.key);
-        el.style.transform = "rotate(180deg)";
+        const iconKey = String(item.icon || "").toLowerCase();
+        const itemKey = String(item.key || "").toLowerCase();
+        const isShield = iconKey.includes("shield") || itemKey.includes("shield");
+        el.style.transform = isShield ? "" : "rotate(180deg)";
+        if (slotKey === "offhand") {
+          el.style.bottom = isShield ? "104px" : "70px";
+        } else {
+          el.style.bottom = "70px";
+        }
         const label = item.name || getSlotButtonLabel(slotKey);
         el.title = label;
         el.setAttribute("aria-hidden", "false");
