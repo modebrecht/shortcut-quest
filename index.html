@@ -2305,8 +2305,8 @@
     }
     .fighter {
       position: relative;
-      width: 98px;
-      height: 98px;
+      width: 140px;
+      height: 140px;
       border-radius: 0.85rem;
       background: transparent;
       border: none;
@@ -2315,7 +2315,11 @@
       justify-content: center;
       padding-bottom: 0.6rem;
       overflow: visible;
-      margin-bottom: -40px;
+    }
+    .fighter.knight {
+      width: 98px;
+      height: 98px;
+      margin-bottom: -82px;
     }
     .battle-weapon-slot {
       position: absolute;
@@ -2342,13 +2346,13 @@
       object-fit: contain;
       display: block;
     }
-    .battle-weapon-slot.weapon-left {
-      left: -6px;
-      bottom: 0px;
+    .fighter.knight .battle-weapon-slot.weapon-left {
+      left: -22px;
+      bottom: 70px;
     }
-    .battle-weapon-slot.weapon-right {
-      right: -10px;
-      bottom: 0px;
+    .fighter.knight .battle-weapon-slot.weapon-right {
+      right: -27px;
+      bottom: 70px;
     }
     .fighter::before {
       content: "";
@@ -2408,7 +2412,7 @@
       transition: transform 0.8s ease, opacity 0.8s ease;
     }
     .fighter.knight .fighter-sprite {
-      transform: translate(-50%, -78%);
+      transform: translate(-50%, -104%);
     }
     .fighter.attacking-left { animation: attackLeft 0.5s ease-out; }
     .fighter.attacking-right { animation: attackRight 0.5s ease-out; }
