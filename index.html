@@ -2940,11 +2940,11 @@
     <section id="learnView" class="view active">
       <div class="card nav-card">
         <div class="nav-row" id="sectionTabs"></div>
-        <p class="small">Jede perfekte Lösung bringt 10 Coins pro Aufgabe (3 Aufgaben = 30 Coins). Nach Zuruecksetzen gibt es 5 Coins pro Aufgabe.</p>
+        <p class="small">Jede perfekte Lösung bringt 10 Coins pro Aufgabe (3 Aufgaben = 30 Coins). Nach Zurücksetzen gibt es 5 Coins pro Aufgabe.</p>
       </div>
       <div id="learnSections"></div>
       <div class="card" id="overviewCard">
-        <h2>Gesamtuebersicht</h2>
+        <h2>Gesamtübersicht</h2>
         <p class="small" id="overallSummary">Noch keine Ergebnisse.</p>
       </div>
     </section>
@@ -3501,6 +3501,7 @@
     const STORAGE_KEY = "shortcutRitter_v1";
     const COINS_PER_ACTION = 10;
     const COINS_PER_ACTION_AFTER_RESET = 5;
+    const INITIAL_SECTION_UNLOCK = 10;
     const CONSTANTS_DEBUG = true;
     const RUNEN_AMULET_KEY = "runen_amulet";
     const LEBENS_RING_KEY = "lebens_ring";
@@ -3695,6 +3696,7 @@
       },
       sectionClears: {},
       sectionResets: {},
+      sectionsUnlocked: INITIAL_SECTION_UNLOCK,
       gachaPreference: "weapon",
       battleUnlocked: 1,
       battleClears: {},
@@ -3760,10 +3762,28 @@
     const learnSectionsHost = document.getElementById("learnSections");
     const overallSummary = document.getElementById("overallSummary");
     let allCheckables = [];
+    let currentDragValue = "";
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
     const fastPacedSections = [];
+    let fastPacedInitIndex = 0;
     const memoryGameControllers = new Map();
     const inputHintRegistry = new Set();
+
+    function getUnlockedSectionLimit() {
+      const total = SECTION_BLUEPRINTS.length;
+      const minimum = Math.min(total, INITIAL_SECTION_UNLOCK);
+      let unlocked = Number.isFinite(state.sectionsUnlocked) ? state.sectionsUnlocked : minimum;
+      if (unlocked < minimum) unlocked = minimum;
+      if (unlocked > total) unlocked = total;
+      state.sectionsUnlocked = unlocked;
+      return unlocked;
+    }
+
+    function updateLockedSectionsHint(hasLockedSections) {
+      if (!learnSectionsHost) return;
+      const existing = learnSectionsHost.querySelector(".locked-sections-hint");
+      if (existing) existing.remove();
+    }
 
     function resolveSectionId(section, fallbackIndex) {
       if (section && section.id !== undefined && section.id !== null && section.id !== "") {
@@ -4339,7 +4359,11 @@
     }
 
     function initFastPacedSections() {
-      fastPacedSections.forEach(registerFastPacedController);
+      while (fastPacedInitIndex < fastPacedSections.length) {
+        const entry = fastPacedSections[fastPacedInitIndex];
+        if (entry) registerFastPacedController(entry);
+        fastPacedInitIndex += 1;
+      }
     }
 
     function registerFastPacedController(entry) {
@@ -4640,60 +4664,95 @@
 
     function renderLearnSections() {
       if (!sectionTabsHost || !learnSectionsHost) return;
-      sectionTabsHost.innerHTML = "";
-      learnSectionsHost.innerHTML = "";
-      memoryGameControllers.clear();
+      const existingTabs = sectionTabsHost.querySelectorAll(".section-tab").length;
+      const existingHint = learnSectionsHost.querySelector(".locked-sections-hint");
+      if (existingHint) existingHint.remove();
+      if (existingTabs === 0) {
+        sectionTabsHost.innerHTML = "";
+        learnSectionsHost.innerHTML = "";
+        memoryGameControllers.clear();
+        fastPacedSections.length = 0;
+        fastPacedInitIndex = 0;
+      }
       if (!SECTION_BLUEPRINTS.length) {
-        const fallback = document.createElement("p");
-        fallback.className = "small";
-        fallback.textContent = "Keine Trainingsabschnitte verfuegbar.";
-        learnSectionsHost.appendChild(fallback);
+        if (existingTabs === 0) {
+          const fallback = document.createElement("p");
+          fallback.className = "small";
+          fallback.textContent = "Keine Trainingsabschnitte verfuegbar.";
+          learnSectionsHost.appendChild(fallback);
+        }
         return;
       }
-      SECTION_BLUEPRINTS.forEach((section, index) => {
+      const unlockedCount = getUnlockedSectionLimit();
+      const targetCount = Math.min(unlockedCount, SECTION_BLUEPRINTS.length);
+      for (let index = existingTabs; index < targetCount; index++) {
+        const section = SECTION_BLUEPRINTS[index];
+        if (!section) continue;
         const sectionId = resolveSectionId(section, index);
-        const tab = createSectionTab(section, sectionId, index === 0);
-        const sectionEl = buildSectionElement(section, sectionId, index === 0);
+        const tab = createSectionTab(section, sectionId, index === 0 && existingTabs === 0);
+        const sectionEl = buildSectionElement(section, sectionId, index === 0 && existingTabs === 0);
         sectionTabsHost.appendChild(tab);
         learnSectionsHost.appendChild(sectionEl);
-      });
+      }
+      updateLockedSectionsHint(targetCount < SECTION_BLUEPRINTS.length);
       updateSectionCompletionClasses();
+    }
+
+    function unlockNextSection() {
+      const total = SECTION_BLUEPRINTS.length;
+      if (!total) return false;
+      const current = getUnlockedSectionLimit();
+      if (current >= total) return false;
+      state.sectionsUnlocked = Math.min(total, current + 1);
+      renderLearnSections();
+      setupLearnSectionInteractions();
+      refreshAllInputHints();
+      initFastPacedSections();
+      return true;
+    }
+
+    function showSectionById(id) {
+      const sections = document.querySelectorAll(".section");
+      const tabs = document.querySelectorAll(".section-tab");
+      sections.forEach(sec => {
+        sec.classList.toggle("active", sec.dataset.section === String(id));
+      });
+      tabs.forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.goto === String(id));
+      });
     }
 
     function setupLearnSectionInteractions() {
       const sections = document.querySelectorAll(".section");
       const sectionTabs = document.querySelectorAll(".section-tab");
-      const showSection = id => {
-        sections.forEach(sec => {
-          sec.classList.toggle("active", sec.dataset.section === String(id));
-        });
-        sectionTabs.forEach(tab => {
-          tab.classList.toggle("active", tab.dataset.goto === String(id));
-        });
-      };
+      const hasActive = Array.from(sections).some(sec => sec.classList.contains("active"));
+      if (!hasActive && sectionTabs.length) {
+        const defaultId = sectionTabs[0].dataset.goto || (sections[0] ? sections[0].dataset.section : "1");
+        showSectionById(defaultId);
+      }
       sectionTabs.forEach(tab => {
+        if (tab.dataset.tabBound === "true") return;
+        tab.dataset.tabBound = "true";
         tab.addEventListener("click", () => {
-          showSection(tab.dataset.goto);
+          showSectionById(tab.dataset.goto);
         });
       });
-      if (sectionTabs.length) {
-        const defaultId = sectionTabs[0].dataset.goto || (sections[0] ? sections[0].dataset.section : "1");
-        showSection(defaultId);
-      }
       allCheckables = Array.from(document.querySelectorAll("[data-answer], .dnd-target"));
       document.querySelectorAll("input[data-hint]").forEach(input => initInputHint(input));
-      let draggedValue = "";
       document.querySelectorAll(".dnd-token").forEach(token => {
+        if (token.dataset.dndBound === "true") return;
+        token.dataset.dndBound = "true";
         token.addEventListener("dragstart", event => {
-          draggedValue = token.dataset.value;
+          currentDragValue = token.dataset.value;
           if (event.dataTransfer) {
-            event.dataTransfer.setData("text/plain", draggedValue);
+            event.dataTransfer.setData("text/plain", currentDragValue);
           }
         });
       });
       document.querySelectorAll(".dnd-target").forEach(target => {
         const slot = target.querySelector(".drop-slot");
-        if (!slot) return;
+        if (!slot || slot.dataset.dropBound === "true") return;
+        slot.dataset.dropBound = "true";
         slot.addEventListener("dragover", event => {
           event.preventDefault();
           target.classList.add("over");
@@ -4704,7 +4763,7 @@
         slot.addEventListener("drop", event => {
           event.preventDefault();
           target.classList.remove("over");
-          const value = (event.dataTransfer && event.dataTransfer.getData("text/plain")) || draggedValue;
+          const value = (event.dataTransfer && event.dataTransfer.getData("text/plain")) || currentDragValue;
           if (!value) return;
           slot.textContent = value;
           slot.dataset.value = value;
@@ -4716,34 +4775,40 @@
         });
       });
       allCheckables.forEach(el => {
+        if (el.dataset.checkableBound === "true") return;
+        el.dataset.checkableBound = "true";
         const wrap = el.closest(".task-field");
         const clear = () => {
           el.classList.remove("correct", "incorrect");
-        if (wrap) wrap.classList.remove("correct", "incorrect");
-        if (el.classList.contains("dnd-target")) {
-          const slot = el.querySelector(".drop-slot");
-          if (slot) slot.classList.remove("correct", "incorrect");
-        }
-        updateOverallSummary();
-      };
+          if (wrap) wrap.classList.remove("correct", "incorrect");
+          if (el.classList.contains("dnd-target")) {
+            const slot = el.querySelector(".drop-slot");
+            if (slot) slot.classList.remove("correct", "incorrect");
+          }
+          updateOverallSummary();
+        };
         if (el.tagName === "SELECT") {
           el.addEventListener("change", clear);
         } else if (el.tagName === "INPUT") {
           el.addEventListener("input", clear);
         }
       });
+      updateOverallSummary();
     }
 
     function bindSectionActionButtons() {
-      document.querySelectorAll(".check-section").forEach(btn => {
-        btn.addEventListener("click", () => {
-          gradeSection(btn.dataset.checkSection, btn);
-        });
-      });
-      document.querySelectorAll(".reset-section").forEach(btn => {
-        btn.addEventListener("click", () => {
-          resetSection(btn.dataset.resetSection);
-        });
+      if (!learnSectionsHost || learnSectionsHost.dataset.actionsBound === "true") return;
+      learnSectionsHost.dataset.actionsBound = "true";
+      learnSectionsHost.addEventListener("click", event => {
+        const checkBtn = event.target.closest(".check-section");
+        if (checkBtn) {
+          gradeSection(checkBtn.dataset.checkSection, checkBtn);
+          return;
+        }
+        const resetBtn = event.target.closest(".reset-section");
+        if (resetBtn) {
+          resetSection(resetBtn.dataset.resetSection);
+        }
       });
     }
 
@@ -7060,6 +7125,7 @@
       let resultMsg = `${correctCount}/${total} richtig (${percent}%)`;
       if (correctCount === total) {
         const clears = state.sectionClears[sectionId] || 0;
+        const isFirstClear = clears === 0;
         const resets = state.sectionResets[sectionId] || 0;
         const actions = total;
         let reward = 0;
@@ -7080,6 +7146,9 @@
           resultMsg += ` | +${finalReward} Coins${bonusText}`;
         } else if (clears > 0) {
           resultMsg += " | fuer mehr Coins erst zuruecksetzen.";
+        }
+        if (isFirstClear && unlockNextSection()) {
+          resultMsg += " | Neuer Abschnitt freigeschaltet.";
         }
       } else {
         resultMsg += " | versuche es erneut.";
