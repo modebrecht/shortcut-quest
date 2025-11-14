@@ -2305,8 +2305,8 @@
     }
     .fighter {
       position: relative;
-      width: 140px;
-      height: 140px;
+      width: 98px;
+      height: 98px;
       border-radius: 0.85rem;
       background: transparent;
       border: none;
@@ -2315,6 +2315,40 @@
       justify-content: center;
       padding-bottom: 0.6rem;
       overflow: visible;
+      margin-bottom: -40px;
+    }
+    .battle-weapon-slot {
+      position: absolute;
+      width: 66px;
+      height: 66px;
+      border-radius: 999px;
+      display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        box-shadow: none;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 2;
+    }
+    .battle-weapon-slot[data-empty="true"] {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    .battle-weapon-slot svg,
+    .battle-weapon-slot img {
+      width: 120%;
+      height: 120%;
+      object-fit: contain;
+      display: block;
+    }
+    .battle-weapon-slot.weapon-left {
+      left: -6px;
+      bottom: 0px;
+    }
+    .battle-weapon-slot.weapon-right {
+      right: -10px;
+      bottom: 0px;
     }
     .fighter::before {
       content: "";
@@ -2337,15 +2371,11 @@
       border-radius: 6px;
     }
     .fighter.knight::before {
-      background: linear-gradient(180deg, #9ca3af 0%, #64748b 65%, #334155 100%);
-      border-radius: 6px;
-      box-shadow:
-        0 -16px 0 0 #cbd5f5 inset,
-        0 -30px 0 0 #475569 inset;
+      display: none;
     }
     .fighter.knight::after {
-      background: linear-gradient(90deg, #0f172a 0 24%, #38bdf8 24% 76%, #0f172a 76% 100%);
-      box-shadow: 0 8px 0 0 #1f2937;
+      background: transparent;
+      box-shadow: none;
     }
     .fighter.enemy {
       background: rgba(30,41,59,0.25);
@@ -2376,6 +2406,9 @@
       pointer-events: none;
       filter: drop-shadow(0 18px 34px rgba(3,7,18,0.75));
       transition: transform 0.8s ease, opacity 0.8s ease;
+    }
+    .fighter.knight .fighter-sprite {
+      transform: translate(-50%, -78%);
     }
     .fighter.attacking-left { animation: attackLeft 0.5s ease-out; }
     .fighter.attacking-right { animation: attackRight 0.5s ease-out; }
@@ -3352,7 +3385,11 @@
                 <span style="left:90%; animation-delay:4.6s;"></span>
                 <span style="left:5%; animation-delay:5.2s;"></span>
               </div>
-              <div class="fighter knight" id="battleKnight"></div>
+              <div class="fighter knight" id="battleKnight">
+                <img id="battleKnightSprite" class="fighter-sprite" src="assets/knight_idle_blink.svg" alt="Shortcut Knight">
+                <div class="battle-weapon-slot weapon-left" id="battleWeaponSlot1" data-empty="true" aria-hidden="true"></div>
+                <div class="battle-weapon-slot weapon-right" id="battleWeaponSlot2" data-empty="true" aria-hidden="true"></div>
+              </div>
               <div class="fighter enemy goblin" id="battleEnemy">
                 <img id="battleEnemySprite" class="fighter-sprite" src="assets/enemy-kobold.png" alt="Goblin">
               </div>
@@ -4953,6 +4990,8 @@
     const battleSkillBar = document.getElementById("battleSkillBar");
     const battleKnight = document.getElementById("battleKnight");
     const battleEnemy = document.getElementById("battleEnemy");
+    const battleWeaponSlot1 = document.getElementById("battleWeaponSlot1");
+    const battleWeaponSlot2 = document.getElementById("battleWeaponSlot2");
     const battleEnemySprite = document.getElementById("battleEnemySprite");
     const battleEnemyName = document.getElementById("battleEnemyName");
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
@@ -5830,6 +5869,13 @@
         if (item) items.push(item);
       });
       return items;
+    }
+    function getEquippedItemForSlot(slotKey) {
+      if (!slotKey) return null;
+      ensureEquipmentState();
+      const eqKey = state.equipment[slotKey];
+      if (!eqKey) return null;
+      return getItemByKey(eqKey);
     }
     function getCompletedSectionCount() {
       if (!state || typeof state.sectionClears !== "object") return 0;
@@ -7065,6 +7111,7 @@
       renderShopLatest();
       updateGachaRemainingDisplays();
       renderBattleSkillBar();
+      renderBattleWeaponSlots();
       if (canRenderBattlePreview) updateBattlePreview();
       updateSectionCompletionClasses();
     }
@@ -7436,6 +7483,30 @@
         card.appendChild(desc);
         battleSkillBar.appendChild(card);
       });
+    }
+
+    function renderBattleWeaponSlots() {
+      const applySlot = (el, slotKey) => {
+        if (!el) return;
+        const item = getEquippedItemForSlot(slotKey);
+        if (!item) {
+          el.innerHTML = "";
+          el.dataset.empty = "true";
+          el.removeAttribute("title");
+          el.setAttribute("aria-hidden", "true");
+          el.removeAttribute("aria-label");
+          return;
+        }
+        el.dataset.empty = "false";
+        el.innerHTML = getItemIcon(item.icon, item.key);
+        el.style.transform = "rotate(180deg)";
+        const label = item.name || getSlotButtonLabel(slotKey);
+        el.title = label;
+        el.setAttribute("aria-hidden", "false");
+        el.setAttribute("aria-label", `${getSlotButtonLabel(slotKey)}: ${label}`);
+      };
+      applySlot(battleWeaponSlot1, "weapon");
+      applySlot(battleWeaponSlot2, "offhand");
     }
 
     function clearBattleSkills() {
