@@ -1,35 +1,26 @@
 (function attachSkillHotkeys(global) {
   const data = [
-    { label: "Arbeitsbereich markieren", keys: ["Control", "Alt", "A"] },
-    { label: "Teamchat öffnen", keys: ["Control", "Alt", "C"] },
-    { label: "Dashboard anzeigen", keys: ["Control", "Alt", "D"] },
-    { label: "Explorer einblenden", keys: ["Control", "Alt", "E"] },
-    { label: "Suche fokussieren", keys: ["Control", "Alt", "F"] },
-    { label: "Git-Panel öffnen", keys: ["Control", "Alt", "G"] },
-    { label: "History prüfen", keys: ["Control", "Alt", "H"] },
-    { label: "Journal anzeigen", keys: ["Control", "Alt", "J"] },
-    { label: "Shortcut-Liste", keys: ["Control", "Alt", "K"] },
-    { label: "Logbuch öffnen", keys: ["Control", "Alt", "L"] },
-    { label: "Markdown-Vorschau", keys: ["Control", "Alt", "M"] },
-    { label: "Navigator laden", keys: ["Control", "Alt", "N"] },
-    { label: "Objekt suchen", keys: ["Control", "Alt", "O"] },
-    { label: "Quick-Befehle", keys: ["Control", "Alt", "Q"] },
-    { label: "Neu laden", keys: ["Control", "Alt", "R"] },
-    { label: "Schnellspeichern", keys: ["Control", "Alt", "S"] },
-    { label: "Terminal starten", keys: ["Control", "Alt", "T"] },
-    { label: "Übersicht öffnen", keys: ["Control", "Alt", "U"] },
-    { label: "Zwischenablage prüfen", keys: ["Control", "Alt", "V"] },
-    { label: "Workspace wechseln", keys: ["Control", "Alt", "W"] },
-    { label: "Extra ausschneiden", keys: ["Control", "Alt", "X"] },
-    { label: "Wiederholen Plus", keys: ["Control", "Alt", "Y"] },
-    { label: "Zoom-Reset", keys: ["Control", "Alt", "0"] },
-    { label: "Branch wechseln", keys: ["Control", "Alt", "B"] },
-    { label: "Tab schließen", keys: ["Control", "Alt", "Shift", "X"] },
-    { label: "Lesezeichen merken", keys: ["Control", "Alt", "Shift", "B"] },
-    { label: "Debug starten", keys: ["Control", "Alt", "Shift", "D"] },
-    { label: "Format anwenden", keys: ["Control", "Alt", "Shift", "F"] },
-    { label: "Kommentar einfügen", keys: ["Control", "Alt", "Shift", "M"] },
-    { label: "Notizmodus", keys: ["Control", "Alt", "Shift", "N"] }
+    // 1. Grundlegende Tastenkombinationen sicher anwenden
+    { label: "Kopieren (STRG+C)",              keys: ["Control", "C"] },
+    { label: "Ausschneiden (STRG+X)",          keys: ["Control", "X"] },
+    { label: "Einfügen (STRG+V)",              keys: ["Control", "V"] },
+    { label: "Speichern (STRG+S)",             keys: ["Control", "S"] },
+    { label: "Rückgängig (STRG+Z)",            keys: ["Control", "Z"] },
+    { label: "Wiederholen (STRG+Y)",           keys: ["Control", "Y"] },
+    { label: "Alles markieren (STRG+A)",       keys: ["Control", "A"] },
+    { label: "Drucken (STRG+P)",               keys: ["Control", "P"] },
+    { label: "Suchen (STRG+F)",                keys: ["Control", "F"] },
+    { label: "Neue Datei/Fenster (STRG+N)",    keys: ["Control", "N"] },
+    { label: "Datei öffnen (STRG+O)",          keys: ["Control", "O"] },
+    { label: "Startmenü öffnen (STRG+ESC)",    keys: ["Control", "Escape"] },
+
+    // 2. Navigation & Bedienung des Systems optimieren
+    { label: "Zum Dokumentanfang (STRG+Home)", keys: ["Control", "Home"] },
+    { label: "Zum Dokumentende (STRG+Ende)",   keys: ["Control", "End"] },
+    { label: "Programme wechseln (ALT+TAB)",   keys: ["Alt", "Tab"] },
+
+    // 3. Systemfunktionen direkt über die Tastatur öffnen
+    { label: "Task-Manager (STRG+SHIFT+ESC)",  keys: ["Control", "Shift", "Escape"] }
   ];
 
   global.SKILL_HOTKEY_BLUEPRINTS = data;
