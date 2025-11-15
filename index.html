@@ -82,6 +82,49 @@
       display: inline-block;
       margin-right: 0.2em;
     }
+    .report-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .report-block {
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 0.9rem;
+      padding: 0.9rem;
+      background: rgba(15,23,42,0.4);
+    }
+    .report-block h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.95rem;
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .report-table th,
+    .report-table td {
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(148,163,184,0.2);
+      text-align: left;
+    }
+    .report-table th {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .report-cta {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .report-cta button {
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.8rem;
+      border: none;
+      background: rgba(59,130,246,0.3);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+    }
     .badge {
       border-radius: 999px;
       padding: 0.3rem 0.8rem;
@@ -3284,7 +3327,8 @@
         <button class="nav-toggle" data-view="inventory"><span class="emoji">🎒</span>Inventar</button>
         <button class="nav-toggle" data-view="skills"><span class="emoji">✨</span>Skills</button>
         <button class="nav-toggle" data-view="shop"><span class="emoji">🏪</span>Shop</button>
-          <button class="nav-toggle" data-view="battle"><span class="emoji">⚔️</span>Battle</button>
+        <button class="nav-toggle" data-view="battle"><span class="emoji">⚔️</span>Battle</button>
+        <button class="nav-toggle" data-view="report"><span class="emoji">📊</span>Report</button>
       </div>
     </div>
     <div class="header-right">
@@ -3850,6 +3894,20 @@
         </div>
       </div>
     </section>
+    <section id="reportView" class="view">
+      <div class="game-grid">
+        <div class="card">
+          <h2>📊 Lern-Report</h2>
+          <p class="small" id="reportTimestamp">Noch kein Report erstellt.</p>
+          <div class="report-cta">
+            <button id="reportGenerateBtn" type="button">📊 Report aktualisieren</button>
+          </div>
+          <div id="reportContent" class="report-content">
+            <p class="small">Noch keine Daten vorhanden. Bearbeite Abschnitte und Kämpfe, um Statistiken zu sammeln.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   <script src="sections-data.js"></script>
   <script src="skill-hotkeys.js"></script>
   <script>
@@ -4133,6 +4191,7 @@ let frenzyAuraEl = null;
     if (typeof state.equipment !== "object" || !state.equipment) state.equipment = {};
     if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
+      if (typeof state.sectionReports !== "object" || !state.sectionReports) state.sectionReports = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
       if (typeof state.battleUnlocked !== "number" || !Number.isFinite(state.battleUnlocked)) {
         state.battleUnlocked = 1;
@@ -4310,6 +4369,7 @@ let frenzyAuraEl = null;
     function buildSelectField(task) {
       const select = document.createElement("select");
       select.dataset.answer = task && task.answer ? task.answer : "";
+      if (task && task.prompt) select.dataset.prompt = task.prompt;
       const placeholder = document.createElement("option");
       placeholder.value = "";
       placeholder.textContent = task && task.placeholderOption ? task.placeholderOption : "-- wählen --";
@@ -4337,6 +4397,7 @@ let frenzyAuraEl = null;
       const input = document.createElement("input");
       input.type = "text";
       input.dataset.answer = task && task.answer ? task.answer : "";
+      if (task && task.prompt) input.dataset.prompt = task.prompt;
       input.autocomplete = "off";
       if (task && task.hint) {
         input.dataset.hint = task.hint;
@@ -4399,6 +4460,7 @@ let frenzyAuraEl = null;
         const targetEl = document.createElement("div");
         targetEl.className = "dnd-target";
         targetEl.dataset.answer = target.answer || "";
+        if (target.label) targetEl.dataset.prompt = target.label;
         const label = document.createElement("span");
         label.className = "question-text";
         label.textContent = target.label || target.answer || "";
@@ -5102,6 +5164,7 @@ let frenzyAuraEl = null;
       }
       const unlockedCount = getUnlockedSectionLimit();
       const targetCount = Math.min(unlockedCount, SECTION_BLUEPRINTS.length);
+      let lastSectionEl = null;
       for (let index = existingTabs; index < targetCount; index++) {
         const section = SECTION_BLUEPRINTS[index];
         if (!section) continue;
@@ -5110,6 +5173,7 @@ let frenzyAuraEl = null;
         const sectionEl = buildSectionElement(section, sectionId, index === 0 && existingTabs === 0);
         sectionTabsHost.appendChild(tab);
         learnSectionsHost.appendChild(sectionEl);
+        lastSectionEl = sectionEl;
       }
       updateLockedSectionsHint(targetCount < SECTION_BLUEPRINTS.length);
       updateSectionCompletionClasses();
@@ -5535,12 +5599,17 @@ let frenzyAuraEl = null;
     const skillsView = document.getElementById("skillsView");
     const shopView = document.getElementById("shopView");
     const battleView = document.getElementById("battleView");
+    const reportView = document.getElementById("reportView");
+    const reportContent = document.getElementById("reportContent");
+    const reportTimestamp = document.getElementById("reportTimestamp");
+    const reportGenerateBtn = document.getElementById("reportGenerateBtn");
     const viewRegistry = {
       learn: learnView,
       inventory: inventoryView,
       skills: skillsView,
       shop: shopView,
-      battle: battleView
+      battle: battleView,
+      report: reportView
     };
     const navToggles = document.querySelectorAll(".nav-toggle");
     const topNav = document.querySelector(".top-nav");
@@ -5580,12 +5649,24 @@ let frenzyAuraEl = null;
       });
     }
     function activateView(viewKey) {
+      if (viewKey === "report") {
+        renderReport();
+      }
       setActiveNav(viewKey);
       setActiveView(viewKey);
     }
+    if (reportGenerateBtn) {
+      reportGenerateBtn.addEventListener("click", () => {
+        renderReport();
+      });
+    }
+
     navToggles.forEach(btn => {
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
+        if (view === "report") {
+          renderReport();
+        }
         activateView(view);
         if (typeof window !== "undefined" && window.innerWidth <= 720) {
           closeMobileNav();
@@ -7529,6 +7610,60 @@ let frenzyAuraEl = null;
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
       overallSummary.textContent = `${correctCount}/${total} Aufgaben aktuell richtig (${percent}%)`;
     }
+    function ensureSectionReport(sectionId) {
+      if (!sectionId) return null;
+      if (!state.sectionReports || typeof state.sectionReports !== "object") {
+        state.sectionReports = {};
+      }
+      if (!state.sectionReports[sectionId]) {
+        state.sectionReports[sectionId] = {
+          checks: 0,
+          successes: 0,
+          bestScore: 0,
+          lastScore: 0,
+          lastRunAt: 0,
+          promptStats: Object.create(null)
+        };
+      }
+      return state.sectionReports[sectionId];
+    }
+
+    function recordPromptResult(sectionId, prompt, isCorrect) {
+      if (!prompt) return;
+      const report = ensureSectionReport(sectionId);
+      if (!report) return;
+      const key = prompt.trim();
+      if (!key) return;
+      if (!report.promptStats[key]) {
+        report.promptStats[key] = { attempts: 0, misses: 0 };
+      }
+      report.promptStats[key].attempts += 1;
+      if (!isCorrect) {
+        report.promptStats[key].misses += 1;
+      }
+    }
+
+    function recordSectionSummary(sectionId, total, correctCount) {
+      const report = ensureSectionReport(sectionId);
+      if (!report) return;
+      report.checks += 1;
+      if (correctCount === total && total > 0) {
+        report.successes = (report.successes || 0) + 1;
+      }
+      const score = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+      report.lastScore = score;
+      report.bestScore = Math.max(report.bestScore || 0, score);
+      report.lastRunAt = Date.now();
+    }
+
+    function getSectionMeta(sectionId) {
+      if (!sectionId || !Array.isArray(SECTION_BLUEPRINTS)) return null;
+      return SECTION_BLUEPRINTS.find((entry, idx) => {
+        const resolved = String(entry.id !== undefined ? entry.id : idx + 1);
+        return resolved === String(sectionId);
+      }) || null;
+    }
+
     function gradeSection(sectionId, triggerBtn) {
       const section = document.querySelector(`.section[data-section="${sectionId}"]`);
       if (!section) return;
@@ -7559,6 +7694,16 @@ let frenzyAuraEl = null;
         } else {
           isCorrect = userValue === solution;
         }
+        const promptSource = (field.dataset.prompt || "").trim();
+        let promptText = promptSource;
+        if (!promptText && wrap) {
+          const questionNode = wrap.querySelector(".question-text");
+          if (questionNode) promptText = questionNode.textContent.trim();
+        }
+        if (!promptText && field.classList.contains("dnd-target")) {
+          const labelEl = field.querySelector(".question-text");
+          if (labelEl) promptText = labelEl.textContent.trim();
+        }
         if (isCorrect) {
           correctCount += 1;
           field.classList.add("correct");
@@ -7569,6 +7714,7 @@ let frenzyAuraEl = null;
           if (wrap) wrap.classList.add("incorrect");
           if (slotRef) slotRef.classList.add("incorrect");
         }
+        recordPromptResult(sectionId, promptText || solution || field.tagName, isCorrect);
       });
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
       let resultMsg = `${correctCount}/${total} richtig (${percent}%)`;
@@ -7604,6 +7750,7 @@ let frenzyAuraEl = null;
       }
       const resultEl = document.getElementById(`result-${sectionId}`);
       if (resultEl) resultEl.textContent = resultMsg;
+      recordSectionSummary(sectionId, total, correctCount);
       updateUI();
       updateOverallSummary();
       recalcStats();
@@ -7768,6 +7915,126 @@ let frenzyAuraEl = null;
         battleButtons.push(btn);
       });
       updateBattleButtons();
+    }
+
+    function renderReport() {
+      if (!reportContent) return;
+      const reports = state.sectionReports || {};
+      const entries = Object.entries(reports);
+      if (!entries.length) {
+        reportContent.innerHTML = "<p class=\"small\">Noch keine Daten vorhanden. Bearbeite weitere Abschnitte.</p>";
+        if (reportTimestamp) reportTimestamp.textContent = "Noch kein Report erstellt.";
+        return;
+      }
+      const now = new Date();
+      if (reportTimestamp) {
+        reportTimestamp.textContent = "Report erstellt: " + now.toLocaleString("de-DE");
+      }
+      const sectionRows = [];
+      const promptRows = [];
+      entries.forEach(([sectionId, data]) => {
+        if (!data) return;
+        const meta = getSectionMeta(sectionId);
+        const sectionName = meta ? (meta.title || `Abschnitt ${sectionId}`) : `Abschnitt ${sectionId}`;
+        const promptStats = data.promptStats || {};
+        const totalMisses = Object.values(promptStats).reduce((sum, stat) => sum + Math.max(0, stat.misses || 0), 0);
+        sectionRows.push({
+          sectionId,
+          name: sectionName,
+          checks: data.checks || 0,
+          successes: data.successes || 0,
+          bestScore: data.bestScore || 0,
+          lastScore: data.lastScore || 0,
+          misses: totalMisses,
+          lastRunAt: data.lastRunAt || 0
+        });
+        Object.entries(promptStats).forEach(([prompt, stats]) => {
+          promptRows.push({
+            sectionId,
+            sectionName,
+            prompt,
+            attempts: stats.attempts || 0,
+            misses: stats.misses || 0
+          });
+        });
+      });
+      const toughestPrompts = promptRows
+        .filter(row => row.misses > 0)
+        .sort((a, b) => (b.misses - a.misses) || (b.attempts - a.attempts))
+        .slice(0, 5);
+      const solidPrompts = promptRows
+        .filter(row => row.attempts > 0 && row.misses === 0)
+        .sort((a, b) => b.attempts - a.attempts)
+        .slice(0, 5);
+      const sectionChallenge = sectionRows
+        .filter(row => row.checks > 0)
+        .sort((a, b) => (b.misses - a.misses) || (a.successes - b.successes))
+        .slice(0, 5);
+      const sectionSuccess = sectionRows
+        .filter(row => row.successes > 0)
+        .sort((a, b) => (b.successes - a.successes) || (b.bestScore - a.bestScore))
+        .slice(0, 5);
+
+      reportContent.innerHTML = "";
+      reportContent.appendChild(buildReportBlock("Fehlerhäufigste Kombinationen", toughestPrompts, ["Abschnitt", "Kombination", "Fehlversuche"], row => [
+        row.sectionName,
+        row.prompt,
+        `${row.misses}/${row.attempts}`
+      ], "Keine Fehler bisher 🎉"));
+      reportContent.appendChild(buildReportBlock("Starke Kombinationen", solidPrompts, ["Abschnitt", "Kombination", "Versuche"], row => [
+        row.sectionName,
+        row.prompt,
+        row.attempts
+      ], "Noch keine perfekten Serien."));
+      reportContent.appendChild(buildReportBlock("Abschnitte mit Verbesserungsbedarf", sectionChallenge, ["Abschnitt", "Checks", "Fehler"], row => [
+        row.name,
+        row.checks,
+        row.misses
+      ], "Noch keine Auswertungen."));
+      reportContent.appendChild(buildReportBlock("Gut gemeisterte Abschnitte", sectionSuccess, ["Abschnitt", "Perfekte Läufe", "Bestes Ergebnis"], row => [
+        row.name,
+        row.successes,
+        row.bestScore + "%"
+      ], "Noch keine erfolgreichen Läufe."));
+    }
+
+    function buildReportBlock(title, rows, headers, formatter, emptyText) {
+      const block = document.createElement("div");
+      block.className = "report-block";
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+      block.appendChild(heading);
+      if (!rows.length) {
+        const info = document.createElement("p");
+        info.className = "small";
+        info.textContent = emptyText;
+        block.appendChild(info);
+        return block;
+      }
+      const table = document.createElement("table");
+      table.className = "report-table";
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      headers.forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      const tbody = document.createElement("tbody");
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        formatter(row).forEach(value => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      block.appendChild(table);
+      return block;
     }
 
     function getOwnedBattleSkills() {
