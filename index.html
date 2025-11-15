@@ -4892,6 +4892,8 @@ let frenzyAuraEl = null;
       const entries = Array.isArray(story.entries) && story.entries.length ? story.entries : [story];
       entries.forEach(entry => {
         if (!entry || !Array.isArray(entry.options) || !Array.isArray(entry.answers)) return;
+        const comboLabel = entry.comboLabel || (Array.isArray(entry.answers) ? entry.answers.join("+") : "");
+        const fallbackLabel = entry.prompt || story.prompt || entry.scene || story.scene || "";
         const card = document.createElement("div");
         card.className = "narrative-card";
         const scene = document.createElement("p");
@@ -4913,6 +4915,7 @@ let frenzyAuraEl = null;
           span.dataset.answer = answers[blankIndex] || "";
           span.dataset.value = "";
           span.dataset.filled = "false";
+           span.dataset.prompt = comboLabel || fallbackLabel || span.dataset.answer || "";
           span.addEventListener("click", () => {
             blankNodes.forEach(b => b.classList.remove("active"));
             if (span.dataset.filled === "true") {
