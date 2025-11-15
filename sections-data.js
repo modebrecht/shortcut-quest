@@ -156,28 +156,28 @@
       description: "Ein Überraschungs-Mix aus Kombinationen, die im Alltag immer wieder helfen.",
       tasks: [
         {
-          type: "input",
-          prompt: "Browser-Tab wechseln",
-          answer: "Ctrl+Tab",
-          hint: "Ctrl+Tab"
+          type: "select",
+          prompt: "Task-Ansicht öffnen",
+          answer: "Win+Tab",
+          options: ["Win+Tab", "Alt+Tab", "Win+D", "Ctrl+Alt+Tab", "Win+Ctrl+Tab"]
         },
         {
-          type: "input",
+          type: "select",
           prompt: "Zwischen aktiven Fenstern wechseln",
           answer: "Alt+Tab",
-          hint: "Alt+Tab"
+          options: ["Alt+Tab", "Win+Tab", "Ctrl+Shift+Esc", "Win+E", "Ctrl+Alt+Del"]
         },
         {
           type: "select",
           prompt: "Task-Manager öffnen",
           answer: "Ctrl+Shift+Esc",
-          options: ["Ctrl+Alt+Del", "Ctrl+Shift+Esc", "Alt+F4", "Win+T"]
+          options: ["Ctrl+Shift+Esc", "Ctrl+Alt+D", "Alt+F4", "Win+T", "Win+L"]
         },
         {
           type: "select",
           prompt: "Desktop anzeigen",
           answer: "Win+D",
-          options: ["Win+M", "Win+D", "Alt+F4", "Ctrl+Alt+Del"]
+          options: ["Win+D", "Win+M", "Alt+F4", "Ctrl+Alt+Del", "Win+E"]
         }
       ]
     },
@@ -405,7 +405,7 @@
           type: "select",
           prompt: "Zwischen Fenstern wechseln",
           answer: "Alt+Tab",
-          options: ["Alt+Tab", "Win+Tab", "Ctrl+Tab", "Ctrl+Alt+Del", "Win+Shift+Tab"]
+          options: ["Alt+Tab", "Win+Tab", "Ctrl+Alt+Del", "Win+Shift+Tab", "Win+D"]
         }
       ]
     },
@@ -1500,7 +1500,7 @@
       title: "53. Quick Wins – Input",
       description: "Die Überraschungskombinationen als einfache Eingabefelder.",
       tasks: [
-        { type: "input", prompt: "Browser-Tab wechseln", answer: "Ctrl+Tab" },
+        { type: "input", prompt: "Startmenü öffnen", answer: "Ctrl+Esc" },
         { type: "input", prompt: "Zwischen aktiven Fenstern wechseln", answer: "Alt+Tab" },
         { type: "input", prompt: "Task-Manager öffnen", answer: "Ctrl+Shift+Esc" },
         { type: "input", prompt: "Desktop anzeigen", answer: "Win+D" },
