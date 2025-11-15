@@ -189,6 +189,21 @@
     .chart-shell .apexcharts-canvas {
       margin: 0 auto;
     }
+    .report-insights {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+    }
+    .report-insights li {
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.25);
+      background: rgba(15,23,42,0.55);
+    }
     .apexcharts-tooltip,
     .apexcharts-xaxistooltip,
     .apexcharts-yaxistooltip {
@@ -4031,7 +4046,9 @@
             <button id="reportGenerateBtn" type="button">📊 Report aktualisieren</button>
           </div>
           <div class="report-tabs">
-            <button type="button" class="report-tab active" data-report-tab="tables">📋 Tabellen</button>
+            <button type="button" class="report-tab active" data-report-tab="overview">📌 Überblick</button>
+            <button type="button" class="report-tab" data-report-tab="combos">⌨️ Kombinationen</button>
+            <button type="button" class="report-tab" data-report-tab="sections">📚 Abschnitte</button>
             <button type="button" class="report-tab" data-report-tab="charts">📈 Charts</button>
           </div>
           <div id="reportContent" class="report-content">
@@ -5740,7 +5757,7 @@ let frenzyAuraEl = null;
     const reportTimestamp = document.getElementById("reportTimestamp");
     const reportGenerateBtn = document.getElementById("reportGenerateBtn");
     const reportTabs = document.querySelectorAll(".report-tab");
-    let activeReportTab = "tables";
+    let activeReportTab = "overview";
     const activeReportCharts = [];
     const viewRegistry = {
       learn: learnView,
@@ -8180,15 +8197,24 @@ let frenzyAuraEl = null;
     function renderReportTabs(payload) {
       disposeReportCharts();
       reportContent.innerHTML = "";
-      if (activeReportTab === "charts") {
-        renderChartsTab(payload);
-      } else {
-        renderTablesTab(payload);
+      switch (activeReportTab) {
+        case "combos":
+          renderComboTab(payload);
+          break;
+        case "sections":
+          renderSectionTab(payload);
+          break;
+        case "charts":
+          renderChartsTab(payload);
+          break;
+        default:
+          renderOverviewTab(payload);
+          break;
       }
     }
 
-    function renderTablesTab(payload) {
-      const { totalChecks, totalPerfect, sectionSuccess, sectionChallenge, toughestPrompts, solidPrompts } = payload;
+    function renderOverviewTab(payload) {
+      const { totalChecks, totalPerfect, sectionSuccess = [], sectionChallenge = [], toughestPrompts = [], solidPrompts = [], practiceData = [], comboRatioData = [] } = payload;
       const highlightBlock = document.createElement("div");
       highlightBlock.className = "report-block";
       highlightBlock.appendChild(buildBlockHeading("Übersicht", "🎯"));
@@ -8196,17 +8222,72 @@ let frenzyAuraEl = null;
       highlightGrid.className = "report-highlights";
       highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks));
       highlightGrid.appendChild(buildHighlightCard("Perfekte Läufe", totalPerfect));
-      if (sectionSuccess && sectionSuccess[0]) {
+      if (sectionSuccess[0]) {
         highlightGrid.appendChild(buildHighlightCard("Bester Abschnitt", `${sectionSuccess[0].name} (${sectionSuccess[0].bestScore || 0}%)`));
       }
-      if (sectionChallenge && sectionChallenge[0]) {
+      if (sectionChallenge[0]) {
         highlightGrid.appendChild(buildHighlightCard("Größte Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
       }
-      if (toughestPrompts && toughestPrompts[0]) {
+      if (toughestPrompts[0]) {
         highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${toughestPrompts[0].prompt} (${toughestPrompts[0].misses} Fehlversuche)`, "bad"));
       }
       highlightBlock.appendChild(highlightGrid);
       reportContent.appendChild(highlightBlock);
+
+      const insightBlock = document.createElement("div");
+      insightBlock.className = "report-block";
+      insightBlock.appendChild(buildBlockHeading("Quick Insights", "💡"));
+      const insights = [];
+      if (sectionChallenge[0]) {
+        insights.push(`🧠 ${sectionChallenge[0].name}: ${sectionChallenge[0].misses} Fehler offen.`);
+      }
+      if (toughestPrompts[0]) {
+        insights.push(`⚠️ ${toughestPrompts[0].prompt} (${toughestPrompts[0].sectionName}) stolpert am häufigsten.`);
+      }
+      if (solidPrompts[0]) {
+        insights.push(`✅ ${solidPrompts[0].prompt} sitzt (${solidPrompts[0].attempts} fehlerfreie Versuche).`);
+      }
+      if (practiceData[0]) {
+        insights.push(`🔁 ${practiceData[0].label} wurde ${practiceData[0].value}x geübt.`);
+      }
+      if (comboRatioData.length) {
+        const weakest = comboRatioData[0];
+        const strongest = comboRatioData[comboRatioData.length - 1];
+        if (weakest) {
+          insights.push(`📉 ${weakest.label} braucht noch Sicherheit (${weakest.correctPct}% Trefferquote).`);
+        }
+        if (strongest && strongest !== weakest) {
+          insights.push(`📈 ${strongest.label} ist deine stärkste Kombi (${strongest.correctPct}% Trefferquote).`);
+        }
+      }
+      if (insights.length) {
+        const list = document.createElement("ul");
+        list.className = "report-insights";
+        insights.slice(0, 5).forEach(text => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          list.appendChild(li);
+        });
+        insightBlock.appendChild(list);
+      } else {
+        const empty = document.createElement("p");
+        empty.className = "small";
+        empty.textContent = "Noch keine Auswertungen vorhanden.";
+        insightBlock.appendChild(empty);
+      }
+      reportContent.appendChild(insightBlock);
+    }
+
+    function renderComboTab(payload) {
+      const { toughestPrompts = [], solidPrompts = [], comboRatioData = [], errorChartData = [] } = payload;
+      const hasContent = toughestPrompts.length || solidPrompts.length || comboRatioData.length || errorChartData.length;
+      if (!hasContent) {
+        const msg = document.createElement("p");
+        msg.className = "small";
+        msg.textContent = "Noch keine Kombinationsdaten vorhanden.";
+        reportContent.appendChild(msg);
+        return;
+      }
       reportContent.appendChild(buildReportBlock("Fehlerhäufigste Kombinationen", "⚠️", toughestPrompts, ["Abschnitt", "Kombination", "Fehlversuche"], row => [
         row.sectionName,
         row.prompt,
@@ -8217,6 +8298,34 @@ let frenzyAuraEl = null;
         row.prompt,
         row.attempts
       ], "Noch keine perfekten Serien."));
+      const chartEntries = [];
+      if (comboRatioData.length) {
+        const ratioCard = createChartCard("Trefferquote pro Kombi", "🟢", "reportChartCombosTab");
+        chartEntries.push({ card: ratioCard, render: () => renderComboRatioChart(comboRatioData, "reportChartCombosTab") });
+      }
+      if (errorChartData.length) {
+        const errorCard = createChartCard("Fehlversuche je Kombi", "⚠️", "reportChartErrorsTab");
+        chartEntries.push({ card: errorCard, render: () => renderErrorComboChart(errorChartData, "reportChartErrorsTab") });
+      }
+      if (chartEntries.length) {
+        const grid = document.createElement("div");
+        grid.className = "report-chart-grid";
+        chartEntries.forEach(entry => grid.appendChild(entry.card));
+        reportContent.appendChild(grid);
+        chartEntries.forEach(entry => entry.render());
+      }
+    }
+
+    function renderSectionTab(payload) {
+      const { sectionChallenge = [], sectionSuccess = [], practiceData = [], sectionScoreData = [] } = payload;
+      const hasContent = sectionChallenge.length || sectionSuccess.length || practiceData.length || sectionScoreData.length;
+      if (!hasContent) {
+        const msg = document.createElement("p");
+        msg.className = "small";
+        msg.textContent = "Noch keine Abschnittsdaten vorhanden.";
+        reportContent.appendChild(msg);
+        return;
+      }
       reportContent.appendChild(buildReportBlock("Abschnitte mit Verbesserungsbedarf", "🧠", sectionChallenge, ["Abschnitt", "Checks", "Fehler"], row => [
         row.name,
         row.checks,
@@ -8227,11 +8336,27 @@ let frenzyAuraEl = null;
         row.successes,
         row.bestScore + "%"
       ], "Noch keine erfolgreichen Läufe."));
+      const chartEntries = [];
+      if (practiceData.length) {
+        const practiceCard = createChartCard("Meist geübte Abschnitte", "📘", "reportChartPracticeTab");
+        chartEntries.push({ card: practiceCard, render: () => renderPracticeChart(practiceData, "reportChartPracticeTab") });
+      }
+      if (sectionScoreData.length) {
+        const scoreCard = createChartCard("Top-Ergebnisse je Abschnitt", "🏅", "reportChartScoresTab");
+        chartEntries.push({ card: scoreCard, render: () => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScoresTab") });
+      }
+      if (chartEntries.length) {
+        const grid = document.createElement("div");
+        grid.className = "report-chart-grid";
+        chartEntries.forEach(entry => grid.appendChild(entry.card));
+        reportContent.appendChild(grid);
+        chartEntries.forEach(entry => entry.render());
+      }
     }
 
     function renderChartsTab(payload) {
-      const { errorChartData = [], sectionScoreData = [], practiceData = [], comboRatioData = [] } = payload;
-      const hasCharts = errorChartData.length || sectionScoreData.length || practiceData.length || comboRatioData.length;
+      const { sectionScoreData = [], practiceData = [] } = payload;
+      const hasCharts = sectionScoreData.length || practiceData.length;
       if (!hasCharts) {
         const msg = document.createElement("p");
         msg.className = "small";
@@ -8242,21 +8367,13 @@ let frenzyAuraEl = null;
       const grid = document.createElement("div");
       grid.className = "report-chart-grid";
       const chartQueue = [];
-      if (comboRatioData.length) {
-        grid.appendChild(createChartCard("Kombi-Trefferquote", "🟢", "reportChartCombos"));
-        chartQueue.push(() => renderComboRatioChart(comboRatioData, "reportChartCombos"));
-      }
       if (sectionScoreData.length) {
-        grid.appendChild(createChartCard("Top-Ergebnisse je Abschnitt", "🏅", "reportChartScores"));
-        chartQueue.push(() => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScores"));
-      }
-      if (errorChartData.length) {
-        grid.appendChild(createChartCard("Fehler je Kombination", "⚠️", "reportChartErrors"));
-        chartQueue.push(() => renderErrorComboChart(errorChartData, "reportChartErrors"));
+        grid.appendChild(createChartCard("Top-Ergebnisse je Abschnitt", "🏅", "reportChartScoresAll"));
+        chartQueue.push(() => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScoresAll"));
       }
       if (practiceData.length) {
-        grid.appendChild(createChartCard("Meist geübte Abschnitte", "📘", "reportChartPractice"));
-        chartQueue.push(() => renderPracticeChart(practiceData, "reportChartPractice"));
+        grid.appendChild(createChartCard("Trainingsintensität", "📘", "reportChartPracticeAll"));
+        chartQueue.push(() => renderPracticeChart(practiceData, "reportChartPracticeAll"));
       }
       reportContent.appendChild(grid);
       chartQueue.forEach(renderFn => renderFn());
