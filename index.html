@@ -89,28 +89,150 @@
     }
     .report-block {
       border: 1px solid rgba(148,163,184,0.35);
-      border-radius: 0.9rem;
-      padding: 0.9rem;
-      background: rgba(15,23,42,0.4);
+      border-radius: 0.95rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(14,116,144,0.15), rgba(15,23,42,0.65));
+      box-shadow: inset 0 0 0 1px rgba(59,130,246,0.12), 0 10px 24px rgba(2,6,23,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .report-block::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 15% 20%, rgba(59,130,246,0.25), transparent 45%);
+      opacity: 0.6;
     }
     .report-block h3 {
       margin: 0 0 0.4rem;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      position: relative;
+      z-index: 1;
+    }
+    .report-block h3 .report-icon {
+      font-size: 1.1em;
+    }
+    .report-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      background: rgba(15,23,42,0.7);
+      border-radius: 999px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.78rem;
+      border: 1px solid rgba(148,163,184,0.3);
+    }
+    .report-highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .highlight-card {
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(15,118,110,0.18);
+      border: 1px solid rgba(45,212,191,0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .highlight-card.bad {
+      background: rgba(190,24,93,0.12);
+      border-color: rgba(244,63,94,0.35);
+    }
+    .highlight-label {
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+    .highlight-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .chart-block {
+      border: 1px solid rgba(148,163,184,0.25);
+      border-radius: 0.85rem;
+      padding: 0.75rem;
+      background: rgba(15,23,42,0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .chart-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .chart-label {
+      flex: 0 0 150px;
+      font-size: 0.78rem;
+      line-height: 1.2;
+    }
+    .chart-label span {
+      display: block;
+    }
+    .chart-label .chart-section {
+      opacity: 0.7;
+      font-size: 0.72rem;
+    }
+    .chart-bar {
+      flex: 1;
+      height: 0.65rem;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148,163,184,0.15);
+    }
+    .chart-bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(248,113,113,0.8), rgba(244,63,94,0.6));
+    }
+    .chart-bar-fill.good {
+      background: linear-gradient(90deg, rgba(34,197,94,0.9), rgba(16,185,129,0.7));
+    }
+    .chart-value {
+      width: 48px;
+      text-align: right;
+      font-size: 0.78rem;
     }
     .report-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.85rem;
+      margin-top: 0.5rem;
+      position: relative;
+      z-index: 1;
+      table-layout: fixed;
     }
     .report-table th,
     .report-table td {
       padding: 0.35rem 0.5rem;
       border-bottom: 1px solid rgba(148,163,184,0.2);
       text-align: left;
+      position: relative;
+      z-index: 1;
+      vertical-align: middle;
+      width: auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+    .report-table col.col-40 { width: 40%; }
+    .report-table col.col-60 { width: 60%; }
+    .report-table col.col-20 { width: 20%; }
     .report-table th {
       font-weight: 600;
       color: var(--text);
+    }
+    .report-table tbody tr:nth-child(odd) {
+      background: rgba(15,23,42,0.35);
+    }
+    .report-table tbody tr:hover {
+      background: rgba(59,130,246,0.12);
     }
     .report-cta {
       margin-top: 1rem;
@@ -7974,36 +8096,85 @@ let frenzyAuraEl = null;
         .filter(row => row.successes > 0)
         .sort((a, b) => (b.successes - a.successes) || (b.bestScore - a.bestScore))
         .slice(0, 5);
+      const totalChecks = sectionRows.reduce((sum, row) => sum + (row.checks || 0), 0);
+      const totalPerfect = sectionRows.reduce((sum, row) => sum + (row.successes || 0), 0);
 
       reportContent.innerHTML = "";
-      reportContent.appendChild(buildReportBlock("Fehlerhäufigste Kombinationen", toughestPrompts, ["Abschnitt", "Kombination", "Fehlversuche"], row => [
+      const highlightBlock = document.createElement("div");
+      highlightBlock.className = "report-block";
+      highlightBlock.appendChild(buildBlockHeading("Übersicht", "🎯"));
+      const highlightGrid = document.createElement("div");
+      highlightGrid.className = "report-highlights";
+      highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks));
+      highlightGrid.appendChild(buildHighlightCard("Perfekte Läufe", totalPerfect));
+      if (sectionSuccess[0]) {
+        highlightGrid.appendChild(buildHighlightCard("Bester Abschnitt", `${sectionSuccess[0].name} (${sectionSuccess[0].bestScore || 0}%)`));
+      }
+      if (sectionChallenge[0]) {
+        highlightGrid.appendChild(buildHighlightCard("Größte Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
+      }
+      if (toughestPrompts[0]) {
+        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${toughestPrompts[0].prompt} (${toughestPrompts[0].misses} Fehlversuche)`, "bad"));
+      }
+      highlightBlock.appendChild(highlightGrid);
+      reportContent.appendChild(highlightBlock);
+      const errorChartData = toughestPrompts.map(row => ({
+        label: row.prompt,
+        section: row.sectionName,
+        value: row.misses
+      }));
+      const sectionScoreData = sectionRows
+        .filter(row => row.bestScore > 0)
+        .sort((a, b) => b.bestScore - a.bestScore)
+        .slice(0, 5)
+        .map(row => ({
+          label: row.name,
+          value: row.bestScore,
+          variant: "good"
+        }));
+      const practiceData = sectionRows
+        .filter(row => row.checks > 0)
+        .sort((a, b) => b.checks - a.checks)
+        .slice(0, 5)
+        .map(row => ({
+          label: row.name,
+          value: row.checks
+        }));
+      if (errorChartData.length) {
+        reportContent.appendChild(buildChartBlock("Fehler je Kombination", errorChartData, "%d Fehlversuche"));
+      }
+      if (sectionScoreData.length) {
+        reportContent.appendChild(buildChartBlock("Top-Ergebnisse je Abschnitt", sectionScoreData, "%d%", true));
+      }
+      if (practiceData.length) {
+        reportContent.appendChild(buildChartBlock("Meist geübte Abschnitte", practiceData, "%d Checks"));
+      }
+      reportContent.appendChild(buildReportBlock("Fehlerhäufigste Kombinationen", "⚠️", toughestPrompts, ["Abschnitt", "Kombination", "Fehlversuche"], row => [
         row.sectionName,
         row.prompt,
         `${row.misses}/${row.attempts}`
-      ], "Keine Fehler bisher 🎉"));
-      reportContent.appendChild(buildReportBlock("Starke Kombinationen", solidPrompts, ["Abschnitt", "Kombination", "Versuche"], row => [
+      ], "Keine Fehler bisher 🎉", ["col-40","col-40","col-20"]));
+      reportContent.appendChild(buildReportBlock("Starke Kombinationen", "✅", solidPrompts, ["Abschnitt", "Kombination", "Versuche"], row => [
         row.sectionName,
         row.prompt,
         row.attempts
-      ], "Noch keine perfekten Serien."));
-      reportContent.appendChild(buildReportBlock("Abschnitte mit Verbesserungsbedarf", sectionChallenge, ["Abschnitt", "Checks", "Fehler"], row => [
+      ], "Noch keine perfekten Serien.", ["col-40","col-40","col-20"]));
+      reportContent.appendChild(buildReportBlock("Abschnitte mit Verbesserungsbedarf", "🧠", sectionChallenge, ["Abschnitt", "Checks", "Fehler"], row => [
         row.name,
         row.checks,
         row.misses
-      ], "Noch keine Auswertungen."));
-      reportContent.appendChild(buildReportBlock("Gut gemeisterte Abschnitte", sectionSuccess, ["Abschnitt", "Perfekte Läufe", "Bestes Ergebnis"], row => [
+      ], "Noch keine Auswertungen.", ["col-60","col-20","col-20"]));
+      reportContent.appendChild(buildReportBlock("Gut gemeisterte Abschnitte", "🏅", sectionSuccess, ["Abschnitt", "Perfekte Läufe", "Bestes Ergebnis"], row => [
         row.name,
         row.successes,
         row.bestScore + "%"
-      ], "Noch keine erfolgreichen Läufe."));
+      ], "Noch keine erfolgreichen Läufe.", ["col-60","col-20","col-20"]));
     }
 
-    function buildReportBlock(title, rows, headers, formatter, emptyText) {
+    function buildReportBlock(title, icon, rows, headers, formatter, emptyText, columnClasses = []) {
       const block = document.createElement("div");
       block.className = "report-block";
-      const heading = document.createElement("h3");
-      heading.textContent = title;
-      block.appendChild(heading);
+      block.appendChild(buildBlockHeading(title, icon || "📘"));
       if (!rows.length) {
         const info = document.createElement("p");
         info.className = "small";
@@ -8013,9 +8184,18 @@ let frenzyAuraEl = null;
       }
       const table = document.createElement("table");
       table.className = "report-table";
+      if (columnClasses && columnClasses.length) {
+        const colgroup = document.createElement("colgroup");
+        columnClasses.forEach(cls => {
+          const colEl = document.createElement("col");
+          if (cls) colEl.className = cls;
+          colgroup.appendChild(colEl);
+        });
+        table.appendChild(colgroup);
+      }
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
-      headers.forEach(text => {
+      headers.forEach((text) => {
         const th = document.createElement("th");
         th.textContent = text;
         headerRow.appendChild(th);
@@ -8025,7 +8205,7 @@ let frenzyAuraEl = null;
       const tbody = document.createElement("tbody");
       rows.forEach(row => {
         const tr = document.createElement("tr");
-        formatter(row).forEach(value => {
+        formatter(row).forEach((value) => {
           const td = document.createElement("td");
           td.textContent = value;
           tr.appendChild(td);
@@ -8034,6 +8214,77 @@ let frenzyAuraEl = null;
       });
       table.appendChild(tbody);
       block.appendChild(table);
+      return block;
+    }
+
+    function buildHighlightCard(label, value, variant) {
+      const card = document.createElement("div");
+      card.className = `highlight-card${variant === "bad" ? " bad" : ""}`;
+      const lbl = document.createElement("span");
+      lbl.className = "highlight-label";
+      lbl.textContent = label;
+      const val = document.createElement("span");
+      val.className = "highlight-value";
+      val.textContent = value || value === 0 ? value : "-";
+      card.appendChild(lbl);
+      card.appendChild(val);
+      return card;
+    }
+
+    function buildBlockHeading(text, icon) {
+      const heading = document.createElement("h3");
+      const iconSpan = document.createElement("span");
+      iconSpan.className = "report-icon";
+      iconSpan.textContent = icon || "";
+      heading.appendChild(iconSpan);
+      const textNode = document.createElement("span");
+      textNode.textContent = text;
+      heading.appendChild(textNode);
+      return heading;
+    }
+
+    function buildChartBlock(title, rows, valueFormat = "%d", goodScale = false) {
+      const block = document.createElement("div");
+      block.className = "report-block chart-block";
+      block.appendChild(buildBlockHeading(title, "📈"));
+      if (!rows.length) {
+        const info = document.createElement("p");
+        info.className = "small";
+        info.textContent = "Keine Daten vorhanden.";
+        block.appendChild(info);
+        return block;
+      }
+      const maxValue = rows.reduce((max, row) => Math.max(max, row.value || 0), 0) || 1;
+      rows.forEach(row => {
+        const rowEl = document.createElement("div");
+        rowEl.className = "chart-row";
+        const labelWrap = document.createElement("div");
+        labelWrap.className = "chart-label";
+        const main = document.createElement("span");
+        main.textContent = row.label;
+        labelWrap.appendChild(main);
+        if (row.section) {
+          const sub = document.createElement("span");
+          sub.className = "chart-section";
+          sub.textContent = row.section;
+          labelWrap.appendChild(sub);
+        }
+        const bar = document.createElement("div");
+        bar.className = "chart-bar";
+        const fill = document.createElement("span");
+        fill.className = `chart-bar-fill${row.variant === "good" || goodScale ? " good" : ""}`;
+        const pct = Math.max(5, Math.round((Math.min(row.value || 0, maxValue) / maxValue) * 100));
+        fill.style.width = pct + "%";
+        bar.appendChild(fill);
+        const valueEl = document.createElement("span");
+        valueEl.className = "chart-value";
+        const formatted = valueFormat.replace("%d", row.value != null ? row.value : 0);
+        valueEl.textContent = formatted;
+        rowEl.appendChild(labelWrap);
+        rowEl.appendChild(bar);
+        rowEl.appendChild(valueEl);
+        block.appendChild(rowEl);
+      });
       return block;
     }
 
