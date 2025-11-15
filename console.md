@@ -43,3 +43,6 @@ __battlePauseControl.pause();
 " --- DELETE LOCAL PROGRESS --- "
 localStorage.removeItem("shortcutRitter_v1");
 location.reload();
+
+" --- DEBUG MODE ---
+window.CONSTANTS_DEBUG = true;
