@@ -45,25 +45,25 @@
           type: "select",
           prompt: "Kopieren",
           answer: "Ctrl+C",
-          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Shift+C", "Ctrl+Alt+C"]
+          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+Z"]
         },
         {
           type: "select",
           prompt: "Einfügen",
           answer: "Ctrl+V",
-          options: ["Ctrl+S", "Ctrl+V", "Ctrl+Z", "Ctrl+Shift+V", "Ctrl+Alt+V"]
+          options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z", "Ctrl+S"]
         },
         {
           type: "select",
           prompt: "Ausschneiden",
           answer: "Ctrl+X",
-          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Shift+X", "Ctrl+Alt+X"]
+          options: ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Z", "Ctrl+A"]
         },
         {
           type: "select",
           prompt: "Alles markieren",
           answer: "Ctrl+A",
-          options: ["Ctrl+P", "Ctrl+A", "Ctrl+F", "Ctrl+Shift+A", "Ctrl+Alt+A"]
+          options: ["Ctrl+A", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+F"]
         }
       ]
     },
@@ -95,25 +95,25 @@
           type: "select",
           prompt: "Speichern",
           answer: "Ctrl+S",
-          options: ["Ctrl+S", "Ctrl+O", "Win+Shift+S", "Ctrl+Alt+S", "Ctrl+P"]
+          options: ["Ctrl+S", "Ctrl+O", "Win+Shift+S", "Ctrl+Shift+S", "Ctrl+P"]
         },
         {
           type: "select",
           prompt: "Neues Dokument",
           answer: "Ctrl+N",
-          options: ["Ctrl+O", "Ctrl+N", "Ctrl+P", "Ctrl+Shift+N", "Ctrl+Alt+N"]
+          options: ["Ctrl+O", "Ctrl+N", "Ctrl+P", "Ctrl+Shift+N", "Ctrl+T"]
         },
         {
           type: "select",
           prompt: "Drucken",
           answer: "Ctrl+P",
-          options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F", "Ctrl+Alt+P", "Ctrl+Shift+F"]
+          options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F", "Ctrl+O", "Ctrl+Shift+F"]
         },
         {
           type: "select",
           prompt: "Rückgängig",
           answer: "Ctrl+Z",
-          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+Alt+Z", "Ctrl+Shift+Y"]
+          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+X", "Ctrl+Shift+Y"]
         }
       ]
     },
