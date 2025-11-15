@@ -76,6 +76,12 @@
       border-color: rgba(245,158,11,0.5);
       background: var(--accent-soft);
     }
+    .emoji {
+      font-size: 1.1em;
+      line-height: 1;
+      display: inline-block;
+      margin-right: 0.2em;
+    }
     .badge {
       border-radius: 999px;
       padding: 0.3rem 0.8rem;
@@ -3274,11 +3280,11 @@
       <span class="title">Shortcut Ritter-Akademie</span>
       <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-expanded="false" aria-controls="topNav">Menü &#8801;</button>
       <div class="top-nav" id="topNav">
-        <button class="nav-toggle active" data-view="learn">🎯 Training</button>
-        <button class="nav-toggle" data-view="inventory">🎒 Inventar</button>
-        <button class="nav-toggle" data-view="skills">✨ Skills</button>
-        <button class="nav-toggle" data-view="shop">🏪 Shop</button>
-          <button class="nav-toggle" data-view="battle">⚔️ Battle</button>
+        <button class="nav-toggle active" data-view="learn"><span class="emoji">🎯</span>Training</button>
+        <button class="nav-toggle" data-view="inventory"><span class="emoji">🎒</span>Inventar</button>
+        <button class="nav-toggle" data-view="skills"><span class="emoji">✨</span>Skills</button>
+        <button class="nav-toggle" data-view="shop"><span class="emoji">🏪</span>Shop</button>
+          <button class="nav-toggle" data-view="battle"><span class="emoji">⚔️</span>Battle</button>
       </div>
     </div>
     <div class="header-right">
@@ -3670,7 +3676,7 @@
               <span class="gacha-remaining" data-remaining-category="skill">--</span>
             </label>
           </div>
-          <button id="gachaBtn" class="shop-buy-btn">🛍️ Item kaufen (25x Coins)</button>
+          <button id="gachaBtn" class="shop-buy-btn"><span class="emoji">🛍️</span>Item kaufen (25x Coins)</button>
           <div class="shop-latest" id="shopLatest">
             <h3>Neueste Belohnung</h3>
             <p class="shop-latest-empty" id="shopLatestEmpty">Noch keine Belohnung gezogen.</p>
