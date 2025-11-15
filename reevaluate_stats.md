@@ -54,8 +54,10 @@ Skill strength is `basePower + powerPerTier * (tier-1)` and optionally gains an 
 | -------------- | ----------- | ------------ | ------------ | ------------- |
 | Himmelszorn    | Direct damage | 6 dmg | 6 + 4*(5)=26 dmg | Gewitterwolken beschwoeren → Blitz trifft sofort und ignoriert DEF. |
 | Schutzwall     | Shield (DEF buff) | +4 DEF | +4 + 2*(5)=14 DEF | Magische Wand: +DEF für 5 eingehende Angriffe. |
-| Kampfrausch    | `buff_atk` | +2 ATK | +2 + 2*(5)=12 ATK | Permanent ATK boost for the battle. |
+| Kampfrausch    | Temp ATK buff | +2 ATK | +2 + 2*(5)=12 ATK | +ATK für 5 Helden-Runden, danach 5-Runden-Cooldown. |
 | Aurawoge       | Heal + Cooldown | 12 HP | 12 + 6*(5)=42 HP | Sofortheilung, danach 5 Helden-Runden blockiert. |
+
+- Alle Skills teilen sich einen 5-Runden-Cooldown nach Aktivierung; plane deine Zeitfenster für Buffs/Heals entsprechend.
 
 ### Combat math (see `calculateDamage()` @ `index.html:8020-8040`)
 
