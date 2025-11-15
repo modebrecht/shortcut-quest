@@ -87,6 +87,25 @@
       flex-direction: column;
       gap: 1rem;
     }
+    .report-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .report-tabs button {
+      flex: 1;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.45);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .report-tabs button.active {
+      background: rgba(59,130,246,0.3);
+      border-color: rgba(59,130,246,0.6);
+    }
     .report-block {
       border: 1px solid rgba(148,163,184,0.35);
       border-radius: 0.95rem;
@@ -152,52 +171,39 @@
       font-size: 1.2rem;
       font-weight: 700;
     }
-    .chart-block {
-      border: 1px solid rgba(148,163,184,0.25);
-      border-radius: 0.85rem;
-      padding: 0.75rem;
-      background: rgba(15,23,42,0.35);
+    .report-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .chart-card {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      min-height: 300px;
     }
-    .chart-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .chart-label {
-      flex: 0 0 150px;
-      font-size: 0.78rem;
-      line-height: 1.2;
-    }
-    .chart-label span {
-      display: block;
-    }
-    .chart-label .chart-section {
-      opacity: 0.7;
-      font-size: 0.72rem;
-    }
-    .chart-bar {
+    .chart-shell {
       flex: 1;
-      height: 0.65rem;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(148,163,184,0.15);
+      min-height: 260px;
     }
-    .chart-bar-fill {
-      display: block;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, rgba(248,113,113,0.8), rgba(244,63,94,0.6));
+    .chart-shell .apexcharts-canvas {
+      margin: 0 auto;
     }
-    .chart-bar-fill.good {
-      background: linear-gradient(90deg, rgba(34,197,94,0.9), rgba(16,185,129,0.7));
+    .apexcharts-tooltip,
+    .apexcharts-xaxistooltip,
+    .apexcharts-yaxistooltip {
+      background: rgba(15,23,42,0.95) !important;
+      color: var(--text) !important;
+      border: 1px solid rgba(148,163,184,0.35) !important;
+      box-shadow: 0 10px 25px rgba(2,6,23,0.55) !important;
     }
-    .chart-value {
-      width: 48px;
-      text-align: right;
-      font-size: 0.78rem;
+    .apexcharts-tooltip-title {
+      background: rgba(15,23,42,0.8) !important;
+      border-bottom: 1px solid rgba(148,163,184,0.25) !important;
+      color: var(--text) !important;
+    }
+    .apexcharts-tooltip-text {
+      color: var(--text) !important;
     }
     .report-table {
       width: 100%;
@@ -4024,12 +4030,17 @@
           <div class="report-cta">
             <button id="reportGenerateBtn" type="button">📊 Report aktualisieren</button>
           </div>
+          <div class="report-tabs">
+            <button type="button" class="report-tab active" data-report-tab="tables">📋 Tabellen</button>
+            <button type="button" class="report-tab" data-report-tab="charts">📈 Charts</button>
+          </div>
           <div id="reportContent" class="report-content">
             <p class="small">Noch keine Daten vorhanden. Bearbeite Abschnitte und Kämpfe, um Statistiken zu sammeln.</p>
           </div>
         </div>
       </div>
     </section>
+  <script src="apexcharts.min.js"></script>
   <script src="sections-data.js"></script>
   <script src="skill-hotkeys.js"></script>
   <script>
@@ -5725,6 +5736,9 @@ let frenzyAuraEl = null;
     const reportContent = document.getElementById("reportContent");
     const reportTimestamp = document.getElementById("reportTimestamp");
     const reportGenerateBtn = document.getElementById("reportGenerateBtn");
+    const reportTabs = document.querySelectorAll(".report-tab");
+    let activeReportTab = "tables";
+    const activeReportCharts = [];
     const viewRegistry = {
       learn: learnView,
       inventory: inventoryView,
@@ -5780,6 +5794,17 @@ let frenzyAuraEl = null;
     if (reportGenerateBtn) {
       reportGenerateBtn.addEventListener("click", () => {
         renderReport();
+      });
+    }
+    if (reportTabs && reportTabs.length) {
+      reportTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          const view = tab.dataset.reportTab;
+          if (!view || view === activeReportTab) return;
+          activeReportTab = view;
+          reportTabs.forEach(btn => btn.classList.toggle("active", btn === tab));
+          renderReport();
+        });
       });
     }
 
@@ -8099,25 +8124,6 @@ let frenzyAuraEl = null;
       const totalChecks = sectionRows.reduce((sum, row) => sum + (row.checks || 0), 0);
       const totalPerfect = sectionRows.reduce((sum, row) => sum + (row.successes || 0), 0);
 
-      reportContent.innerHTML = "";
-      const highlightBlock = document.createElement("div");
-      highlightBlock.className = "report-block";
-      highlightBlock.appendChild(buildBlockHeading("Übersicht", "🎯"));
-      const highlightGrid = document.createElement("div");
-      highlightGrid.className = "report-highlights";
-      highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks));
-      highlightGrid.appendChild(buildHighlightCard("Perfekte Läufe", totalPerfect));
-      if (sectionSuccess[0]) {
-        highlightGrid.appendChild(buildHighlightCard("Bester Abschnitt", `${sectionSuccess[0].name} (${sectionSuccess[0].bestScore || 0}%)`));
-      }
-      if (sectionChallenge[0]) {
-        highlightGrid.appendChild(buildHighlightCard("Größte Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
-      }
-      if (toughestPrompts[0]) {
-        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${toughestPrompts[0].prompt} (${toughestPrompts[0].misses} Fehlversuche)`, "bad"));
-      }
-      highlightBlock.appendChild(highlightGrid);
-      reportContent.appendChild(highlightBlock);
       const errorChartData = toughestPrompts.map(row => ({
         label: row.prompt,
         section: row.sectionName,
@@ -8140,38 +8146,120 @@ let frenzyAuraEl = null;
           label: row.name,
           value: row.checks
         }));
-      if (errorChartData.length) {
-        reportContent.appendChild(buildChartBlock("Fehler je Kombination", errorChartData, "%d Fehlversuche"));
+      const comboRatioData = promptRows
+        .filter(row => row.attempts > 0)
+        .map(row => {
+          const correct = Math.max(0, row.attempts - row.misses);
+          const correctPct = Math.round((correct / row.attempts) * 100);
+          return {
+            label: row.prompt,
+            section: row.sectionName,
+            attempts: row.attempts,
+            correctPct,
+            wrongPct: Math.max(0, 100 - correctPct)
+          };
+        })
+        .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
+      renderReportTabs({
+        errorChartData,
+        sectionScoreData,
+        practiceData,
+        comboRatioData,
+        toughestPrompts,
+        solidPrompts,
+        sectionChallenge,
+        sectionSuccess,
+        totalChecks,
+        totalPerfect
+      });
+    }
+
+    function renderReportTabs(payload) {
+      disposeReportCharts();
+      reportContent.innerHTML = "";
+      if (activeReportTab === "charts") {
+        renderChartsTab(payload);
+      } else {
+        renderTablesTab(payload);
       }
-      if (sectionScoreData.length) {
-        reportContent.appendChild(buildChartBlock("Top-Ergebnisse je Abschnitt", sectionScoreData, "%d%", true));
+    }
+
+    function renderTablesTab(payload) {
+      const { totalChecks, totalPerfect, sectionSuccess, sectionChallenge, toughestPrompts, solidPrompts } = payload;
+      const highlightBlock = document.createElement("div");
+      highlightBlock.className = "report-block";
+      highlightBlock.appendChild(buildBlockHeading("Übersicht", "🎯"));
+      const highlightGrid = document.createElement("div");
+      highlightGrid.className = "report-highlights";
+      highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks));
+      highlightGrid.appendChild(buildHighlightCard("Perfekte Läufe", totalPerfect));
+      if (sectionSuccess && sectionSuccess[0]) {
+        highlightGrid.appendChild(buildHighlightCard("Bester Abschnitt", `${sectionSuccess[0].name} (${sectionSuccess[0].bestScore || 0}%)`));
       }
-      if (practiceData.length) {
-        reportContent.appendChild(buildChartBlock("Meist geübte Abschnitte", practiceData, "%d Checks"));
+      if (sectionChallenge && sectionChallenge[0]) {
+        highlightGrid.appendChild(buildHighlightCard("Größte Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
       }
+      if (toughestPrompts && toughestPrompts[0]) {
+        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${toughestPrompts[0].prompt} (${toughestPrompts[0].misses} Fehlversuche)`, "bad"));
+      }
+      highlightBlock.appendChild(highlightGrid);
+      reportContent.appendChild(highlightBlock);
       reportContent.appendChild(buildReportBlock("Fehlerhäufigste Kombinationen", "⚠️", toughestPrompts, ["Abschnitt", "Kombination", "Fehlversuche"], row => [
         row.sectionName,
         row.prompt,
         `${row.misses}/${row.attempts}`
-      ], "Keine Fehler bisher 🎉", ["col-40","col-40","col-20"]));
+      ], "Keine Fehler bisher 🎉"));
       reportContent.appendChild(buildReportBlock("Starke Kombinationen", "✅", solidPrompts, ["Abschnitt", "Kombination", "Versuche"], row => [
         row.sectionName,
         row.prompt,
         row.attempts
-      ], "Noch keine perfekten Serien.", ["col-40","col-40","col-20"]));
+      ], "Noch keine perfekten Serien."));
       reportContent.appendChild(buildReportBlock("Abschnitte mit Verbesserungsbedarf", "🧠", sectionChallenge, ["Abschnitt", "Checks", "Fehler"], row => [
         row.name,
         row.checks,
         row.misses
-      ], "Noch keine Auswertungen.", ["col-60","col-20","col-20"]));
+      ], "Noch keine Auswertungen."));
       reportContent.appendChild(buildReportBlock("Gut gemeisterte Abschnitte", "🏅", sectionSuccess, ["Abschnitt", "Perfekte Läufe", "Bestes Ergebnis"], row => [
         row.name,
         row.successes,
         row.bestScore + "%"
-      ], "Noch keine erfolgreichen Läufe.", ["col-60","col-20","col-20"]));
+      ], "Noch keine erfolgreichen Läufe."));
     }
 
-    function buildReportBlock(title, icon, rows, headers, formatter, emptyText, columnClasses = []) {
+    function renderChartsTab(payload) {
+      const { errorChartData = [], sectionScoreData = [], practiceData = [], comboRatioData = [] } = payload;
+      const hasCharts = errorChartData.length || sectionScoreData.length || practiceData.length || comboRatioData.length;
+      if (!hasCharts) {
+        const msg = document.createElement("p");
+        msg.className = "small";
+        msg.textContent = "Noch keine Daten vorhanden. Bearbeite weitere Abschnitte.";
+        reportContent.appendChild(msg);
+        return;
+      }
+      const grid = document.createElement("div");
+      grid.className = "report-chart-grid";
+      const chartQueue = [];
+      if (comboRatioData.length) {
+        grid.appendChild(createChartCard("Kombi-Trefferquote", "🟢", "reportChartCombos"));
+        chartQueue.push(() => renderComboRatioChart(comboRatioData, "reportChartCombos"));
+      }
+      if (sectionScoreData.length) {
+        grid.appendChild(createChartCard("Top-Ergebnisse je Abschnitt", "🏅", "reportChartScores"));
+        chartQueue.push(() => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScores"));
+      }
+      if (errorChartData.length) {
+        grid.appendChild(createChartCard("Fehler je Kombination", "⚠️", "reportChartErrors"));
+        chartQueue.push(() => renderErrorComboChart(errorChartData, "reportChartErrors"));
+      }
+      if (practiceData.length) {
+        grid.appendChild(createChartCard("Meist geübte Abschnitte", "📘", "reportChartPractice"));
+        chartQueue.push(() => renderPracticeChart(practiceData, "reportChartPractice"));
+      }
+      reportContent.appendChild(grid);
+      chartQueue.forEach(renderFn => renderFn());
+    }
+
+    function buildReportBlock(title, icon, rows, headers, formatter, emptyText) {
       const block = document.createElement("div");
       block.className = "report-block";
       block.appendChild(buildBlockHeading(title, icon || "📘"));
@@ -8184,15 +8272,13 @@ let frenzyAuraEl = null;
       }
       const table = document.createElement("table");
       table.className = "report-table";
-      if (columnClasses && columnClasses.length) {
-        const colgroup = document.createElement("colgroup");
-        columnClasses.forEach(cls => {
-          const colEl = document.createElement("col");
-          if (cls) colEl.className = cls;
-          colgroup.appendChild(colEl);
-        });
-        table.appendChild(colgroup);
-      }
+      const colgroup = document.createElement("colgroup");
+      ["col-40", "col-40", "col-20"].forEach(cls => {
+        const colEl = document.createElement("col");
+        colEl.className = cls;
+        colgroup.appendChild(colEl);
+      });
+      table.appendChild(colgroup);
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
       headers.forEach((text) => {
@@ -8243,49 +8329,262 @@ let frenzyAuraEl = null;
       return heading;
     }
 
-    function buildChartBlock(title, rows, valueFormat = "%d", goodScale = false) {
+    function createChartCard(title, icon, containerId) {
       const block = document.createElement("div");
-      block.className = "report-block chart-block";
-      block.appendChild(buildBlockHeading(title, "📈"));
-      if (!rows.length) {
-        const info = document.createElement("p");
-        info.className = "small";
-        info.textContent = "Keine Daten vorhanden.";
-        block.appendChild(info);
-        return block;
-      }
-      const maxValue = rows.reduce((max, row) => Math.max(max, row.value || 0), 0) || 1;
-      rows.forEach(row => {
-        const rowEl = document.createElement("div");
-        rowEl.className = "chart-row";
-        const labelWrap = document.createElement("div");
-        labelWrap.className = "chart-label";
-        const main = document.createElement("span");
-        main.textContent = row.label;
-        labelWrap.appendChild(main);
-        if (row.section) {
-          const sub = document.createElement("span");
-          sub.className = "chart-section";
-          sub.textContent = row.section;
-          labelWrap.appendChild(sub);
-        }
-        const bar = document.createElement("div");
-        bar.className = "chart-bar";
-        const fill = document.createElement("span");
-        fill.className = `chart-bar-fill${row.variant === "good" || goodScale ? " good" : ""}`;
-        const pct = Math.max(5, Math.round((Math.min(row.value || 0, maxValue) / maxValue) * 100));
-        fill.style.width = pct + "%";
-        bar.appendChild(fill);
-        const valueEl = document.createElement("span");
-        valueEl.className = "chart-value";
-        const formatted = valueFormat.replace("%d", row.value != null ? row.value : 0);
-        valueEl.textContent = formatted;
-        rowEl.appendChild(labelWrap);
-        rowEl.appendChild(bar);
-        rowEl.appendChild(valueEl);
-        block.appendChild(rowEl);
-      });
+      block.className = "report-block chart-card";
+      block.appendChild(buildBlockHeading(title, icon || "📈"));
+      const shell = document.createElement("div");
+      shell.id = containerId;
+      shell.className = "chart-shell";
+      block.appendChild(shell);
       return block;
+    }
+
+    function disposeReportCharts() {
+      while (activeReportCharts.length) {
+        const chart = activeReportCharts.pop();
+        if (chart && typeof chart.destroy === "function") {
+          chart.destroy();
+        }
+      }
+    }
+
+    function mountReportChart(containerId, options) {
+      if (typeof ApexCharts === "undefined") return null;
+      const container = document.getElementById(containerId);
+      if (!container) return null;
+      while (container.firstChild) container.removeChild(container.firstChild);
+      const chart = new ApexCharts(container, options);
+      chart.render();
+      activeReportCharts.push(chart);
+      return chart;
+    }
+
+    function renderScoreChart(sectionRows, containerId) {
+      if (typeof ApexCharts === "undefined" || !sectionRows.length) return;
+      const seriesData = sectionRows
+        .filter(row => row.bestScore > 0)
+        .sort((a, b) => b.bestScore - a.bestScore)
+        .slice(0, 8)
+        .map(row => ({ name: row.name, score: Math.min(100, row.bestScore || 0) }))
+        .reverse();
+      if (!seriesData.length) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = "<p class=\"small\">Noch keine Ergebnisse für dieses Chart.</p>";
+        return;
+      }
+      const options = {
+        chart: {
+          type: "bar",
+          height: 320,
+          foreColor: "#e2e8f0",
+          background: "transparent",
+          toolbar: { show: false }
+        },
+        series: [{
+          name: "Bestes Ergebnis",
+          data: seriesData.map(entry => entry.score)
+        }],
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            barHeight: "60%",
+            borderRadius: 6,
+            colors: {
+              ranges: [{
+                from: 0,
+                to: 100,
+                color: "#34d399"
+              }]
+            }
+          }
+        },
+        xaxis: {
+          categories: seriesData.map(entry => entry.name),
+          max: 100,
+          labels: {
+            formatter: val => `${Math.round(val)}%`
+          }
+        },
+        grid: {
+          borderColor: "rgba(148,163,184,0.2)"
+        },
+        tooltip: {
+          y: {
+            formatter: val => `${val}%`
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: val => `${val}%`,
+          style: {
+            colors: ["#0f172a"]
+          },
+          dropShadow: {
+            enabled: true,
+            top: 1,
+            left: 1,
+            blur: 1
+          }
+        },
+        colors: ["#34d399"]
+      };
+      mountReportChart(containerId, options);
+    }
+
+    function renderErrorComboChart(rows, containerId) {
+      if (typeof ApexCharts === "undefined" || !rows.length) return;
+      const labelSet = rows.map(row => row.label);
+      const sectionSet = rows.map(row => row.section || "");
+      const values = rows.map(row => row.value || 0);
+      const options = {
+        chart: {
+          type: "bar",
+          height: 320,
+          foreColor: "#e2e8f0",
+          background: "transparent",
+          toolbar: { show: false }
+        },
+        series: [{
+          name: "Fehlversuche",
+          data: values
+        }],
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            barHeight: "55%",
+            borderRadius: 6,
+            colors: {
+              ranges: [{
+                from: 0,
+                to: Math.max(...values, 1),
+                color: "#f87171"
+              }]
+            }
+          }
+        },
+        xaxis: {
+          categories: labelSet
+        },
+        tooltip: {
+          y: {
+            formatter: val => `${val} Fehlversuche`
+          },
+          x: {
+            formatter: (_, opts) => {
+              const idx = opts.dataPointIndex;
+              return `${labelSet[idx]}${sectionSet[idx] ? ` (${sectionSet[idx]})` : ""}`;
+            }
+          }
+        },
+        grid: { borderColor: "rgba(148,163,184,0.2)" },
+        dataLabels: { enabled: true }
+      };
+      mountReportChart(containerId, options);
+    }
+
+    function renderPracticeChart(rows, containerId) {
+      if (typeof ApexCharts === "undefined" || !rows.length) return;
+      const categories = rows.map(row => row.label);
+      const values = rows.map(row => row.value || 0);
+      const options = {
+        chart: {
+          type: "bar",
+          height: 320,
+          foreColor: "#e2e8f0",
+          background: "transparent",
+          toolbar: { show: false }
+        },
+        series: [{
+          name: "Checks",
+          data: values
+        }],
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: "45%",
+            borderRadius: 8
+          }
+        },
+        xaxis: {
+          categories,
+          labels: {
+            rotate: -15
+          }
+        },
+        yaxis: {
+          forceNiceScale: true
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: val => `${val}`,
+          style: { colors: ["#0f172a"] }
+        },
+        colors: ["#60a5fa"],
+        grid: { borderColor: "rgba(148,163,184,0.15)" }
+      };
+      mountReportChart(containerId, options);
+    }
+
+    function renderComboRatioChart(rows, containerId) {
+      if (typeof ApexCharts === "undefined" || !rows.length) return;
+      const height = Math.max(340, rows.length * 32 + 100);
+      const categories = rows.map(row => row.label);
+      const correctSeries = rows.map(row => row.correctPct);
+      const wrongSeries = rows.map(row => row.wrongPct);
+      const options = {
+        chart: {
+          type: "bar",
+          stacked: true,
+          height,
+          foreColor: "#e2e8f0",
+          background: "transparent",
+          toolbar: { show: false }
+        },
+        series: [
+          { name: "Richtig", data: correctSeries },
+          { name: "Falsch", data: wrongSeries }
+        ],
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            barHeight: "55%",
+            borderRadius: 6
+          }
+        },
+        colors: ["#22c55e", "#f87171"],
+        xaxis: {
+          categories,
+          max: 100,
+          labels: {
+            formatter: val => `${Math.round(val)}%`
+          }
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          y: {
+            formatter: val => `${val}%`
+          },
+          x: {
+            formatter: (_, opts) => {
+              const idx = opts.dataPointIndex;
+              const entry = rows[idx];
+              return `${entry.label}${entry.section ? ` (${entry.section})` : ""}`;
+            }
+          }
+        },
+        grid: { borderColor: "rgba(148,163,184,0.2)" },
+        dataLabels: {
+          enabled: true,
+          formatter: val => `${val}%`,
+          style: { colors: ["#0f172a"] }
+        },
+        legend: {
+          position: "top"
+        }
+      };
+      mountReportChart(containerId, options);
     }
 
     function getOwnedBattleSkills() {
