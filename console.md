@@ -44,5 +44,11 @@ __battlePauseControl.pause();
 localStorage.removeItem("shortcutRitter_v1");
 location.reload();
 
-" --- DEBUG MODE ---
+" --- DEBUG MODE ---"
 window.CONSTANTS_DEBUG = true;
+
+" --- ADD COINS --- "
+const amount = 1000; // or any number
+state.coins += amount;
+updateUI();
+saveState();

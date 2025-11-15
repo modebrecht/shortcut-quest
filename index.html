@@ -3308,9 +3308,6 @@
             <span class="badge" id="hpDisplay">HP 0</span>
             <span class="badge" id="itemsDisplay">Gear: 0/0</span>
           </div>
-          <div class="inventory-actions">
-            <button id="testAnimationBtn" class="primary-btn" type="button">Animation testen</button>
-          </div>
         </div>
         <div class="hero-wrapper">
           <div class="equipment-layout">
@@ -7647,15 +7644,6 @@ let frenzyAuraEl = null;
       updateOverallSummary();
       saveState();
     }
-    if (testAnimationBtn) {
-      testAnimationBtn.addEventListener("click", () => {
-        state.coins += 1000;
-        pendingCoinAnimation = { amount: 1000, anchor: testAnimationBtn, variant: "gain" };
-        updateUI();
-        saveState();
-      });
-    }
-
     function clearLocalProgress() {
       const message = "Lokale Fortschrittsdaten wirklich loeschen?";
       if (confirm(message)) {
