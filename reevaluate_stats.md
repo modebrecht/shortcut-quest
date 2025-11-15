@@ -55,7 +55,7 @@ Skill strength is `basePower + powerPerTier * (tier-1)` and optionally gains an 
 | Himmelszorn    | Direct damage | 6 dmg | 6 + 4*(5)=26 dmg | Gewitterwolken beschwoeren → Blitz trifft sofort und ignoriert DEF. |
 | Schutzwall     | Shield (DEF buff) | +4 DEF | +4 + 2*(5)=14 DEF | Magische Wand: +DEF für 5 eingehende Angriffe. |
 | Kampfrausch    | `buff_atk` | +2 ATK | +2 + 2*(5)=12 ATK | Permanent ATK boost for the battle. |
-| Schattenschritt| `debuff_enemy` | -2 enemy ATK | -12 ATK | Use to lower enemy DPS; influences how much DEF/HP they need to feel threatening. |
+| Aurawoge       | Heal + Cooldown | 12 HP | 12 + 6*(5)=42 HP | Sofortheilung, danach 5 Helden-Runden blockiert. |
 
 ### Combat math (see `calculateDamage()` @ `index.html:8020-8040`)
 
@@ -82,7 +82,7 @@ These are the formulas you will use when deciding how hard an enemy should hit o
 
 4. **Set your difficulty targets.**
    - Decide desired turns-to-kill (TTK) for each rank (e.g., 3-4 hero swings early, 6-7 mid-game, 8+ for the boss).
-   - Decide acceptable enemy damage taken after Schattenschritt (if the player owns it) so that fights remain punishing without mandatory skill usage.
+   - Decide acceptable healing swing from Aurawoge (5-Runden-Cooldown) so fights stay tense without making the button mandatory.
    - Account for one-off burst from Himmelszorn when looking at HP (subtract expected skill burst from total HP so regular swings still matter).
 
 5. **Solve for DEF first.** Choose a target hero damage per swing (`targetHeroDamage`). Rearrange the damage formula:
@@ -124,7 +124,7 @@ These are the formulas you will use when deciding how hard an enemy should hit o
 | 4 | Waldgoblin | [ ] Assume first Tier 2 weapon • [ ] Increase DEF to make Kampfrausch relevant. |
 | 5 | Hoehlengoblin | [ ] Model Tier 2 shield + boots • [ ] HP tuned for ~5 hero swings post-buff. |
 | 6 | Bergtroll | [ ] Mid-game loadout with Tier 3 weapon + Lebensring • [ ] Validate hero survivability vs ATK spike. |
-| 7 | Dunkelgoblin | [ ] Expect Tier 3-4 armor mix • [ ] Include Schattenschritt in survivability calc. |
+| 7 | Dunkelgoblin | [ ] Expect Tier 3-4 armor mix • [ ] Include Aurawoge burst heal in survivability calc. |
 | 8 | Kriegsgoblin | [ ] Late Tier 4 offensive pieces • [ ] Target 6-7 swings incl. Himmelszorn. |
 | 9 | Schattengoblin | [ ] Assume at least one Tier 5 defensive item • [ ] Confirm HP still demands skill usage. |
 | 10 | Daemonengoblin | [ ] Player likely running Tier 5 weapon + double rings • [ ] Keep DEF high enough to force Kampfrausch. |

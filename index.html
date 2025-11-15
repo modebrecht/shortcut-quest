@@ -2483,6 +2483,46 @@
       opacity: 0;
       transition: opacity 0.4s ease;
     }
+    .healing-wave {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 3;
+      animation: healingWaveFade 1.4s ease-out forwards;
+    }
+    .healing-wave svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .healing-wave .healing-ring {
+      fill: none;
+      stroke: rgba(134,239,172,0.85);
+      stroke-width: 2.4;
+      stroke-dasharray: 12 18;
+      animation: healingRingPulse 1.4s ease-out forwards;
+    }
+    .healing-wave .healing-ring.ring-2 {
+      stroke: rgba(59,130,246,0.5);
+      stroke-width: 3;
+      animation-delay: 0.08s;
+    }
+    .healing-wave .healing-glow {
+      fill: rgba(134,239,172,0.35);
+      filter: blur(12px);
+      animation: healingGlowPulse 1.4s ease-out forwards;
+    }
+    .healing-wave .healing-spark {
+      fill: rgba(224,255,255,0.9);
+      animation: healingSparkRise 1.2s ease-out forwards;
+    }
+    .healing-wave .healing-spark.spark-2 { animation-delay: 0.2s; }
+    .healing-wave .healing-spark.spark-3 { animation-delay: 0.35s; }
     .battle-weapon-slot {
       position: absolute;
       width: 66px;
@@ -2600,6 +2640,26 @@
       0% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(59,130,246,0.6)); }
       50% { transform: scale(1.05); filter: drop-shadow(0 0 24px rgba(248,250,252,0.9)); }
       100% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(59,130,246,0.6)); }
+    }
+    @keyframes healingWaveFade {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.85); }
+      25% { opacity: 1; transform: translateX(-50%) scale(1); }
+      100% { opacity: 0; transform: translateX(-50%) scale(1.15); }
+    }
+    @keyframes healingRingPulse {
+      0% { stroke-dashoffset: 24; opacity: 0.6; transform: scale(0.9); }
+      60% { stroke-dashoffset: 0; opacity: 1; transform: scale(1.05); }
+      100% { stroke-dashoffset: -30; opacity: 0; transform: scale(1.2); }
+    }
+    @keyframes healingGlowPulse {
+      0% { opacity: 0.1; transform: scale(0.5); }
+      40% { opacity: 0.65; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.4); }
+    }
+    @keyframes healingSparkRise {
+      0% { opacity: 0; transform: translate(0, 20px) scale(0.4); }
+      35% { opacity: 1; transform: translate(4px, -10px) scale(0.9); }
+      100% { opacity: 0; transform: translate(-6px, -60px) scale(1.2); }
     }
     .battle-bars {
       display: flex;
@@ -3771,6 +3831,19 @@
         <circle class="shield-wall-spark spark-3" cx="90" cy="110" r="3.2"></circle>
       </svg>
     `;
+    const HEALING_SKILL_KEY = "lichtbrunnen";
+    const HEALING_SKILL_COOLDOWN = 5;
+    const STORM_SKILL_COOLDOWN = 5;
+    const HEALING_WAVE_SVG = /* html */ `
+      <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle class="healing-ring" cx="110" cy="110" r="70"></circle>
+        <circle class="healing-ring ring-2" cx="110" cy="110" r="90"></circle>
+        <circle class="healing-glow" cx="110" cy="110" r="50"></circle>
+        <circle class="healing-spark" cx="80" cy="120" r="6"></circle>
+        <circle class="healing-spark spark-2" cx="140" cy="100" r="5"></circle>
+        <circle class="healing-spark spark-3" cx="110" cy="70" r="4"></circle>
+      </svg>
+    `;
     const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 5, 2: 10, 3: 15, 4: 20 });
     const RUNEN_AMULET_DYNAMIC_CAP = 55;
     const LEBENS_RING_HP_BY_TIER = Object.freeze({ 1: 20, 2: 40, 3: 60, 4: 80, 5: 120 });
@@ -3802,9 +3875,9 @@
     const activeSkillComboLatch = new Set();
     let battleSkillStates = [];
     let battleSkillUseCount = 0;
-let shieldWallOverlayEl = null;
-let shieldWallCounterEl = null;
-let shieldWallRemoveTimer = null;
+    let shieldWallOverlayEl = null;
+    let shieldWallCounterEl = null;
+    let shieldWallRemoveTimer = null;
     const VALID_MODIFIER_KEYS = new Map([
       ["control", "CTRL"],
       ["ctrl", "CTRL"],
@@ -5487,7 +5560,7 @@ let shieldWallRemoveTimer = null;
       { key: "sturm_hieb", name: "Himmelszorn", icon: "skill_tempest", description: "Beschwoert Sturmwolken und ein Blitz trifft den Gegner fuer Extraschaden.", effect: "damage", basePower: 6, powerPerTier: 4 },
       { key: "schutzwall", name: "Schutzwall", icon: "skill_barrier", description: "Beschwoert eine magische Wand, die DEF fuer 5 Angriffe erhoeht.", effect: "shield_wall", basePower: 4, powerPerTier: 2 },
       { key: "kampfrausch", name: "Kampfrausch", icon: "skill_focus", description: "Erhoeht dauerhaft deine ATK im Kampf.", effect: "buff_atk", basePower: 2, powerPerTier: 2 },
-      { key: "schattenschritt", name: "Schattenschritt", icon: "skill_shadow", description: "Schwaecht die ATK des Gegners.", effect: "debuff_enemy", basePower: 2, powerPerTier: 2 }
+      { key: "lichtbrunnen", name: "Aurawoge", icon: "skill_renew", description: "Heilt den Ritter sofort und legt eine 5-Runden-Abklingzeit fest.", effect: "heal", basePower: 12, powerPerTier: 6 }
     ];
     const SKILL_BY_KEY = Object.create(null);
     SKILL_POOL.forEach(entry => {
@@ -5578,7 +5651,7 @@ let shieldWallRemoveTimer = null;
       skill_barrier: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="shieldGlow" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f0f9ff" stop-opacity="0.95"></stop><stop offset="80%" stop-color="#bae6fd" stop-opacity="0.65"></stop><stop offset="100%" stop-color="#7dd3fc" stop-opacity="0.55"></stop></linearGradient></defs><circle cx="16" cy="16" r="13.5" fill="rgba(14,165,233,0.18)" stroke="#7dd3fc" stroke-width="1.4"></circle><path d="M16 6 L24 10 v7.5c0 6-5.2 9.5-8 11c-2.8-1.5-8-5-8-11V10z" fill="url(#shieldGlow)" stroke="#e0f2fe" stroke-width="1.2"></path><path d="M16 8.5 V23" stroke="#bae6fd" stroke-width="1" stroke-linecap="round"></path><path d="M11 12 h10" stroke="rgba(191,219,254,0.8)" stroke-width="1" stroke-linecap="round"></path><path d="M12 17 h8" stroke="rgba(14,165,233,0.7)" stroke-width="0.9" stroke-linecap="round"></path></svg>',
       skill_guard: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 4 L26 9 v11 c0 9-10 13-10 13S6 29 6 20V9z" fill="rgba(59,130,246,0.18)" stroke="#60a5fa" stroke-width="1.8"></path><path d="M16 8 L23 11 v8 c0 6-7 9-7 9s-7-3-7-9v-8z" fill="rgba(96,165,250,0.28)"></path><path d="M16 12 v10" stroke="#e2e8f0" stroke-width="1.6"></path></svg>',
       skill_focus: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="1.6"></circle><circle cx="16" cy="16" r="6.5" fill="rgba(14,165,233,0.25)" stroke="#0ea5e9" stroke-width="1.4"></circle><circle cx="16" cy="16" r="2.4" fill="#e0f2fe"></circle><path d="M16 4v4M16 24v4M4 16h4M24 16h4" stroke="#bae6fd" stroke-width="1.4" stroke-linecap="round"></path></svg>',
-      skill_shadow: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="rgba(79,70,229,0.2)" stroke="#6366f1" stroke-width="1.6"></circle><path d="M12 20 q4 4 8 0 q-2 -3 -1 -6 q1 -3 5 -5 q-4 -3 -8 0 q-4 -3 -8 0 q4 2 5 5 q1 3 -1 6z" fill="rgba(129,140,248,0.35)" stroke="#c4b5fd" stroke-width="1.2"></path></svg>',
+      skill_renew: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="renewGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef3c7"></stop><stop offset="100%" stop-color="#fbbf24"></stop></linearGradient><linearGradient id="renewCore" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a7f3d0"></stop><stop offset="100%" stop-color="#34d399"></stop></linearGradient></defs><circle cx="16" cy="16" r="13" fill="rgba(15,118,110,0.1)" stroke="#34d399" stroke-width="1.4"></circle><path d="M16 6 c5 0 9 4.5 9 9.5s-4 9.5-9 9.5s-9-4.5-9-9.5S11 6 16 6z" fill="url(#renewCore)" stroke="#14b8a6" stroke-width="1.2"></path><path d="M16 8.5v6l3.2 1.5" fill="none" stroke="url(#renewGlow)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 18.5q2.5 3.5 6 3.5t6-3.5" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.1" stroke-linecap="round"></path><circle cx="16" cy="16" r="2.8" fill="#fef9c3" stroke="#fde68a" stroke-width="0.8"></circle><path d="M6 12 l2 1.2M26 12 l-2 1.2M7 22 l1.6-1.4M25 22 l-1.6-1.4" stroke="#fde68a" stroke-width="1" stroke-linecap="round"></path></svg>',
       default: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="6" width="14" height="18" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1.4"></rect><circle cx="16" cy="12" r="3" fill="#e2e8f0"></circle><path d="M12 22 h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"></path></svg>'
     };
     function normalizeItemSlot(slot) {
@@ -5860,6 +5933,18 @@ let shieldWallRemoveTimer = null;
     }
     function updateSkillDerivedStats(skill) {
       if (!skill) return skill;
+      if (skill.key === "schattenschritt") {
+        skill.key = HEALING_SKILL_KEY;
+      }
+      const template = skill.key ? SKILL_BY_KEY[skill.key] : null;
+      if (template) {
+        skill.name = template.name || skill.name;
+        skill.icon = template.icon || skill.icon;
+        skill.description = template.description || skill.description;
+        skill.effect = template.effect || skill.effect;
+        skill.basePower = Number(template.basePower ?? skill.basePower ?? 0);
+        skill.powerPerTier = Number(template.powerPerTier ?? skill.powerPerTier ?? 0);
+      }
       const safeTier = Math.max(1, Math.min(MAX_SKILL_TIER, Math.floor(skill.tier || 1)));
       const safeCopies = Math.max(1, Math.floor(skill.totalCopies || 1));
       const maxTier = maxTierFromCopies(safeCopies, MAX_SKILL_TIER);
@@ -7675,17 +7760,21 @@ let shieldWallRemoveTimer = null;
         battleSkillBar.appendChild(info);
         return;
       }
-      const heroShieldCharges = currentBattleContext && currentBattleContext.hero
-        ? Number(currentBattleContext.hero.shieldWallCharges || 0)
-        : 0;
+      const heroState = currentBattleContext ? currentBattleContext.hero : null;
+      const heroShieldCharges = heroState ? Number(heroState.shieldWallCharges || 0) : 0;
+      const heroHealCooldown = heroState ? Math.max(0, heroState.healSkillCooldown || 0) : 0;
+      const heroStormCooldown = heroState ? Math.max(0, heroState.stormSkillCooldown || 0) : 0;
       battleSkillStates.forEach(entry => {
         const card = document.createElement("div");
         card.className = "battle-skill";
         if (entry.used) card.classList.add("used");
-        const button = document.createElement("button");
         const shieldLocked = entry.skill.key === SHIELD_SKILL_KEY && heroShieldCharges > 0;
-        if (shieldLocked) card.classList.add("skill-locked");
-        button.disabled = entry.used || !battleInProgress || !currentBattleContext || shieldLocked;
+        const healLocked = entry.skill.key === HEALING_SKILL_KEY && heroHealCooldown > 0;
+        const stormLocked = entry.skill.key === STORM_SKILL_KEY && heroStormCooldown > 0;
+        const skillLocked = shieldLocked || healLocked || stormLocked;
+        if (skillLocked) card.classList.add("skill-locked");
+        const button = document.createElement("button");
+        button.disabled = entry.used || !battleInProgress || !currentBattleContext || skillLocked;
         const hotkeyBadge = document.createElement("span");
         hotkeyBadge.className = "battle-skill-hotkey";
         hotkeyBadge.textContent = entry.hotkeyDisplay;
@@ -7706,9 +7795,15 @@ let shieldWallRemoveTimer = null;
         switch (entry.skill.effect) {
           case "damage":
             effectText = `Fügt sofort ${effectValue} Schaden zu${bonusDescriptor}.`;
+            if (entry.skill.key === STORM_SKILL_KEY && !stormLocked) {
+              effectText += ` (Cooldown ${STORM_SKILL_COOLDOWN} Runden)`;
+            }
             break;
           case "heal":
             effectText = `Heilt ${effectValue} HP${bonusDescriptor}.`;
+            if (entry.skill.key === HEALING_SKILL_KEY && !healLocked) {
+              effectText += ` (Cooldown ${HEALING_SKILL_COOLDOWN} Runden)`;
+            }
             break;
           case "buff_atk":
             effectText = `Erhöht ATK um ${effectValue} für den Kampf${bonusDescriptor}.`;
@@ -7722,8 +7817,14 @@ let shieldWallRemoveTimer = null;
           default:
             effectText = entry.skill.description || "Aktivierter Skill.";
         }
-        if (entry.skill.key === SHIELD_SKILL_KEY && heroShieldCharges > 0) {
+        if (shieldLocked) {
           effectText += " (aktiv)";
+        } else if (healLocked) {
+          const roundsText = heroHealCooldown === 1 ? "1 Runde" : `${heroHealCooldown} Runden`;
+          effectText += ` (Cooldown ${roundsText})`;
+        } else if (stormLocked) {
+          const roundsText = heroStormCooldown === 1 ? "1 Runde" : `${heroStormCooldown} Runden`;
+          effectText += ` (Cooldown ${roundsText})`;
         }
         const tierDetail = bonusPercent > 0 ? `Tier ${entry.skill.tier} +${bonusPercent}%` : `Tier ${entry.skill.tier}`;
         const detailLabel = `${entry.skill.name} (${tierDetail})`;
@@ -7782,6 +7883,18 @@ let shieldWallRemoveTimer = null;
         if (battleResult) battleResult.textContent = entry.skill.name + " ist bereits aktiv.";
         return;
       }
+      if (entry.skill.key === HEALING_SKILL_KEY && hero.healSkillCooldown > 0) {
+        const roundsText = hero.healSkillCooldown === 1 ? "1 Runde" : `${hero.healSkillCooldown} Runden`;
+        spawnStatusText(battleKnight, `Cooldown ${roundsText}`, "buff");
+        if (battleResult) battleResult.textContent = entry.skill.name + " regeneriert noch.";
+        return;
+      }
+      if (entry.skill.key === STORM_SKILL_KEY && hero.stormSkillCooldown > 0) {
+        const roundsText = hero.stormSkillCooldown === 1 ? "1 Runde" : `${hero.stormSkillCooldown} Runden`;
+        spawnStatusText(battleKnight, `Cooldown ${roundsText}`, "buff");
+        if (battleResult) battleResult.textContent = entry.skill.name + " laedt noch auf.";
+        return;
+      }
       const power = getSkillEffectivePower(entry.skill);
       let resultText = entry.skill.name + " aktiviert.";
       switch (entry.skill.effect) {
@@ -7792,12 +7905,15 @@ let shieldWallRemoveTimer = null;
             updateHpUi(hero, enemy);
           };
           if (entry.skill.key === STORM_SKILL_KEY) {
-            triggerStormSkillEffect(battleEnemy, applySkillDamage);
+            triggerStormSkillEffect(battleEnemy, () => {
+              applySkillDamage();
+              setStormSkillCooldown(hero);
+            });
           } else {
             applySkillDamage();
           }
           if (entry.skill.key === STORM_SKILL_KEY) {
-            resultText = entry.skill.name + " beschwoert einen Blitz fuer " + power + " Schaden.";
+            resultText = entry.skill.name + " beschwoert einen Blitz fuer " + power + " Schaden (Cooldown " + STORM_SKILL_COOLDOWN + " Runden).";
           } else {
             resultText = entry.skill.name + " verursacht " + power + " zusaetzlichen Schaden.";
           }
@@ -7813,7 +7929,13 @@ let shieldWallRemoveTimer = null;
           } else {
             spawnStatusText(battleKnight, "HP voll", "buff");
           }
-          resultText = entry.skill.name + " heilt " + healAmount + " HP.";
+          if (entry.skill.key === HEALING_SKILL_KEY) {
+            triggerHealingSkillEffect();
+            setHealingSkillCooldown(hero);
+            resultText = entry.skill.name + " heilt " + healAmount + " HP und befindet sich fuer " + HEALING_SKILL_COOLDOWN + " Runden im Cooldown.";
+          } else {
+            resultText = entry.skill.name + " heilt " + healAmount + " HP.";
+          }
           break;
         }
         case "buff_atk": {
@@ -8148,7 +8270,9 @@ let shieldWallRemoveTimer = null;
         crit: 0.18,
         critDamageBonusPercent: Math.max(0, state.critDamagePercent || 0),
         shieldWallCharges: 0,
-        shieldWallBonus: 0
+        shieldWallBonus: 0,
+        healSkillCooldown: 0,
+        stormSkillCooldown: 0
       };
     }
 
@@ -8187,6 +8311,9 @@ let shieldWallRemoveTimer = null;
         pushBattleLog(`${attackerName} trifft ${defenderName} für ${amount} Schaden${critNote}.`, attacker === hero ? "hero" : "enemy");
         updateHpUi(hero, enemy);
         await delay(680);
+        if (attacker === hero) {
+          tickHeroSkillCooldowns(hero);
+        }
         if (defender.hp <= 0) break;
         [attacker, defender] = attacker === hero ? [enemy, hero] : [hero, enemy];
         [attackerEl, defenderEl] = attackerEl === battleKnight ? [battleEnemy, battleKnight] : [battleKnight, battleEnemy];
@@ -8351,6 +8478,15 @@ let shieldWallRemoveTimer = null;
       }, 1400);
     }
 
+    function triggerHealingSkillEffect() {
+      if (!battleKnight) return;
+      const wave = document.createElement("div");
+      wave.className = "healing-wave";
+      wave.innerHTML = HEALING_WAVE_SVG;
+      battleKnight.appendChild(wave);
+      setTimeout(() => wave.remove(), 1500);
+    }
+
     function showShieldWallOverlay(charges, bonus) {
       if (!battleKnight) return;
       if (shieldWallRemoveTimer) {
@@ -8425,6 +8561,34 @@ let shieldWallRemoveTimer = null;
         hero.shieldWallBonus = 0;
       }
       renderBattleSkillBar();
+    }
+
+    function setHealingSkillCooldown(hero) {
+      if (!hero) return;
+      hero.healSkillCooldown = HEALING_SKILL_COOLDOWN;
+      renderBattleSkillBar();
+    }
+
+    function setStormSkillCooldown(hero) {
+      if (!hero) return;
+      hero.stormSkillCooldown = STORM_SKILL_COOLDOWN;
+      renderBattleSkillBar();
+    }
+
+    function tickHeroSkillCooldowns(hero) {
+      if (!hero) return;
+      let changed = false;
+      if (hero.healSkillCooldown) {
+        const next = Math.max(0, hero.healSkillCooldown - 1);
+        if (next !== hero.healSkillCooldown) changed = true;
+        hero.healSkillCooldown = next;
+      }
+      if (hero.stormSkillCooldown) {
+        const next = Math.max(0, hero.stormSkillCooldown - 1);
+        if (next !== hero.stormSkillCooldown) changed = true;
+        hero.stormSkillCooldown = next;
+      }
+      if (changed) renderBattleSkillBar();
     }
 
     function spawnDamageNumber(targetEl, amount, targetType, crit, effect = "damage") {
