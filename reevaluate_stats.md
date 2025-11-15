@@ -52,7 +52,7 @@ Skill strength is `basePower + powerPerTier * (tier-1)` and optionally gains an 
 
 | Skill          | Effect type | Tier 1 value | Tier 6 value | Combat impact |
 | -------------- | ----------- | ------------ | ------------ | ------------- |
-| Sturm-Hieb     | Direct damage | 6 dmg | 6 + 4*(5)=26 dmg | One-time burst, ignores DEF. |
+| Himmelszorn    | Direct damage | 6 dmg | 6 + 4*(5)=26 dmg | Gewitterwolken beschwoeren → Blitz trifft sofort und ignoriert DEF. |
 | Schutzwall     | Heal | 10 HP | 10 + 6*(5)=40 HP | Extends survival vs higher ATK enemies. |
 | Kampfrausch    | `buff_atk` | +2 ATK | +2 + 2*(5)=12 ATK | Permanent ATK boost for the battle. |
 | Schattenschritt| `debuff_enemy` | -2 enemy ATK | -12 ATK | Use to lower enemy DPS; influences how much DEF/HP they need to feel threatening. |
@@ -83,7 +83,7 @@ These are the formulas you will use when deciding how hard an enemy should hit o
 4. **Set your difficulty targets.**
    - Decide desired turns-to-kill (TTK) for each rank (e.g., 3-4 hero swings early, 6-7 mid-game, 8+ for the boss).
    - Decide acceptable enemy damage taken after Schattenschritt (if the player owns it) so that fights remain punishing without mandatory skill usage.
-   - Account for one-off burst from Sturm-Hieb when looking at HP (subtract expected skill burst from total HP so regular swings still matter).
+   - Account for one-off burst from Himmelszorn when looking at HP (subtract expected skill burst from total HP so regular swings still matter).
 
 5. **Solve for DEF first.** Choose a target hero damage per swing (`targetHeroDamage`). Rearrange the damage formula:
    ```
@@ -94,8 +94,8 @@ These are the formulas you will use when deciding how hard an enemy should hit o
 
 6. **Solve for HP next.** Let `heroDamagePerSwing = max(1, heroAtk - enemyDef)`. Desired HP:
    ```
-   enemyHp = heroDamagePerSwing * desiredTTK + skillBurstPadding
-   skillBurstPadding = max(0, expectedSturmHiebDamage - heroDamagePerSwing)
+  enemyHp = heroDamagePerSwing * desiredTTK + skillBurstPadding
+  skillBurstPadding = max(0, expectedHimmelszornDamage - heroDamagePerSwing)
    ```
    Round to whole numbers. Add +5-10% buffer for high-variance crit streaks.
 
@@ -125,7 +125,7 @@ These are the formulas you will use when deciding how hard an enemy should hit o
 | 5 | Hoehlengoblin | [ ] Model Tier 2 shield + boots • [ ] HP tuned for ~5 hero swings post-buff. |
 | 6 | Bergtroll | [ ] Mid-game loadout with Tier 3 weapon + Lebensring • [ ] Validate hero survivability vs ATK spike. |
 | 7 | Dunkelgoblin | [ ] Expect Tier 3-4 armor mix • [ ] Include Schattenschritt in survivability calc. |
-| 8 | Kriegsgoblin | [ ] Late Tier 4 offensive pieces • [ ] Target 6-7 swings incl. Sturm-Hieb. |
+| 8 | Kriegsgoblin | [ ] Late Tier 4 offensive pieces • [ ] Target 6-7 swings incl. Himmelszorn. |
 | 9 | Schattengoblin | [ ] Assume at least one Tier 5 defensive item • [ ] Confirm HP still demands skill usage. |
 | 10 | Daemonengoblin | [ ] Player likely running Tier 5 weapon + double rings • [ ] Keep DEF high enough to force Kampfrausch. |
 | 11 | Goblinkoenig | [ ] Final boss tuning: include Tier 6 skills (max +12 ATK buff, -12 enemy ATK debuff) • [ ] Playtest multiple loadouts before locking stats. |
@@ -148,7 +148,7 @@ heroHp = 12 + 60 + (21 * 6) = 198
 
 Target hero damage per swing = 4 → enemyDef = 28 - 4 = 24.
 Desired TTK = 6 swings. heroDamagePerSwing = max(1, 28 - 24) = 4.
-enemyHp = 4 * 6 = 24. Add 1x Sturm-Hieb burst (~18 at Tier 4) → HP goal ≈ 24 + 18 = 42.
+enemyHp = 4 * 6 = 24. Add 1x Himmelszorn burst (~18 at Tier 4) → HP goal ≈ 24 + 18 = 42.
 ```
 
 Use this template for each rank, adjusting the inputs and desired turn count as required.
