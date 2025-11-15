@@ -7657,19 +7657,12 @@ let frenzyAuraEl = null;
     }
 
     function clearLocalProgress() {
-      const message = "Lokale Fortschrittsdaten wirklich loeschen? (Taste: Ctrl + Delete)";
+      const message = "Lokale Fortschrittsdaten wirklich loeschen?";
       if (confirm(message)) {
         localStorage.removeItem(STORAGE_KEY);
         location.reload();
       }
     }
-
-    document.addEventListener("keydown", (event) => {
-      if (event.ctrlKey && (event.key === "Delete" || event.key === "Del")) {
-        event.preventDefault();
-        clearLocalProgress();
-      }
-    });
 
     gachaBtn.addEventListener("click", () => {
       const cost = 25;
