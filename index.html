@@ -8115,6 +8115,7 @@ let frenzyAuraEl = null;
         const meta = getSectionMeta(sectionId);
         const sectionName = meta ? (meta.title || `Abschnitt ${sectionId}`) : `Abschnitt ${sectionId}`;
         const promptStats = data.promptStats || {};
+        const totalAttempts = Object.values(promptStats).reduce((sum, stat) => sum + Math.max(0, stat.attempts || 0), 0);
         const totalMisses = Object.values(promptStats).reduce((sum, stat) => sum + Math.max(0, stat.misses || 0), 0);
         sectionRows.push({
           sectionId,
@@ -8124,6 +8125,8 @@ let frenzyAuraEl = null;
           bestScore: data.bestScore || 0,
           lastScore: data.lastScore || 0,
           misses: totalMisses,
+          attempts: totalAttempts,
+          correct: Math.max(0, totalAttempts - totalMisses),
           lastRunAt: data.lastRunAt || 0
         });
         Object.entries(promptStats).forEach(([prompt, stats]) => {
@@ -8191,11 +8194,24 @@ let frenzyAuraEl = null;
           };
         })
         .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
+      const sectionAccuracyData = sectionRows
+        .filter(row => row.attempts > 0)
+        .map(row => {
+          const correctPct = row.attempts ? Math.round((row.correct / row.attempts) * 100) : 0;
+          return {
+            label: row.name,
+            attempts: row.attempts,
+            correctPct,
+            wrongPct: Math.max(0, 100 - correctPct)
+          };
+        })
+        .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
       renderReportTabs({
         errorChartData,
         sectionScoreData,
         practiceData,
         comboRatioData,
+        sectionAccuracyData,
         toughestPrompts,
         solidPrompts,
         sectionChallenge,
@@ -8366,8 +8382,8 @@ let frenzyAuraEl = null;
     }
 
     function renderChartsTab(payload) {
-      const { sectionScoreData = [], practiceData = [] } = payload;
-      const hasCharts = sectionScoreData.length || practiceData.length;
+      const { sectionAccuracyData = [] } = payload;
+      const hasCharts = sectionAccuracyData.length;
       if (!hasCharts) {
         const msg = document.createElement("p");
         msg.className = "small";
@@ -8378,14 +8394,8 @@ let frenzyAuraEl = null;
       const grid = document.createElement("div");
       grid.className = "report-chart-grid";
       const chartQueue = [];
-      if (sectionScoreData.length) {
-        grid.appendChild(createChartCard("Top-Ergebnisse je Abschnitt", "🏅", "reportChartScoresAll"));
-        chartQueue.push(() => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScoresAll"));
-      }
-      if (practiceData.length) {
-        grid.appendChild(createChartCard("Trainingsintensität", "📘", "reportChartPracticeAll"));
-        chartQueue.push(() => renderPracticeChart(practiceData, "reportChartPracticeAll"));
-      }
+      grid.appendChild(createChartCard("Trefferquote je Abschnitt", "📊", "reportChartSectionAccuracy"));
+      chartQueue.push(() => renderComboRatioChart(sectionAccuracyData, "reportChartSectionAccuracy"));
       reportContent.appendChild(grid);
       chartQueue.forEach(renderFn => renderFn());
     }
