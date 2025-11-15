@@ -2483,6 +2483,49 @@
       opacity: 0;
       transition: opacity 0.4s ease;
     }
+    .frenzy-aura {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      top: -140px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 7;
+      opacity: 0.95;
+      mix-blend-mode: screen;
+      animation: frenzyAuraPulse 1.8s ease-in-out infinite;
+      filter: drop-shadow(0 0 25px rgba(248,113,113,0.8));
+    }
+    .frenzy-aura svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .frenzy-aura .frenzy-ring {
+      fill: none;
+      stroke: rgba(248,113,113,0.9);
+      stroke-width: 3.6;
+      stroke-dasharray: 18 8;
+      animation: frenzyRingSpin 2s linear infinite;
+    }
+    .frenzy-aura .frenzy-ring.ring-2 {
+      stroke: rgba(225,29,72,0.75);
+      stroke-width: 2.8;
+      animation-duration: 2.4s;
+      animation-direction: reverse;
+    }
+    .frenzy-aura .frenzy-surge {
+      fill: rgba(248,113,113,0.45);
+      filter: blur(18px);
+      animation: frenzySurgeFlash 1.4s ease-in-out infinite;
+    }
+    .frenzy-aura .frenzy-spark {
+      fill: rgba(254,226,226,0.9);
+      animation: frenzySparkDrift 1.2s ease-in-out infinite;
+    }
+    .frenzy-aura .frenzy-spark.spark-2 { animation-delay: 0.3s; }
+    .frenzy-aura .frenzy-spark.spark-3 { animation-delay: 0.6s; }
     .healing-wave {
       position: absolute;
       width: 220px;
@@ -2660,6 +2703,25 @@
       0% { opacity: 0; transform: translate(0, 20px) scale(0.4); }
       35% { opacity: 1; transform: translate(4px, -10px) scale(0.9); }
       100% { opacity: 0; transform: translate(-6px, -60px) scale(1.2); }
+    }
+    @keyframes frenzyAuraPulse {
+      0% { opacity: 0.45; transform: translateX(-50%) scale(0.95); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+      100% { opacity: 0.45; transform: translateX(-50%) scale(0.95); }
+    }
+    @keyframes frenzyRingSpin {
+      0% { stroke-dashoffset: 0; transform: rotate(0deg); }
+      100% { stroke-dashoffset: -60; transform: rotate(360deg); }
+    }
+    @keyframes frenzySurgeFlash {
+      0% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 0.8; transform: scale(1); }
+      100% { opacity: 0.2; transform: scale(1.2); }
+    }
+    @keyframes frenzySparkDrift {
+      0% { opacity: 0; transform: translate(0, 10px) scale(0.6); }
+      40% { opacity: 1; transform: translate(4px, -10px) scale(1); }
+      100% { opacity: 0; transform: translate(-6px, -26px) scale(0.6); }
     }
     .battle-bars {
       display: flex;
@@ -3820,6 +3882,7 @@
     `;
     const SHIELD_SKILL_KEY = "schutzwall";
     const SHIELD_WALL_MAX_CHARGES = 5;
+    const FRENZY_SKILL_KEY = "kampfrausch";
     const SKILL_COOLDOWN_DEFAULT = 5;
     const SHIELD_WALL_SVG = /* html */ `
       <svg viewBox="0 -40 180 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -3830,6 +3893,16 @@
         <circle class="shield-wall-spark" cx="60" cy="70" r="4"></circle>
         <circle class="shield-wall-spark spark-2" cx="122" cy="64" r="4.8"></circle>
         <circle class="shield-wall-spark spark-3" cx="90" cy="110" r="3.2"></circle>
+      </svg>
+    `;
+    const FRENZY_AURA_SVG = /* html */ `
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle class="frenzy-surge" cx="100" cy="120" r="60"></circle>
+        <circle class="frenzy-ring" cx="100" cy="100" r="70"></circle>
+        <circle class="frenzy-ring ring-2" cx="100" cy="100" r="50"></circle>
+        <circle class="frenzy-spark" cx="70" cy="120" r="6"></circle>
+        <circle class="frenzy-spark spark-2" cx="130" cy="110" r="5"></circle>
+        <circle class="frenzy-spark spark-3" cx="100" cy="70" r="4"></circle>
       </svg>
     `;
     const HEALING_SKILL_KEY = "lichtbrunnen";
@@ -3874,9 +3947,10 @@
     const activeSkillComboLatch = new Set();
     let battleSkillStates = [];
     let battleSkillUseCount = 0;
-    let shieldWallOverlayEl = null;
-    let shieldWallCounterEl = null;
-    let shieldWallRemoveTimer = null;
+let shieldWallOverlayEl = null;
+let shieldWallCounterEl = null;
+let shieldWallRemoveTimer = null;
+let frenzyAuraEl = null;
     const VALID_MODIFIER_KEYS = new Map([
       ["control", "CTRL"],
       ["ctrl", "CTRL"],
@@ -7930,7 +8004,7 @@
         }
         case "buff_atk": {
           if (entry.skill.key === "kampfrausch") {
-            applyTempAtkBuff(hero, power, SKILL_COOLDOWN_DEFAULT, entry.skill.name);
+            applyTempAtkBuff(hero, power, SKILL_COOLDOWN_DEFAULT, entry.skill.key);
             spawnStatusText(battleKnight, "+ATK " + power, "buff");
             resultText = entry.skill.name + " erhoeht deine ATK um " + power + " fuer " + SKILL_COOLDOWN_DEFAULT + " Runden.";
           } else {
@@ -8187,6 +8261,7 @@
       battleArena.querySelectorAll(".damage-float").forEach(el => el.remove());
       battleArena.querySelectorAll(".battle-victory-chest").forEach(el => el.remove());
       removeShieldWallOverlay();
+      removeFrenzyAura();
       if (battleEnemy) {
         battleEnemy.classList.remove("defeated");
       }
@@ -8375,6 +8450,7 @@
       }
       battleSkillUseCount = 0;
       removeShieldWallOverlay();
+      removeFrenzyAura();
       updateBattleButtons();
       currentBattleContext = null;
       renderBattleSkillBar();
@@ -8483,6 +8559,23 @@
       wave.innerHTML = HEALING_WAVE_SVG;
       battleKnight.appendChild(wave);
       setTimeout(() => wave.remove(), 1500);
+    }
+
+    function showFrenzyAura() {
+      if (!battleKnight) return;
+      if (!frenzyAuraEl) {
+        frenzyAuraEl = document.createElement("div");
+        frenzyAuraEl.className = "frenzy-aura";
+        frenzyAuraEl.innerHTML = FRENZY_AURA_SVG;
+        battleKnight.appendChild(frenzyAuraEl);
+      }
+    }
+
+    function removeFrenzyAura() {
+      if (frenzyAuraEl) {
+        frenzyAuraEl.remove();
+        frenzyAuraEl = null;
+      }
     }
 
     function showShieldWallOverlay(charges, bonus) {
@@ -8615,11 +8708,17 @@
         amount,
         rounds: buffRounds
       });
+      if (source === FRENZY_SKILL_KEY) {
+        showFrenzyAura();
+      }
       updateBattleHeroStatsDisplay(hero);
     }
 
     function tickHeroBuffs(hero) {
-      if (!hero || !Array.isArray(hero.activeAtkBuffs) || !hero.activeAtkBuffs.length) return;
+      if (!hero || !Array.isArray(hero.activeAtkBuffs) || !hero.activeAtkBuffs.length) {
+        removeFrenzyAura();
+        return;
+      }
       let changed = false;
       hero.activeAtkBuffs.forEach(buff => {
         buff.rounds -= 1;
@@ -8629,6 +8728,9 @@
         }
       });
       hero.activeAtkBuffs = hero.activeAtkBuffs.filter(buff => buff.rounds > 0);
+      if (!hero.activeAtkBuffs.some(buff => buff.key === FRENZY_SKILL_KEY)) {
+        removeFrenzyAura();
+      }
       if (changed) {
         hero.variance = Math.max(1, Math.floor(Math.max(1, hero.atk) / 4));
         updateBattleHeroStatsDisplay(hero);
