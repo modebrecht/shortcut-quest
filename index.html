@@ -5632,7 +5632,7 @@ let frenzyAuraEl = null;
     const SKILL_POOL = [
       { key: "sturm_hieb", name: "Himmelszorn", icon: "skill_tempest", description: "Beschwoert Sturmwolken: Blitzschaden und 5-Runden-Abklingzeit.", effect: "damage", basePower: 6, powerPerTier: 4 },
       { key: "schutzwall", name: "Schutzwall", icon: "skill_barrier", description: "Beschwoert eine magische Wand, die DEF fuer 5 Angriffe erhoeht.", effect: "shield_wall", basePower: 4, powerPerTier: 2 },
-      { key: "kampfrausch", name: "Kampfrausch", icon: "skill_frenzy", description: "Entfesselt Kampfrausch: +ATK fuer 5 Runden, danach Abklingzeit.", effect: "buff_atk", basePower: 2, powerPerTier: 2 },
+      { key: "kampfrausch", name: "Kampfrausch", icon: "skill_frenzy", description: "Entfesselt Kampfrausch: +ATK fuer 5 Runden, danach Abklingzeit.", effect: "buff_atk", basePower: 2, powerPerTier: 0 },
       { key: "lichtbrunnen", name: "Aurawoge", icon: "skill_renew", description: "Heilt den Ritter sofort und legt eine 5-Runden-Abklingzeit fest.", effect: "heal", basePower: 12, powerPerTier: 6 }
     ];
     const SKILL_BY_KEY = Object.create(null);
@@ -5877,6 +5877,10 @@ let frenzyAuraEl = null;
     function getSkillBaseEffect(skill) {
       if (!skill) return 0;
       const tier = Math.max(1, Math.floor(skill.tier || 1));
+      if (skill.key === "kampfrausch") {
+        const frenzyTable = { 1: 2, 2: 5, 3: 10, 4: 15, 5: 25, 6: 25 };
+        return frenzyTable[tier] || frenzyTable[5];
+      }
       const basePower = Number(skill.basePower || 0);
       const perTier = Number(skill.powerPerTier || 0);
       return basePower + perTier * (tier - 1);
