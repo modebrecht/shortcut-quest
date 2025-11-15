@@ -1,3 +1,5 @@
+" --- BATTLE PAUSE HELPER --- "
+
 (() => {
   if (window.__battlePauseControl) return; // already installed
   const originalDelay = window.delay;
@@ -36,3 +38,8 @@
 })();
 
 __battlePauseControl.pause();
+
+
+" --- DELETE LOCAL PROGRESS --- "
+localStorage.removeItem("shortcutRitter_v1");
+location.reload();
