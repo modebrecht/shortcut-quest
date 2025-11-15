@@ -2419,6 +2419,70 @@
       height: 98px;
       margin-bottom: -82px;
     }
+    .shield-wall-overlay {
+      position: absolute;
+      width: 165px;
+      height: 242px;
+      top: -223px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 4;
+      opacity: 0;
+      filter: drop-shadow(0 0 32px rgba(191,219,254,0.6));
+      transition: opacity 0.35s ease;
+    }
+    .shield-wall-overlay.active {
+      opacity: 1;
+    }
+    .shield-wall-overlay svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .shield-wall-overlay .shield-wall-shape {
+      fill: rgba(125,211,252,0.18);
+      stroke: rgba(186,230,253,0.7);
+      stroke-width: 2.2;
+      filter: drop-shadow(0 0 14px rgba(59,130,246,0.45));
+      animation: shieldWallPulse 4s ease-in-out infinite;
+      transform-origin: 50% 70%;
+    }
+    .shield-wall-overlay .shield-wall-rune {
+      fill: none;
+      stroke: rgba(224,242,254,0.8);
+      stroke-width: 1.4;
+      stroke-linecap: round;
+      stroke-dasharray: 18;
+      animation: shieldWallRune 5s linear infinite;
+    }
+    .shield-wall-overlay .shield-wall-rune.rune-2 { animation-delay: 0.6s; }
+    .shield-wall-overlay .shield-wall-rune.rune-3 { animation-delay: 1.2s; }
+    .shield-wall-overlay .shield-wall-spark {
+      fill: rgba(191,219,254,0.9);
+      opacity: 0;
+      animation: shieldWallSpark 3.8s linear infinite;
+    }
+    .shield-wall-overlay .shield-wall-spark.spark-2 { animation-delay: 0.5s; }
+    .shield-wall-overlay .shield-wall-spark.spark-3 { animation-delay: 1.1s; }
+    .shield-wall-overlay .shield-wall-counter {
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #e0f2fe;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 10px rgba(14,165,233,0.9);
+    }
+    .shield-wall-overlay.hit .shield-wall-shape {
+      animation: shieldWallHit 0.45s ease-out;
+    }
+    .shield-wall-overlay.spent {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
     .battle-weapon-slot {
       position: absolute;
       width: 66px;
@@ -2515,6 +2579,28 @@
     .fighter.attacking-left { animation: attackLeft 0.5s ease-out; }
     .fighter.attacking-right { animation: attackRight 0.5s ease-out; }
     .fighter.hit { animation: hitFlash 0.42s ease-out; }
+    @keyframes shieldWallPulse {
+      0% { transform: scale(0.95); opacity: 0.85; }
+      45% { transform: scale(1.02); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.85; }
+    }
+    @keyframes shieldWallRune {
+      0% { stroke-dashoffset: 18; opacity: 0.4; }
+      40% { stroke-dashoffset: 6; opacity: 0.8; }
+      80% { stroke-dashoffset: 0; opacity: 0.4; }
+      100% { stroke-dashoffset: -18; opacity: 0.3; }
+    }
+    @keyframes shieldWallSpark {
+      0% { opacity: 0; transform: translate(0,0) scale(0.4); }
+      30% { opacity: 0.9; transform: translate(4px,-6px) scale(0.85); }
+      70% { opacity: 0.4; transform: translate(-6px,-12px) scale(1.1); }
+      100% { opacity: 0; transform: translate(2px,-20px) scale(0.6); }
+    }
+    @keyframes shieldWallHit {
+      0% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(59,130,246,0.6)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 24px rgba(248,250,252,0.9)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(59,130,246,0.6)); }
+    }
     .battle-bars {
       display: flex;
       flex-direction: column;
@@ -2752,6 +2838,13 @@
     }
     .battle-skill button:disabled {
       opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .battle-skill.skill-locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .battle-skill.skill-locked button {
       cursor: not-allowed;
     }
     .battle-skill-hotkey {
@@ -3665,6 +3758,19 @@
         <circle class="storm-glow-outline" cx="120" cy="140" r="52"></circle>
       </svg>
     `;
+    const SHIELD_SKILL_KEY = "schutzwall";
+    const SHIELD_WALL_MAX_CHARGES = 5;
+    const SHIELD_WALL_SVG = /* html */ `
+      <svg viewBox="0 -40 180 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path class="shield-wall-shape" d="M90 16 L160 60 V156 C160 190 118 214 90 226 C62 214 20 190 20 156 V60z"></path>
+        <path class="shield-wall-rune rune-1" d="M54 86 Q90 56 126 86"></path>
+        <path class="shield-wall-rune rune-2" d="M48 128 Q90 98 132 128"></path>
+        <path class="shield-wall-rune rune-3" d="M62 162 Q90 142 118 162"></path>
+        <circle class="shield-wall-spark" cx="60" cy="70" r="4"></circle>
+        <circle class="shield-wall-spark spark-2" cx="122" cy="64" r="4.8"></circle>
+        <circle class="shield-wall-spark spark-3" cx="90" cy="110" r="3.2"></circle>
+      </svg>
+    `;
     const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 5, 2: 10, 3: 15, 4: 20 });
     const RUNEN_AMULET_DYNAMIC_CAP = 55;
     const LEBENS_RING_HP_BY_TIER = Object.freeze({ 1: 20, 2: 40, 3: 60, 4: 80, 5: 120 });
@@ -3696,6 +3802,9 @@
     const activeSkillComboLatch = new Set();
     let battleSkillStates = [];
     let battleSkillUseCount = 0;
+let shieldWallOverlayEl = null;
+let shieldWallCounterEl = null;
+let shieldWallRemoveTimer = null;
     const VALID_MODIFIER_KEYS = new Map([
       ["control", "CTRL"],
       ["ctrl", "CTRL"],
@@ -5376,7 +5485,7 @@
     });
     const SKILL_POOL = [
       { key: "sturm_hieb", name: "Himmelszorn", icon: "skill_tempest", description: "Beschwoert Sturmwolken und ein Blitz trifft den Gegner fuer Extraschaden.", effect: "damage", basePower: 6, powerPerTier: 4 },
-      { key: "schutzwall", name: "Schutzwall", icon: "skill_guard", description: "Stellt Lebenspunkte wieder her.", effect: "heal", basePower: 10, powerPerTier: 6 },
+      { key: "schutzwall", name: "Schutzwall", icon: "skill_barrier", description: "Beschwoert eine magische Wand, die DEF fuer 5 Angriffe erhoeht.", effect: "shield_wall", basePower: 4, powerPerTier: 2 },
       { key: "kampfrausch", name: "Kampfrausch", icon: "skill_focus", description: "Erhoeht dauerhaft deine ATK im Kampf.", effect: "buff_atk", basePower: 2, powerPerTier: 2 },
       { key: "schattenschritt", name: "Schattenschritt", icon: "skill_shadow", description: "Schwaecht die ATK des Gegners.", effect: "debuff_enemy", basePower: 2, powerPerTier: 2 }
     ];
@@ -5466,6 +5575,7 @@
       "stahl-stiefel": '<img src="assets/stahl-stiefel.svg" alt="Stahl-Stiefel" loading="lazy">',
       skill_power: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="rgba(239,68,68,0.18)" stroke="#f87171" stroke-width="1.8"></circle><path d="M16 6 L10 18 h6 l-2 8 8-12h-6z" fill="#facc15" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
       skill_tempest: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" fill="rgba(30,64,175,0.22)" stroke="#60a5fa" stroke-width="1.5"></circle><g fill="#cbd5f5"><ellipse cx="12" cy="9" rx="6.5" ry="3.5"></ellipse><ellipse cx="19" cy="10.5" rx="7" ry="4"></ellipse><ellipse cx="16" cy="7.5" rx="5" ry="3"></ellipse></g><path d="M17 12 L13 22 h3.6 L14 28 L21 16 h-3.2z" fill="#38bdf8" stroke="#fef9c3" stroke-width="0.9" stroke-linejoin="round" style="filter: drop-shadow(0 0 5px rgba(250,204,21,0.85));"></path></svg>',
+      skill_barrier: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="shieldGlow" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f0f9ff" stop-opacity="0.95"></stop><stop offset="80%" stop-color="#bae6fd" stop-opacity="0.65"></stop><stop offset="100%" stop-color="#7dd3fc" stop-opacity="0.55"></stop></linearGradient></defs><circle cx="16" cy="16" r="13.5" fill="rgba(14,165,233,0.18)" stroke="#7dd3fc" stroke-width="1.4"></circle><path d="M16 6 L24 10 v7.5c0 6-5.2 9.5-8 11c-2.8-1.5-8-5-8-11V10z" fill="url(#shieldGlow)" stroke="#e0f2fe" stroke-width="1.2"></path><path d="M16 8.5 V23" stroke="#bae6fd" stroke-width="1" stroke-linecap="round"></path><path d="M11 12 h10" stroke="rgba(191,219,254,0.8)" stroke-width="1" stroke-linecap="round"></path><path d="M12 17 h8" stroke="rgba(14,165,233,0.7)" stroke-width="0.9" stroke-linecap="round"></path></svg>',
       skill_guard: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 4 L26 9 v11 c0 9-10 13-10 13S6 29 6 20V9z" fill="rgba(59,130,246,0.18)" stroke="#60a5fa" stroke-width="1.8"></path><path d="M16 8 L23 11 v8 c0 6-7 9-7 9s-7-3-7-9v-8z" fill="rgba(96,165,250,0.28)"></path><path d="M16 12 v10" stroke="#e2e8f0" stroke-width="1.6"></path></svg>',
       skill_focus: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="11" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="1.6"></circle><circle cx="16" cy="16" r="6.5" fill="rgba(14,165,233,0.25)" stroke="#0ea5e9" stroke-width="1.4"></circle><circle cx="16" cy="16" r="2.4" fill="#e0f2fe"></circle><path d="M16 4v4M16 24v4M4 16h4M24 16h4" stroke="#bae6fd" stroke-width="1.4" stroke-linecap="round"></path></svg>',
       skill_shadow: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="rgba(79,70,229,0.2)" stroke="#6366f1" stroke-width="1.6"></circle><path d="M12 20 q4 4 8 0 q-2 -3 -1 -6 q1 -3 5 -5 q-4 -3 -8 0 q-4 -3 -8 0 q4 2 5 5 q1 3 -1 6z" fill="rgba(129,140,248,0.35)" stroke="#c4b5fd" stroke-width="1.2"></path></svg>',
@@ -6283,6 +6393,10 @@
         case "debuff_enemy":
           badge.className = "badge def";
           badge.textContent = `Enemy ATK -${effectValue}${bonusText}`;
+          break;
+        case "shield_wall":
+          badge.className = "badge def";
+          badge.textContent = `+DEF ${effectValue} (${SHIELD_WALL_MAX_CHARGES}x)${bonusText}`;
           break;
         default:
           badge.textContent = `Tier ${skill.tier}`;
@@ -7373,8 +7487,8 @@
     }
     if (testAnimationBtn) {
       testAnimationBtn.addEventListener("click", () => {
-        state.coins += 200;
-        pendingCoinAnimation = { amount: 200, anchor: testAnimationBtn, variant: "gain" };
+        state.coins += 1000;
+        pendingCoinAnimation = { amount: 1000, anchor: testAnimationBtn, variant: "gain" };
         updateUI();
         saveState();
       });
@@ -7561,12 +7675,17 @@
         battleSkillBar.appendChild(info);
         return;
       }
+      const heroShieldCharges = currentBattleContext && currentBattleContext.hero
+        ? Number(currentBattleContext.hero.shieldWallCharges || 0)
+        : 0;
       battleSkillStates.forEach(entry => {
         const card = document.createElement("div");
         card.className = "battle-skill";
         if (entry.used) card.classList.add("used");
         const button = document.createElement("button");
-        button.disabled = entry.used || !battleInProgress || !currentBattleContext;
+        const shieldLocked = entry.skill.key === SHIELD_SKILL_KEY && heroShieldCharges > 0;
+        if (shieldLocked) card.classList.add("skill-locked");
+        button.disabled = entry.used || !battleInProgress || !currentBattleContext || shieldLocked;
         const hotkeyBadge = document.createElement("span");
         hotkeyBadge.className = "battle-skill-hotkey";
         hotkeyBadge.textContent = entry.hotkeyDisplay;
@@ -7597,8 +7716,14 @@
           case "debuff_enemy":
             effectText = `Senkt Gegner-ATK um ${effectValue}${bonusDescriptor}.`;
             break;
+          case "shield_wall":
+            effectText = `Erhöht DEF um ${effectValue} für ${SHIELD_WALL_MAX_CHARGES} gegnerische Angriffe${bonusDescriptor}.`;
+            break;
           default:
             effectText = entry.skill.description || "Aktivierter Skill.";
+        }
+        if (entry.skill.key === SHIELD_SKILL_KEY && heroShieldCharges > 0) {
+          effectText += " (aktiv)";
         }
         const tierDetail = bonusPercent > 0 ? `Tier ${entry.skill.tier} +${bonusPercent}%` : `Tier ${entry.skill.tier}`;
         const detailLabel = `${entry.skill.name} (${tierDetail})`;
@@ -7652,6 +7777,11 @@
       if (!battleInProgress || !currentBattleContext) return;
       if (!entry || entry.used) return;
       const { hero, enemy } = currentBattleContext;
+      if (entry.skill.key === SHIELD_SKILL_KEY && hero.shieldWallCharges > 0) {
+        spawnStatusText(battleKnight, "Schutzwall aktiv", "buff");
+        if (battleResult) battleResult.textContent = entry.skill.name + " ist bereits aktiv.";
+        return;
+      }
       const power = getSkillEffectivePower(entry.skill);
       let resultText = entry.skill.name + " aktiviert.";
       switch (entry.skill.effect) {
@@ -7699,6 +7829,11 @@
           const reduced = before - enemy.atk;
           spawnStatusText(battleEnemy, "-ATK " + reduced, "debuff");
           resultText = entry.skill.name + " senkt die ATK des Gegners um " + reduced + ".";
+          break;
+        }
+        case "shield_wall": {
+          applyShieldWallBuff(hero, power);
+          resultText = entry.skill.name + " errichtet einen Schutzwall (+DEF " + power + " fuer " + SHIELD_WALL_MAX_CHARGES + " Angriffe).";
           break;
         }
         default: {
@@ -7932,6 +8067,7 @@
       if (!battleArena) return;
       battleArena.querySelectorAll(".damage-float").forEach(el => el.remove());
       battleArena.querySelectorAll(".battle-victory-chest").forEach(el => el.remove());
+      removeShieldWallOverlay();
       if (battleEnemy) {
         battleEnemy.classList.remove("defeated");
       }
@@ -8010,7 +8146,9 @@
         def: Math.max(0, state.def),
         variance: Math.max(1, Math.floor(Math.max(1, state.atk) / 4)),
         crit: 0.18,
-        critDamageBonusPercent: Math.max(0, state.critDamagePercent || 0)
+        critDamageBonusPercent: Math.max(0, state.critDamagePercent || 0),
+        shieldWallCharges: 0,
+        shieldWallBonus: 0
       };
     }
 
@@ -8040,6 +8178,9 @@
         applyDamage(defender, amount);
         pulseBattleSide(defender === hero);
         spawnDamageNumber(defenderEl, amount, defender === hero ? "hero" : "enemy", crit);
+        if (defender === hero && hero.shieldWallCharges > 0) {
+          consumeShieldWallCharge(hero);
+        }
         const attackerName = attacker === hero ? "Ritter" : enemy.name;
         const defenderName = defender === hero ? "Ritter" : enemy.name;
         const critNote = crit ? " (Kritisch!)" : "";
@@ -8108,6 +8249,7 @@
         scheduleBattleSimHide(false);
       }
       battleSkillUseCount = 0;
+      removeShieldWallOverlay();
       updateBattleButtons();
       currentBattleContext = null;
       renderBattleSkillBar();
@@ -8151,7 +8293,9 @@
     function calculateDamage(attacker, defender) {
       const variance = attacker.variance || 0;
       const spread = variance ? (Math.floor(Math.random() * (variance * 2 + 1)) - variance) : 0;
-      let amount = attacker.atk + spread - defender.def;
+      const defenderBaseDef = defender ? Math.max(0, defender.def || 0) : 0;
+      const defenderShieldBonus = (defender && defender.shieldWallCharges > 0) ? Math.max(0, defender.shieldWallBonus || 0) : 0;
+      let amount = attacker.atk + spread - (defenderBaseDef + defenderShieldBonus);
       let crit = false;
       if (attacker.crit && Math.random() < attacker.crit) {
         crit = true;
@@ -8205,6 +8349,82 @@
       setTimeout(() => {
         container.remove();
       }, 1400);
+    }
+
+    function showShieldWallOverlay(charges, bonus) {
+      if (!battleKnight) return;
+      if (shieldWallRemoveTimer) {
+        clearTimeout(shieldWallRemoveTimer);
+        shieldWallRemoveTimer = null;
+      }
+      if (!shieldWallOverlayEl) {
+        shieldWallOverlayEl = document.createElement("div");
+        shieldWallOverlayEl.className = "shield-wall-overlay";
+        shieldWallOverlayEl.innerHTML = SHIELD_WALL_SVG;
+        shieldWallCounterEl = document.createElement("div");
+        shieldWallCounterEl.className = "shield-wall-counter";
+        shieldWallOverlayEl.appendChild(shieldWallCounterEl);
+        battleKnight.appendChild(shieldWallOverlayEl);
+      }
+      shieldWallOverlayEl.dataset.charges = String(charges);
+      shieldWallOverlayEl.dataset.bonus = String(bonus);
+      shieldWallOverlayEl.classList.remove("hit", "spent");
+      shieldWallOverlayEl.classList.add("active");
+      updateShieldWallCounter(charges);
+    }
+
+    function updateShieldWallCounter(charges) {
+      if (shieldWallCounterEl) {
+        shieldWallCounterEl.textContent = charges > 0 ? `x${charges}` : "";
+      }
+      if (shieldWallOverlayEl) {
+        shieldWallOverlayEl.dataset.charges = String(Math.max(0, charges || 0));
+      }
+    }
+
+    function pulseShieldWallOverlay(charges) {
+      updateShieldWallCounter(charges);
+      if (!shieldWallOverlayEl) return;
+      shieldWallOverlayEl.classList.remove("hit");
+      void shieldWallOverlayEl.offsetWidth;
+      shieldWallOverlayEl.classList.add("hit");
+      if (!charges) {
+        shieldWallOverlayEl.classList.add("spent");
+        if (shieldWallRemoveTimer) clearTimeout(shieldWallRemoveTimer);
+        shieldWallRemoveTimer = setTimeout(removeShieldWallOverlay, 450);
+      }
+    }
+
+    function removeShieldWallOverlay() {
+      if (shieldWallRemoveTimer) {
+        clearTimeout(shieldWallRemoveTimer);
+        shieldWallRemoveTimer = null;
+      }
+      if (shieldWallOverlayEl) {
+        shieldWallOverlayEl.remove();
+        shieldWallOverlayEl = null;
+      }
+      shieldWallCounterEl = null;
+    }
+
+    function applyShieldWallBuff(hero, bonus) {
+      if (!hero) return;
+      const effectiveBonus = Math.max(1, Math.round(bonus));
+      hero.shieldWallBonus = effectiveBonus;
+      hero.shieldWallCharges = SHIELD_WALL_MAX_CHARGES;
+      showShieldWallOverlay(hero.shieldWallCharges, effectiveBonus);
+      spawnStatusText(battleKnight, "+DEF " + effectiveBonus, "buff");
+      renderBattleSkillBar();
+    }
+
+    function consumeShieldWallCharge(hero) {
+      if (!hero || !hero.shieldWallCharges) return;
+      hero.shieldWallCharges = Math.max(0, hero.shieldWallCharges - 1);
+      pulseShieldWallOverlay(hero.shieldWallCharges);
+      if (hero.shieldWallCharges <= 0) {
+        hero.shieldWallBonus = 0;
+      }
+      renderBattleSkillBar();
     }
 
     function spawnDamageNumber(targetEl, amount, targetType, crit, effect = "damage") {

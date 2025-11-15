@@ -53,7 +53,7 @@ Skill strength is `basePower + powerPerTier * (tier-1)` and optionally gains an 
 | Skill          | Effect type | Tier 1 value | Tier 6 value | Combat impact |
 | -------------- | ----------- | ------------ | ------------ | ------------- |
 | Himmelszorn    | Direct damage | 6 dmg | 6 + 4*(5)=26 dmg | Gewitterwolken beschwoeren → Blitz trifft sofort und ignoriert DEF. |
-| Schutzwall     | Heal | 10 HP | 10 + 6*(5)=40 HP | Extends survival vs higher ATK enemies. |
+| Schutzwall     | Shield (DEF buff) | +4 DEF | +4 + 2*(5)=14 DEF | Magische Wand: +DEF für 5 eingehende Angriffe. |
 | Kampfrausch    | `buff_atk` | +2 ATK | +2 + 2*(5)=12 ATK | Permanent ATK boost for the battle. |
 | Schattenschritt| `debuff_enemy` | -2 enemy ATK | -12 ATK | Use to lower enemy DPS; influences how much DEF/HP they need to feel threatening. |
 

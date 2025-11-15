@@ -34,3 +34,5 @@
 
   console.info("Battle pause helper ready. Use __battlePauseControl.pause(), resume(), toggle(), state().");
 })();
+
+__battlePauseControl.pause();
