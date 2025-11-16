@@ -3286,6 +3286,36 @@
       color: var(--text);
       cursor: pointer;
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .battle-skill button > *:not(.battle-skill-icon) {
+      position: relative;
+      z-index: 1;
+    }
+    .battle-skill-icon {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      width: 60px;
+      height: 60px;
+      opacity: 0.28;
+      pointer-events: none;
+      filter: drop-shadow(0 8px 14px rgba(15,23,42,0.45));
+      transform: rotate(6deg);
+      transition: opacity 0.2s ease;
+      z-index: 0;
+    }
+    .battle-skill-icon svg,
+    .battle-skill-icon img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .battle-skill.skill-locked .battle-skill-icon,
+    .battle-skill.used .battle-skill-icon {
+      opacity: 0.16;
+      filter: drop-shadow(0 6px 12px rgba(15,23,42,0.3));
     }
     .battle-skill.headline {
       flex: 1 1 100%;
@@ -3324,6 +3354,13 @@
       border-radius: 999px;
       border: 1px solid rgba(248,250,252,0.25);
       background: rgba(15,23,42,0.3);
+      --combo-opacity: 0;
+      --combo-transition-duration: 0.25s;
+    }
+    .battle-skill-combo-key,
+    .battle-skill-combo-plus {
+      opacity: var(--combo-opacity);
+      transition: opacity var(--combo-transition-duration) ease;
     }
     .battle-skill-combo-key {
       font-size: 0.78rem;
@@ -3335,7 +3372,6 @@
     }
     .battle-skill-combo-plus {
       font-size: 0.72rem;
-      opacity: 0.85;
     }
     .battle-skill-name {
       font-size: 1rem;
@@ -4272,6 +4308,8 @@
     const SHIELD_WALL_MAX_CHARGES = 5;
     const FRENZY_SKILL_KEY = "kampfrausch";
     const SKILL_COOLDOWN_DEFAULT = 5;
+    const COMBO_REVEAL_VISIBLE_DURATION = 3000;
+    const COMBO_BASE_TRANSITION = "0.25s";
     const SHIELD_WALL_SVG = /* html */ `
       <svg viewBox="0 -40 180 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path class="shield-wall-shape" d="M90 16 L160 60 V156 C160 190 118 214 90 226 C62 214 20 190 20 156 V60z"></path>
@@ -9674,6 +9712,10 @@ let frenzyAuraEl = null;
     function renderBattleSkillBar() {
       if (!battleSkillBar) return;
       battleSkillBar.innerHTML = "";
+      battleSkillStates.forEach(entry => {
+        if (!entry) return;
+        entry.comboVisual = null;
+      });
       if (!battleSkillStates.length) {
         const info = document.createElement("span");
         info.className = "battle-skill-desc";
@@ -9703,6 +9745,14 @@ let frenzyAuraEl = null;
         const trimmedLabel = entry.displayLabel.replace(/\s*\(.*?\)\s*$/, "");
         const skillName = entry.skill && entry.skill.name ? entry.skill.name : trimmedLabel;
         const bonusPercent = Number(entry.skill.overcapBonusPercent || 0);
+        const iconMarkup = entry.skill ? getItemIcon(entry.skill.icon, entry.skill.key) : ITEM_ART.default;
+        if (iconMarkup) {
+          const iconWrap = document.createElement("span");
+          iconWrap.className = "battle-skill-icon";
+          iconWrap.setAttribute("aria-hidden", "true");
+          iconWrap.innerHTML = iconMarkup;
+          button.appendChild(iconWrap);
+        }
         if (!isHotkeyMode || showHotkeyHints) {
           const hotkeyBadge = document.createElement("span");
           hotkeyBadge.className = "battle-skill-hotkey";
@@ -9713,7 +9763,8 @@ let frenzyAuraEl = null;
         label.className = "battle-skill-name";
         label.textContent = trimmedLabel;
         button.appendChild(label);
-        if (entry.comboSequence && entry.comboSequence.length) {
+        const hasComboSequence = entry.comboSequence && entry.comboSequence.length;
+        if (hasComboSequence) {
           const visual = document.createElement("div");
           visual.className = "battle-skill-combo";
           let keyOpacity = 0;
@@ -9727,23 +9778,37 @@ let frenzyAuraEl = null;
           } else {
             keyOpacity = 0;
           }
+          visual.dataset.comboDefaultOpacity = String(keyOpacity);
+          visual.dataset.comboBaseTransition = COMBO_BASE_TRANSITION;
+          visual.style.setProperty("--combo-opacity", String(keyOpacity));
+          visual.style.setProperty("--combo-transition-duration", COMBO_BASE_TRANSITION);
           entry.comboSequence.forEach((token, index) => {
             if (index > 0) {
               const plus = document.createElement("span");
               plus.className = "battle-skill-combo-plus";
               plus.textContent = "+";
-              plus.style.opacity = keyOpacity;
               visual.appendChild(plus);
             }
             const keyCap = document.createElement("span");
             keyCap.className = "battle-skill-combo-key";
             keyCap.textContent = formatHotkeyForDisplay([token]);
-            keyCap.style.opacity = keyOpacity;
             visual.appendChild(keyCap);
           });
           button.appendChild(visual);
+          entry.comboVisual = visual;
+          if (entry.comboRevealUntil && entry.comboRevealUntil > Date.now()) {
+            showBattleSkillComboVisual(entry, true);
+            scheduleBattleSkillComboReset(entry);
+          } else {
+            resetBattleSkillComboVisual(entry);
+          }
+        } else {
+          entry.comboVisual = null;
         }
         button.addEventListener("click", event => {
+          if (hasComboSequence) {
+            revealBattleSkillCombo(entry);
+          }
           if (DEFAULT_SKILL_INPUT_MODE === "hotkeys") {
             event.preventDefault();
             if (battleResult) {
@@ -9803,6 +9868,77 @@ let frenzyAuraEl = null;
         battleSkillBar.appendChild(card);
       });
     }
+    function revealBattleSkillCombo(entry) {
+      if (!entry || !entry.comboSequence || !entry.comboSequence.length) return;
+      entry.comboRevealUntil = Date.now() + COMBO_REVEAL_VISIBLE_DURATION;
+      scheduleBattleSkillComboReset(entry);
+      showBattleSkillComboVisual(entry);
+    }
+    function showBattleSkillComboVisual(entry, immediate = false) {
+      if (!entry || !entry.comboVisual) return;
+      const visual = entry.comboVisual;
+      visual.style.setProperty("--combo-transition-duration", immediate ? "0s" : "0.2s");
+      visual.style.setProperty("--combo-opacity", "1");
+    }
+    function resetBattleSkillComboVisual(entry, snap = false) {
+      if (!entry || !entry.comboVisual) return;
+      const visual = entry.comboVisual;
+      const defaultOpacity = Number(visual.dataset.comboDefaultOpacity || 0);
+      const baseTransition = visual.dataset.comboBaseTransition || COMBO_BASE_TRANSITION;
+      if (entry.comboTransitionTimer) {
+        clearTimeout(entry.comboTransitionTimer);
+        entry.comboTransitionTimer = null;
+      }
+      if (snap) {
+        visual.style.setProperty("--combo-transition-duration", "0s");
+        visual.style.setProperty("--combo-opacity", String(defaultOpacity));
+        entry.comboTransitionTimer = setTimeout(() => {
+          if (entry.comboVisual === visual) {
+            visual.style.setProperty("--combo-transition-duration", baseTransition);
+          }
+          entry.comboTransitionTimer = null;
+        }, 50);
+      } else {
+        visual.style.setProperty("--combo-transition-duration", baseTransition);
+        visual.style.setProperty("--combo-opacity", String(defaultOpacity));
+      }
+    }
+    function scheduleBattleSkillComboReset(entry) {
+      if (!entry) return;
+      const remaining = Math.max(0, Number(entry.comboRevealUntil || 0) - Date.now());
+      if (!remaining) {
+        entry.comboRevealUntil = 0;
+        resetBattleSkillComboVisual(entry, true);
+        if (entry.comboRevealTimer) {
+          clearTimeout(entry.comboRevealTimer);
+          entry.comboRevealTimer = null;
+        }
+        return;
+      }
+      if (entry.comboRevealTimer) {
+        clearTimeout(entry.comboRevealTimer);
+      }
+      entry.comboRevealTimer = setTimeout(() => {
+        entry.comboRevealTimer = null;
+        entry.comboRevealUntil = 0;
+        resetBattleSkillComboVisual(entry, true);
+      }, remaining);
+    }
+    function clearBattleSkillComboReveal(entry, snap = false) {
+      if (!entry) return;
+      entry.comboRevealUntil = 0;
+      if (entry.comboRevealTimer) {
+        clearTimeout(entry.comboRevealTimer);
+        entry.comboRevealTimer = null;
+      }
+      if (entry.comboTransitionTimer) {
+        clearTimeout(entry.comboTransitionTimer);
+        entry.comboTransitionTimer = null;
+      }
+      if (entry.comboVisual) {
+        resetBattleSkillComboVisual(entry, snap);
+      }
+    }
 
     function renderBattleWeaponSlots() {
       const applySlot = (el, slotKey) => {
@@ -9848,6 +9984,9 @@ let frenzyAuraEl = null;
       if (!battleInProgress || !currentBattleContext) return;
       if (!entry || entry.used) return;
       const { hero, enemy } = currentBattleContext;
+      if (entry.mode === "combo") {
+        clearBattleSkillComboReveal(entry, true);
+      }
       if (entry.skill.key === SHIELD_SKILL_KEY && hero.shieldWallCharges > 0) {
         spawnStatusText(battleKnight, "Schutzwall aktiv", "buff");
         if (battleResult) battleResult.textContent = entry.skill.name + " ist bereits aktiv.";
