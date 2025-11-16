@@ -4386,14 +4386,6 @@ let frenzyAuraEl = null;
       return null;
     }
 
-    function setsEqual(setA, setB) {
-      if (setA.size !== setB.size) return false;
-      for (const value of setA) {
-        if (!setB.has(value)) return false;
-      }
-      return true;
-    }
-
     function resetSkillKeyTracking() {
       activeSkillKeys.clear();
       activeSkillComboLatch.clear();
@@ -9235,13 +9227,28 @@ let frenzyAuraEl = null;
       return false;
     }
 
+    const OPTIONAL_MODIFIER_KEYS = new Set(["CTRL", "ALT", "SHIFT", "WIN"]);
+
+    function comboMatchesActiveKeys(comboSet) {
+      if (!comboSet || !comboSet.size) return false;
+      for (const key of comboSet) {
+        if (!activeSkillKeys.has(key)) return false;
+      }
+      for (const key of activeSkillKeys) {
+        if (comboSet.has(key)) continue;
+        if (OPTIONAL_MODIFIER_KEYS.has(key)) continue;
+        return false;
+      }
+      return true;
+    }
+
     function tryActivateSkillCombos(event) {
       if (!battleSkillStates.length) return false;
       let triggered = false;
       battleSkillStates.forEach(entry => {
         if (entry.mode !== "combo" || entry.used) return;
         if (activeSkillComboLatch.has(entry.comboId)) return;
-        if (!setsEqual(activeSkillKeys, entry.comboSet)) return;
+        if (!comboMatchesActiveKeys(entry.comboSet)) return;
         event.preventDefault();
         if (typeof event.stopPropagation === "function") event.stopPropagation();
         if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
@@ -9253,6 +9260,9 @@ let frenzyAuraEl = null;
     }
 
     function handleBattleKeyDown(event) {
+      if (shouldBlockProtectedShortcut(event)) {
+        event.preventDefault();
+      }
       if (!battleSimulation || battleSimulation.classList.contains("hidden")) return;
       if (!currentBattleContext) return;
       const normalized = normalizeEventKey(event.key);
@@ -9288,6 +9298,61 @@ let frenzyAuraEl = null;
         if (!stillPressed) release.push(comboId);
       });
       release.forEach(id => activeSkillComboLatch.delete(id));
+    }
+
+    const PROTECTED_SHORTCUTS = [
+      { ctrl: true, key: "c" },
+      { ctrl: true, key: "x" },
+      { ctrl: true, key: "v" },
+      { ctrl: true, key: "s" },
+      { ctrl: true, key: "z" },
+      { ctrl: true, key: "y" },
+      { ctrl: true, key: "a" },
+      { ctrl: true, key: "p" },
+      { ctrl: true, key: "f" },
+      { ctrl: true, key: "n" },
+      { ctrl: true, key: "o" },
+      { ctrl: true, key: "Escape" },
+      { ctrl: true, key: "Home" },
+      { ctrl: true, key: "End" },
+      { alt: true, key: "Tab" },
+      { meta: true, key: "Tab" },
+      { meta: true, key: "d" },
+      { meta: true, key: "e" },
+      { meta: true, key: "s" },
+      { meta: true, key: "ArrowUp" },
+      { meta: true, key: "ArrowDown" },
+      { meta: true, key: "ArrowLeft" },
+      { meta: true, key: "ArrowRight" },
+      { ctrl: true, shift: true, key: "Escape" },
+      { meta: true, key: "l" },
+      { meta: true, key: "r" },
+      { meta: true, key: "i" },
+      { meta: true, key: "v" },
+      { meta: true, shift: true, key: "s" },
+      { meta: true, key: "." }
+    ];
+
+    function normalizeShortcutKey(key) {
+      if (!key) return "";
+      return key.length === 1 ? key.toLowerCase() : key;
+    }
+
+    function matchesProtectedShortcut(event, shortcut) {
+      if (!!shortcut.ctrl !== event.ctrlKey) return false;
+      if (!!shortcut.alt !== event.altKey) return false;
+      if (!!shortcut.meta !== event.metaKey) return false;
+      if (!!shortcut.shift !== event.shiftKey) return false;
+      if (shortcut.key && shortcut.key.startsWith("Arrow")) {
+        return event.key === shortcut.key;
+      }
+      const shortcutKey = normalizeShortcutKey(shortcut.key);
+      const eventKey = normalizeShortcutKey(event.key);
+      return shortcutKey === eventKey;
+    }
+
+    function shouldBlockProtectedShortcut(event) {
+      return PROTECTED_SHORTCUTS.some(shortcut => matchesProtectedShortcut(event, shortcut));
     }
 
     document.addEventListener("keydown", handleBattleKeyDown);
