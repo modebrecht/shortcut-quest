@@ -2633,13 +2633,9 @@
     .modal-card-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-    .modal-card-label {
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      color: rgba(148,163,184,0.85);
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
     }
     .modal-card-head h4 {
       margin: 0;
@@ -4033,47 +4029,42 @@
               <div class="modal-battle-card hero" id="modalHeroCard">
                 <div class="modal-card-head">
                   <div class="modal-card-top">
-                    <div>
-                      <span class="modal-card-label">HELD</span>
-                      <h4 id="modalHeroName">Shortcut Knight</h4>
+                    <h4 id="modalHeroName">Shortcut Knight</h4>
+                    <div class="modal-card-hp hero">
+                      <div class="hp-track">
+                        <div class="hp-fill hero" id="heroHpFill"></div>
+                      </div>
+                      <span class="hp-value" id="heroHpValue"></span>
                     </div>
-                  </div>
-                  <div class="modal-card-hp hero">
-                    <span class="hp-label">HP</span>
-                    <div class="hp-track">
-                      <div class="hp-fill hero" id="heroHpFill"></div>
-                    </div>
-                    <span class="hp-value" id="heroHpValue"></span>
                   </div>
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalHeroAtk">1</strong></span>
                   <span class="battle-stat-badge def">DEF<strong id="modalHeroDef">0</strong></span>
+                  <span class="battle-stat-badge meta" id="modalHeroVarBadge">Var ±0</span>
+                  <span class="battle-stat-badge meta" id="modalHeroCritBadge">Krit 0%</span>
                 </div>
-                <p class="modal-card-meta" id="modalHeroMeta">Bereit fuer den Kampf.</p>
               </div>
               <div class="modal-battle-card enemy" id="modalEnemyCard">
                 <div class="modal-card-head">
                   <div class="modal-card-top">
-                    <div>
-                      <span class="modal-card-label">GEGNER</span>
-                      <h4 id="modalEnemyName">Kobold</h4>
-                    </div>
-                    <div class="modal-card-badges">
-                      <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
+                    <h4 id="modalEnemyName">Kobold</h4>
+                    <div class="modal-card-hp enemy">
+                      <div class="hp-track">
+                        <div class="hp-fill enemy" id="enemyHpFill"></div>
+                      </div>
+                      <span class="hp-value" id="enemyHpValue"></span>
                     </div>
                   </div>
-                  <div class="modal-card-hp enemy">
-                    <span class="hp-label">HP</span>
-                    <div class="hp-track">
-                      <div class="hp-fill enemy" id="enemyHpFill"></div>
-                    </div>
-                    <span class="hp-value" id="enemyHpValue"></span>
+                  <div class="modal-card-badges">
+                    <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
                   </div>
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalEnemyAtk">0</strong></span>
                   <span class="battle-stat-badge def">DEF<strong id="modalEnemyDef">0</strong></span>
+                  <span class="battle-stat-badge meta" id="modalEnemyVarBadge">Var ±0</span>
+                  <span class="battle-stat-badge meta" id="modalEnemyCritBadge">Krit 0%</span>
                 </div>
                 <p class="modal-card-meta" id="modalEnemyMeta">Details folgen.</p>
               </div>
@@ -5798,12 +5789,15 @@ let frenzyAuraEl = null;
     const modalHeroName = document.getElementById("modalHeroName");
     const modalHeroAtk = document.getElementById("modalHeroAtk");
     const modalHeroDef = document.getElementById("modalHeroDef");
-    const modalHeroMeta = document.getElementById("modalHeroMeta");
+    const modalHeroVarBadge = document.getElementById("modalHeroVarBadge");
+    const modalHeroCritBadge = document.getElementById("modalHeroCritBadge");
     const modalEnemyName = document.getElementById("modalEnemyName");
     const modalEnemyTrait = document.getElementById("modalEnemyTrait");
     const modalEnemyAtk = document.getElementById("modalEnemyAtk");
     const modalEnemyDef = document.getElementById("modalEnemyDef");
     const modalEnemyMeta = document.getElementById("modalEnemyMeta");
+    const modalEnemyVarBadge = document.getElementById("modalEnemyVarBadge");
+    const modalEnemyCritBadge = document.getElementById("modalEnemyCritBadge");
     const modalEnemyIcon = document.getElementById("modalEnemyIcon");
     const heroCardElements = Array.from(document.querySelectorAll(".battle-side.hero, .modal-battle-card.hero"));
     const enemyCardElements = Array.from(document.querySelectorAll(".battle-side.enemy, .modal-battle-card.enemy"));
@@ -9370,25 +9364,23 @@ let frenzyAuraEl = null;
         if (modalHeroName) modalHeroName.textContent = heroState.name || "Shortcut Knight";
         if (modalHeroAtk) modalHeroAtk.textContent = String(Math.max(0, heroState.atk || 0));
         if (modalHeroDef) modalHeroDef.textContent = String(Math.max(0, heroState.def || 0));
-        if (modalHeroMeta) {
-          const gearCount = getEquippedItems().length;
-          const critPercent = Math.round(Math.max(0, heroState.crit || 0) * 100);
-          const variance = Math.max(0, heroState.variance || 0);
-          modalHeroMeta.textContent = `${gearCount}/${EQUIPMENT_SLOT_KEYS.length} Slots • Var ±${variance} • Krit ${critPercent}%`;
-        }
+        const gearCount = getEquippedItems().length;
+        const critPercent = Math.round(Math.max(0, heroState.crit || 0) * 100);
+        const variance = Math.max(0, heroState.variance || 0);
+        if (modalHeroVarBadge) modalHeroVarBadge.textContent = `Var ±${variance}`;
+        if (modalHeroCritBadge) modalHeroCritBadge.textContent = `Krit ${critPercent}%`;
       }
       if (enemyState) {
         updateActiveEnemyArt(enemyState);
         if (modalEnemyName) modalEnemyName.textContent = enemyState.name || "Gegner";
-        const enemyLevel = Math.max(1, level || enemyState.level || 1);
         if (modalEnemyTrait) modalEnemyTrait.textContent = describeEnemyTrait(enemyState);
         if (modalEnemyAtk) modalEnemyAtk.textContent = String(Math.max(0, enemyState.atk || 0));
         if (modalEnemyDef) modalEnemyDef.textContent = String(Math.max(0, enemyState.def || 0));
-        if (modalEnemyMeta) {
-          const critPercent = Math.round(Math.max(0, enemyState.crit || 0) * 100);
-          const variance = Math.max(0, enemyState.variance || 0);
-          modalEnemyMeta.textContent = `Var ±${variance} • Krit ${critPercent}%`;
-        }
+        const enemyCritPercent = Math.round(Math.max(0, enemyState.crit || 0) * 100);
+        const enemyVariance = Math.max(0, enemyState.variance || 0);
+        if (modalEnemyVarBadge) modalEnemyVarBadge.textContent = `Var ±${enemyVariance}`;
+        if (modalEnemyCritBadge) modalEnemyCritBadge.textContent = `Krit ${enemyCritPercent}%`;
+        if (modalEnemyMeta) modalEnemyMeta.textContent = "";
       }
     }
 
