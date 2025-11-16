@@ -188,6 +188,11 @@
       border-color: rgba(148,163,184,0.35);
       background: rgba(15,23,42,0.55);
     }
+    .report-action.danger {
+      border-color: rgba(248,113,113,0.7);
+      background: rgba(190,24,93,0.25);
+      color: #fecaca;
+    }
     @media (max-width: 700px) {
       .report-header {
         flex-direction: column;
@@ -4139,6 +4144,7 @@
               <div class="report-secondary-actions">
                 <button id="reportExportBtn" type="button" class="report-action ghost">💾 Exportieren</button>
                 <button id="reportImportBtn" type="button" class="report-action ghost">📂 Importieren</button>
+                <button id="reportResetBtn" type="button" class="report-action danger">🗑️ Spielfortschritt löschen</button>
               </div>
             </div>
           </div>
@@ -5918,6 +5924,7 @@ let frenzyAuraEl = null;
     const reportGenerateBtn = document.getElementById("reportGenerateBtn");
     const reportExportBtn = document.getElementById("reportExportBtn");
     const reportImportBtn = document.getElementById("reportImportBtn");
+    const reportResetBtn = document.getElementById("reportResetBtn");
     const reportImportInput = document.getElementById("reportImportInput");
     const reportTabs = document.querySelectorAll(".report-tab");
     let activeReportTab = "overview";
@@ -6015,6 +6022,11 @@ let frenzyAuraEl = null;
           reportImportInput.value = "";
         };
         reader.readAsText(file);
+      });
+    }
+    if (reportResetBtn) {
+      reportResetBtn.addEventListener("click", () => {
+        clearLocalProgress();
       });
     }
     if (reportTabs && reportTabs.length) {
@@ -8166,11 +8178,16 @@ let frenzyAuraEl = null;
       saveState();
     }
     function clearLocalProgress() {
-      const message = "Lokale Fortschrittsdaten wirklich loeschen?";
-      if (confirm(message)) {
-        localStorage.removeItem(STORAGE_KEY);
-        location.reload();
+      const typed = prompt("Spielfortschritt wirklich löschen?\nTippe LÖSCHEN in GROSSBUCHSTABEN, um zu bestätigen.");
+      if (typed === null) return;
+      const normalized = typed.trim();
+      const accepted = normalized === "LÖSCHEN";
+      if (!accepted) {
+        alert("Aktion abgebrochen. Bitte exakt LÖSCHEN eingeben, um zu löschen.");
+        return;
       }
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
     }
 
     gachaBtn.addEventListener("click", () => {
@@ -8448,7 +8465,7 @@ let frenzyAuraEl = null;
         highlightGrid.appendChild(buildHighlightCard("Abschnitt mit den meisten fehlerfreien Läufen", subtitle));
       }
       if (sectionChallenge[0]) {
-        highlightGrid.appendChild(buildHighlightCard("Größte Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
+        highlightGrid.appendChild(buildHighlightCard("Grösste Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
       }
       if (toughestPrompts[0]) {
         highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${toughestPrompts[0].prompt} (${toughestPrompts[0].misses} Fehlversuche)`, "bad"));
