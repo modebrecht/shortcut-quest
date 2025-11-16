@@ -7,7 +7,7 @@
       id: "1",
       tabLabel: "Abschnitt 1",
       title: "1. Selber tippen",
-      description: "Löse die ersten vier Kürzel, um dein Muscle Memory aufzuwärmen.",
+      description: "Löse die folgenden Aufgaben, um dein Muscle Memory aufzuwärmen.",
       tasks: [
         {
           type: "input",
@@ -63,7 +63,7 @@
           type: "select",
           prompt: "Alles markieren",
           answer: "Ctrl+A",
-          options: ["Ctrl+A", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+F"]
+          options: ["Ctrl+F", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+A"]
         }
       ]
     },
@@ -95,25 +95,25 @@
           type: "select",
           prompt: "Speichern",
           answer: "Ctrl+S",
-          options: ["Ctrl+S", "Ctrl+O", "Win+Shift+S", "Ctrl+Shift+S", "Ctrl+P"]
+          options: ["Ctrl+S", "Ctrl+O", "Win+Shift+S", "Ctrl+A", "Ctrl+P"]
         },
         {
           type: "select",
           prompt: "Neues Dokument",
           answer: "Ctrl+N",
-          options: ["Ctrl+O", "Ctrl+N", "Ctrl+P", "Ctrl+Shift+N", "Ctrl+T"]
+          options: ["Ctrl+T", "Ctrl+N", "Ctrl+P", "Ctrl+X", "Ctrl+O"]
         },
         {
           type: "select",
           prompt: "Drucken",
           answer: "Ctrl+P",
-          options: ["Ctrl+P", "Ctrl+Shift+P", "Ctrl+F", "Ctrl+O", "Ctrl+Shift+F"]
+          options: ["Ctrl+I", "Ctrl+D", "Ctrl+F", "Ctrl+O", "Ctrl+P"]
         },
         {
           type: "select",
           prompt: "Rückgängig",
           answer: "Ctrl+Z",
-          options: ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+X", "Ctrl+Shift+Y"]
+          options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+B", "Ctrl+X", "Ctrl+S"]
         }
       ]
     },
@@ -127,7 +127,7 @@
           type: "select",
           prompt: "Alles markieren",
           answer: "Ctrl+A",
-          options: ["Ctrl+A", "Ctrl+C", "Ctrl+V", "Ctrl+S", "Ctrl+P"]
+          options: ["Ctrl+C", "Ctrl+A", "Ctrl+V", "Ctrl+S", "Ctrl+P"]
         },
         {
           type: "select",
@@ -139,13 +139,13 @@
           type: "select",
           prompt: "Wiederholen",
           answer: "Ctrl+Y",
-          options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+Shift+Z", "Ctrl+R", "Ctrl+Q"]
+          options: ["Ctrl+Z", "Ctrl+A", "Ctrl+Y", "Ctrl+R", "Ctrl+Q"]
         },
         {
           type: "select",
           prompt: "Fett formatieren",
           answer: "Ctrl+B",
-          options: ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+Shift+B", "Ctrl+T"]
+          options: ["Ctrl+Z", "Ctrl+I", "Ctrl+U", "Ctrl+B", "Ctrl+T"]
         }
       ]
     },
