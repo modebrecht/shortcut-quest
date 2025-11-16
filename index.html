@@ -4093,7 +4093,7 @@
                   <small id="battleRewardBreakdown">Basis +0 • Skills +0</small>
                 </div>
               </div>
-              <button type="button" class="battle-next hidden" id="battleNextBtn">Naechstes Level starten</button>
+              <button type="button" class="battle-next hidden" id="battleNextBtn">Nächstes Level starten</button>
             </div>
           </div>
           <div class="battle-overview">
@@ -4120,7 +4120,7 @@
             <div class="battle-center">
               <div class="battle-crest">
                 <span class="battle-crest-label">VS</span>
-                <p>Waehle deinen Kampf und nutze Skills in der Schlacht.</p>
+                <p>Wähle deinen Kampf und nutze Skills in der Schlacht.</p>
               </div>
               <div class="battle-center-actions">
                 <div class="battle-buttons" id="battleButtons"></div>
@@ -5499,7 +5499,7 @@ let frenzyAuraEl = null;
         if (existingTabs === 0) {
           const fallback = document.createElement("p");
           fallback.className = "small";
-          fallback.textContent = "Keine Trainingsabschnitte verfuegbar.";
+          fallback.textContent = "Keine Trainingsabschnitte verfügbar.";
           learnSectionsHost.appendChild(fallback);
         }
         return;
@@ -6102,7 +6102,7 @@ let frenzyAuraEl = null;
       { key: "panzerhandschuhe", name: "Panzerhandschuhe", atk: 0, def: 1, icon: "panzerhandschuhe", slot: "gloves", description: "Robuste Handschuhe für sicheren Griff.", theme: "knight", category: "armor" },
       { key: "runen_amulet", name: "Runen-Amulett", atk: 0, def: 0, icon: "talisman", slot: "necklace", description: "Verleiht Bonus-Münzen je nach Tier.", theme: "knight", category: "accessory" },
       { key: "lebens_ring", name: "Lebensring", atk: 0, def: 0, hp: 20, icon: "lebensring", slot: "ring_left", description: "Speichert ein wenig Lebenskraft.", theme: "knight", category: "accessory" },
-      { key: "gluecks_ring", name: "Glücksring", atk: 0, def: 0, icon: "gluecksring", slot: "ring_right", description: "Erhoeht kritischen Schaden.", theme: "knight", category: "accessory" },
+      { key: "gluecks_ring", name: "Glücksring", atk: 0, def: 0, icon: "gluecksring", slot: "ring_right", description: "Erhöht kritischen Schaden.", theme: "knight", category: "accessory" },
       { key: "stahl_stiefel", name: "Stahl-Stiefel", atk: 0, def: 2, icon: "stahl-stiefel", slot: "boots", description: "", theme: "knight", category: "armor" },
     ];
     const KNIGHT_BY_KEY = Object.create(null);
@@ -6112,9 +6112,9 @@ let frenzyAuraEl = null;
       KNIGHT_BY_NAME[entry.name] = entry;
     });
     const SKILL_POOL = [
-      { key: "sturm_hieb", name: "Himmelszorn", icon: "skill_tempest", description: "Beschwoert Sturmwolken: Blitzschaden und 5-Runden-Abklingzeit.", effect: "damage", basePower: 6, powerPerTier: 4 },
-      { key: "schutzwall", name: "Schutzwall", icon: "skill_barrier", description: "Beschwoert eine magische Wand, die DEF fuer 5 Angriffe erhoeht.", effect: "shield_wall", basePower: 4, powerPerTier: 2 },
-      { key: "kampfrausch", name: "Kampfrausch", icon: "skill_frenzy", description: "Entfesselt Kampfrausch: +ATK fuer 5 Runden, danach Abklingzeit.", effect: "buff_atk", basePower: 2, powerPerTier: 0 },
+      { key: "sturm_hieb", name: "Himmelszorn", icon: "skill_tempest", description: "Beschwört Sturmwolken: Blitzschaden und 5-Runden-Abklingzeit.", effect: "damage", basePower: 6, powerPerTier: 4 },
+      { key: "schutzwall", name: "Schutzwall", icon: "skill_barrier", description: "Beschwört eine magische Wand, die DEF für 5 Angriffe erhöht.", effect: "shield_wall", basePower: 4, powerPerTier: 2 },
+      { key: "kampfrausch", name: "Kampfrausch", icon: "skill_frenzy", description: "Entfesselt Kampfrausch: +ATK für 5 Runden, danach Abklingzeit.", effect: "buff_atk", basePower: 2, powerPerTier: 0 },
       { key: "lichtbrunnen", name: "Aurawoge", icon: "skill_renew", description: "Heilt den Ritter sofort und legt eine 5-Runden-Abklingzeit fest.", effect: "heal", basePower: 12, powerPerTier: 6 }
     ];
     const SKILL_BY_KEY = Object.create(null);
@@ -6136,7 +6136,7 @@ let frenzyAuraEl = null;
     const EQUIPMENT_SLOT_DEFS = {
       gloves: {
         label: "Handschuhe",
-        hint: "Bereit fuer Handschuhe oder leichte Ruestung.",
+        hint: "Bereit für Handschuhe oder leichte Rüstung.",
         empty: "Noch keine Handschuhe.",
         accepts: [],
         allowedKeys: ["panzerhandschuhe"]
@@ -6162,8 +6162,8 @@ let frenzyAuraEl = null;
       },
       weapon: {
         label: "Schwert",
-        hint: "Lege Schwerter ueber das Inventar an.",
-        empty: "Kein Schwert ausgeruestet.",
+        hint: "Lege Schwerter über das Inventar an.",
+        empty: "Kein Schwert ausgerüstet.",
         accepts: ["weapon", "sword", "blade"]
       },
       offhand: {
@@ -6175,14 +6175,14 @@ let frenzyAuraEl = null;
       ring_left: {
         label: "Ring / Amulett 1",
         hint: "Erster Ring- oder Amulett-Slot.",
-        empty: "Kein Schmuck ausgeruestet.",
+        empty: "Kein Schmuck ausgerüstet.",
         accepts: [],
         allowedKeys: ["lebens_ring", "gluecks_ring"]
       },
       ring_right: {
         label: "Ring / Amulett 2",
         hint: "Zweiter Ring- oder Amulett-Slot.",
-        empty: "Kein Schmuck ausgeruestet.",
+        empty: "Kein Schmuck ausgerüstet.",
         accepts: [],
         allowedKeys: ["lebens_ring", "gluecks_ring"]
       }
@@ -6445,7 +6445,7 @@ let frenzyAuraEl = null;
       const createdAt = Number(item.createdAt || item.obtainedAt || now);
       const lastObtainedAt = Number(item.lastObtainedAt || item.updatedAt || createdAt);
       const name = item.name || (template ? template.name : `Relikt ${index + 1}`);
-      const description = item.description || (template ? template.description : "Umgeschmiedet aus frueheren Belohnungen.");
+      const description = item.description || (template ? template.description : "Umgeschmiedet aus früheren Belohnungen.");
       const category = item.category || (template ? template.category : "weapon");
       const icon = item.icon || (template ? template.icon : (category === "armor" ? "shield" : category === "accessory" ? "talisman" : "sword"));
       const slot = normalizeItemSlot(item.slot) || (template ? normalizeItemSlot(template.slot) : null) || inferItemSlot({ icon, category });
@@ -7819,7 +7819,7 @@ let frenzyAuraEl = null;
         const blueprintSrc = "assets/blueprint_clean.svg";
         const knightSrc = "assets/knight_idle_fin.svg";
         heroAvatarImage.src = hasInventory ? knightSrc : blueprintSrc;
-        heroAvatarImage.alt = hasInventory ? "Ritter bereit fuer den Kampf" : "Blueprint deines Helden";
+        heroAvatarImage.alt = hasInventory ? "Ritter bereit für den Kampf" : "Blueprint deines Helden";
         heroAvatarImage.classList.toggle("is-blueprint", !hasInventory);
         heroAvatarImage.classList.toggle("is-knight", hasInventory);
       }
@@ -8142,7 +8142,7 @@ let frenzyAuraEl = null;
           const bonusText = bonusPercent ? ` (Runenbonus +${bonusPercent}%)` : "";
           resultMsg += ` | +${finalReward} Coins${bonusText}`;
         } else if (clears > 0) {
-          resultMsg += " | fuer mehr Coins erst zuruecksetzen.";
+          resultMsg += " | für mehr Coins erst zurücksetzen.";
         }
         if (isFirstClear && unlockNextSection()) {
           resultMsg += " | Neuer Abschnitt freigeschaltet.";
@@ -8193,7 +8193,7 @@ let frenzyAuraEl = null;
         memoryController.reset();
       }
       const resultEl = document.getElementById(`result-${sectionId}`);
-      if (resultEl) resultEl.textContent = "Abschnitt wurde zurueckgesetzt.";
+      if (resultEl) resultEl.textContent = "Abschnitt wurde zurückgesetzt.";
       state.sectionResets[sectionId] = (state.sectionResets[sectionId] || 0) + 1;
       updateUI();
       updateOverallSummary();
@@ -8253,9 +8253,9 @@ let frenzyAuraEl = null;
 
     const ENEMY_VARIANTS = ["goblin", "goblin-army", "goblin-king"];
     const ENEMY_VARIANT_LABELS = {
-      goblin: "Schneller Nahkaempfer",
-      "goblin-army": "Verstaerkungen im Ruecken",
-      "goblin-king": "Koenigliche Elite"
+      goblin: "Schneller Nahkämpfer",
+      "goblin-army": "Goblin Scherge",
+      "goblin-king": "Königliche Elite"
     };
     const DEFAULT_ENEMY_ICON_KEY = "kobold";
     const ENEMY_ICON_PATHS = {
@@ -8276,16 +8276,16 @@ let frenzyAuraEl = null;
     };
     const ENEMY_DATA = [
       { name: "Kobold", icon: "kobold", hp: 60, atk: 6, def: 0, variance: 1, crit: 0.05, variant: "goblin" },
-      { name: "Gruener Goblin", icon: "gruener-goblin", hp: 80, atk: 8, def: 1, variance: 1, crit: 0.06, variant: "goblin" },
+      { name: "Grüner Goblin", icon: "gruener-goblin", hp: 80, atk: 8, def: 1, variance: 1, crit: 0.06, variant: "goblin" },
       { name: "Hobgoblin", icon: "hobgoblin", hp: 110, atk: 10, def: 2, variance: 1, crit: 0.07, variant: "goblin" },
       { name: "Waldgoblin", icon: "waldgoblin", hp: 140, atk: 12, def: 3, variance: 1, crit: 0.08, variant: "goblin" },
-      { name: "Hoehlengoblin", icon: "hoehlengoblin", hp: 170, atk: 15, def: 5, variance: 1, crit: 0.09, variant: "goblin" },
+      { name: "Höhlengoblin", icon: "hoehlengoblin", hp: 170, atk: 15, def: 5, variance: 1, crit: 0.09, variant: "goblin" },
       { name: "Bergtroll", icon: "bergtroll", hp: 222, atk: 18, def: 7, variance: 2, crit: 0.11, variant: "goblin-army" },
       { name: "Dunkelgoblin", icon: "dunkelgoblin", hp: 333, atk: 22, def: 10, variance: 2, crit: 0.12, variant: "goblin-army" },
       { name: "Kriegsgoblin", icon: "kriegsgoblin", hp: 444, atk: 26, def: 12, variance: 3, crit: 0.13, variant: "goblin-army" },
       { name: "Schattengoblin", icon: "schattengoblin", hp: 666, atk: 32, def: 14, variance: 3, crit: 0.14, variant: "goblin-army" },
-      { name: "Daemonengoblin", icon: "daemonengoblin", hp: 777, atk: 38, def: 17, variance: 6, crit: 0.16, variant: "goblin-army" },
-      { name: "Goblinkoenig", icon: "goblinkoenig", hp: 999, atk: 42, def: 18, variance: 8, crit: 0.19, variant: "goblin-king" }
+      { name: "Dämonengoblin", icon: "daemonengoblin", hp: 777, atk: 38, def: 17, variance: 6, crit: 0.16, variant: "goblin-army" },
+      { name: "Goblinkönig", icon: "goblinkoenig", hp: 999, atk: 42, def: 18, variance: 8, crit: 0.19, variant: "goblin-king" }
     ];
     const ENEMIES = {};
     ENEMY_DATA.forEach((enemy, index) => {
@@ -9161,9 +9161,9 @@ let frenzyAuraEl = null;
             applySkillDamage();
           }
           if (entry.skill.key === STORM_SKILL_KEY) {
-            resultText = entry.skill.name + " beschwoert einen Blitz fuer " + power + " Schaden (Cooldown " + SKILL_COOLDOWN_DEFAULT + " Runden).";
+            resultText = entry.skill.name + " beschwört einen Blitz für " + power + " Schaden (Cooldown " + SKILL_COOLDOWN_DEFAULT + " Runden).";
           } else {
-            resultText = entry.skill.name + " verursacht " + power + " zusaetzlichen Schaden.";
+            resultText = entry.skill.name + " verursacht " + power + " zusätzlichen Schaden.";
           }
           break;
         }
@@ -9179,7 +9179,7 @@ let frenzyAuraEl = null;
           }
           if (entry.skill.key === HEALING_SKILL_KEY) {
             triggerHealingSkillEffect();
-            resultText = entry.skill.name + " heilt " + healAmount + " HP und befindet sich fuer " + SKILL_COOLDOWN_DEFAULT + " Runden im Cooldown.";
+            resultText = entry.skill.name + " heilt " + healAmount + " HP und befindet sich für " + SKILL_COOLDOWN_DEFAULT + " Runden im Cooldown.";
           } else {
             resultText = entry.skill.name + " heilt " + healAmount + " HP.";
           }
@@ -9189,12 +9189,12 @@ let frenzyAuraEl = null;
           if (entry.skill.key === "kampfrausch") {
             applyTempAtkBuff(hero, power, SKILL_COOLDOWN_DEFAULT, entry.skill.key);
             spawnStatusText(battleKnight, "+ATK " + power, "buff");
-            resultText = entry.skill.name + " erhoeht deine ATK um " + power + " fuer " + SKILL_COOLDOWN_DEFAULT + " Runden.";
+            resultText = entry.skill.name + " erhöht deine ATK um " + power + " für " + SKILL_COOLDOWN_DEFAULT + " Runden.";
           } else {
             hero.atk = Math.max(1, hero.atk + power);
             hero.variance = Math.max(1, hero.variance || 1);
             spawnStatusText(battleKnight, "+ATK " + power, "buff");
-            resultText = entry.skill.name + " erhoeht deine ATK um " + power + " fuer diesen Kampf.";
+            resultText = entry.skill.name + " erhöht deine ATK um " + power + " für diesen Kampf.";
           }
           break;
         }
@@ -9208,7 +9208,7 @@ let frenzyAuraEl = null;
         }
         case "shield_wall": {
           applyShieldWallBuff(hero, power);
-          resultText = entry.skill.name + " errichtet einen Schutzwall (+DEF " + power + " fuer " + SHIELD_WALL_MAX_CHARGES + " Angriffe).";
+          resultText = entry.skill.name + " errichtet einen Schutzwall (+DEF " + power + " für " + SHIELD_WALL_MAX_CHARGES + " Angriffe).";
           break;
         }
         default: {
@@ -9570,7 +9570,7 @@ let frenzyAuraEl = null;
         if (ENEMIES[nextLevel]) {
           if (state.battleUnlocked < nextLevel) {
             state.battleUnlocked = nextLevel;
-            unlockText = " Naechstes Level freigeschaltet.";
+            unlockText = " Nächstes Level freigeschaltet.";
           }
           if (battleNextBtn) {
             battleNextBtn.dataset.targetLevel = String(nextLevel);
@@ -9953,7 +9953,7 @@ let frenzyAuraEl = null;
     recalcStats();
     updateUI();
     updateOverallSummary();
-    resetBattleLog("Waehle einen Kampf um die Simulation zu starten.");
+resetBattleLog("Wähle einen Kampf um die Simulation zu starten.");
   </script>
 </body>
 </html>
