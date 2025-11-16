@@ -63,7 +63,7 @@ Recalculate each enemy’s stats based on expected player state when they reach 
 | 7 | Dunkelgoblin | **230** | 10 | 22 | Frenzy Tier 2 just keeps pace |
 | 8 | Kriegsgoblin | **260** | 12 | 26 | Late fights require full rotations |
 | 9 | Schattengoblin | **348** | 14 | 32 | Base ×6 HP plus DEF to resist Tier 4 ATK |
-| 10 | Dämonengoblin | **512** | 17 | 38 | Base ×8 HP; DEF 17 slows Tier 5 crits |
+| 10 | Feuergoblin | **512** | 17 | 38 | Base ×8 HP; DEF 17 slows Tier 5 crits |
 | 11 | Goblinkönig | **999** | 15 | 45 | DEF 15 keeps hits meaningful without stalemates |
 
 **Updated calc:** Normal enemies (Lv 1-8) stay at **5×** their original HP values, Lv 9 jumps to **6×**, Lv 10 to **8×**, and the Goblinkönig to **10×** (72→999). ATK now scales from 6 up to 45, and DEF ramps from 0 to 15 so each encounter chips away at the player even with max gear.
