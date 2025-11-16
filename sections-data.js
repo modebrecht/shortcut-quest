@@ -185,7 +185,7 @@
       id: "7",
       tabLabel: "Abschnitt 7",
       title: "7. Shortcut Memory – Windows",
-      description: "Merke dir Windows-Kombinationen. 6 Paare mit Win-Tasten warten auf dich. Finde immer Aktion und Kombi.",
+      description: "Merke dir Windows-Kombinationen. 6 Paare mit Win-Tasten warten auf dich. Finde immer Aktion und Kombination.",
       memoryGame: {
         title: "Windows Memory",
         pairs: [
@@ -1100,7 +1100,7 @@
           },
           {
             scene: "Um Screenshots zu kommentieren, startet sie schnell den Ausschnittmodus.",
-            prompt: "Welche Kombi? ____ + ____ + ____",
+            prompt: "Welche Kombination? ____ + ____ + ____",
             missingSlots: 3,
             options: [
               { label: "Win", value: "Win" },
@@ -1137,7 +1137,7 @@
           },
           {
             scene: "Zum Vergleich wechselt er kurz in ein anderes Programm.",
-            prompt: "Welche Kombi nutzt er? ____ + ____",
+            prompt: "Welche Kombination nutzt er? ____ + ____",
             missingSlots: 2,
             options: [
               { label: "Alt", value: "Alt" },
@@ -1517,7 +1517,7 @@
         entries: [
           {
             scene: "Nova sperrt ihr Terminal, bevor sie den Projektraum verlässt.",
-            prompt: "Welche Kombi nutzt sie? ____ + ____",
+            prompt: "Welche Kombination nutzt sie? ____ + ____",
             missingSlots: 2,
             options: [
               { label: "Win", value: "Win" },

@@ -8795,7 +8795,7 @@ let frenzyAuraEl = null;
       if (toughestPrompts[0]) {
         const trickyLabel = formatPromptLabel(toughestPrompts[0].prompt);
         const trickySuffix = `${toughestPrompts[0].misses} Fehlversuche`;
-        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${trickyLabel} (${trickySuffix})`, "bad"));
+        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombination", `${trickyLabel} (${trickySuffix})`, "bad"));
       }
       highlightBlock.appendChild(highlightGrid);
       reportContent.appendChild(highlightBlock);
@@ -8828,7 +8828,7 @@ let frenzyAuraEl = null;
         }
         if (strongest && strongest !== weakest) {
           const strongLabel = strongest.displayLabel || formatPromptLabel(strongest.label);
-          insights.push(`📈 ${strongLabel} ist deine stärkste Kombi (${strongest.correctPct}% Trefferquote).`);
+          insights.push(`📈 ${strongLabel} ist deine stärkste Kombination (${strongest.correctPct}% Trefferquote).`);
         }
       }
       if (insights.length) {
@@ -8871,11 +8871,11 @@ let frenzyAuraEl = null;
       ], "Noch keine perfekten Serien."));
       const chartEntries = [];
       if (comboRatioData.length) {
-        const ratioCard = createChartCard("Trefferquote pro Kombi", "🟢", "reportChartCombosTab");
+        const ratioCard = createChartCard("Trefferquote pro Kombination", "🟢", "reportChartCombosTab");
         chartEntries.push({ card: ratioCard, render: () => renderComboRatioChart(comboRatioData, "reportChartCombosTab") });
       }
       if (errorChartData.length) {
-        const errorCard = createChartCard("Fehlversuche je Kombi", "⚠️", "reportChartErrorsTab");
+        const errorCard = createChartCard("Fehlversuche je Kombination", "⚠️", "reportChartErrorsTab");
         chartEntries.push({ card: errorCard, render: () => renderErrorComboChart(errorChartData, "reportChartErrorsTab") });
       }
       if (chartEntries.length) {
@@ -8886,7 +8886,7 @@ let frenzyAuraEl = null;
         chartEntries.forEach(entry => entry.render());
       }
       if (comboAttemptData.length) {
-        const attemptCard = createChartCard("Versuchshistorie pro Kombi", "🎯", "reportChartComboAttempts");
+        const attemptCard = createChartCard("Versuchshistorie pro Kombination", "🎯", "reportChartComboAttempts");
         reportContent.appendChild(attemptCard);
         renderComboAttemptChart(comboAttemptData, "reportChartComboAttempts");
       }
