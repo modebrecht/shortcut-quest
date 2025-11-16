@@ -281,8 +281,17 @@
     }
     .report-chart-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1rem;
+    }
+    .report-chart-grid > .chart-card:only-child,
+    .report-chart-grid > .chart-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+    @media (max-width: 900px) {
+      .report-chart-grid {
+        grid-template-columns: 1fr;
+      }
     }
     .chart-card {
       display: flex;
@@ -8884,8 +8893,8 @@ let frenzyAuraEl = null;
     }
 
     function renderSectionTab(payload) {
-      const { sectionChallenge = [], sectionSuccess = [], practiceData = [], sectionScoreData = [] } = payload;
-      const hasContent = sectionChallenge.length || sectionSuccess.length || practiceData.length || sectionScoreData.length;
+      const { sectionChallenge = [], sectionSuccess = [], practiceData = [], sectionScoreData = [], sectionAccuracyData = [] } = payload;
+      const hasContent = sectionChallenge.length || sectionSuccess.length || practiceData.length || sectionScoreData.length || sectionAccuracyData.length;
       if (!hasContent) {
         const msg = document.createElement("p");
         msg.className = "small";
@@ -8911,6 +8920,10 @@ let frenzyAuraEl = null;
       if (sectionScoreData.length) {
         const scoreCard = createChartCard("Top-Ergebnisse je Abschnitt", "🏅", "reportChartScoresTab");
         chartEntries.push({ card: scoreCard, render: () => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScoresTab") });
+      }
+      if (sectionAccuracyData.length) {
+        const perfCard = createChartCard("Performance pro Abschnitt (x/y getauscht)", "📈", "reportChartSectionPerformance");
+        chartEntries.push({ card: perfCard, render: () => renderSectionPerformanceChart(sectionAccuracyData, "reportChartSectionPerformance") });
       }
       if (chartEntries.length) {
         const grid = document.createElement("div");
@@ -9207,6 +9220,106 @@ let frenzyAuraEl = null;
         },
         colors: ["#60a5fa"],
         grid: { borderColor: "rgba(148,163,184,0.15)" }
+      };
+      mountReportChart(containerId, options);
+    }
+
+    function renderSectionPerformanceChart(rows, containerId) {
+      if (typeof ApexCharts === "undefined" || !rows.length) return;
+      const dataset = rows
+        .filter(entry => entry && typeof entry.correctPct === "number" && entry.label)
+        .map(entry => ({
+          label: entry.label,
+          pct: Math.max(0, Math.min(100, entry.correctPct || 0))
+        }));
+      if (!dataset.length) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = "<p class=\"small\">Noch keine Daten für dieses Chart.</p>";
+        return;
+      }
+      const sorted = dataset.slice().sort((a, b) => a.label.localeCompare(b.label, "de", { numeric: true }));
+      const labels = sorted.map(item => item.label);
+      const points = sorted.map((item, index) => ({ x: item.pct, y: index }));
+      const maxIndex = Math.max(0, points.length - 1);
+      const height = Math.max(380, points.length * 70 + 120);
+      const options = {
+        chart: {
+          type: "area",
+          height,
+          foreColor: "#e2e8f0",
+          background: "transparent",
+          toolbar: { show: false },
+          zoom: { enabled: false }
+        },
+        series: [{
+          name: "Performance",
+          data: points
+        }],
+        stroke: {
+          width: 3,
+          curve: "straight",
+          colors: ["#d97706"]
+        },
+        markers: {
+          size: 7,
+          colors: ["#0f172a"],
+          strokeColors: "#f59e0b",
+          strokeWidth: 3
+        },
+        fill: {
+          type: "solid",
+          colors: ["#fbbf24"],
+          opacity: 0.18
+        },
+        grid: {
+          borderColor: "rgba(148,163,184,0.2)",
+          xaxis: { lines: { show: true } },
+          yaxis: { lines: { show: true } }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: (_, opts) => `${Math.round(points[opts.dataPointIndex].x)}%`,
+          style: { colors: ["#0f172a"] },
+          background: {
+            enabled: true,
+            borderWidth: 0,
+            opacity: 0.2
+          }
+        },
+        xaxis: {
+          type: "numeric",
+          min: 0,
+          max: 100,
+          tickAmount: 5,
+          title: { text: "Performance (Richtig %)" },
+          labels: {
+            formatter: val => `${Math.round(Math.max(0, val))}%`
+          }
+        },
+        yaxis: {
+          min: 0,
+          max: maxIndex,
+          tickAmount: maxIndex,
+          labels: {
+            formatter: value => {
+              const idx = Math.round(value);
+              return labels[idx] || "";
+            },
+            trim: false,
+            maxWidth: 220
+          },
+          title: { text: "Abschnitt" }
+        },
+        tooltip: {
+          shared: false,
+          intersect: true,
+          custom: ({ seriesIndex, dataPointIndex, w }) => {
+            const point = w.config.series[seriesIndex].data[dataPointIndex];
+            const label = labels[dataPointIndex] || "";
+            if (!point) return "";
+            return `<div class="apexcharts-tooltip-title">${label}</div><div class="apexcharts-tooltip-text">${Math.round(point.x)}% richtig</div>`;
+          }
+        }
       };
       mountReportChart(containerId, options);
     }
