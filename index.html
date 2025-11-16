@@ -9644,7 +9644,17 @@ let frenzyAuraEl = null;
         label.textContent = entry.displayLabel;
         button.appendChild(hotkeyBadge);
         button.appendChild(label);
-        button.addEventListener("click", () => {
+        button.addEventListener("click", event => {
+          if (DEFAULT_SKILL_INPUT_MODE === "hotkeys") {
+            event.preventDefault();
+            if (battleResult) {
+              battleResult.textContent = "Nutze den eingeblendeten Hotkey, um Skills zu aktivieren.";
+            }
+            if (battleKnight) {
+              spawnStatusText(battleKnight, "Hotkey nutzen", "buff");
+            }
+            return;
+          }
           activateBattleSkill(entry);
         });
         card.appendChild(button);
