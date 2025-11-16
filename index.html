@@ -9234,11 +9234,15 @@ let frenzyAuraEl = null;
         if (container) container.innerHTML = "<p class=\"small\">Noch keine aufgezeichneten Versuche.</p>";
         return;
       }
-      const labels = canonicalRows.map(row => row.displayLabel || formatPromptLabel(row.label));
+      const rowsWithSpacer = [
+        { label: "", displayLabel: "", history: [] },
+        ...canonicalRows
+      ];
+      const labels = rowsWithSpacer.map(row => row.displayLabel || formatPromptLabel(row.label));
       const successPoints = [];
       const failPoints = [];
       let maxAttempt = 0;
-      canonicalRows.forEach((row, rowIndex) => {
+      rowsWithSpacer.forEach((row, rowIndex) => {
         const history = Array.isArray(row.history) ? row.history : [];
         history.forEach((entry, idx) => {
           const attemptNumber = typeof entry.attempt === "number" ? entry.attempt : idx + 1;
@@ -9267,7 +9271,8 @@ let frenzyAuraEl = null;
       const minAxisSpan = 12;
       const axisMax = Math.max(minAxisSpan, resolvedMaxAttempt);
       const tickSteps = Math.max(1, Math.min(12, axisMax) - 1);
-      const height = Math.max(360, canonicalRows.length * 34 + 160);
+      const effectiveRowCount = rowsWithSpacer.length;
+      const height = Math.max(360, effectiveRowCount * 34 + 160);
       const options = {
         chart: {
           type: "scatter",
@@ -9301,8 +9306,8 @@ let frenzyAuraEl = null;
         },
         yaxis: {
           min: 0,
-          max: Math.max(0, canonicalRows.length - 1),
-          tickAmount: Math.max(0, canonicalRows.length - 1),
+          max: Math.max(0, effectiveRowCount - 1),
+          tickAmount: Math.max(0, effectiveRowCount - 1),
           labels: {
             formatter: (value) => {
               const idx = Math.round(value);
