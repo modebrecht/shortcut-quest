@@ -9626,6 +9626,9 @@ let frenzyAuraEl = null;
         return;
       }
       const heroState = currentBattleContext ? currentBattleContext.hero : null;
+      const activeEnemy = currentBattleContext ? currentBattleContext.enemy : null;
+      const isHotkeyMode = DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length > 0;
+      const showHotkeyHints = !isHotkeyMode || !activeEnemy || Number(activeEnemy.level || 0) <= 1;
       const heroShieldCharges = heroState ? Number(heroState.shieldWallCharges || 0) : 0;
       battleSkillStates.forEach(entry => {
         const card = document.createElement("div");
@@ -9637,12 +9640,14 @@ let frenzyAuraEl = null;
         if (skillLocked) card.classList.add("skill-locked");
         const button = document.createElement("button");
         button.disabled = entry.used || !battleInProgress || !currentBattleContext || skillLocked;
-        const hotkeyBadge = document.createElement("span");
-        hotkeyBadge.className = "battle-skill-hotkey";
-        hotkeyBadge.textContent = entry.hotkeyDisplay;
+        if (!isHotkeyMode || (showHotkeyHints && isHotkeyMode)) {
+          const hotkeyBadge = document.createElement("span");
+          hotkeyBadge.className = "battle-skill-hotkey";
+          hotkeyBadge.textContent = entry.hotkeyDisplay;
+          button.appendChild(hotkeyBadge);
+        }
         const label = document.createElement("span");
-        label.textContent = entry.displayLabel;
-        button.appendChild(hotkeyBadge);
+        label.textContent = entry.displayLabel.replace(/\s*\(.*?\)\s*$/, "");
         button.appendChild(label);
         button.addEventListener("click", event => {
           if (DEFAULT_SKILL_INPUT_MODE === "hotkeys") {
@@ -10207,6 +10212,7 @@ let frenzyAuraEl = null;
     function createEnemyState(blueprint) {
       return {
         name: blueprint.name,
+        level: blueprint.level || 1,
         maxHp: blueprint.hp,
         hp: blueprint.hp,
         atk: blueprint.atk,
