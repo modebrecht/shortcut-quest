@@ -484,7 +484,7 @@
               { label: "Shift", value: "Shift" },
               { label: "K", value: "K" }
             ],
-            answers: ["Win", "Ctrl", "O"]
+            answers: ["Ctrl", "Win", "O"],
           },
           {
             scene: "Jetzt möchte er den Zwischenablage-Verlauf öffnen, um eine kopierte Idee noch einmal zu sehen.",
