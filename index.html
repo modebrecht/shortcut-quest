@@ -257,7 +257,20 @@
     }
     .report-cta {
       margin-top: 1rem;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .report-cta p {
+      margin: 0;
+    }
+    .report-cta-right {
+      margin-left: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
     }
     .report-cta button {
       padding: 0.6rem 1.2rem;
@@ -267,6 +280,7 @@
       color: var(--text);
       font-weight: 600;
       cursor: pointer;
+      align-self: flex-start;
     }
     .badge {
       border-radius: 999px;
@@ -4041,9 +4055,14 @@
       <div class="game-grid">
         <div class="card">
           <h2>📊 Lern-Report</h2>
-          <p class="small" id="reportTimestamp">Noch kein Report erstellt.</p>
           <div class="report-cta">
+            <p class="small" id="reportTimestamp">Noch kein Report erstellt.</p>
             <button id="reportGenerateBtn" type="button">📊 Report aktualisieren</button>
+            <div class="report-cta-right">
+              <button id="reportExportBtn" type="button">💾 Exportieren</button>
+              <button id="reportImportBtn" type="button">📂 Importieren</button>
+            </div>
+            <input id="reportImportInput" type="file" accept="application/json" hidden>
           </div>
           <div class="report-tabs">
             <button type="button" class="report-tab active" data-report-tab="overview">📌 Überblick</button>
@@ -4299,6 +4318,17 @@ let frenzyAuraEl = null;
 
     initSkillHotkeys();
 
+    const DEFAULT_EQUIPMENT = Object.freeze({
+      gloves: null,
+      helm: null,
+      necklace: null,
+      boots: null,
+      weapon: null,
+      offhand: null,
+      ring_left: null,
+      ring_right: null
+    });
+
     const state = {
       coins: 0,
       atk: BASE_ATK,
@@ -4307,39 +4337,31 @@ let frenzyAuraEl = null;
       critDamagePercent: 0,
       items: [],
       skills: [],
-      equipment: {
-        gloves: null,
-        helm: null,
-        necklace: null,
-        boots: null,
-        weapon: null,
-        offhand: null,
-        ring_left: null,
-        ring_right: null
-      },
+      equipment: { ...DEFAULT_EQUIPMENT },
       sectionClears: {},
       sectionResets: {},
+      sectionReports: {},
       sectionsUnlocked: INITIAL_SECTION_UNLOCK,
       gachaPreference: "weapon",
       battleUnlocked: 1,
       battleClears: {},
       lastShopPurchase: null
     };
-    function loadState() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      try {
-        const saved = JSON.parse(raw);
-        Object.assign(state, saved);
+    function normalizeStateShape() {
       if (!state.gachaPreference) state.gachaPreference = "weapon";
-    } catch (err) {
-      console.warn("State konnte nicht geladen werden", err);
-    }
-    if (!Array.isArray(state.items)) state.items = [];
-    if (!Number.isFinite(state.critDamagePercent)) state.critDamagePercent = 0;
-    if (!Array.isArray(state.skills)) state.skills = [];
-    if (typeof state.equipment !== "object" || !state.equipment) state.equipment = {};
-    if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
+      if (!Array.isArray(state.items)) state.items = [];
+      if (!Number.isFinite(state.critDamagePercent)) state.critDamagePercent = 0;
+      if (!Array.isArray(state.skills)) state.skills = [];
+      if (typeof state.equipment !== "object" || !state.equipment) {
+        state.equipment = { ...DEFAULT_EQUIPMENT };
+      } else {
+        Object.keys(DEFAULT_EQUIPMENT).forEach(slot => {
+          if (!(slot in state.equipment)) {
+            state.equipment[slot] = null;
+          }
+        });
+      }
+      if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
       if (typeof state.sectionReports !== "object" || !state.sectionReports) state.sectionReports = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
@@ -4348,13 +4370,61 @@ let frenzyAuraEl = null;
       } else {
         state.battleUnlocked = Math.max(1, Math.floor(state.battleUnlocked));
       }
-    if (typeof state.lastShopPurchase !== "object" || !state.lastShopPurchase) {
-      state.lastShopPurchase = null;
+      if (typeof state.lastShopPurchase !== "object" || state.lastShopPurchase === null) {
+        state.lastShopPurchase = null;
+      }
     }
-  }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          Object.assign(state, saved);
+        } catch (err) {
+          console.warn("State konnte nicht geladen werden", err);
+        }
+      }
+      normalizeStateShape();
+    }
+
     loadState();
+
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function exportGameState() {
+      try {
+        normalizeStateShape();
+        const payload = JSON.stringify(state, null, 2);
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const filename = `shortcut-ritter-save-${stamp}.json`;
+        const blob = new Blob([payload], { type: "application/json" });
+        const link = document.createElement("a");
+        const downloadUrl = URL.createObjectURL(blob);
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
+      } catch (err) {
+        console.error("Export fehlgeschlagen", err);
+        alert("Export fehlgeschlagen. Siehe Konsole für Details.");
+      }
+    }
+
+    function importGameState(nextState) {
+      if (!nextState || typeof nextState !== "object") {
+        throw new Error("Ungültiger Spielstand.");
+      }
+      Object.assign(state, nextState);
+      normalizeStateShape();
+      saveState();
+      updateUI();
+      updateOverallSummary();
+      renderReport();
     }
     const coinTop = document.getElementById("coinTop");
     const atkDisplay = document.getElementById("atkDisplay");
@@ -5767,6 +5837,9 @@ let frenzyAuraEl = null;
     const reportContent = document.getElementById("reportContent");
     const reportTimestamp = document.getElementById("reportTimestamp");
     const reportGenerateBtn = document.getElementById("reportGenerateBtn");
+    const reportExportBtn = document.getElementById("reportExportBtn");
+    const reportImportBtn = document.getElementById("reportImportBtn");
+    const reportImportInput = document.getElementById("reportImportInput");
     const reportTabs = document.querySelectorAll(".report-tab");
     let activeReportTab = "overview";
     const activeReportCharts = [];
@@ -5825,6 +5898,44 @@ let frenzyAuraEl = null;
     if (reportGenerateBtn) {
       reportGenerateBtn.addEventListener("click", () => {
         renderReport();
+      });
+    }
+    if (reportExportBtn) {
+      reportExportBtn.addEventListener("click", () => {
+        exportGameState();
+      });
+    }
+    if (reportImportBtn && reportImportInput) {
+      reportImportBtn.addEventListener("click", () => {
+        reportImportInput.click();
+      });
+      reportImportInput.addEventListener("change", event => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const confirmed = window.confirm("Spielstand wirklich überschreiben? Der aktuelle Fortschritt wird ersetzt.");
+        if (!confirmed) {
+          reportImportInput.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result || "{}");
+            importGameState(parsed);
+            alert("Spielstand importiert.");
+          } catch (err) {
+            console.error("Import fehlgeschlagen", err);
+            alert("Import fehlgeschlagen. Bitte gültige JSON-Datei wählen.");
+          } finally {
+            reportImportInput.value = "";
+          }
+        };
+        reader.onerror = () => {
+          console.error("Import fehlgeschlagen", reader.error);
+          alert("Import fehlgeschlagen. Datei konnte nicht gelesen werden.");
+          reportImportInput.value = "";
+        };
+        reader.readAsText(file);
       });
     }
     if (reportTabs && reportTabs.length) {
@@ -8244,13 +8355,14 @@ let frenzyAuraEl = null;
       const { totalChecks, totalPerfect, sectionSuccess = [], sectionChallenge = [], toughestPrompts = [], solidPrompts = [], practiceData = [], comboRatioData = [] } = payload;
       const highlightBlock = document.createElement("div");
       highlightBlock.className = "report-block";
-      highlightBlock.appendChild(buildBlockHeading("Übersicht", "🎯"));
       const highlightGrid = document.createElement("div");
       highlightGrid.className = "report-highlights";
       highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks));
-      highlightGrid.appendChild(buildHighlightCard("Perfekte Läufe", totalPerfect));
+      highlightGrid.appendChild(buildHighlightCard("Fehlerfreie Abschnitte", totalPerfect));
       if (sectionSuccess[0]) {
-        highlightGrid.appendChild(buildHighlightCard("Bester Abschnitt", `${sectionSuccess[0].name} (${sectionSuccess[0].bestScore || 0}%)`));
+        const topSection = sectionSuccess[0];
+        const subtitle = `${topSection.name} (${topSection.successes} fehlerfreie Läufe)`;
+        highlightGrid.appendChild(buildHighlightCard("Abschnitt mit den meisten fehlerfreien Läufen", subtitle));
       }
       if (sectionChallenge[0]) {
         highlightGrid.appendChild(buildHighlightCard("Größte Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
@@ -8266,7 +8378,7 @@ let frenzyAuraEl = null;
       insightBlock.appendChild(buildBlockHeading("Quick Insights", "💡"));
       const insights = [];
       if (sectionChallenge[0]) {
-        insights.push(`🧠 ${sectionChallenge[0].name}: ${sectionChallenge[0].misses} Fehler offen.`);
+        insights.push(`🧠 ${sectionChallenge[0].name}: ${sectionChallenge[0].misses} Fehlversuche registriert.`);
       }
       if (toughestPrompts[0]) {
         insights.push(`⚠️ ${toughestPrompts[0].prompt} (${toughestPrompts[0].sectionName}) stolpert am häufigsten.`);
@@ -8358,7 +8470,7 @@ let frenzyAuraEl = null;
         row.checks,
         row.misses
       ], "Noch keine Auswertungen."));
-      reportContent.appendChild(buildReportBlock("Gut gemeisterte Abschnitte", "🏅", sectionSuccess, ["Abschnitt", "Perfekte Läufe", "Bestes Ergebnis"], row => [
+      reportContent.appendChild(buildReportBlock("Fehlerfreie Abschnitte", "🏅", sectionSuccess, ["Abschnitt", "Fehlerfreie Läufe", "Bestes Ergebnis"], row => [
         row.name,
         row.successes,
         row.bestScore + "%"
