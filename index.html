@@ -267,8 +267,11 @@
       opacity: 0.85;
     }
     .highlight-value {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 700;
+    }
+    .highlight-value.emphasized {
+      font-size: 2rem;
     }
     .report-chart-grid {
       display: grid;
@@ -8300,7 +8303,11 @@ let frenzyAuraEl = null;
       entries.forEach(([sectionId, data]) => {
         if (!data) return;
         const meta = getSectionMeta(sectionId);
-        const sectionName = meta ? (meta.title || `Abschnitt ${sectionId}`) : `Abschnitt ${sectionId}`;
+        const rawTitle = meta && meta.title ? meta.title : "";
+        const normalizedTitle = rawTitle ? rawTitle.replace(/^\d+(?:[.)]\s*)?/, "").trim() : "";
+        const sectionName = normalizedTitle
+          ? `Abschnitt ${sectionId} ${normalizedTitle}`
+          : `Abschnitt ${sectionId}`;
         const promptStats = data.promptStats || {};
         const totalAttempts = Object.values(promptStats).reduce((sum, stat) => sum + Math.max(0, stat.attempts || 0), 0);
         const totalMisses = Object.values(promptStats).reduce((sum, stat) => sum + Math.max(0, stat.misses || 0), 0);
@@ -8433,8 +8440,8 @@ let frenzyAuraEl = null;
       highlightBlock.className = "report-block";
       const highlightGrid = document.createElement("div");
       highlightGrid.className = "report-highlights";
-      highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks));
-      highlightGrid.appendChild(buildHighlightCard("Fehlerfreie Abschnitte", totalPerfect));
+      highlightGrid.appendChild(buildHighlightCard("Gesamt-Checks", totalChecks, null, true));
+      highlightGrid.appendChild(buildHighlightCard("Fehlerfreie Abschnitte", totalPerfect, null, true));
       if (sectionSuccess[0]) {
         const topSection = sectionSuccess[0];
         const subtitle = `${topSection.name} (${topSection.successes} fehlerfreie Läufe)`;
@@ -8632,14 +8639,14 @@ let frenzyAuraEl = null;
       return block;
     }
 
-    function buildHighlightCard(label, value, variant) {
+    function buildHighlightCard(label, value, variant, emphasized) {
       const card = document.createElement("div");
       card.className = `highlight-card${variant === "bad" ? " bad" : ""}`;
       const lbl = document.createElement("span");
       lbl.className = "highlight-label";
       lbl.textContent = label;
       const val = document.createElement("span");
-      val.className = "highlight-value";
+      val.className = `highlight-value${emphasized ? " emphasized" : ""}`;
       val.textContent = value || value === 0 ? value : "-";
       card.appendChild(lbl);
       card.appendChild(val);

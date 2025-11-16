@@ -171,13 +171,13 @@
           type: "select",
           prompt: "Task-Manager öffnen",
           answer: "Ctrl+Shift+Esc",
-          options: ["Ctrl+Shift+Esc", "Ctrl+Alt+D", "Alt+F4", "Win+T", "Win+L"]
+          options: ["Win+D", "Ctrl+Shift+Esc", "Ctrl+T", "Alt+F4", "Win+T", "Win+L"]
         },
         {
           type: "select",
           prompt: "Desktop anzeigen",
           answer: "Win+D",
-          options: ["Win+D", "Win+M", "Alt+F4", "Ctrl+Alt+Del", "Win+E"]
+          options: ["Win+E", "Win+L", "Alt+F4", "Ctrl+Alt+Del", "Win+D", "Win+X"]
         }
       ]
     },
@@ -380,7 +380,7 @@
           type: "select",
           prompt: "Desktop anzeigen",
           answer: "Win+D",
-          options: ["Win+Shift+D", "Win+D", "Win+M", "Win+Home", "Win+Ctrl+D"]
+          options: ["Win+J", "Win+I", "Win+V", "Win+E", "Win+D"]
         },
         {
           type: "select",
@@ -419,13 +419,13 @@
           type: "select",
           prompt: "Zwischenablage-Verlauf öffnen",
           answer: "Win+V",
-          options: ["Win+X", "Win+Alt+V", "Win+V", "Win+C", "Win+B"]
+          options: ["Win+X", "Win+E", "Win+V", "Win+C", "Win+B"]
         },
         {
           type: "select",
           prompt: "Emoji-Panel anzeigen",
           answer: "Win+.",
-          options: ["Win+,", "Win+E", "Win+.", "Win+D;", "Win+F"]
+          options: ["Win+,", "Win+E", "Win+.", "Win+D", "Win+F"]
         },
         {
           type: "select",
@@ -776,13 +776,13 @@
           type: "select",
           prompt: "Starte Einstellungen",
           answer: "Win+I",
-          options: ["Win+I", "Win+P", "Win+Shift+I", "Ctrl+I", "Win+Ctrl+O"]
+          options: ["Win+Ctrl+O", "Win+P", "Win+V", "Ctrl+I", "Win+I"]
         },
         {
           type: "select",
           prompt: "Zwischenablage-Verlauf anzeigen",
           answer: "Win+V",
-          options: ["Win+V", "Ctrl+V", "Win+Shift+V", "Ctrl+Shift+V", "Win+Alt+V"]
+          options: ["Win+D", "Ctrl+V", "Win+V", "Alt+V", "Win+L"]
         }
       ]
     },
