@@ -9238,8 +9238,9 @@ let frenzyAuraEl = null;
         return;
       }
       const sorted = dataset.slice().sort((a, b) => a.label.localeCompare(b.label, "de", { numeric: true }));
-      const labels = sorted.map(item => item.label);
-      const points = sorted.map((item, index) => ({ x: item.pct, y: index }));
+      const augmented = [...sorted, { label: "", pct: 0, spacer: true }];
+      const labels = augmented.map(item => item.spacer ? "" : item.label);
+      const points = augmented.map((item, index) => ({ x: item.pct, y: index, spacer: Boolean(item.spacer) }));
       const maxIndex = Math.max(0, points.length - 1);
       const height = Math.max(380, points.length * 70 + 120);
       const options = {
@@ -9268,8 +9269,8 @@ let frenzyAuraEl = null;
         },
         fill: {
           type: "solid",
-          colors: ["transparent"],
-          opacity: 0
+          colors: ["#fbbf24"],
+          opacity: 0.18
         },
         grid: {
           borderColor: "rgba(148,163,184,0.2)",
@@ -9278,7 +9279,11 @@ let frenzyAuraEl = null;
         },
         dataLabels: {
           enabled: true,
-          formatter: (_, opts) => `${Math.round(points[opts.dataPointIndex].x)}%`,
+          formatter: (_, opts) => {
+            const point = points[opts.dataPointIndex];
+            if (!point || point.spacer) return "";
+            return `${Math.round(point.x)}%`;
+          },
           style: { colors: ["#0f172a"] },
           background: {
             enabled: true,
@@ -9316,7 +9321,7 @@ let frenzyAuraEl = null;
           custom: ({ seriesIndex, dataPointIndex, w }) => {
             const point = w.config.series[seriesIndex].data[dataPointIndex];
             const label = labels[dataPointIndex] || "";
-            if (!point) return "";
+            if (!point || point.spacer) return "";
             return `<div class="apexcharts-tooltip-title">${label}</div><div class="apexcharts-tooltip-text">${Math.round(point.x)}% richtig</div>`;
           }
         }
