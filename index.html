@@ -4469,6 +4469,16 @@ let frenzyAuraEl = null;
       activeSkillComboLatch.clear();
     }
 
+    function pruneNonModifierSkillKeys() {
+      const removable = [];
+      activeSkillKeys.forEach(key => {
+        if (!OPTIONAL_MODIFIER_KEYS.has(key)) {
+          removable.push(key);
+        }
+      });
+      removable.forEach(key => activeSkillKeys.delete(key));
+    }
+
     function initSkillHotkeys() {
       applySkillHotkeyConfig(INLINE_SKILL_HOTKEYS);
       if (DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length && battleSkillStates.length) {
@@ -9628,7 +9638,7 @@ let frenzyAuraEl = null;
       const heroState = currentBattleContext ? currentBattleContext.hero : null;
       const activeEnemy = currentBattleContext ? currentBattleContext.enemy : null;
       const isHotkeyMode = DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length > 0;
-      const showHotkeyHints = !isHotkeyMode || !activeEnemy || Number(activeEnemy.level || 0) <= 1;
+      const showHotkeyHints = !isHotkeyMode || !activeEnemy || Number(activeEnemy.level || 0) <= 2;
       const heroShieldCharges = heroState ? Number(heroState.shieldWallCharges || 0) : 0;
       battleSkillStates.forEach(entry => {
         const card = document.createElement("div");
@@ -9843,6 +9853,7 @@ let frenzyAuraEl = null;
       setHeroSkillCooldown(hero, entry.skill.key, SKILL_COOLDOWN_DEFAULT);
       battleSkillUseCount += 1;
       if (entry.mode === "combo") {
+        activeSkillComboLatch.add(entry.comboId);
         const usedByOthers = new Set();
         battleSkillStates.forEach(other => {
           if (other !== entry && other.mode === "combo" && other.comboId) {
@@ -9850,8 +9861,8 @@ let frenzyAuraEl = null;
           }
         });
         assignRandomCombo(entry, usedByOthers, entry.comboId);
-        entry.used = false;
-        resetSkillKeyTracking();
+        activeSkillComboLatch.delete(entry.comboId);
+        pruneNonModifierSkillKeys();
       } else {
         entry.used = true;
       }
@@ -9895,6 +9906,8 @@ let frenzyAuraEl = null;
         if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
         activeSkillComboLatch.add(entry.comboId);
         activateBattleSkill(entry);
+        activeSkillComboLatch.delete(entry.comboId);
+        pruneNonModifierSkillKeys();
         triggered = true;
       });
       return triggered;
@@ -9910,6 +9923,9 @@ let frenzyAuraEl = null;
       if (!normalized) return;
       if (normalized === "ALT") {
         event.preventDefault();
+      }
+      if (!event.repeat && !OPTIONAL_MODIFIER_KEYS.has(normalized)) {
+        pruneNonModifierSkillKeys();
       }
       activeSkillKeys.add(normalized);
       if (event.repeat) return;
