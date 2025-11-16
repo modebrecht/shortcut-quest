@@ -1419,9 +1419,6 @@
       background: var(--accent-soft);
       color: var(--accent);
     }
-    .inventory-filter-bar .primary-btn {
-      margin-left: auto;
-    }
     .primary-btn {
       padding: 0.55rem 1.1rem;
       background: var(--accent);
@@ -3719,7 +3716,10 @@
                 <button class="inventory-filter-btn" type="button" data-inventory-filter="armor" aria-pressed="false">Ausrüstung</button>
                 <button class="inventory-filter-btn" type="button" data-inventory-filter="accessory" aria-pressed="false">Accessoire</button>
               </div>
-              <button id="autoEquipBtn" class="primary-btn secondary" type="button">Auto anlegen</button>
+              <div class="inventory-actions">
+                <button id="autoEquipBtn" class="primary-btn secondary" type="button">Auto anziehen</button>
+                <button id="unequipAllBtn" class="primary-btn secondary" type="button">Alle ausziehen</button>
+              </div>
             </div>
             <div id="inventoryList" class="inventory-list"></div>
             <div id="inventoryFilterEmpty" class="skill-empty" hidden>Keine Items in dieser Kategorie.</div>
@@ -4031,7 +4031,6 @@
                 <p class="modal-card-meta" id="modalEnemyMeta">Details folgen.</p>
               </div>
             </div>
-            <div class="battle-skill-bar" id="battleSkillBar"></div>
             <div class="battle-bars">
               <div class="hp-row">
                 <span>Ritter</span>
@@ -4069,6 +4068,7 @@
               <button type="button" class="battle-next hidden" id="battleNextBtn">Naechstes Level starten</button>
             </div>
           </div>
+          <div class="battle-skill-bar" id="battleSkillBar" hidden></div>
           <div class="battle-overview">
             <div class="battle-side hero">
               <div class="battle-side-head">
@@ -4519,6 +4519,7 @@ let frenzyAuraEl = null;
     const heroAvatarImage = document.getElementById("heroAvatarImage");
     const hpDisplay = document.getElementById("hpDisplay");
     const autoEquipBtn = document.getElementById("autoEquipBtn");
+    const unequipAllBtn = document.getElementById("unequipAllBtn");
     const equipmentSlots = document.querySelectorAll("[data-equip-slot]");
     const equipmentSlotMap = Object.create(null);
     equipmentSlots.forEach(slot => {
@@ -5891,10 +5892,9 @@ let frenzyAuraEl = null;
         const normalizedSlot = normalizeItemSlot(slotKey);
         const equippedKey = normalizedSlot && state.equipment ? state.equipment[normalizedSlot] : null;
         if (equippedKey && equippedKey === itemKey) {
-          unequipSlot(normalizedSlot);
-        } else {
-          equipItem(slotKey, itemKey);
+          return;
         }
+        equipItem(slotKey, itemKey);
       });
     }
     if (equipmentLayout) {
@@ -5907,6 +5907,9 @@ let frenzyAuraEl = null;
     }
     if (autoEquipBtn) {
       autoEquipBtn.addEventListener("click", autoEquipBest);
+    }
+    if (unequipAllBtn) {
+      unequipAllBtn.addEventListener("click", unequipAllSlots);
     }
 
     const learnView = document.getElementById("learnView");
@@ -6656,7 +6659,7 @@ let frenzyAuraEl = null;
     }
     function autoEquipBest() {
       if (!state.items.length) {
-    updateUI();
+        updateUI();
         return;
       }
       ensureEquipmentState();
@@ -6690,7 +6693,22 @@ let frenzyAuraEl = null;
       state.equipment = updatedEquipment;
       recalcStats();
       saveState();
-    updateUI();
+      updateUI();
+    }
+
+    function unequipAllSlots() {
+      ensureEquipmentState();
+      let changed = false;
+      EQUIPMENT_SLOT_KEYS.forEach(slotKey => {
+        if (state.equipment[slotKey]) {
+          state.equipment[slotKey] = null;
+          changed = true;
+        }
+      });
+      if (!changed) return;
+      recalcStats();
+      saveState();
+      updateUI();
     }
     function getItemByKey(key) {
       if (!key) return null;
@@ -6919,25 +6937,24 @@ let frenzyAuraEl = null;
         stats.appendChild(badge);
       });
       controls.appendChild(stats);
-        if (equipSlots && equipSlots.length) {
-          const equippedSlots = equipSlots.filter(slot => state.equipment && state.equipment[slot] === normalizedKey);
-          const buttonSlots = equippedSlots.length ? equippedSlots : equipSlots;
-          buttonSlots.forEach(targetSlot => {
-            const equipBtn = document.createElement("button");
-            equipBtn.className = "item-equip";
-            const isEquippedInSlot = state.equipment && state.equipment[targetSlot] === normalizedKey;
-            if (isEquippedInSlot) equipBtn.classList.add("equipped");
-            equipBtn.dataset.itemKey = normalizedKey;
-            equipBtn.dataset.slotKey = targetSlot;
-            const slotLabel = getSlotButtonLabel(targetSlot);
-            const normalizedCategory = normalizeItemCategory(item.category);
-            const isAccessory = normalizedCategory === "accessory";
-            const label = isAccessory ? "Anziehen" : `Anziehen (${slotLabel})`;
-            equipBtn.textContent = label;
-            equipBtn.disabled = false;
-            controls.appendChild(equipBtn);
-          });
-        }
+    if (equipSlots && equipSlots.length) {
+      const alreadyEquipped = equipSlots.some(slot => state.equipment && state.equipment[slot] === normalizedKey);
+      if (!alreadyEquipped) {
+        equipSlots.forEach(targetSlot => {
+          const equipBtn = document.createElement("button");
+          equipBtn.className = "item-equip";
+          equipBtn.dataset.itemKey = normalizedKey;
+          equipBtn.dataset.slotKey = targetSlot;
+          const slotLabel = getSlotButtonLabel(targetSlot);
+          const normalizedCategory = normalizeItemCategory(item.category);
+          const isAccessory = normalizedCategory === "accessory";
+          const label = isAccessory ? "Anziehen" : `Anziehen (${slotLabel})`;
+          equipBtn.textContent = label;
+          equipBtn.disabled = false;
+          controls.appendChild(equipBtn);
+        });
+      }
+    }
       if (showProgressIndicator) {
         const indicator = buildItemTierIndicator(item, progressIndicatorOverrides || {});
         if (indicator) {
@@ -9380,6 +9397,7 @@ let frenzyAuraEl = null;
       if (!battleSimulation) return;
       cancelBattleSimHide();
       battleSimulation.classList.remove("hidden");
+      if (battleSkillBar) battleSkillBar.hidden = false;
     }
 
     function hideBattleSimulation(force = false) {
@@ -9387,6 +9405,7 @@ let frenzyAuraEl = null;
       if (battleInProgress && !force) return;
       cancelBattleSimHide();
       battleSimulation.classList.add("hidden");
+      if (battleSkillBar) battleSkillBar.hidden = true;
       clearBattleSkills();
     }
 
