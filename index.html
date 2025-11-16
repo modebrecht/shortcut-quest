@@ -9244,7 +9244,7 @@ let frenzyAuraEl = null;
           const attemptNumber = typeof entry.attempt === "number" ? entry.attempt : idx + 1;
           const point = {
             x: attemptNumber,
-            y: rowIndex + 1,
+            y: rowIndex,
             combo: labels[rowIndex],
             attempt: attemptNumber
           };
@@ -9301,11 +9301,11 @@ let frenzyAuraEl = null;
         },
         yaxis: {
           min: 0,
-          max: canonicalRows.length + 0.5,
-          tickAmount: Math.max(1, canonicalRows.length),
+          max: Math.max(0, canonicalRows.length - 1),
+          tickAmount: Math.max(0, canonicalRows.length - 1),
           labels: {
-            formatter: value => {
-              const idx = Math.round(value) - 1;
+            formatter: (value) => {
+              const idx = Math.round(value);
               return labels[idx] || "";
             },
             trim: false,
