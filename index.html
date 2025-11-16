@@ -4281,6 +4281,7 @@
     // Vollständiges Standardset zur Offline-Nutzung, falls das Laden aus skill-hotkeys.json fehlschlägt.
     const INLINE_SKILL_HOTKEYS = Array.isArray(window.SKILL_HOTKEY_BLUEPRINTS) ? window.SKILL_HOTKEY_BLUEPRINTS : [];
     const skillHotkeyPool = [];
+    let skillHotkeyQueue = [];
     const activeSkillKeys = new Set();
     const activeSkillComboLatch = new Set();
     let battleSkillStates = [];
@@ -4398,17 +4399,35 @@ let frenzyAuraEl = null;
           comboSet: new Set(normalizedTokens)
         });
       });
+      refillSkillHotkeyQueue();
+    }
+
+    function refillSkillHotkeyQueue() {
+      if (!skillHotkeyPool.length) {
+        skillHotkeyQueue = [];
+        return;
+      }
+      skillHotkeyQueue = shuffleArray(skillHotkeyPool.slice());
     }
 
     function getRandomSkillCombo(bannedComboIds = null) {
       if (!skillHotkeyPool.length) return null;
-      let available = skillHotkeyPool;
-      if (bannedComboIds && bannedComboIds.size) {
-        available = skillHotkeyPool.filter(combo => !bannedComboIds.has(combo.comboId));
+      if (!skillHotkeyQueue.length) refillSkillHotkeyQueue();
+      const attempts = Math.max(1, skillHotkeyQueue.length);
+      for (let i = 0; i < attempts; i += 1) {
+        const combo = skillHotkeyQueue.shift();
+        if (!combo) break;
+        const isBanned = bannedComboIds && bannedComboIds.has(combo.comboId);
+        skillHotkeyQueue.push(combo);
+        if (!isBanned) {
+          return combo;
+        }
       }
-      if (!available.length) available = skillHotkeyPool;
-      const index = Math.floor(Math.random() * available.length);
-      return available[Math.max(0, Math.min(index, available.length - 1))];
+      const fallbackPool = bannedComboIds && bannedComboIds.size
+        ? skillHotkeyPool.filter(combo => !bannedComboIds.has(combo.comboId))
+        : skillHotkeyPool;
+      if (!fallbackPool.length) return null;
+      return fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
     }
 
     function assignRandomCombo(entry, usedComboIds = null, previousComboId = null) {
