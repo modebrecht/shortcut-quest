@@ -3254,20 +3254,37 @@
       color: rgba(226,232,240,0.8);
     }
     .battle-skill-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    @media (max-width: 720px) {
+      .battle-skill-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
     .battle-skill {
-      flex: 1 1 180px;
-      min-width: 160px;
-      padding: 0.45rem 0.6rem;
-      border-radius: 0.65rem;
-      background: rgba(59,130,246,0.18);
-      border: 1px solid rgba(59,130,246,0.45);
+      min-width: 0;
+      display: flex;
+      align-items: stretch;
+    }
+    .battle-skill button {
+      all: unset;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      justify-content: space-between;
+      gap: 0.45rem;
+      width: 100%;
+      height: 100%;
+      padding: 1rem 1.1rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(46,134,222,0.35), rgba(14,165,233,0.18));
+      border: 1px solid rgba(59,130,246,0.45);
+      box-shadow: 0 12px 28px rgba(15,23,42,0.45);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
     .battle-skill.headline {
       flex: 1 1 100%;
@@ -3276,42 +3293,74 @@
       padding: 0;
       min-width: 100%;
     }
-    .battle-skill button {
-      all: unset;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--text);
+    .battle-skill button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 32px rgba(15,23,42,0.55);
+      border-color: rgba(59,130,246,0.75);
+    }
+    .battle-skill button:focus-visible {
+      outline: 2px solid rgba(248,250,252,0.85);
+      outline-offset: 2px;
     }
     .battle-skill button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-    .battle-skill.skill-locked {
       opacity: 0.55;
       cursor: not-allowed;
     }
     .battle-skill.skill-locked button {
       cursor: not-allowed;
+      border-color: rgba(71,85,105,0.5);
+      background: rgba(71,85,105,0.28);
+      box-shadow: none;
     }
     .battle-skill-hotkey {
-      background: rgba(148,163,184,0.2);
-      color: var(--text);
-      border-radius: 0.55rem;
-      padding: 0.1rem 0.5rem;
-      font-size: 0.75rem;
+      display: none;
+    }
+    .battle-skill-combo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248,250,252,0.25);
+      background: rgba(15,23,42,0.3);
+    }
+    .battle-skill-combo-key {
+      font-size: 0.78rem;
       font-weight: 600;
-      letter-spacing: 0.03em;
+      padding: 0.05rem 0.4rem;
+      border-radius: 0.45rem;
+      background: rgba(59,130,246,0.2);
+      border: 1px solid rgba(59,130,246,0.45);
+    }
+    .battle-skill-combo-plus {
+      font-size: 0.72rem;
+      opacity: 0.85;
+    }
+    .battle-skill-name {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
     }
     .battle-skill-desc {
-      font-size: 0.78rem;
-      color: rgba(226,232,240,0.75);
+      font-size: 0.8rem;
+      color: rgba(226,232,240,0.8);
+      line-height: 1.35;
+      margin: 0;
     }
-    .battle-skill.used {
+    .battle-skill.used button {
       background: rgba(71,85,105,0.25);
       border-color: rgba(71,85,105,0.55);
+      box-shadow: none;
+    }
+    @media (max-width: 900px) {
+      .battle-skill {
+        flex: 0 0 calc(50% - 1.3rem);
+      }
+    }
+    @media (max-width: 600px) {
+      .battle-skill {
+        flex: 0 0 calc(100% - 1.3rem);
+      }
     }
     .battle-next {
       align-self: flex-end;
@@ -9638,7 +9687,7 @@ let frenzyAuraEl = null;
       const heroState = currentBattleContext ? currentBattleContext.hero : null;
       const activeEnemy = currentBattleContext ? currentBattleContext.enemy : null;
       const isHotkeyMode = DEFAULT_SKILL_INPUT_MODE === "hotkeys" && skillHotkeyPool.length > 0;
-      const showHotkeyHints = !isHotkeyMode || !activeEnemy || Number(activeEnemy.level || 0) <= 2;
+      const showHotkeyHints = !isHotkeyMode || !activeEnemy || Number(activeEnemy.level || 0) <= 1;
       const heroShieldCharges = heroState ? Number(heroState.shieldWallCharges || 0) : 0;
       battleSkillStates.forEach(entry => {
         const card = document.createElement("div");
@@ -9650,15 +9699,49 @@ let frenzyAuraEl = null;
         if (skillLocked) card.classList.add("skill-locked");
         const button = document.createElement("button");
         button.disabled = entry.used || !battleInProgress || !currentBattleContext || skillLocked;
-        if (!isHotkeyMode || (showHotkeyHints && isHotkeyMode)) {
+        const trimmedLabel = entry.displayLabel.replace(/\s*\(.*?\)\s*$/, "");
+        const skillName = entry.skill && entry.skill.name ? entry.skill.name : trimmedLabel;
+        const bonusPercent = Number(entry.skill.overcapBonusPercent || 0);
+        if (!isHotkeyMode || showHotkeyHints) {
           const hotkeyBadge = document.createElement("span");
           hotkeyBadge.className = "battle-skill-hotkey";
           hotkeyBadge.textContent = entry.hotkeyDisplay;
           button.appendChild(hotkeyBadge);
         }
         const label = document.createElement("span");
-        label.textContent = entry.displayLabel.replace(/\s*\(.*?\)\s*$/, "");
+        label.className = "battle-skill-name";
+        label.textContent = trimmedLabel;
         button.appendChild(label);
+        if (entry.comboSequence && entry.comboSequence.length) {
+          const visual = document.createElement("div");
+          visual.className = "battle-skill-combo";
+          let keyOpacity = 0;
+          const enemyLevel = activeEnemy ? Number(activeEnemy.level || 0) : 0;
+          if (enemyLevel <= 1) {
+            keyOpacity = 1;
+          } else if (enemyLevel === 2) {
+            keyOpacity = 0.6;
+          } else if (enemyLevel === 3) {
+            keyOpacity = 0.3;
+          } else {
+            keyOpacity = 0;
+          }
+          entry.comboSequence.forEach((token, index) => {
+            if (index > 0) {
+              const plus = document.createElement("span");
+              plus.className = "battle-skill-combo-plus";
+              plus.textContent = "+";
+              plus.style.opacity = keyOpacity;
+              visual.appendChild(plus);
+            }
+            const keyCap = document.createElement("span");
+            keyCap.className = "battle-skill-combo-key";
+            keyCap.textContent = formatHotkeyForDisplay([token]);
+            keyCap.style.opacity = keyOpacity;
+            visual.appendChild(keyCap);
+          });
+          button.appendChild(visual);
+        }
         button.addEventListener("click", event => {
           if (DEFAULT_SKILL_INPUT_MODE === "hotkeys") {
             event.preventDefault();
@@ -9674,8 +9757,7 @@ let frenzyAuraEl = null;
         });
         card.appendChild(button);
         const effectValue = getSkillEffectivePower(entry.skill);
-        const bonusPercent = Number(entry.skill.overcapBonusPercent || 0);
-        const desc = document.createElement("span");
+        const desc = document.createElement("p");
         desc.className = "battle-skill-desc";
         let effectText = "";
         const bonusDescriptor = bonusPercent > 0 ? ` (+${bonusPercent}%)` : "";
@@ -9714,10 +9796,9 @@ let frenzyAuraEl = null;
           const roundsText = cooldown === 1 ? "1 Runde" : `${cooldown} Runden`;
           effectText += ` (Cooldown ${roundsText})`;
         }
-        const tierDetail = bonusPercent > 0 ? `Tier ${entry.skill.tier} +${bonusPercent}%` : `Tier ${entry.skill.tier}`;
-        const detailLabel = `${entry.skill.name} (${tierDetail})`;
-        desc.textContent = effectText ? `${detailLabel} - ${effectText}` : detailLabel;
-        card.appendChild(desc);
+        const effectSummary = effectText || `${skillName} aktiviert.`;
+        desc.textContent = effectSummary;
+        button.appendChild(desc);
         battleSkillBar.appendChild(card);
       });
     }
