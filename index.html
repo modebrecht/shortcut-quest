@@ -9238,8 +9238,8 @@ let frenzyAuraEl = null;
         return;
       }
       const sorted = dataset.slice().sort((a, b) => a.label.localeCompare(b.label, "de", { numeric: true }));
-      const augmented = [...sorted, { label: "", pct: 0, spacer: true }];
-      const labels = augmented.map(item => item.spacer ? "" : item.label);
+      const augmented = [...sorted, { label: "Diagram Endnode", pct: 0, spacer: true }];
+      const labels = augmented.map(item => item.label);
       const points = augmented.map((item, index) => ({ x: item.pct, y: index, spacer: Boolean(item.spacer) }));
       const maxIndex = Math.max(0, points.length - 1);
       const height = Math.max(380, points.length * 70 + 120);
@@ -9321,7 +9321,7 @@ let frenzyAuraEl = null;
           custom: ({ seriesIndex, dataPointIndex, w }) => {
             const point = w.config.series[seriesIndex].data[dataPointIndex];
             const label = labels[dataPointIndex] || "";
-            if (!point || point.spacer) return "";
+            if (!point || !label || point.spacer) return "";
             return `<div class="apexcharts-tooltip-title">${label}</div><div class="apexcharts-tooltip-text">${Math.round(point.x)}% richtig</div>`;
           }
         }
