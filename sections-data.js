@@ -386,26 +386,26 @@
           type: "select",
           prompt: "Einstellungen öffnen",
           answer: "Win+I",
-          options: ["Win+I", "Win+Pause", "Win+J", "Win+Ctrl+I", "Win+R"]
+          options: ["Win+J", "Win+E", "Win+I", "Win+S", "Win+R"]
         },
         {
           type: "select",
           prompt: "Explorer starten",
           answer: "Win+E",
-          options: ["Win+R", "Win+C", "Win+E", "Win+Shift+E", "Win+Ctrl+E"]
+          options: ["Win+R", "Win+C", "Win+P", "Win+K", "Win+E", "Win+X"]
         },
         {
           type: "select",
           prompt: "Task-Ansicht öffnen",
           answer: "Win+Tab",
-          options: ["Win+Tab", "Win+Ctrl+Alt+Tab", "Alt+Tab", "Win+Shift+Tab", "Win+Ctrl+Tab"]
+          options: ["CTRL+Tab", "Alt+Tab", "Win+T", "Win+L", "Win+Tab"]
         }
         ,
         {
           type: "select",
           prompt: "Zwischen Fenstern wechseln",
           answer: "Alt+Tab",
-          options: ["Alt+Tab", "Win+Tab", "Ctrl+Alt+Del", "Win+Shift+Tab", "Win+D"]
+          options: ["Win+Tab", "Alt+Tab", "Ctrl+Alt+Del", "Win+O", "Win+D"]
         }
       ]
     },
@@ -419,25 +419,25 @@
           type: "select",
           prompt: "Zwischenablage-Verlauf öffnen",
           answer: "Win+V",
-          options: ["Win+Shift+V", "Win+Alt+V", "Win+V", "Win+C", "Win+B"]
+          options: ["Win+X", "Win+Alt+V", "Win+V", "Win+C", "Win+B"]
         },
         {
           type: "select",
           prompt: "Emoji-Panel anzeigen",
           answer: "Win+.",
-          options: ["Win+,", "Win+Ctrl+.", "Win+.", "Win+Shift+;", "Win+E"]
+          options: ["Win+,", "Win+E", "Win+.", "Win+D;", "Win+F"]
         },
         {
           type: "select",
           prompt: "Explorer öffnen",
           answer: "Win+E",
-          options: ["Win+Shift+E", "Win+Alt+E", "Win+E", "Win+C", "Win+Ctrl+E"]
+          options: ["Win+D", "Win+R", "Win+E", "Win+C", "Win+X"]
         },
         {
           type: "select",
           prompt: "Desktop anzeigen",
           answer: "Win+D",
-          options: ["Win+Ctrl+D", "Win+Shift+D", "Win+Alt+D", "Win+D", "Win+Home"]
+          options: ["Win+E", "Win+R", "Win+P", "Win+D", "CTRL+D"]
         }
       ]
     },
@@ -716,25 +716,25 @@
           type: "select",
           prompt: "Speichere deine Datei",
           answer: "Ctrl+S",
-          options: ["Ctrl+S", "Ctrl+Q", "Ctrl+P", "Ctrl+Shift+S", "Ctrl+Space"]
+          options: ["Ctrl+S", "Ctrl+Q", "Ctrl+P", "Ctrl+X", "Ctrl+Y"]
         },
         {
           type: "select",
           prompt: "Wiederhole die letzte Aktion",
           answer: "Ctrl+Y",
-          options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+Shift+Y", "Ctrl+R", "Alt+Y"]
+          options: ["Ctrl+Y", "Ctrl+Z", "Ctrl+D", "Ctrl+R", "Ctrl+O"]
         },
         {
           type: "select",
           prompt: "Rufe den Druckdialog auf",
           answer: "Ctrl+P",
-          options: ["Ctrl+P", "Ctrl+Alt+P", "Ctrl+Shift+P", "Alt+P", "Win+P"]
+          options: ["Ctrl+O", "Ctrl+P", "Ctrl+X", "Ctrl+T", "Win+P"]
         },
         {
           type: "select",
           prompt: "Suche im Dokument",
           answer: "Ctrl+F",
-          options: ["Ctrl+F", "Ctrl+H", "Ctrl+R", "Ctrl+Shift+F", "Alt+F"]
+          options: ["Win+F", "Ctrl+H", "Ctrl+R", "Ctrl+S", "Ctrl+F"]
         }
       ]
     },
