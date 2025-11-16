@@ -871,6 +871,7 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       background: linear-gradient(90deg, #f8fafc 0%, #fbbf24 50%, #fef3c7 100%);
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-top: 0.2rem;
@@ -4431,6 +4432,7 @@ let frenzyAuraEl = null;
       sectionClears: {},
       sectionResets: {},
       sectionReports: {},
+      comboStats: {},
       sectionsUnlocked: INITIAL_SECTION_UNLOCK,
       gachaPreference: "weapon",
       battleUnlocked: 1,
@@ -4454,6 +4456,7 @@ let frenzyAuraEl = null;
       if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
       if (typeof state.sectionReports !== "object" || !state.sectionReports) state.sectionReports = {};
+      if (typeof state.comboStats !== "object" || !state.comboStats) state.comboStats = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
       if (typeof state.battleUnlocked !== "number" || !Number.isFinite(state.battleUnlocked)) {
         state.battleUnlocked = 1;
@@ -4549,10 +4552,202 @@ let frenzyAuraEl = null;
     let allCheckables = [];
     let currentDragValue = "";
     const SECTION_BLUEPRINTS = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
+    const PROMPT_META_MAP = buildPromptMetaMap();
     const fastPacedSections = [];
     let fastPacedInitIndex = 0;
     const memoryGameControllers = new Map();
     const inputHintRegistry = new Set();
+
+    function normalizePromptKey(label) {
+      if (typeof label !== "string") return "";
+      return label
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9+]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function registerPromptMeta(map, label, combo) {
+      const key = normalizePromptKey(label);
+      if (!key) return;
+      if (!map[key]) {
+        map[key] = {
+          label: typeof label === "string" ? label.trim() : "",
+          shortcut: ""
+        };
+      }
+      const entry = map[key];
+      const trimmedLabel = typeof label === "string" ? label.trim() : "";
+      if (trimmedLabel && (!entry.label || trimmedLabel.length < entry.label.length)) {
+        entry.label = trimmedLabel;
+      }
+      const trimmedCombo = typeof combo === "string" ? combo.trim() : "";
+      if (trimmedCombo && !entry.shortcut) {
+        entry.shortcut = trimmedCombo;
+      }
+    }
+
+    function buildPromptMetaMap() {
+      const map = Object.create(null);
+      if (!Array.isArray(SECTION_BLUEPRINTS)) return map;
+      SECTION_BLUEPRINTS.forEach(section => {
+        if (!section) return;
+        (section.tasks || []).forEach(task => {
+          if (!task) return;
+          registerPromptMeta(map, task.prompt, task.answer || task.hint);
+          if (Array.isArray(task.targets)) {
+            task.targets.forEach(target => {
+              if (!target) return;
+              registerPromptMeta(map, target.label, target.answer);
+            });
+          }
+        });
+        if (section.memoryGame && Array.isArray(section.memoryGame.pairs)) {
+          section.memoryGame.pairs.forEach(pair => {
+            if (!pair || !Array.isArray(pair.cards)) return;
+            const [action, combo] = pair.cards;
+            registerPromptMeta(map, action, combo);
+          });
+        }
+        if (section.fastPaced && Array.isArray(section.fastPaced.combos)) {
+          section.fastPaced.combos.forEach(entry => {
+            if (!entry) return;
+            registerPromptMeta(map, entry.label, entry.combo);
+          });
+        }
+      });
+      return map;
+    }
+
+    function getPromptMeta(prompt) {
+      const key = normalizePromptKey(prompt);
+      if (key && PROMPT_META_MAP[key]) return PROMPT_META_MAP[key];
+      const fallback = typeof prompt === "string" ? prompt.trim() : "";
+      return { label: fallback, shortcut: "" };
+    }
+
+    function getPromptShortcut(prompt) {
+      return getPromptMeta(prompt).shortcut || "";
+    }
+
+    function formatPromptLabel(prompt) {
+      const meta = getPromptMeta(prompt);
+      const label = meta.label || (typeof prompt === "string" ? prompt : "");
+      return meta.shortcut ? `${label} (${meta.shortcut})` : label;
+    }
+
+    function buildComboFallbackEntries(rows) {
+      const map = Object.create(null);
+      rows.forEach(row => {
+        const normKey = normalizePromptKey(row.prompt);
+        if (!normKey) return;
+        const meta = getPromptMeta(row.prompt);
+        if (!map[normKey]) {
+          map[normKey] = {
+            key: normKey,
+            label: meta.label || row.prompt,
+            shortcut: meta.shortcut || "",
+            attempts: 0,
+            misses: 0,
+            history: []
+          };
+        }
+        const entry = map[normKey];
+        if (meta.label && (!entry.label || meta.label.length < entry.label.length)) {
+          entry.label = meta.label;
+        }
+        if (meta.shortcut && !entry.shortcut) {
+          entry.shortcut = meta.shortcut;
+        }
+        entry.attempts += row.attempts || 0;
+        entry.misses += row.misses || 0;
+        if (Array.isArray(row.history)) {
+          row.history.forEach((hist, idx) => {
+            entry.history.push({
+              attempt: typeof hist.attempt === "number" ? hist.attempt : idx + 1,
+              success: hist.success === false ? false : true,
+              timestamp: typeof hist.timestamp === "number" ? hist.timestamp : 0
+            });
+          });
+        }
+      });
+      return Object.values(map).map(entry => {
+        if (entry.history.length) {
+          entry.history = entry.history
+            .slice()
+            .sort((a, b) => (a.timestamp - b.timestamp) || (a.attempt - b.attempt))
+            .map((item, idx) => ({
+              attempt: idx + 1,
+              success: item.success,
+              timestamp: item.timestamp
+            }));
+        }
+        return entry;
+      });
+    }
+
+    function ensureComboStatsMap() {
+      if (typeof state.comboStats !== "object" || !state.comboStats) {
+        state.comboStats = {};
+      }
+      return state.comboStats;
+    }
+
+    function updateComboStats(prompt, sectionId, isCorrect, attemptTimestamp) {
+      const key = normalizePromptKey(prompt);
+      if (!key) return;
+      const meta = getPromptMeta(prompt);
+      const map = ensureComboStatsMap();
+      if (!map[key]) {
+        map[key] = {
+          key,
+          label: meta.label || prompt,
+          shortcut: meta.shortcut || "",
+          attempts: 0,
+          misses: 0,
+          history: []
+        };
+      }
+      const entry = map[key];
+      if (meta.label && (!entry.label || meta.label.length < entry.label.length)) {
+        entry.label = meta.label;
+      }
+      if (meta.shortcut && !entry.shortcut) {
+        entry.shortcut = meta.shortcut;
+      }
+      const attemptNumber = entry.attempts + 1;
+      entry.attempts = attemptNumber;
+      if (!isCorrect) {
+        entry.misses += 1;
+      }
+      entry.history.push({
+        attempt: attemptNumber,
+        success: Boolean(isCorrect),
+        sectionId: sectionId || null,
+        timestamp: attemptTimestamp || Date.now()
+      });
+    }
+
+    window.dumpComboStats = function dumpComboStats() {
+      const map = ensureComboStatsMap();
+      const list = Object.values(map).map(entry => ({
+        key: entry.key,
+        label: entry.label,
+        shortcut: entry.shortcut,
+        attempts: entry.attempts || 0,
+        misses: entry.misses || 0,
+        accuracy: entry.attempts ? Math.round(((entry.attempts - (entry.misses || 0)) / entry.attempts) * 100) : 0
+      }));
+      if (console && typeof console.table === "function") {
+        console.table(list);
+      } else if (console && typeof console.log === "function") {
+        console.log(list);
+      }
+      return list;
+    };
 
     function getUnlockedSectionLimit() {
       const total = SECTION_BLUEPRINTS.length;
@@ -8020,12 +8215,24 @@ let frenzyAuraEl = null;
       const key = prompt.trim();
       if (!key) return;
       if (!report.promptStats[key]) {
-        report.promptStats[key] = { attempts: 0, misses: 0 };
+        report.promptStats[key] = { attempts: 0, misses: 0, history: [] };
       }
-      report.promptStats[key].attempts += 1;
+      const stats = report.promptStats[key];
+      if (!Array.isArray(stats.history)) {
+        stats.history = [];
+      }
+      const attemptNumber = stats.history.length + 1;
+      const attemptTimestamp = Date.now();
+      stats.history.push({
+        attempt: attemptNumber,
+        success: Boolean(isCorrect),
+        timestamp: attemptTimestamp
+      });
+      stats.attempts += 1;
       if (!isCorrect) {
-        report.promptStats[key].misses += 1;
+        stats.misses += 1;
       }
+      updateComboStats(key, sectionId, isCorrect, attemptTimestamp);
     }
 
     function recordSectionSummary(sectionId, total, correctCount) {
@@ -8346,12 +8553,19 @@ let frenzyAuraEl = null;
           lastRunAt: data.lastRunAt || 0
         });
         Object.entries(promptStats).forEach(([prompt, stats]) => {
+          const rawHistory = Array.isArray(stats.history) ? stats.history : [];
+          const history = rawHistory.map((entry, idx) => ({
+            attempt: typeof entry.attempt === "number" ? entry.attempt : idx + 1,
+            success: entry.success === false ? false : true,
+            timestamp: typeof entry.timestamp === "number" ? entry.timestamp : 0
+          }));
           promptRows.push({
             sectionId,
             sectionName,
             prompt,
             attempts: stats.attempts || 0,
-            misses: stats.misses || 0
+            misses: stats.misses || 0,
+            history
           });
         });
       });
@@ -8373,9 +8587,15 @@ let frenzyAuraEl = null;
         .slice(0, 5);
       const totalChecks = sectionRows.reduce((sum, row) => sum + (row.checks || 0), 0);
       const totalPerfect = sectionRows.reduce((sum, row) => sum + (row.successes || 0), 0);
+      const comboFallbackEntries = buildComboFallbackEntries(promptRows);
+      const comboFallbackByKey = Object.create(null);
+      comboFallbackEntries.forEach(entry => {
+        comboFallbackByKey[entry.key] = entry;
+      });
 
       const errorChartData = toughestPrompts.map(row => ({
         label: row.prompt,
+        displayLabel: formatPromptLabel(row.prompt),
         section: row.sectionName,
         value: row.misses
       }));
@@ -8396,20 +8616,110 @@ let frenzyAuraEl = null;
           label: row.name,
           value: row.checks
         }));
-      const comboRatioData = promptRows
-        .filter(row => row.attempts > 0)
-        .map(row => {
-          const correct = Math.max(0, row.attempts - row.misses);
-          const correctPct = Math.round((correct / row.attempts) * 100);
-          return {
-            label: row.prompt,
-            section: row.sectionName,
-            attempts: row.attempts,
+      const comboStatsEntries = state.comboStats && typeof state.comboStats === "object"
+        ? Object.values(state.comboStats)
+        : [];
+      let comboRatioData = [];
+      let comboAttemptData = [];
+      if (comboStatsEntries.length) {
+        const statsKeySet = new Set();
+        comboRatioData = comboStatsEntries
+          .filter(entry => entry && entry.attempts > 0)
+          .map(entry => {
+            statsKeySet.add(entry.key);
+            const correct = Math.max(0, entry.attempts - (entry.misses || 0));
+            const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
+            const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            return {
+              label: entry.label,
+              shortcut: entry.shortcut || "",
+              displayLabel,
+              attempts: entry.attempts,
+              correctPct,
+              wrongPct: Math.max(0, 100 - correctPct)
+            };
+          })
+          .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
+        comboFallbackEntries.forEach(entry => {
+          if (statsKeySet.has(entry.key) || entry.attempts <= 0) return;
+          const correct = Math.max(0, entry.attempts - (entry.misses || 0));
+          const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
+          const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+          comboRatioData.push({
+            label: entry.label,
+            shortcut: entry.shortcut || "",
+            displayLabel,
+            attempts: entry.attempts,
             correctPct,
             wrongPct: Math.max(0, 100 - correctPct)
-          };
-        })
-        .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
+          });
+        });
+        comboRatioData.sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
+        comboAttemptData = comboStatsEntries
+          .map(entry => {
+            const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            const baseHistory = entry.history.length
+              ? entry.history
+              : ((comboFallbackByKey[entry.key] && comboFallbackByKey[entry.key].history) || []);
+            const normalizedHistory = baseHistory.map((item, idx) => ({
+              attempt: typeof item.attempt === "number" ? item.attempt : idx + 1,
+              success: item.success === false ? false : true,
+              timestamp: typeof item.timestamp === "number" ? item.timestamp : 0
+            }));
+            return {
+              label: entry.label,
+              shortcut: entry.shortcut || "",
+              displayLabel,
+              history: normalizedHistory
+            };
+          })
+          .filter(entry => entry.history.length)
+          .sort((a, b) => (b.history.length - a.history.length) || a.label.localeCompare(b.label));
+        comboStatsEntries.forEach(entry => statsKeySet.add(entry.key));
+        comboFallbackEntries.forEach(entry => {
+          if (statsKeySet.has(entry.key) || !entry.history.length) return;
+          const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+          comboAttemptData.push({
+            label: entry.label,
+            shortcut: entry.shortcut || "",
+            displayLabel,
+            history: entry.history.slice()
+          });
+        });
+        comboAttemptData = comboAttemptData
+          .filter(entry => entry.history.length)
+          .sort((a, b) => (b.history.length - a.history.length) || a.label.localeCompare(b.label));
+      } else {
+        const fallbackEntries = comboFallbackEntries;
+        comboRatioData = fallbackEntries
+          .filter(row => row.attempts > 0)
+          .map(row => {
+            const correct = Math.max(0, row.attempts - row.misses);
+            const correctPct = Math.round((correct / row.attempts) * 100);
+            const displayLabel = row.shortcut ? `${row.label} (${row.shortcut})` : row.label;
+            return {
+              label: row.label,
+              shortcut: row.shortcut || "",
+              displayLabel,
+              attempts: row.attempts,
+              correctPct,
+              wrongPct: Math.max(0, 100 - correctPct)
+            };
+          })
+          .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
+        comboAttemptData = fallbackEntries
+          .filter(entry => Array.isArray(entry.history) && entry.history.length)
+          .map(entry => {
+            const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            return {
+              label: entry.label,
+              shortcut: entry.shortcut || "",
+              displayLabel,
+              history: entry.history.slice()
+            };
+          })
+          .sort((a, b) => (b.history.length - a.history.length) || a.label.localeCompare(b.label));
+      }
       const sectionAccuracyData = sectionRows
         .filter(row => row.attempts > 0)
         .map(row => {
@@ -8428,6 +8738,7 @@ let frenzyAuraEl = null;
         practiceData,
         comboRatioData,
         sectionAccuracyData,
+        comboAttemptData,
         toughestPrompts,
         solidPrompts,
         sectionChallenge,
@@ -8473,7 +8784,9 @@ let frenzyAuraEl = null;
         highlightGrid.appendChild(buildHighlightCard("Grösste Baustelle", `${sectionChallenge[0].name} (${sectionChallenge[0].misses} Fehler)`, "bad"));
       }
       if (toughestPrompts[0]) {
-        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${toughestPrompts[0].prompt} (${toughestPrompts[0].misses} Fehlversuche)`, "bad"));
+        const trickyLabel = formatPromptLabel(toughestPrompts[0].prompt);
+        const trickySuffix = `${toughestPrompts[0].misses} Fehlversuche`;
+        highlightGrid.appendChild(buildHighlightCard("Kniffligste Kombi", `${trickyLabel} (${trickySuffix})`, "bad"));
       }
       highlightBlock.appendChild(highlightGrid);
       reportContent.appendChild(highlightBlock);
@@ -8486,10 +8799,13 @@ let frenzyAuraEl = null;
         insights.push(`🧠 ${sectionChallenge[0].name}: ${sectionChallenge[0].misses} Fehlversuche registriert.`);
       }
       if (toughestPrompts[0]) {
-        insights.push(`⚠️ ${toughestPrompts[0].prompt} (${toughestPrompts[0].sectionName}) stolpert am häufigsten.`);
+        const trickyLabel = formatPromptLabel(toughestPrompts[0].prompt);
+        const trickySection = toughestPrompts[0].sectionName ? ` (${toughestPrompts[0].sectionName})` : "";
+        insights.push(`⚠️ ${trickyLabel}${trickySection} stolpert am häufigsten.`);
       }
       if (solidPrompts[0]) {
-        insights.push(`✅ ${solidPrompts[0].prompt} sitzt (${solidPrompts[0].attempts} fehlerfreie Versuche).`);
+        const solidLabel = formatPromptLabel(solidPrompts[0].prompt);
+        insights.push(`✅ ${solidLabel} sitzt (${solidPrompts[0].attempts} fehlerfreie Versuche).`);
       }
       if (practiceData[0]) {
         insights.push(`🔁 ${practiceData[0].label} wurde ${practiceData[0].value}x geübt.`);
@@ -8498,10 +8814,12 @@ let frenzyAuraEl = null;
         const weakest = comboRatioData[0];
         const strongest = comboRatioData[comboRatioData.length - 1];
         if (weakest) {
-          insights.push(`📉 ${weakest.label} braucht noch Sicherheit (${weakest.correctPct}% Trefferquote).`);
+          const weakLabel = weakest.displayLabel || formatPromptLabel(weakest.label);
+          insights.push(`📉 ${weakLabel} braucht noch Sicherheit (${weakest.correctPct}% Trefferquote).`);
         }
         if (strongest && strongest !== weakest) {
-          insights.push(`📈 ${strongest.label} ist deine stärkste Kombi (${strongest.correctPct}% Trefferquote).`);
+          const strongLabel = strongest.displayLabel || formatPromptLabel(strongest.label);
+          insights.push(`📈 ${strongLabel} ist deine stärkste Kombi (${strongest.correctPct}% Trefferquote).`);
         }
       }
       if (insights.length) {
@@ -8523,7 +8841,7 @@ let frenzyAuraEl = null;
     }
 
     function renderComboTab(payload) {
-      const { toughestPrompts = [], solidPrompts = [], comboRatioData = [], errorChartData = [] } = payload;
+      const { toughestPrompts = [], solidPrompts = [], comboRatioData = [], errorChartData = [], comboAttemptData = [] } = payload;
       const hasContent = toughestPrompts.length || solidPrompts.length || comboRatioData.length || errorChartData.length;
       if (!hasContent) {
         const msg = document.createElement("p");
@@ -8534,12 +8852,12 @@ let frenzyAuraEl = null;
       }
       reportContent.appendChild(buildReportBlock("Fehlerhäufigste Kombinationen", "⚠️", toughestPrompts, ["Abschnitt", "Kombination", "Fehlversuche"], row => [
         row.sectionName,
-        row.prompt,
+        formatPromptLabel(row.prompt),
         `${row.misses}/${row.attempts}`
       ], "Keine Fehler bisher 🎉"));
       reportContent.appendChild(buildReportBlock("Starke Kombinationen", "✅", solidPrompts, ["Abschnitt", "Kombination", "Versuche"], row => [
         row.sectionName,
-        row.prompt,
+        formatPromptLabel(row.prompt),
         row.attempts
       ], "Noch keine perfekten Serien."));
       const chartEntries = [];
@@ -8557,6 +8875,11 @@ let frenzyAuraEl = null;
         chartEntries.forEach(entry => grid.appendChild(entry.card));
         reportContent.appendChild(grid);
         chartEntries.forEach(entry => entry.render());
+      }
+      if (comboAttemptData.length) {
+        const attemptCard = createChartCard("Versuchshistorie pro Kombi", "🎯", "reportChartComboAttempts");
+        reportContent.appendChild(attemptCard);
+        renderComboAttemptChart(comboAttemptData, "reportChartComboAttempts");
       }
     }
 
@@ -8792,7 +9115,7 @@ let frenzyAuraEl = null;
 
     function renderErrorComboChart(rows, containerId) {
       if (typeof ApexCharts === "undefined" || !rows.length) return;
-      const labelSet = rows.map(row => row.label);
+      const labelSet = rows.map(row => row.displayLabel || formatPromptLabel(row.label));
       const sectionSet = rows.map(row => row.section || "");
       const values = rows.map(row => row.value || 0);
       const options = {
@@ -8888,10 +9211,130 @@ let frenzyAuraEl = null;
       mountReportChart(containerId, options);
     }
 
+    function renderComboAttemptChart(rows, containerId) {
+      if (typeof ApexCharts === "undefined") return;
+      const hasComboStats = state.comboStats && typeof state.comboStats === "object" && Object.keys(state.comboStats).length;
+      const filteredRows = Array.isArray(rows)
+        ? rows.filter(row => Array.isArray(row.history) && row.history.length)
+        : [];
+      const canonicalRows = !filteredRows.length && hasComboStats
+        ? Object.values(state.comboStats)
+            .filter(entry => Array.isArray(entry.history) && entry.history.length)
+            .map(entry => ({
+              label: entry.label,
+              displayLabel: entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label,
+              history: entry.history.map((item, idx) => ({
+                attempt: typeof item.attempt === "number" ? item.attempt : idx + 1,
+                success: item.success === false ? false : true
+              }))
+            }))
+        : filteredRows;
+      if (!canonicalRows.length) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = "<p class=\"small\">Noch keine aufgezeichneten Versuche.</p>";
+        return;
+      }
+      const labels = canonicalRows.map(row => row.displayLabel || formatPromptLabel(row.label));
+      const successPoints = [];
+      const failPoints = [];
+      let maxAttempt = 0;
+      canonicalRows.forEach((row, rowIndex) => {
+        const history = Array.isArray(row.history) ? row.history : [];
+        history.forEach((entry, idx) => {
+          const attemptNumber = typeof entry.attempt === "number" ? entry.attempt : idx + 1;
+          const point = {
+            x: attemptNumber,
+            y: rowIndex + 1,
+            combo: labels[rowIndex],
+            attempt: attemptNumber
+          };
+          if (entry.success === false) {
+            failPoints.push(point);
+          } else {
+            successPoints.push(point);
+          }
+          if (attemptNumber > maxAttempt) {
+            maxAttempt = attemptNumber;
+          }
+        });
+      });
+      if (!successPoints.length && !failPoints.length) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = "<p class=\"small\">Noch keine aufgezeichneten Versuche.</p>";
+        return;
+      }
+      const resolvedMaxAttempt = Math.max(1, maxAttempt);
+      const minAxisSpan = 12;
+      const axisMax = Math.max(minAxisSpan, resolvedMaxAttempt);
+      const tickSteps = Math.max(1, Math.min(12, axisMax) - 1);
+      const height = Math.max(360, canonicalRows.length * 34 + 160);
+      const options = {
+        chart: {
+          type: "scatter",
+          height,
+          foreColor: "#e2e8f0",
+          background: "transparent",
+          toolbar: { show: false },
+          zoom: { enabled: false },
+          animations: { enabled: false }
+        },
+        series: [
+          { name: "Richtig", data: successPoints },
+          { name: "Falsch", data: failPoints }
+        ],
+        colors: ["#22c55e", "#f87171"],
+        markers: {
+          size: 9,
+          strokeWidth: 0,
+          hover: { size: 10 }
+        },
+        grid: { borderColor: "rgba(148,163,184,0.15)" },
+        xaxis: {
+          type: "numeric",
+          min: 1,
+          max: axisMax,
+          tickAmount: tickSteps,
+          title: { text: "Versuch" },
+          labels: {
+            formatter: val => Math.max(0, Math.round(val))
+          }
+        },
+        yaxis: {
+          min: 0,
+          max: canonicalRows.length + 0.5,
+          tickAmount: Math.max(1, canonicalRows.length),
+          labels: {
+            formatter: value => {
+              const idx = Math.round(value) - 1;
+              return labels[idx] || "";
+            },
+            trim: false,
+            maxWidth: 260
+          },
+          tooltip: { enabled: false }
+        },
+        tooltip: {
+          shared: false,
+          intersect: true,
+          custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+            const data = w.config.series[seriesIndex].data[dataPointIndex];
+            if (!data) return "";
+            const status = seriesIndex === 0 ? "Richtig" : "Falsch";
+            return `<div class="apexcharts-tooltip-title">${data.combo}</div><div class="apexcharts-tooltip-text">${status} · Versuch ${data.attempt}</div>`;
+          }
+        },
+        legend: {
+          position: "top",
+          horizontalAlign: "left"
+        }
+      };
+      mountReportChart(containerId, options);
+    }
+
     function renderComboRatioChart(rows, containerId) {
       if (typeof ApexCharts === "undefined" || !rows.length) return;
       const height = Math.max(340, rows.length * 32 + 100);
-      const categories = rows.map(row => row.label);
+      const categories = rows.map(row => row.displayLabel || formatPromptLabel(row.label));
       const correctSeries = rows.map(row => row.correctPct);
       const wrongSeries = rows.map(row => row.wrongPct);
       const options = {
@@ -8932,7 +9375,7 @@ let frenzyAuraEl = null;
             formatter: (_, opts) => {
               const idx = opts.dataPointIndex;
               const entry = rows[idx];
-              return `${entry.label}${entry.section ? ` (${entry.section})` : ""}`;
+              return entry && (entry.displayLabel || formatPromptLabel(entry.label)) || "";
             }
           }
         },
