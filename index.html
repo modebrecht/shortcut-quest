@@ -2432,7 +2432,7 @@
       padding: 1.1rem 1.25rem 1.35rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.7rem;
       position: relative;
       overflow: hidden;
     }
@@ -2448,21 +2448,6 @@
     .battle-header h3 {
       margin: 0;
       font-size: 1.05rem;
-    }
-    .battle-close {
-      background: transparent;
-      border: 1px solid rgba(148,163,184,0.35);
-      color: var(--muted);
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      font-size: 1rem;
-    }
-    .battle-close:hover {
-      color: var(--text);
-      border-color: rgba(245,158,11,0.6);
     }
     .battle-arena {
       --battle-art: none;
@@ -3017,6 +3002,18 @@
       gap: 0.6rem;
       font-size: 0.85rem;
     }
+    .hero-meta-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .hero-hp-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
     .hp-track {
       flex: 1;
       height: 12px;
@@ -3209,10 +3206,10 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      padding: 0.6rem 0;
-      border-top: 1px solid rgba(148,163,184,0.2);
-      border-bottom: 1px solid rgba(148,163,184,0.2);
-      margin: 0.4rem 0;
+    }
+    .hero-hp-inline .hp-track {
+      flex: none;
+      width: 150px;
     }
     .battle-skill {
       flex: 1 1 180px;
@@ -3970,8 +3967,7 @@
         <div class="card battle-card">
           <div id="battleSimulation" class="battle-sim hidden" aria-live="polite">
             <div class="battle-header">
-              <h3 id="battleTitle">Goblin-Schlacht</h3>
-              <button type="button" class="battle-close" id="battleCloseBtn" aria-label="Schliessen">&#x2715;</button>
+              <h3 id="battleTitle"></h3>
             </div>
             <div class="battle-arena" id="battleArena">
               <div class="arena-particles" aria-hidden="true">
@@ -3993,22 +3989,26 @@
                 <img id="battleEnemySprite" class="fighter-sprite" src="assets/enemy-kobold.png" alt="Goblin">
               </div>
             </div>
+            <div class="battle-skill-bar" id="battleSkillBar" hidden></div>
             <div class="modal-battle-overview">
               <div class="modal-battle-card hero" id="modalHeroCard">
                 <div class="modal-card-head">
-                  <div>
-                    <span class="battle-side-label">Held</span>
-                    <h4 id="modalHeroName">Shortcut Knight</h4>
+                <div>
+                  <span class="battle-side-label">Held</span>
+                  <h4 id="modalHeroName">Shortcut Knight</h4>
+                </div>
+                <div class="hero-meta-inline">
+                  <div class="hero-hp-inline">
+                    <div class="hp-track">
+                      <div class="hp-fill hero" id="heroHpFill"></div>
+                    </div>
+                    <span class="hp-value" id="heroHpValue"></span>
                   </div>
-                  <div>
-                    <span class="battle-side-tier" id="modalHeroTier">Rang 1</span>
-                    <span class="battle-trait" id="modalHeroTrait">Ausbalanciert</span>
-                  </div>
+                </div>
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalHeroAtk">1</strong></span>
                   <span class="battle-stat-badge def">DEF<strong id="modalHeroDef">0</strong></span>
-                  <span class="battle-stat-badge">HP<strong id="modalHeroHp">0</strong></span>
                 </div>
                 <p class="modal-card-meta" id="modalHeroMeta">Bereit fuer den Kampf.</p>
               </div>
@@ -4018,34 +4018,24 @@
                     <span class="battle-side-label">Gegner</span>
                     <h4 id="modalEnemyName">Kobold</h4>
                   </div>
-                  <div>
-                    <span class="battle-side-tier" id="modalEnemyTier">Rang 1</span>
+                  <div class="hero-meta-inline">
                     <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
+                    <div class="hero-hp-inline">
+                      <div class="hp-track">
+                        <div class="hp-fill enemy" id="enemyHpFill"></div>
+                      </div>
+                      <span class="hp-value" id="enemyHpValue"></span>
+                    </div>
                   </div>
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalEnemyAtk">0</strong></span>
                   <span class="battle-stat-badge def">DEF<strong id="modalEnemyDef">0</strong></span>
-                  <span class="battle-stat-badge">HP<strong id="modalEnemyHp">0</strong></span>
                 </div>
                 <p class="modal-card-meta" id="modalEnemyMeta">Details folgen.</p>
               </div>
             </div>
             <div class="battle-bars">
-              <div class="hp-row">
-                <span>Ritter</span>
-                <div class="hp-track">
-                  <div class="hp-fill hero" id="heroHpFill"></div>
-                </div>
-                <span class="hp-value" id="heroHpValue"></span>
-              </div>
-              <div class="hp-row">
-                <span id="enemyHpLabel">Gegner</span>
-                <div class="hp-track">
-                  <div class="hp-fill enemy" id="enemyHpFill"></div>
-                </div>
-                <span class="hp-value" id="enemyHpValue"></span>
-              </div>
             </div>
             <div class="battle-foot">
               <p class="battle-result" id="battleResult"></p>
@@ -4068,18 +4058,14 @@
               <button type="button" class="battle-next hidden" id="battleNextBtn">Naechstes Level starten</button>
             </div>
           </div>
-          <div class="battle-skill-bar" id="battleSkillBar" hidden></div>
           <div class="battle-overview">
-            <div class="battle-side hero">
-              <div class="battle-side-head">
-                <div>
-                  <span class="battle-side-label">Held</span>
-                  <h3>Shortcut Knight</h3>
+              <div class="battle-side hero">
+                <div class="battle-side-head">
+                  <div>
+                    <span class="battle-side-label">Held</span>
+                    <h3>Shortcut Knight</h3>
+                  </div>
                 </div>
-                <div>
-                  <span class="battle-side-tier" id="battleHeroTier">Rang 1</span>
-                </div>
-              </div>
               <div class="battle-portrait hero">
                 <span class="battle-portrait-icon"><img src="assets/knight_idle_fin.svg" alt="Shortcut Knight"></span>
               </div>
@@ -5747,7 +5733,6 @@ let frenzyAuraEl = null;
     const battleLog = document.getElementById("battleLog");
     const battleSimulation = document.getElementById("battleSimulation");
     const battleTitle = document.getElementById("battleTitle");
-    const battleCloseBtn = document.getElementById("battleCloseBtn");
     const battleArena = document.getElementById("battleArena");
     const battleSkillBar = document.getElementById("battleSkillBar");
     const battleKnight = document.getElementById("battleKnight");
@@ -5759,7 +5744,6 @@ let frenzyAuraEl = null;
     const battleHeroAtkStat = document.getElementById("battleHeroAtkStat");
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
     const battleHeroHpStat = document.getElementById("battleHeroHpStat");
-    const battleHeroTierLabel = document.getElementById("battleHeroTier");
     const battleEnemyPreviewIcon = document.getElementById("battleEnemyPreviewIcon");
     const battleEnemyPreviewName = document.getElementById("battleEnemyPreviewName");
     const battleEnemyPreviewLevel = document.getElementById("battleEnemyPreviewLevel");
@@ -5771,18 +5755,13 @@ let frenzyAuraEl = null;
     const modalHeroCard = document.getElementById("modalHeroCard");
     const modalEnemyCard = document.getElementById("modalEnemyCard");
     const modalHeroName = document.getElementById("modalHeroName");
-    const modalHeroTier = document.getElementById("modalHeroTier");
-    const modalHeroTrait = document.getElementById("modalHeroTrait");
     const modalHeroAtk = document.getElementById("modalHeroAtk");
     const modalHeroDef = document.getElementById("modalHeroDef");
-    const modalHeroHp = document.getElementById("modalHeroHp");
     const modalHeroMeta = document.getElementById("modalHeroMeta");
     const modalEnemyName = document.getElementById("modalEnemyName");
-    const modalEnemyTier = document.getElementById("modalEnemyTier");
     const modalEnemyTrait = document.getElementById("modalEnemyTrait");
     const modalEnemyAtk = document.getElementById("modalEnemyAtk");
     const modalEnemyDef = document.getElementById("modalEnemyDef");
-    const modalEnemyHp = document.getElementById("modalEnemyHp");
     const modalEnemyMeta = document.getElementById("modalEnemyMeta");
     const modalEnemyIcon = document.getElementById("modalEnemyIcon");
     const heroCardElements = Array.from(document.querySelectorAll(".battle-side.hero, .modal-battle-card.hero"));
@@ -7875,7 +7854,6 @@ let frenzyAuraEl = null;
       if (battleHeroAtkStat) battleHeroAtkStat.textContent = String(heroAtk);
       if (battleHeroDefStat) battleHeroDefStat.textContent = String(heroDef);
       if (battleHeroHpStat) battleHeroHpStat.textContent = String(heroHpMax);
-      if (battleHeroTierLabel) battleHeroTierLabel.textContent = "Rang " + Math.max(1, state.battleUnlocked || 1);
       if (battleHeroGearList) {
         battleHeroGearList.innerHTML = "";
         const gearEntries = [];
@@ -9285,11 +9263,6 @@ let frenzyAuraEl = null;
     document.addEventListener("keyup", handleBattleKeyUp);
     window.addEventListener("blur", resetSkillKeyTracking);
 
-    if (battleCloseBtn) {
-      battleCloseBtn.addEventListener("click", () => {
-        hideBattleSimulation(true);
-      });
-    }
     if (battleNextBtn) {
       battleNextBtn.addEventListener("click", () => {
         if (battleInProgress) return;
@@ -9323,7 +9296,6 @@ let frenzyAuraEl = null;
         heroWon = await runBattleLoop(hero, enemy);
       } finally {
         battleInProgress = false;
-        if (battleCloseBtn) battleCloseBtn.disabled = false;
       }
       finishBattle(hero, enemy, level, heroWon);
     }
@@ -9331,7 +9303,6 @@ let frenzyAuraEl = null;
     function prepareBattleSimulation(heroState, enemyState, level) {
       if (!battleSimulation) return;
       showBattleSimulation();
-      if (battleCloseBtn) battleCloseBtn.disabled = true;
       clearBattleSideState();
       battleSkillUseCount = 0;
       resetBattleReward();
@@ -9358,17 +9329,8 @@ let frenzyAuraEl = null;
     function updateBattleSimulationCards(heroState, enemyState, level) {
       if (heroState) {
         if (modalHeroName) modalHeroName.textContent = heroState.name || "Shortcut Knight";
-        const heroTier = Math.max(1, state.battleUnlocked || 1);
-        if (modalHeroTier) modalHeroTier.textContent = "Rang " + heroTier;
-        if (modalHeroTrait) {
-          modalHeroTrait.textContent = describeHeroTrait(
-            Math.max(0, heroState.atk || 0),
-            Math.max(0, heroState.def || 0)
-          );
-        }
         if (modalHeroAtk) modalHeroAtk.textContent = String(Math.max(0, heroState.atk || 0));
         if (modalHeroDef) modalHeroDef.textContent = String(Math.max(0, heroState.def || 0));
-        if (modalHeroHp) modalHeroHp.textContent = String(Math.max(0, heroState.maxHp || heroState.hp || 0));
         if (modalHeroMeta) {
           const gearCount = getEquippedItems().length;
           const critPercent = Math.round(Math.max(0, heroState.crit || 0) * 100);
@@ -9380,11 +9342,9 @@ let frenzyAuraEl = null;
         updateActiveEnemyArt(enemyState);
         if (modalEnemyName) modalEnemyName.textContent = enemyState.name || "Gegner";
         const enemyLevel = Math.max(1, level || enemyState.level || 1);
-        if (modalEnemyTier) modalEnemyTier.textContent = "Rang " + enemyLevel;
         if (modalEnemyTrait) modalEnemyTrait.textContent = describeEnemyTrait(enemyState);
         if (modalEnemyAtk) modalEnemyAtk.textContent = String(Math.max(0, enemyState.atk || 0));
         if (modalEnemyDef) modalEnemyDef.textContent = String(Math.max(0, enemyState.def || 0));
-        if (modalEnemyHp) modalEnemyHp.textContent = String(Math.max(0, enemyState.maxHp || enemyState.hp || 0));
         if (modalEnemyMeta) {
           const critPercent = Math.round(Math.max(0, enemyState.crit || 0) * 100);
           const variance = Math.max(0, enemyState.variance || 0);
