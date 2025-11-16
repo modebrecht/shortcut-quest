@@ -8922,7 +8922,7 @@ let frenzyAuraEl = null;
         chartEntries.push({ card: scoreCard, render: () => renderScoreChart(sectionScoreData.map(row => ({ name: row.label, bestScore: row.value })), "reportChartScoresTab") });
       }
       if (sectionAccuracyData.length) {
-        const perfCard = createChartCard("Performance pro Abschnitt (x/y getauscht)", "📈", "reportChartSectionPerformance");
+        const perfCard = createChartCard("Performance pro Abschnitt", "📈", "reportChartSectionPerformance");
         chartEntries.push({ card: perfCard, render: () => renderSectionPerformanceChart(sectionAccuracyData, "reportChartSectionPerformance") });
       }
       if (chartEntries.length) {
