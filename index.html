@@ -8845,10 +8845,11 @@ let frenzyAuraEl = null;
       if (typeof ApexCharts === "undefined" || !rows.length) return;
       const categories = rows.map(row => row.label);
       const values = rows.map(row => row.value || 0);
+      const height = Math.max(360, rows.length * 32 + 120);
       const options = {
         chart: {
           type: "bar",
-          height: 320,
+          height,
           foreColor: "#e2e8f0",
           background: "transparent",
           toolbar: { show: false }
@@ -8859,19 +8860,22 @@ let frenzyAuraEl = null;
         }],
         plotOptions: {
           bar: {
-            horizontal: false,
-            columnWidth: "45%",
+            horizontal: true,
+            barHeight: "65%",
             borderRadius: 8
           }
         },
         xaxis: {
-          categories,
+          forceNiceScale: true,
           labels: {
-            rotate: -15
+            formatter: val => `${val}`
           }
         },
         yaxis: {
-          forceNiceScale: true
+          categories,
+          labels: {
+            maxWidth: 220
+          }
         },
         dataLabels: {
           enabled: true,
