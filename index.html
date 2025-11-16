@@ -2701,13 +2701,6 @@
       min-width: 80px;
       text-align: right;
     }
-    .modal-card-badges {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-    }
     .arena-particles {
       position: absolute;
       inset: 0;
@@ -4052,28 +4045,26 @@
                 </div>
               </div>
               <div class="modal-battle-card enemy" id="modalEnemyCard">
-              <div class="modal-card-head">
-                <div class="modal-card-top">
-                  <h4 id="modalEnemyName">Kobold</h4>
-                  <div class="modal-card-hp enemy">
-                    <div class="hp-track">
-                      <div class="hp-fill enemy" id="enemyHpFill"></div>
+                <div class="modal-card-head">
+                  <div class="modal-card-top">
+                    <h4 id="modalEnemyName">Kobold</h4>
+                    <div class="modal-card-hp enemy">
+                      <div class="hp-track">
+                        <div class="hp-fill enemy" id="enemyHpFill"></div>
+                      </div>
+                      <span class="hp-value" id="enemyHpValue"></span>
                     </div>
-                    <span class="hp-value" id="enemyHpValue"></span>
                   </div>
                 </div>
-                <div class="modal-card-badges">
+                <p class="modal-card-meta" id="modalEnemyMeta">Details folgen.</p>
+                <div class="modal-card-stats">
                   <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
+                  <span class="battle-stat-badge atk">ATK<strong id="modalEnemyAtk">0</strong></span>
+                  <span class="battle-stat-badge def">DEF<strong id="modalEnemyDef">0</strong></span>
+                  <span class="battle-stat-badge meta" id="modalEnemyVarBadge">Var ±0</span>
+                  <span class="battle-stat-badge meta" id="modalEnemyCritBadge">Krit 0%</span>
                 </div>
               </div>
-              <p class="modal-card-meta" id="modalEnemyMeta">Details folgen.</p>
-              <div class="modal-card-stats">
-                <span class="battle-stat-badge atk">ATK<strong id="modalEnemyAtk">0</strong></span>
-                <span class="battle-stat-badge def">DEF<strong id="modalEnemyDef">0</strong></span>
-                <span class="battle-stat-badge meta" id="modalEnemyVarBadge">Var ±0</span>
-                <span class="battle-stat-badge meta" id="modalEnemyCritBadge">Krit 0%</span>
-              </div>
-            </div>
             </div>
             <div class="battle-foot">
               <p class="battle-result" id="battleResult"></p>
