@@ -9268,7 +9268,7 @@ let frenzyAuraEl = null;
         return;
       }
       const resolvedMaxAttempt = Math.max(1, maxAttempt);
-      const minAxisSpan = 12;
+      const minAxisSpan = 6;
       const axisMax = Math.max(minAxisSpan, resolvedMaxAttempt);
       const tickSteps = Math.max(1, Math.min(12, axisMax) - 1);
       const effectiveRowCount = rowsWithSpacer.length;
@@ -9309,6 +9309,7 @@ let frenzyAuraEl = null;
           max: Math.max(0, effectiveRowCount - 1),
           tickAmount: Math.max(0, effectiveRowCount - 1),
           labels: {
+            offsetX: -8,
             formatter: (value) => {
               const idx = Math.round(value);
               return labels[idx] || "";
