@@ -2658,13 +2658,31 @@
     .modal-card-hp {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
-      min-width: 180px;
+      gap: 0.6rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.65);
+      border: 1px solid rgba(148,163,184,0.35);
+      min-width: 220px;
+    }
+    .modal-card-hp.hero {
+      border-color: rgba(56,189,248,0.35);
+      box-shadow: 0 8px 18px rgba(14,165,233,0.18);
+    }
+    .modal-card-hp.enemy {
+      border-color: rgba(248,113,113,0.35);
+      box-shadow: 0 8px 18px rgba(248,113,113,0.18);
+    }
+    .modal-card-hp .hp-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(226,232,240,0.8);
     }
     .modal-card-hp .hp-track {
-      width: 160px;
-      flex: none;
-      height: 10px;
+      flex: 1;
+      height: 12px;
+      border-radius: 999px;
       border: 1px solid rgba(148,163,184,0.35);
       background: rgba(15,23,42,0.5);
     }
@@ -2675,9 +2693,11 @@
       background: linear-gradient(90deg, #fb923c, #f43f5e);
     }
     .modal-card-hp .hp-value {
-      width: auto;
-      font-size: 0.8rem;
-      color: rgba(226,232,240,0.85);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(226,232,240,0.9);
+      min-width: 80px;
+      text-align: right;
     }
     .modal-card-badges {
       display: flex;
@@ -4018,7 +4038,8 @@
                       <h4 id="modalHeroName">Shortcut Knight</h4>
                     </div>
                   </div>
-                  <div class="modal-card-hp">
+                  <div class="modal-card-hp hero">
+                    <span class="hp-label">HP</span>
                     <div class="hp-track">
                       <div class="hp-fill hero" id="heroHpFill"></div>
                     </div>
@@ -4042,7 +4063,8 @@
                       <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
                     </div>
                   </div>
-                  <div class="modal-card-hp">
+                  <div class="modal-card-hp enemy">
+                    <span class="hp-label">HP</span>
                     <div class="hp-track">
                       <div class="hp-fill enemy" id="enemyHpFill"></div>
                     </div>
