@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Shortcut Ritter-Akademie - v1.1</title>
+  <title>Shortcut Ritter-Akademie - v1.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
@@ -4087,7 +4087,6 @@
                 <span class="battle-stat-badge atk">ATK<strong id="battleHeroAtkStat">1</strong></span>
                 <span class="battle-stat-badge def">DEF<strong id="battleHeroDefStat">0</strong></span>
                 <span class="battle-stat-badge">HP<strong id="battleHeroHpStat">0</strong></span>
-                <span class="battle-stat-badge" id="battleHeroFlavor">Bereit fuer den naechsten Kampf.</span>
               </div>
               <div class="battle-gear">
                 <span class="battle-gear-label">Gear</span>
@@ -4124,7 +4123,6 @@
                 <span class="battle-stat-badge atk">ATK<strong id="battleEnemyAtkStat">0</strong></span>
                 <span class="battle-stat-badge def">DEF<strong id="battleEnemyDefStat">0</strong></span>
                 <span class="battle-stat-badge">HP<strong id="battleEnemyHpStat">0</strong></span>
-                <span class="battle-stat-badge" id="battleEnemyFlavor">Unbekannte Taktik.</span>
               </div>
             </div>
           </div>
@@ -5761,14 +5759,12 @@ let frenzyAuraEl = null;
     const battleHeroDefStat = document.getElementById("battleHeroDefStat");
     const battleHeroHpStat = document.getElementById("battleHeroHpStat");
     const battleHeroTierLabel = document.getElementById("battleHeroTier");
-    const battleHeroFlavor = document.getElementById("battleHeroFlavor");
     const battleEnemyPreviewIcon = document.getElementById("battleEnemyPreviewIcon");
     const battleEnemyPreviewName = document.getElementById("battleEnemyPreviewName");
     const battleEnemyPreviewLevel = document.getElementById("battleEnemyPreviewLevel");
     const battleEnemyAtkStat = document.getElementById("battleEnemyAtkStat");
     const battleEnemyDefStat = document.getElementById("battleEnemyDefStat");
     const battleEnemyHpStat = document.getElementById("battleEnemyHpStat");
-    const battleEnemyFlavor = document.getElementById("battleEnemyFlavor");
     const battleEnemyTrait = document.getElementById("battleEnemyTrait");
     const battleHeroGearList = document.getElementById("battleHeroGearList");
     const modalHeroCard = document.getElementById("modalHeroCard");
@@ -7863,10 +7859,6 @@ let frenzyAuraEl = null;
       if (battleHeroDefStat) battleHeroDefStat.textContent = String(heroDef);
       if (battleHeroHpStat) battleHeroHpStat.textContent = String(heroHpMax);
       if (battleHeroTierLabel) battleHeroTierLabel.textContent = "Rang " + Math.max(1, state.battleUnlocked || 1);
-      if (battleHeroFlavor) {
-        const equippedCount = getEquippedItems().length;
-        battleHeroFlavor.textContent = `${equippedCount}/${EQUIPMENT_SLOT_KEYS.length} Slots belegt`;
-      }
       if (battleHeroGearList) {
         battleHeroGearList.innerHTML = "";
         const gearEntries = [];
@@ -7929,11 +7921,6 @@ let frenzyAuraEl = null;
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
       if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
       updateEnemyPreviewArt(enemy);
-      if (battleEnemyFlavor) {
-        battleEnemyFlavor.textContent = enemy
-          ? `ATK ${enemy.atk} • DEF ${enemy.def} • HP ${enemy.hp}`
-          : "Gegner unbekannt";
-      }
     }
     function pushBattleLog(message, variant = "system") {
       if (!battleLog) return;
