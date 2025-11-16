@@ -54,19 +54,21 @@ Recalculate each enemy’s stats based on expected player state when they reach 
 
 | Lv | Enemy | HP | DEF | ATK | Rationale |
 | -- | ----- | -- | --- | --- | --------- |
-| 1 | Kobold | **12** | 0 | 2 | Fast win; no skills needed |
-| 2 | Grüner Goblin | **16** | 0 | 3 | Introduce shield by forcing 4-5 hits |
-| 3 | Hobgoblin | **22** | 1 | 4 | First “real” fight; rewards Turmschild usage |
-| 4 | Waldgoblin | **28** | 1 | 4 | Expect helm + first skill drop |
-| 5 | Höhlengoblin | **34** | 2 | 5 | Aurawoge unlock window; encourage heal |
-| 6 | Bergtroll | **40** | 2 | 6 | Mid-game spike; Himmelszorn recommended |
-| 7 | Dunkelgoblin | **46** | 3 | 6 | Kampfrausch Tier 2 likely; test aura buff |
-| 8 | Kriegsgoblin | **52** | 3 | 7 | Late mid-game; player should juggle cooldowns |
-| 9 | Schattengoblin | **58** | 4 | 8 | Expect Tier 4 gear; fights last 6-7 rounds |
-| 10 | Dämonengoblin | **64** | 4 | 9 | Pseudo boss; Aurawoge Tier 4 helpful |
-| 11 | Goblinkönig | **72** | 5 | 10 | Final exam; storms + frenzy + heal needed |
+| 1 | Kobold | **60** | 0 | 6 | Base HP ×5, ATK high enough to pierce starter DEF |
+| 2 | Grüner Goblin | **80** | 1 | 8 | Shield tutorial needs mitigation immediately |
+| 3 | Hobgoblin | **110** | 2 | 10 | Tier 2 gear still takes 5+ rounds and hurts |
+| 4 | Waldgoblin | **140** | 3 | 12 | Skill unlock trims time but mistakes punish |
+| 5 | Höhlengoblin | **170** | 5 | 15 | Aurawoge window; burst barely dents it |
+| 6 | Bergtroll | **200** | 7 | 18 | Mid spike; chaining skills mandatory |
+| 7 | Dunkelgoblin | **230** | 10 | 22 | Frenzy Tier 2 just keeps pace |
+| 8 | Kriegsgoblin | **260** | 12 | 26 | Late fights require full rotations |
+| 9 | Schattengoblin | **348** | 14 | 32 | Base ×6 HP plus DEF to resist Tier 4 ATK |
+| 10 | Dämonengoblin | **512** | 17 | 38 | Base ×8 HP; DEF 17 slows Tier 5 crits |
+| 11 | Goblinkönig | **999** | 15 | 45 | DEF 15 keeps hits meaningful without stalemates |
 
-**Thoughts:** HP jumps roughly +6 each level. Attack grows moderately to ensure cooldown mismanagement is punished but still beatable in ~5 minutes of attempts.
+**Updated calc:** Normal enemies (Lv 1-8) stay at **5×** their original HP values, Lv 9 jumps to **6×**, Lv 10 to **8×**, and the Goblinkönig to **10×** (72→999). ATK now scales from 6 up to 45, and DEF ramps from 0 to 15 so each encounter chips away at the player even with max gear.
+
+**Thoughts:** Bigger HP pools plus much higher ATK guarantee that even maxed Tier-5 armor still takes meaningful damage; cooldown mismanagement now results in wipeouts again.
 
 ---
 
