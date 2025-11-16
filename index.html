@@ -2604,41 +2604,84 @@
       gap: 0.8rem;
     }
     .modal-battle-card {
-      flex: 1 1 240px;
-      border-radius: 0.85rem;
-      border: 1px solid rgba(148,163,184,0.35);
-      background: linear-gradient(155deg, rgba(15,23,42,0.92), rgba(8,15,35,0.75));
-      padding: 0.9rem;
+      flex: 1 1 280px;
+      border-radius: 1rem;
+      border: 1px solid rgba(59,130,246,0.25);
+      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(13,25,46,0.75));
+      padding: 1rem 1.1rem;
       display: flex;
       flex-direction: column;
       gap: 0.55rem;
-      box-shadow: inset 0 0 18px rgba(2,6,23,0.45);
+      box-shadow: inset 0 0 18px rgba(2,6,23,0.55);
     }
     .modal-battle-card.hero {
-      border-color: rgba(59,130,246,0.35);
+      border-color: rgba(56,189,248,0.45);
+      background: linear-gradient(140deg, rgba(13,23,42,0.95), rgba(15,118,255,0.18));
     }
     .modal-battle-card.enemy {
-      border-color: rgba(248,113,113,0.35);
+      border-color: rgba(248,113,113,0.4);
+      background: linear-gradient(140deg, rgba(36,12,23,0.92), rgba(190,24,93,0.16));
     }
     .modal-card-head {
       display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .modal-card-top {
+      display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 0.6rem;
+      gap: 0.5rem;
+    }
+    .modal-card-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: rgba(148,163,184,0.85);
     }
     .modal-card-head h4 {
-      margin: 0.15rem 0 0;
-      font-size: 1rem;
+      margin: 0;
+      font-size: 1.1rem;
     }
     .modal-card-stats {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
     .modal-card-meta {
       margin: 0;
-      font-size: 0.75rem;
+      font-size: 0.76rem;
       color: rgba(226,232,240,0.85);
+    }
+    .modal-card-hp {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 180px;
+    }
+    .modal-card-hp .hp-track {
+      width: 160px;
+      flex: none;
+      height: 10px;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.5);
+    }
+    .modal-card-hp .hp-fill.hero {
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+    }
+    .modal-card-hp .hp-fill.enemy {
+      background: linear-gradient(90deg, #fb923c, #f43f5e);
+    }
+    .modal-card-hp .hp-value {
+      width: auto;
+      font-size: 0.8rem;
+      color: rgba(226,232,240,0.85);
+    }
+    .modal-card-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     .arena-particles {
       position: absolute;
@@ -2991,29 +3034,6 @@
       40% { opacity: 1; transform: translate(4px, -10px) scale(1); }
       100% { opacity: 0; transform: translate(-6px, -26px) scale(0.6); }
     }
-    .battle-bars {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-    .hp-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.85rem;
-    }
-    .hero-meta-inline {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .hero-hp-inline {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
     .hp-track {
       flex: 1;
       height: 12px;
@@ -3206,10 +3226,6 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-    }
-    .hero-hp-inline .hp-track {
-      flex: none;
-      width: 150px;
     }
     .battle-skill {
       flex: 1 1 180px;
@@ -3993,18 +4009,18 @@
             <div class="modal-battle-overview">
               <div class="modal-battle-card hero" id="modalHeroCard">
                 <div class="modal-card-head">
-                <div>
-                  <span class="battle-side-label">Held</span>
-                  <h4 id="modalHeroName">Shortcut Knight</h4>
-                </div>
-                <div class="hero-meta-inline">
-                  <div class="hero-hp-inline">
+                  <div class="modal-card-top">
+                    <div>
+                      <span class="modal-card-label">HELD</span>
+                      <h4 id="modalHeroName">Shortcut Knight</h4>
+                    </div>
+                  </div>
+                  <div class="modal-card-hp">
                     <div class="hp-track">
                       <div class="hp-fill hero" id="heroHpFill"></div>
                     </div>
                     <span class="hp-value" id="heroHpValue"></span>
                   </div>
-                </div>
                 </div>
                 <div class="modal-card-stats">
                   <span class="battle-stat-badge atk">ATK<strong id="modalHeroAtk">1</strong></span>
@@ -4014,18 +4030,20 @@
               </div>
               <div class="modal-battle-card enemy" id="modalEnemyCard">
                 <div class="modal-card-head">
-                  <div>
-                    <span class="battle-side-label">Gegner</span>
-                    <h4 id="modalEnemyName">Kobold</h4>
-                  </div>
-                  <div class="hero-meta-inline">
-                    <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
-                    <div class="hero-hp-inline">
-                      <div class="hp-track">
-                        <div class="hp-fill enemy" id="enemyHpFill"></div>
-                      </div>
-                      <span class="hp-value" id="enemyHpValue"></span>
+                  <div class="modal-card-top">
+                    <div>
+                      <span class="modal-card-label">GEGNER</span>
+                      <h4 id="modalEnemyName">Kobold</h4>
                     </div>
+                    <div class="modal-card-badges">
+                      <span class="battle-trait" id="modalEnemyTrait">Unbekannt</span>
+                    </div>
+                  </div>
+                  <div class="modal-card-hp">
+                    <div class="hp-track">
+                      <div class="hp-fill enemy" id="enemyHpFill"></div>
+                    </div>
+                    <span class="hp-value" id="enemyHpValue"></span>
                   </div>
                 </div>
                 <div class="modal-card-stats">
@@ -4034,8 +4052,6 @@
                 </div>
                 <p class="modal-card-meta" id="modalEnemyMeta">Details folgen.</p>
               </div>
-            </div>
-            <div class="battle-bars">
             </div>
             <div class="battle-foot">
               <p class="battle-result" id="battleResult"></p>
@@ -5766,7 +5782,6 @@ let frenzyAuraEl = null;
     const modalEnemyIcon = document.getElementById("modalEnemyIcon");
     const heroCardElements = Array.from(document.querySelectorAll(".battle-side.hero, .modal-battle-card.hero"));
     const enemyCardElements = Array.from(document.querySelectorAll(".battle-side.enemy, .modal-battle-card.enemy"));
-    const enemyHpLabel = document.getElementById("enemyHpLabel");
     const heroHpFill = document.getElementById("heroHpFill");
     const enemyHpFill = document.getElementById("enemyHpFill");
     const heroHpValue = document.getElementById("heroHpValue");
@@ -9316,7 +9331,6 @@ let frenzyAuraEl = null;
       const enemyName = enemyState && enemyState.name ? enemyState.name : "Gegner";
       if (battleTitle) battleTitle.textContent = "Kampf gegen " + enemyName + " (Rang " + level + ")";
       if (battleEnemyName) battleEnemyName.textContent = enemyName;
-      if (enemyHpLabel) enemyHpLabel.textContent = enemyName;
       if (battleKnight) battleKnight.classList.remove("attacking-left", "attacking-right", "hit");
       if (battleEnemy) {
         battleEnemy.classList.remove("attacking-left", "attacking-right", "hit");
