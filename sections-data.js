@@ -1549,9 +1549,9 @@
             answers: ["Win", "R"]
           },
           {
-            scene: "Zum Schluss erstellt sie einen Screenshot-Ausschnitt der Statusübersicht und fügt ihn in einen Agentenbericht ein.",
-            prompt: "Zuerst nimmt sie den Ausschnitt mit ____ + ____ + ____, danach fügt sie ihn via ____ + ____ ein.",
-            missingSlots: 5,
+            scene: "Zum Schluss erstellt sie einen Screenshot-Ausschnitt der Statusübersicht.",
+            prompt: "Welche Kombination nutzt sie? ____ + ____ + ____",
+            missingSlots: 3,
             options: [
               { label: "Win", value: "Win" },
               { label: "Shift", value: "Shift" },
@@ -1560,7 +1560,21 @@
               { label: "V", value: "V" },
               { label: "Alt", value: "Alt" }
             ],
-            answers: ["Win", "Shift", "S", "Ctrl", "V"]
+            answers: ["Win", "Shift", "S"]
+          },
+          {
+            scene: "Den fertigen Ausschnitt fügt sie direkt in den Agentenbericht ein.",
+            prompt: "Welche Kombination nutzt sie zum Einfügen? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "Shift", value: "Shift" },
+              { label: "S", value: "S" },
+              { label: "Ctrl", value: "Ctrl" },
+              { label: "V", value: "V" },
+              { label: "Alt", value: "Alt" }
+            ],
+            answers: ["Ctrl", "V"]
           }
         ]
       },
