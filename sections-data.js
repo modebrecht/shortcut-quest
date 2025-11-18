@@ -841,9 +841,9 @@
         defaultOptions: ["Ctrl", "Shift", "Win", "Alt", "S", "L", "I", "V", "P", "E", "F4"],
         combos: [
           { title: "Lock-In-Place", prompt: "Sperre das Gerät sofort.", answers: ["Win", "L"] },
-          { title: "Search Recall", prompt: "Starte die Suche wieder.", answers: ["Win", "S"] },
+          { title: "Systemsuche", prompt: "Starte die Systemsuche.", answers: ["Win", "S"] },
           { title: "Settings", prompt: "Einstellungen öffnen.", answers: ["Win", "I"] },
-          { title: "Clip Explorer", prompt: "Zwischenablage-Verlauf.", answers: ["Win", "V"] },
+          { title: "Zwischenablage", prompt: "Zwischenablage-Verlauf anzeigen.", answers: ["Win", "V"] },
           { title: "Fenster schliessen", prompt: "Aktives Fenster sofort schliessen.", answers: ["Alt", "F4"] }
         ]
       },
@@ -1273,8 +1273,8 @@
         defaultOptions: ["Win", "Ctrl", "R", "E", "I", ".", "O"],
         combos: [
           { title: "Ausführen-Dialog", prompt: "Direkt Befehle starten.", answers: ["Win", "R"] },
-          { title: "Explorer-Lift", prompt: "Dateien sofort sehen.", answers: ["Win", "E"] },
-          { title: "Einstellungen öffnen", prompt: "Systemparameter ändern.", answers: ["Win", "I"] },
+          { title: "Windows Explorer", prompt: "Explorer sofort starten.", answers: ["Win", "E"] },
+          { title: "Einstellungen öffnen", prompt: "Systemeinstellungen öffnen.", answers: ["Win", "I"] },
           { title: "Bildschirmtastatur", prompt: "Virtuelles Keyboard starten.", answers: ["Win", "Ctrl", "O"] }
         ]
       },
@@ -1442,7 +1442,7 @@
       title: "49. Creative Deck",
       description: "Ein selektiver Mix aus Kreativ-Kürzeln.",
       tasks: [
-        { type: "input", prompt: "Neues Dokument öffnen", answer: "Ctrl+N" },
+        { type: "input", prompt: "Neues Dokument erstellen", answer: "Ctrl+N" },
         { type: "input", prompt: "Datei öffnen", answer: "Ctrl+O" },
         { type: "input", prompt: "Alles markieren", answer: "Ctrl+A" },
         { type: "input", prompt: "Desktop anzeigen", answer: "Win+D" }
@@ -1520,24 +1520,12 @@
       id: "54",
       tabLabel: "Abschnitt 54",
       title: "54. Agenten-Epilog",
-      description: "Neue Szene: Agentin Nova sichert ihr System vor dem Wochenendflug.",
+      description: "Neue Szene: Agentin Nova sichert ihr System vor dem Wochenende.",
       narrative: {
         autoCheck: false,
         entries: [
           {
-            scene: "Nova sperrt ihr Terminal, bevor sie den Projektraum verlässt.",
-            prompt: "Welche Kombination nutzt sie? ____ + ____",
-            missingSlots: 2,
-            options: [
-              { label: "Win", value: "Win" },
-              { label: "L", value: "L" },
-              { label: "Shift", value: "Shift" },
-              { label: "Ctrl", value: "Ctrl" }
-            ],
-            answers: ["Win", "L"]
-          },
-          {
-            scene: "Anschliessend startet sie den Ausführen-Dialog, um den Backup-Befehl zu tippen.",
+            scene: "Als erstes startet Nova den Ausführen-Dialog, um den Backup-Befehl zu tippen.",
             prompt: "Wie öffnet sie ihn? ____ + ____",
             missingSlots: 2,
             options: [
@@ -1549,7 +1537,7 @@
             answers: ["Win", "R"]
           },
           {
-            scene: "Zum Schluss erstellt sie einen Screenshot-Ausschnitt der Statusübersicht.",
+            scene: "Danach erstellt sie einen Screenshot-Ausschnitt der Statusübersicht.",
             prompt: "Welche Kombination nutzt sie? ____ + ____ + ____",
             missingSlots: 3,
             options: [
@@ -1575,7 +1563,19 @@
               { label: "Alt", value: "Alt" }
             ],
             answers: ["Ctrl", "V"]
-          }
+          },
+            {
+            scene: "Nova sperrt ihren PC, bevor sie den Projektraum verlässt.",
+            prompt: "Welche Kombination nutzt sie? ____ + ____",
+            missingSlots: 2,
+            options: [
+              { label: "Win", value: "Win" },
+              { label: "L", value: "L" },
+              { label: "Shift", value: "Shift" },
+              { label: "Ctrl", value: "Ctrl" }
+            ],
+            answers: ["Win", "L"]
+          },
         ]
       },
       tasks: []
