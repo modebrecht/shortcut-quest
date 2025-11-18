@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Shortcut Ritter-Akademie - v1.3</title>
+  <title>Shortcut Ritter-Akademie - v1.6</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
@@ -563,6 +563,29 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
+    .reset-section.highlight {
+      border-color: rgba(245,158,11,0.65);
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.35);
+    }
+    .section.section-locked .card-body {
+      opacity: 0.82;
+      filter: grayscale(0.1);
+      cursor: not-allowed;
+    }
+    .section.section-locked .card-body * {
+      cursor: not-allowed !important;
+    }
+    .section.section-locked .card-body input,
+    .section.section-locked .card-body select,
+    .section.section-locked .card-body textarea,
+    .section.section-locked .card-body button,
+    .section.section-locked .card-body [draggable],
+    .section.section-locked .card-body .dnd-token,
+    .section.section-locked .card-body .drop-slot,
+    .section.section-locked .card-body .memory-card,
+    .section.section-locked .card-body .narrative-blank {
+      cursor: not-allowed;
+    }
     .result-text { flex: 1 1 100%; margin: 0; }
     .result-text:empty { display: none; }
     .dnd-pool {
@@ -686,6 +709,25 @@
       margin: 0;
       font-size: 1.05rem;
       letter-spacing: 0.02em;
+    }
+    .section-cleared-hint {
+      display: none;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(245,158,11,0.16);
+      border: 1px solid rgba(245,158,11,0.5);
+      color: #fef3c7;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .section-cleared-hint.visible {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .section-cleared-hint::before {
+      content: "✔";
+      font-size: 0.9rem;
     }
     .section-tab {
       padding: 0.4rem 0.85rem;
@@ -3496,6 +3538,12 @@
       100% { transform: scale(0.1); opacity: 0; }
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
+    input:disabled,
+    select:disabled,
+    textarea:disabled,
+    option:disabled {
+      cursor: not-allowed;
+    }
     #coinAnimationLayer {
       position: fixed;
       inset: 0;
@@ -5047,6 +5095,14 @@ let frenzyAuraEl = null;
       return Boolean(state.sectionClears && state.sectionClears[id]);
     }
 
+    function sectionLocked(sectionId) {
+      if (!sectionId) return false;
+      const id = String(sectionId);
+      const clears = state.sectionClears && state.sectionClears[id] ? state.sectionClears[id] : 0;
+      const resets = state.sectionResets && state.sectionResets[id] ? state.sectionResets[id] : 0;
+      return clears > 0 && resets <= 0;
+    }
+
     function deriveCompletedLabel(baseLabel) {
       if (!baseLabel) return baseLabel;
       const match = baseLabel.match(/\d+/);
@@ -5068,9 +5124,21 @@ let frenzyAuraEl = null;
       document.querySelectorAll(".section").forEach(section => {
         const sectionId = section.dataset.section;
         const header = section.querySelector(".card-header");
+        const completed = sectionCompleted(sectionId);
+        const hasFastPaced = Boolean(section.querySelector(".fast-paced"));
+        const locked = hasFastPaced ? false : sectionLocked(sectionId);
         if (header) {
-          header.classList.toggle("completed", sectionCompleted(sectionId));
+          header.classList.toggle("completed", completed);
+          const clearedHint = header.querySelector(".section-cleared-hint");
+          if (clearedHint) {
+            const visible = !hasFastPaced && locked;
+            clearedHint.classList.toggle("visible", visible);
+            clearedHint.setAttribute("aria-hidden", visible ? "false" : "true");
+          }
         }
+        const resetBtn = section.querySelector(".reset-section");
+        if (resetBtn) resetBtn.classList.toggle("highlight", !hasFastPaced && locked);
+        section.classList.toggle("section-locked", !hasFastPaced && locked);
       });
       document.querySelectorAll(".section-tab").forEach(tab => {
         updateTabCompletionState(tab, tab.dataset.goto || tab.dataset.sectionId);
@@ -5813,11 +5881,12 @@ let frenzyAuraEl = null;
       resetSession();
     }
 
-    function buildSectionElement(section, sectionId, isActive) {
+  function buildSectionElement(section, sectionId, isActive) {
       const wrapper = document.createElement("div");
       wrapper.className = "section";
       if (isActive) wrapper.classList.add("active");
       wrapper.dataset.section = sectionId;
+      const hasFastPacedTask = Boolean(section && section.fastPaced);
 
       const contentCard = document.createElement("div");
       contentCard.className = "card card--section";
@@ -5841,6 +5910,15 @@ let frenzyAuraEl = null;
           headerText.appendChild(description);
         }
         header.appendChild(headerText);
+        if (!hasFastPacedTask) {
+          const clearedHint = document.createElement("div");
+          clearedHint.className = "section-cleared-hint";
+          clearedHint.textContent = "Coins schon abgeholt – für mehr Coins bitte Abschnitt zurücksetzen.";
+          const locked = sectionLocked(sectionId);
+          clearedHint.classList.toggle("visible", locked);
+          clearedHint.setAttribute("aria-hidden", locked ? "false" : "true");
+          header.appendChild(clearedHint);
+        }
         header.classList.toggle("completed", sectionCompleted(sectionId));
         contentCard.appendChild(header);
         contentCard.classList.add("has-card-header");
