@@ -9461,7 +9461,26 @@ let frenzyAuraEl = null;
         yaxis: {
           categories,
           labels: {
-            maxWidth: 220
+            maxWidth: 220,
+            trim: false,
+            formatter: (val, opts) => {
+              const idx = opts && typeof opts.seriesIndex === "number" ? opts.seriesIndex : null;
+              // opts.value is the raw category index for horizontal bars
+              const catIdx = opts && typeof opts.value === "number" ? opts.value : null;
+              const label = typeof catIdx === "number" ? categories[catIdx] : categories[idx] || categories[0];
+              return label || "";
+            }
+          }
+        },
+        tooltip: {
+          x: {
+            formatter: (_, opts) => {
+              const idx = opts && typeof opts.dataPointIndex === "number" ? opts.dataPointIndex : null;
+              return typeof idx === "number" ? categories[idx] || "" : "";
+            }
+          },
+          y: {
+            formatter: val => `${val}`
           }
         },
         dataLabels: {
