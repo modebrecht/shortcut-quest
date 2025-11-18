@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Shortcut Ritter-Akademie - v1.6</title>
+  <title>Shortcut Ritter-Akademie - v1.8</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
@@ -4820,6 +4820,22 @@ let frenzyAuraEl = null;
         .trim();
     }
 
+    function buildComboKey(prompt) {
+      const meta = getPromptMeta(prompt);
+      const shortcutKey = normalizePromptKey(meta.shortcut || "");
+      if (shortcutKey) return `combo:${shortcutKey}`;
+      const promptStr = typeof prompt === "string" ? prompt : "";
+      const parenMatch = promptStr.match(/\(([^\)]+)\)\s*$/);
+      if (parenMatch && parenMatch[1]) {
+        const parenKey = normalizePromptKey(parenMatch[1]);
+        if (parenKey) return `combo:${parenKey}`;
+      }
+      const looksLikeCombo = promptStr.includes("+") ? normalizePromptKey(promptStr) : "";
+      if (looksLikeCombo) return `combo:${looksLikeCombo}`;
+      const promptKey = normalizePromptKey(promptStr);
+      return promptKey ? `prompt:${promptKey}` : "";
+    }
+
     function registerPromptMeta(map, label, combo) {
       const key = normalizePromptKey(label);
       if (!key) return;
@@ -4892,7 +4908,7 @@ let frenzyAuraEl = null;
     function buildComboFallbackEntries(rows) {
       const map = Object.create(null);
       rows.forEach(row => {
-        const normKey = normalizePromptKey(row.prompt);
+        const normKey = buildComboKey(row.prompt);
         if (!normKey) return;
         const meta = getPromptMeta(row.prompt);
         if (!map[normKey]) {
@@ -4956,7 +4972,7 @@ let frenzyAuraEl = null;
     }
 
     function updateComboStats(prompt, sectionId, isCorrect, attemptTimestamp) {
-      const key = normalizePromptKey(prompt);
+      const key = buildComboKey(prompt);
       if (!key) return;
       const meta = getPromptMeta(prompt);
       const map = ensureComboStatsMap();
