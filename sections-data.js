@@ -706,7 +706,7 @@
           {
             title: "On-Screen Keyboard",
             prompt: "Öffne die Bildschirmtastatur mit ____ + ____ + ____.",
-            answers: ["CTRL", "Win", "O"]
+            answers: ["Ctrl", "Win", "O"]
           }
         ]
       },
@@ -1275,7 +1275,7 @@
           { title: "Ausführen-Dialog", prompt: "Direkt Befehle starten.", answers: ["Win", "R"] },
           { title: "Windows Explorer", prompt: "Explorer sofort starten.", answers: ["Win", "E"] },
           { title: "Einstellungen öffnen", prompt: "Systemeinstellungen öffnen.", answers: ["Win", "I"] },
-          { title: "Bildschirmtastatur", prompt: "Virtuelles Keyboard starten.", answers: ["CTRL", "Win", "O"] }
+          { title: "Bildschirmtastatur", prompt: "Virtuelles Keyboard starten.", answers: ["Ctrl", "Win", "O"] }
         ]
       },
       tasks: []
