@@ -4665,9 +4665,21 @@ let frenzyAuraEl = null;
         normalizeStateShape();
         const exportState = JSON.parse(JSON.stringify(state));
         const itemCount = Array.isArray(exportState.items) ? exportState.items.length : 0;
+        const itemCopies = Array.isArray(exportState.items)
+          ? exportState.items.reduce((sum, item) => sum + Math.max(1, Math.floor(item && item.totalCopies ? item.totalCopies : 1)), 0)
+          : 0;
+        const skillCount = Array.isArray(exportState.skills) ? exportState.skills.length : 0;
+        const skillCopies = Array.isArray(exportState.skills)
+          ? exportState.skills.reduce((sum, skill) => sum + Math.max(1, Math.floor(skill && skill.totalCopies ? skill.totalCopies : 1)), 0)
+          : 0;
         exportState.coinInfo = {
           itemCount,
-          itemsValueCoins: itemCount * 20
+          itemCopies,
+          skillCount,
+          skillCopies,
+          itemsValueCoins: itemCopies * 20,
+          skillsValueCoins: skillCopies * 20,
+          totalValueCoins: (itemCopies + skillCopies) * 20
         };
         exportState.items = [];
         exportState.skills = [];
@@ -4694,8 +4706,15 @@ let frenzyAuraEl = null;
         throw new Error("Ungültiger Spielstand.");
       }
       Object.assign(state, nextState);
-      if (nextState.coinInfo && typeof nextState.coinInfo.itemsValueCoins === "number") {
-        state.coins = Math.max(0, Math.floor(nextState.coinInfo.itemsValueCoins));
+      if (nextState.coinInfo) {
+        const { totalValueCoins, itemsValueCoins } = nextState.coinInfo;
+        const coinsFromValue = Number.isFinite(totalValueCoins)
+          ? totalValueCoins
+          : (Number.isFinite(itemsValueCoins) ? itemsValueCoins : null);
+        const coinsFromSave = Number.isFinite(nextState.coins) ? nextState.coins : 0;
+        if (coinsFromValue !== null) {
+          state.coins = Math.max(0, Math.floor(coinsFromValue + coinsFromSave));
+        }
       }
       normalizeStateShape();
       saveState();
