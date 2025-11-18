@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Shortcut Ritter-Akademie - v1.3</title>
+  <title>Shortcut Ritter-Akademie - v1.6</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="color-chooser.css">
@@ -289,6 +289,11 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1rem;
     }
+    .report-chart-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
     .report-chart-grid > .chart-card:only-child,
     .report-chart-grid > .chart-card:last-child:nth-child(odd) {
       grid-column: 1 / -1;
@@ -335,14 +340,17 @@
       box-shadow: 0 10px 25px rgba(2,6,23,0.55) !important;
       z-index: 30 !important;
       overflow: visible !important;
+      padding: 4px !important;
     }
     .apexcharts-tooltip-title {
       background: rgba(15,23,42,0.8) !important;
       border-bottom: 1px solid rgba(148,163,184,0.25) !important;
       color: var(--text) !important;
+      padding: 4px !important;
     }
     .apexcharts-tooltip-text {
       color: var(--text) !important;
+      padding: 2px 0 !important;
     }
     .report-table {
       width: 100%;
@@ -556,6 +564,29 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
+    .reset-section.highlight {
+      border-color: rgba(245,158,11,0.65);
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.35);
+    }
+    .section.section-locked .card-body {
+      opacity: 0.82;
+      filter: grayscale(0.1);
+      cursor: not-allowed;
+    }
+    .section.section-locked .card-body * {
+      cursor: not-allowed !important;
+    }
+    .section.section-locked .card-body input,
+    .section.section-locked .card-body select,
+    .section.section-locked .card-body textarea,
+    .section.section-locked .card-body button,
+    .section.section-locked .card-body [draggable],
+    .section.section-locked .card-body .dnd-token,
+    .section.section-locked .card-body .drop-slot,
+    .section.section-locked .card-body .memory-card,
+    .section.section-locked .card-body .narrative-blank {
+      cursor: not-allowed;
+    }
     .result-text { flex: 1 1 100%; margin: 0; }
     .result-text:empty { display: none; }
     .dnd-pool {
@@ -679,6 +710,25 @@
       margin: 0;
       font-size: 1.05rem;
       letter-spacing: 0.02em;
+    }
+    .section-cleared-hint {
+      display: none;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(245,158,11,0.16);
+      border: 1px solid rgba(245,158,11,0.5);
+      color: #fef3c7;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .section-cleared-hint.visible {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .section-cleared-hint::before {
+      content: "✔";
+      font-size: 0.9rem;
     }
     .section-tab {
       padding: 0.4rem 0.85rem;
@@ -891,31 +941,22 @@
       margin-top: 0.2rem;
     }
     .fast-paced-options {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: flex;
+      flex-wrap: wrap;
       gap: 0.85rem;
       width: 100%;
-      max-width: 700px;
-    }
-    @media (max-width: 980px) {
-      .fast-paced-options {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        max-width: 520px;
-      }
-    }
-    @media (max-width: 520px) {
-      .fast-paced-options {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-      }
+      justify-content: center;
     }
     .fast-paced-option {
       border: 1px solid rgba(148,163,184,0.4);
       border-radius: 1rem;
       padding: 0.95rem;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
       background: rgba(15,23,42,0.55);
       color: var(--text);
+      white-space: nowrap;
+      flex: 0 0 auto;
       transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
       box-shadow: inset 0 0 0 0 rgba(245,158,11,0.25);
     }
@@ -3498,6 +3539,12 @@
       100% { transform: scale(0.1); opacity: 0; }
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
+    input:disabled,
+    select:disabled,
+    textarea:disabled,
+    option:disabled {
+      cursor: not-allowed;
+    }
     #coinAnimationLayer {
       position: fixed;
       inset: 0;
@@ -3687,7 +3734,7 @@
     <button type="button" class="color-chooser-toggle" id="colorChooserToggle" aria-expanded="false">🎨 Choose Color</button>
     <div class="color-chooser-panel" role="group" aria-label="Farbwähler">
       <div class="color-chooser-header">
-          <span>Color Chooser</span>
+        <span>Color Chooser</span>
         <button type="button" class="color-chooser-close" id="colorChooserClose" aria-label="Farbwähler schließen">&times;</button>
       </div>
       <div class="color-chooser-options">
@@ -4107,7 +4154,7 @@
               <span class="gacha-remaining" data-remaining-category="skill">--</span>
             </label>
           </div>
-          <button id="gachaBtn" class="shop-buy-btn"><span class="emoji">🛍️</span>Item kaufen (25x Coins)</button>
+          <button id="gachaBtn" class="shop-buy-btn"><span class="emoji">🛍️</span>Item kaufen (20x Coins)</button>
           <div class="shop-latest" id="shopLatest">
             <h3>Neueste Belohnung</h3>
             <p class="shop-latest-empty" id="shopLatestEmpty">Noch keine Belohnung gezogen.</p>
@@ -4362,8 +4409,7 @@
         <circle class="healing-spark spark-3" cx="110" cy="70" r="4"></circle>
       </svg>
     `;
-    const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 5, 2: 10, 3: 15, 4: 20 });
-    const RUNEN_AMULET_DYNAMIC_CAP = 55;
+    const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 1, 2: 2, 3: 4, 4: 6, 5: 10 });
     const LEBENS_RING_HP_BY_TIER = Object.freeze({ 1: 20, 2: 40, 3: 60, 4: 80, 5: 120 });
     const GLUECKS_RING_CRIT_BY_TIER = Object.freeze({ 1: 1, 2: 3, 3: 5, 4: 8, 5: 12 });
     const BASE_ATK = 1;
@@ -4685,7 +4731,27 @@ let frenzyAuraEl = null;
     function exportGameState() {
       try {
         normalizeStateShape();
-        const payload = JSON.stringify(state, null, 2);
+        const exportState = JSON.parse(JSON.stringify(state));
+        const itemCount = Array.isArray(exportState.items) ? exportState.items.length : 0;
+        const itemCopies = Array.isArray(exportState.items)
+          ? exportState.items.reduce((sum, item) => sum + Math.max(1, Math.floor(item && item.totalCopies ? item.totalCopies : 1)), 0)
+          : 0;
+        const skillCount = Array.isArray(exportState.skills) ? exportState.skills.length : 0;
+        const skillCopies = Array.isArray(exportState.skills)
+          ? exportState.skills.reduce((sum, skill) => sum + Math.max(1, Math.floor(skill && skill.totalCopies ? skill.totalCopies : 1)), 0)
+          : 0;
+        exportState.coinInfo = {
+          itemCount,
+          itemCopies,
+          skillCount,
+          skillCopies,
+          itemsValueCoins: itemCopies * 20,
+          skillsValueCoins: skillCopies * 20,
+          totalValueCoins: (itemCopies + skillCopies) * 20
+        };
+        exportState.items = [];
+        exportState.skills = [];
+        const payload = JSON.stringify(exportState, null, 2);
         const stamp = new Date().toISOString().replace(/[:.]/g, "-");
         const filename = `shortcut-ritter-save-${stamp}.json`;
         const blob = new Blob([payload], { type: "application/json" });
@@ -4708,11 +4774,20 @@ let frenzyAuraEl = null;
         throw new Error("Ungültiger Spielstand.");
       }
       Object.assign(state, nextState);
+      if (nextState.coinInfo) {
+        const { totalValueCoins, itemsValueCoins } = nextState.coinInfo;
+        const coinsFromValue = Number.isFinite(totalValueCoins)
+          ? totalValueCoins
+          : (Number.isFinite(itemsValueCoins) ? itemsValueCoins : null);
+        const coinsFromSave = Number.isFinite(nextState.coins) ? nextState.coins : 0;
+        if (coinsFromValue !== null) {
+          state.coins = Math.max(0, Math.floor(coinsFromValue + coinsFromSave));
+        }
+      }
       normalizeStateShape();
       saveState();
-      updateUI();
-      updateOverallSummary();
-      renderReport();
+      // Nach dem Import neu laden, damit alle Caches/Charts sauber sind
+      location.reload();
     }
     const coinTop = document.getElementById("coinTop");
     const atkDisplay = document.getElementById("atkDisplay");
@@ -4847,7 +4922,8 @@ let frenzyAuraEl = null;
             shortcut: meta.shortcut || "",
             attempts: 0,
             misses: 0,
-            history: []
+            history: [],
+            sections: []
           };
         }
         const entry = map[normKey];
@@ -4856,6 +4932,13 @@ let frenzyAuraEl = null;
         }
         if (meta.shortcut && !entry.shortcut) {
           entry.shortcut = meta.shortcut;
+        }
+        if (!Array.isArray(entry.sections)) {
+          entry.sections = [];
+        }
+        const sectionLabel = row.sectionName || getSectionDisplayName(row.sectionId);
+        if (sectionLabel && !entry.sections.includes(sectionLabel)) {
+          entry.sections.push(sectionLabel);
         }
         entry.attempts += row.attempts || 0;
         entry.misses += row.misses || 0;
@@ -4880,6 +4963,7 @@ let frenzyAuraEl = null;
               timestamp: item.timestamp
             }));
         }
+        entry.sections = Array.isArray(entry.sections) ? entry.sections : [];
         return entry;
       });
     }
@@ -4903,7 +4987,8 @@ let frenzyAuraEl = null;
           shortcut: meta.shortcut || "",
           attempts: 0,
           misses: 0,
-          history: []
+          history: [],
+          sections: []
         };
       }
       const entry = map[key];
@@ -4912,6 +4997,13 @@ let frenzyAuraEl = null;
       }
       if (meta.shortcut && !entry.shortcut) {
         entry.shortcut = meta.shortcut;
+      }
+      if (!Array.isArray(entry.sections)) {
+        entry.sections = [];
+      }
+      const sectionLabel = getSectionDisplayName(sectionId);
+      if (sectionLabel && !entry.sections.includes(sectionLabel)) {
+        entry.sections.push(sectionLabel);
       }
       const attemptNumber = entry.attempts + 1;
       entry.attempts = attemptNumber;
@@ -5023,6 +5115,14 @@ let frenzyAuraEl = null;
       return Boolean(state.sectionClears && state.sectionClears[id]);
     }
 
+    function sectionLocked(sectionId) {
+      if (!sectionId) return false;
+      const id = String(sectionId);
+      const clears = state.sectionClears && state.sectionClears[id] ? state.sectionClears[id] : 0;
+      const resets = state.sectionResets && state.sectionResets[id] ? state.sectionResets[id] : 0;
+      return clears > 0 && resets <= 0;
+    }
+
     function deriveCompletedLabel(baseLabel) {
       if (!baseLabel) return baseLabel;
       const match = baseLabel.match(/\d+/);
@@ -5044,9 +5144,21 @@ let frenzyAuraEl = null;
       document.querySelectorAll(".section").forEach(section => {
         const sectionId = section.dataset.section;
         const header = section.querySelector(".card-header");
+        const completed = sectionCompleted(sectionId);
+        const hasFastPaced = Boolean(section.querySelector(".fast-paced"));
+        const locked = hasFastPaced ? false : sectionLocked(sectionId);
         if (header) {
-          header.classList.toggle("completed", sectionCompleted(sectionId));
+          header.classList.toggle("completed", completed);
+          const clearedHint = header.querySelector(".section-cleared-hint");
+          if (clearedHint) {
+            const visible = !hasFastPaced && locked;
+            clearedHint.classList.toggle("visible", visible);
+            clearedHint.setAttribute("aria-hidden", visible ? "false" : "true");
+          }
         }
+        const resetBtn = section.querySelector(".reset-section");
+        if (resetBtn) resetBtn.classList.toggle("highlight", !hasFastPaced && locked);
+        section.classList.toggle("section-locked", !hasFastPaced && locked);
       });
       document.querySelectorAll(".section-tab").forEach(tab => {
         updateTabCompletionState(tab, tab.dataset.goto || tab.dataset.sectionId);
@@ -5200,8 +5312,14 @@ let frenzyAuraEl = null;
         if (!pair) return "";
         if (pair.label) return pair.label;
         const entries = Array.isArray(pair.cards) ? pair.cards : Array.isArray(pair.labels) ? pair.labels : [];
-        const parts = entries.slice(0, 2).map(formatCardLabel).filter(Boolean);
-        return parts.join(" ↔ ");
+        const parts = entries.map(formatCardLabel).filter(Boolean);
+        if (parts.length >= 2) {
+          const primary = parts[0];
+          const rest = parts.slice(1).join(" + ");
+          return `${primary} (${rest})`;
+        }
+        if (parts.length === 1) return parts[0];
+        return "";
       };
       pairs.forEach(pair => {
         const pairId = String(pair.id || `pair-${Math.random().toString(36).slice(2)}`);
@@ -5628,10 +5746,19 @@ let frenzyAuraEl = null;
         }, 600);
       }
 
+      function logFastPacedResult(isCorrect) {
+        const answer = fastState.currentAnswer;
+        if (!answer || !answer.combo) return;
+        const label = answer.label || answer.display || answer.combo;
+        const full = `${label} (${answer.combo})`;
+        recordPromptResult(sectionId, full, Boolean(isCorrect));
+      }
+
       function handleSelection(option, button) {
         if (!fastState.awaitingInput) return;
         fastState.awaitingInput = false;
         const success = option.combo === fastState.currentAnswer.combo;
+        logFastPacedResult(success);
         button.classList.add(success ? "correct" : "incorrect");
         if (!success) {
           elements.options.querySelectorAll("button").forEach(btn => {
@@ -5696,6 +5823,7 @@ let frenzyAuraEl = null;
               }
               btn.disabled = true;
             });
+            logFastPacedResult(false);
             updateHourglass(1);
             endRound(false);
           }
@@ -5773,11 +5901,12 @@ let frenzyAuraEl = null;
       resetSession();
     }
 
-    function buildSectionElement(section, sectionId, isActive) {
+  function buildSectionElement(section, sectionId, isActive) {
       const wrapper = document.createElement("div");
       wrapper.className = "section";
       if (isActive) wrapper.classList.add("active");
       wrapper.dataset.section = sectionId;
+      const hasFastPacedTask = Boolean(section && section.fastPaced);
 
       const contentCard = document.createElement("div");
       contentCard.className = "card card--section";
@@ -5801,6 +5930,15 @@ let frenzyAuraEl = null;
           headerText.appendChild(description);
         }
         header.appendChild(headerText);
+        if (!hasFastPacedTask) {
+          const clearedHint = document.createElement("div");
+          clearedHint.className = "section-cleared-hint";
+          clearedHint.textContent = "Coins schon abgeholt – für mehr Coins bitte Abschnitt zurücksetzen.";
+          const locked = sectionLocked(sectionId);
+          clearedHint.classList.toggle("visible", locked);
+          clearedHint.setAttribute("aria-hidden", locked ? "false" : "true");
+          header.appendChild(clearedHint);
+        }
         header.classList.toggle("completed", sectionCompleted(sectionId));
         contentCard.appendChild(header);
         contentCard.classList.add("has-card-header");
@@ -6072,6 +6210,13 @@ let frenzyAuraEl = null;
         const slotsWrap = document.createElement("div");
         slotsWrap.className = "combo-slots";
         const answers = Array.isArray(combo.answers) ? combo.answers : [];
+        const comboAnswerFull = answers
+          .map(ans => {
+            const meta = normalizeComboOption(ans);
+            return meta ? meta.value : (typeof ans === "string" ? ans : "");
+          })
+          .filter(Boolean)
+          .join("+");
         const optionPool = buildComboOptionList(
           Array.isArray(combo.options) && combo.options.length ? combo.options :
           (Array.isArray(config.defaultOptions) ? config.defaultOptions : []),
@@ -6089,6 +6234,9 @@ let frenzyAuraEl = null;
           const select = document.createElement("select");
           const answerMeta = normalizeComboOption(answer);
           select.dataset.answer = answerMeta ? answerMeta.value : (typeof answer === "string" ? answer : "");
+          select.dataset.comboKey = `${sectionId}-${comboIndex}`;
+          select.dataset.comboPrompt = combo.prompt || combo.title || "";
+          select.dataset.comboAnswerFull = comboAnswerFull;
           select.dataset.comboSlot = `${sectionId}-${comboIndex}-${slotIndex}`;
           const placeholder = document.createElement("option");
           placeholder.value = "";
@@ -6321,7 +6469,6 @@ let frenzyAuraEl = null;
     let activeReportTab = "overview";
     const activeReportCharts = [];
     window.activeReportCharts = activeReportCharts;
-
     const viewRegistry = {
       learn: learnView,
       inventory: inventoryView,
@@ -7156,10 +7303,6 @@ let frenzyAuraEl = null;
       const equippedRunen = getEquippedItems().find(item => item && item.key === RUNEN_AMULET_KEY);
       if (!equippedRunen) return 0;
       const tier = Math.max(1, Math.floor(equippedRunen.tier || 1));
-      if (tier >= 5) {
-        const completed = getCompletedSectionCount();
-        return Math.min(RUNEN_AMULET_DYNAMIC_CAP, completed);
-      }
       return RUNEN_AMULET_TIER_BONUS[tier] || RUNEN_AMULET_TIER_BONUS[4];
     }
     function applyCoinBonus(baseAmount) {
@@ -8453,10 +8596,21 @@ let frenzyAuraEl = null;
       }) || null;
     }
 
+    function getSectionDisplayName(sectionId) {
+      if (!sectionId) return "";
+      const meta = getSectionMeta(sectionId);
+      const rawTitle = meta && meta.title ? meta.title : "";
+      const normalizedTitle = rawTitle ? rawTitle.replace(/^\d+(?:[.)]\s*)?/, "").trim() : "";
+      return normalizedTitle
+        ? `Abschnitt ${sectionId} ${normalizedTitle}`
+        : `Abschnitt ${sectionId}`;
+    }
+
     function gradeSection(sectionId, triggerBtn) {
       const section = document.querySelector(`.section[data-section="${sectionId}"]`);
       if (!section) return;
       const fields = section.querySelectorAll("[data-answer], .dnd-target");
+      const comboResults = new Map();
       let correctCount = 0;
       const total = fields.length;
       fields.forEach(field => {
@@ -8466,6 +8620,9 @@ let frenzyAuraEl = null;
         let slotRef = null;
         const solution = (field.getAttribute("data-answer") || "").trim();
         let userValue = "";
+        const comboKey = field.dataset.comboKey || "";
+        const comboPrompt = field.dataset.comboPrompt || "";
+        const comboAnswerFull = field.dataset.comboAnswerFull || "";
         if (field.classList.contains("dnd-target")) {
           slotRef = field.querySelector(".drop-slot");
           if (slotRef) slotRef.classList.remove("correct", "incorrect");
@@ -8503,7 +8660,24 @@ let frenzyAuraEl = null;
           if (wrap) wrap.classList.add("incorrect");
           if (slotRef) slotRef.classList.add("incorrect");
         }
-        recordPromptResult(sectionId, promptText || solution || field.tagName, isCorrect);
+        if (comboKey) {
+          if (!comboResults.has(comboKey)) {
+            comboResults.set(comboKey, {
+              prompt: comboPrompt || promptText || "",
+              answer: comboAnswerFull || solution,
+              isFullyCorrect: true
+            });
+          }
+          const entry = comboResults.get(comboKey);
+          if (promptText && !entry.prompt) entry.prompt = promptText;
+          if (!isCorrect) entry.isFullyCorrect = false;
+        } else {
+          recordPromptResult(sectionId, promptText || solution || field.tagName, isCorrect);
+        }
+      });
+      comboResults.forEach(entry => {
+        const promptLabel = entry.answer || entry.prompt || "Combo";
+        recordPromptResult(sectionId, promptLabel, entry.isFullyCorrect);
       });
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
       let resultMsg = `${correctCount}/${total} richtig (${percent}%)`;
@@ -8600,9 +8774,9 @@ let frenzyAuraEl = null;
     }
 
     gachaBtn.addEventListener("click", () => {
-      const cost = 25;
+      const cost = 20;
       if (state.coins < cost) {
-        setGachaStatus("Nicht genug Coins (25 nötig).");
+        setGachaStatus("Nicht genug Coins (20 nötig).");
         return;
       }
       const type = getSelectedGachaType();
@@ -8766,18 +8940,20 @@ let frenzyAuraEl = null;
           });
         });
       });
-      const toughestPrompts = promptRows
-        .filter(row => row.misses > 0)
-        .sort((a, b) => (b.misses - a.misses) || (b.attempts - a.attempts))
-        .slice(0, 5);
+      const toughestMisses = promptRows
+        .filter(row => row.misses > 1)
+        .sort((a, b) => (b.misses - a.misses) || (b.attempts - a.attempts));
+      const toughestSingles = promptRows
+        .filter(row => row.misses === 1)
+        .sort((a, b) => (b.attempts - a.attempts));
+      const toughestPrompts = [...toughestMisses, ...toughestSingles];
       const solidPrompts = promptRows
         .filter(row => row.attempts > 0 && row.misses === 0)
         .sort((a, b) => b.attempts - a.attempts)
         .slice(0, 5);
       const sectionChallenge = sectionRows
-        .filter(row => row.checks > 0)
-        .sort((a, b) => (b.misses - a.misses) || (a.successes - b.successes))
-        .slice(0, 5);
+        .filter(row => row.checks > 0 && row.misses > 0)
+        .sort((a, b) => (b.misses - a.misses) || (a.successes - b.successes));
       const sectionSuccess = sectionRows
         .filter(row => row.successes > 0)
         .sort((a, b) => (b.successes - a.successes) || (b.bestScore - a.bestScore))
@@ -8790,12 +8966,14 @@ let frenzyAuraEl = null;
         comboFallbackByKey[entry.key] = entry;
       });
 
-      const errorChartData = toughestPrompts.map(row => ({
-        label: row.prompt,
-        displayLabel: formatPromptLabel(row.prompt),
-        section: row.sectionName,
-        value: row.misses
-      }));
+      const errorChartData = toughestPrompts
+        .filter(row => row.misses > 0)
+        .map(row => ({
+          label: row.prompt,
+          displayLabel: formatPromptLabel(row.prompt),
+          section: row.sectionName,
+          value: row.misses
+        }));
       const sectionScoreData = sectionRows
         .filter(row => row.bestScore > 0)
         .sort((a, b) => b.bestScore - a.bestScore)
@@ -8827,30 +9005,44 @@ let frenzyAuraEl = null;
             const correct = Math.max(0, entry.attempts - (entry.misses || 0));
             const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
             const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            const sectionLabels = [];
+            if (Array.isArray(entry.sections)) {
+              entry.sections.forEach(label => {
+                if (label && !sectionLabels.includes(label)) sectionLabels.push(label);
+              });
+            }
+            if (Array.isArray(entry.history)) {
+              entry.history.forEach(item => {
+                const label = getSectionDisplayName(item.sectionId);
+                if (label && !sectionLabels.includes(label)) sectionLabels.push(label);
+              });
+            }
             return {
               label: entry.label,
               shortcut: entry.shortcut || "",
               displayLabel,
               attempts: entry.attempts,
               correctPct,
-              wrongPct: Math.max(0, 100 - correctPct)
+              wrongPct: Math.max(0, 100 - correctPct),
+              sections: sectionLabels
             };
           })
           .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
-        comboFallbackEntries.forEach(entry => {
-          if (statsKeySet.has(entry.key) || entry.attempts <= 0) return;
-          const correct = Math.max(0, entry.attempts - (entry.misses || 0));
-          const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
-          const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
-          comboRatioData.push({
-            label: entry.label,
-            shortcut: entry.shortcut || "",
-            displayLabel,
-            attempts: entry.attempts,
-            correctPct,
-            wrongPct: Math.max(0, 100 - correctPct)
+          comboFallbackEntries.forEach(entry => {
+            if (statsKeySet.has(entry.key) || entry.attempts <= 0) return;
+            const correct = Math.max(0, entry.attempts - (entry.misses || 0));
+            const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
+            const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            comboRatioData.push({
+              label: entry.label,
+              shortcut: entry.shortcut || "",
+              displayLabel,
+              attempts: entry.attempts,
+              correctPct,
+              wrongPct: Math.max(0, 100 - correctPct),
+              sections: Array.isArray(entry.sections) ? entry.sections.slice() : []
+            });
           });
-        });
         comboRatioData.sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
         comboAttemptData = comboStatsEntries
           .map(entry => {
@@ -8900,7 +9092,8 @@ let frenzyAuraEl = null;
               displayLabel,
               attempts: row.attempts,
               correctPct,
-              wrongPct: Math.max(0, 100 - correctPct)
+              wrongPct: Math.max(0, 100 - correctPct),
+              sections: Array.isArray(row.sections) ? row.sections.slice() : []
             };
           })
           .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
@@ -9064,11 +9257,15 @@ let frenzyAuraEl = null;
         chartEntries.push({ card: errorCard, render: () => renderErrorComboChart(errorChartData, "reportChartErrorsTab") });
       }
       if (chartEntries.length) {
-        const grid = document.createElement("div");
-        grid.className = "report-chart-grid";
-        chartEntries.forEach(entry => grid.appendChild(entry.card));
-        reportContent.appendChild(grid);
-        chartEntries.forEach(entry => entry.render());
+        const stack = document.createElement("div");
+        stack.className = "report-chart-column";
+        const renderQueue = [];
+        chartEntries.forEach(entry => {
+          stack.appendChild(entry.card);
+          renderQueue.push(entry.render);
+        });
+        reportContent.appendChild(stack);
+        renderQueue.forEach(fn => fn && fn());
       }
       if (comboAttemptData.length) {
         const attemptCard = createChartCard("Versuchshistorie pro Kombination", "🎯", "reportChartComboAttempts");
@@ -9306,10 +9503,11 @@ let frenzyAuraEl = null;
       const labelSet = rows.map(row => row.displayLabel || formatPromptLabel(row.label));
       const sectionSet = rows.map(row => row.section || "");
       const values = rows.map(row => row.value || 0);
+      const height = Math.max(320, rows.length * 34 + 140);
       const options = {
         chart: {
           type: "bar",
-          height: 320,
+          height,
           foreColor: "#e2e8f0",
           background: "transparent",
           toolbar: { show: false }
@@ -9334,6 +9532,12 @@ let frenzyAuraEl = null;
         },
         xaxis: {
           categories: labelSet
+        },
+        yaxis: {
+          labels: {
+            maxWidth: 500,
+            trim: false
+          }
         },
         tooltip: {
           y: {
@@ -9385,7 +9589,26 @@ let frenzyAuraEl = null;
         yaxis: {
           categories,
           labels: {
-            maxWidth: 220
+            maxWidth: 220,
+            trim: false,
+            formatter: (val, opts) => {
+              const idx = opts && typeof opts.seriesIndex === "number" ? opts.seriesIndex : null;
+              // opts.value is the raw category index for horizontal bars
+              const catIdx = opts && typeof opts.value === "number" ? opts.value : null;
+              const label = typeof catIdx === "number" ? categories[catIdx] : categories[idx] || categories[0];
+              return label || "";
+            }
+          }
+        },
+        tooltip: {
+          x: {
+            formatter: (_, opts) => {
+              const idx = opts && typeof opts.dataPointIndex === "number" ? opts.dataPointIndex : null;
+              return typeof idx === "number" ? categories[idx] || "" : "";
+            }
+          },
+          y: {
+            formatter: val => `${val}`
           }
         },
         dataLabels: {
@@ -9566,7 +9789,6 @@ let frenzyAuraEl = null;
       const tickSteps = Math.max(1, Math.min(12, axisMax) - 1);
       const effectiveRowCount = rowsWithSpacer.length;
       const height = Math.max(360, effectiveRowCount * 34 + 160);
-      const [goodColor, badColor] = getReportStatusColors();
       const options = {
         chart: {
           type: "scatter",
@@ -9581,7 +9803,7 @@ let frenzyAuraEl = null;
           { name: "Richtig", data: successPoints },
           { name: "Falsch", data: failPoints }
         ],
-        colors: [goodColor, badColor],
+        colors: ["#22c55e", "#f87171"],
         markers: {
           size: 9,
           strokeWidth: 0,
@@ -9637,7 +9859,6 @@ let frenzyAuraEl = null;
       const categories = rows.map(row => row.displayLabel || formatPromptLabel(row.label));
       const correctSeries = rows.map(row => row.correctPct);
       const wrongSeries = rows.map(row => row.wrongPct);
-      const [goodColor, badColor] = getReportStatusColors();
       const options = {
         chart: {
           type: "bar",
@@ -9658,7 +9879,7 @@ let frenzyAuraEl = null;
             borderRadius: 6
           }
         },
-        colors: [goodColor, badColor],
+        colors: ["#22c55e", "#f87171"],
         xaxis: {
           categories,
           max: 100,
@@ -9666,18 +9887,30 @@ let frenzyAuraEl = null;
             formatter: val => `${Math.round(val)}%`
           }
         },
+        yaxis: {
+          labels: {
+            maxWidth: 500,
+            trim: false
+          }
+        },
         tooltip: {
           shared: true,
           intersect: false,
-          y: {
-            formatter: val => `${val}%`
-          },
-          x: {
-            formatter: (_, opts) => {
-              const idx = opts.dataPointIndex;
-              const entry = rows[idx];
-              return entry && (entry.displayLabel || formatPromptLabel(entry.label)) || "";
-            }
+          custom: ({ series, dataPointIndex }) => {
+            const entry = rows[dataPointIndex] || {};
+            const label = categories[dataPointIndex] || "";
+        const sections = Array.isArray(entry.sections) ? entry.sections.filter(Boolean) : [];
+        const sectionLine = sections.length
+          ? sections.map(sec => `<div class="apexcharts-tooltip-text">${sec}</div>`).join("")
+          : "";
+            const correctVal = series[0] && series[0][dataPointIndex] !== undefined ? Math.round(series[0][dataPointIndex]) : 0;
+            const wrongVal = series[1] && series[1][dataPointIndex] !== undefined ? Math.round(series[1][dataPointIndex]) : 0;
+            return [
+              `<div class="apexcharts-tooltip-title">${label}</div>`,
+              sectionLine,
+              `<div class="apexcharts-tooltip-text"><span style="color:#22c55e;">●</span> Richtig: ${correctVal}%</div>`,
+              `<div class="apexcharts-tooltip-text"><span style="color:#f87171;">●</span> Falsch: ${wrongVal}%</div>`
+            ].join("");
           }
         },
         grid: { borderColor: "rgba(148,163,184,0.2)" },
