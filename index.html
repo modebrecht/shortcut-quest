@@ -288,6 +288,11 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1rem;
     }
+    .report-chart-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
     .report-chart-grid > .chart-card:only-child,
     .report-chart-grid > .chart-card:last-child:nth-child(odd) {
       grid-column: 1 / -1;
@@ -334,14 +339,17 @@
       box-shadow: 0 10px 25px rgba(2,6,23,0.55) !important;
       z-index: 30 !important;
       overflow: visible !important;
+      padding: 4px !important;
     }
     .apexcharts-tooltip-title {
       background: rgba(15,23,42,0.8) !important;
       border-bottom: 1px solid rgba(148,163,184,0.25) !important;
       color: var(--text) !important;
+      padding: 4px !important;
     }
     .apexcharts-tooltip-text {
       color: var(--text) !important;
+      padding: 2px 0 !important;
     }
     .report-table {
       width: 100%;
@@ -890,31 +898,22 @@
       margin-top: 0.2rem;
     }
     .fast-paced-options {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      display: flex;
+      flex-wrap: wrap;
       gap: 0.85rem;
       width: 100%;
-      max-width: 700px;
-    }
-    @media (max-width: 980px) {
-      .fast-paced-options {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        max-width: 520px;
-      }
-    }
-    @media (max-width: 520px) {
-      .fast-paced-options {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-      }
+      justify-content: center;
     }
     .fast-paced-option {
       border: 1px solid rgba(148,163,184,0.4);
       border-radius: 1rem;
       padding: 0.95rem;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
       background: rgba(15,23,42,0.55);
       color: var(--text);
+      white-space: nowrap;
+      flex: 0 0 auto;
       transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
       box-shadow: inset 0 0 0 0 rgba(245,158,11,0.25);
     }
@@ -4827,7 +4826,8 @@ let frenzyAuraEl = null;
             shortcut: meta.shortcut || "",
             attempts: 0,
             misses: 0,
-            history: []
+            history: [],
+            sections: []
           };
         }
         const entry = map[normKey];
@@ -4836,6 +4836,13 @@ let frenzyAuraEl = null;
         }
         if (meta.shortcut && !entry.shortcut) {
           entry.shortcut = meta.shortcut;
+        }
+        if (!Array.isArray(entry.sections)) {
+          entry.sections = [];
+        }
+        const sectionLabel = row.sectionName || getSectionDisplayName(row.sectionId);
+        if (sectionLabel && !entry.sections.includes(sectionLabel)) {
+          entry.sections.push(sectionLabel);
         }
         entry.attempts += row.attempts || 0;
         entry.misses += row.misses || 0;
@@ -4860,6 +4867,7 @@ let frenzyAuraEl = null;
               timestamp: item.timestamp
             }));
         }
+        entry.sections = Array.isArray(entry.sections) ? entry.sections : [];
         return entry;
       });
     }
@@ -4883,7 +4891,8 @@ let frenzyAuraEl = null;
           shortcut: meta.shortcut || "",
           attempts: 0,
           misses: 0,
-          history: []
+          history: [],
+          sections: []
         };
       }
       const entry = map[key];
@@ -4892,6 +4901,13 @@ let frenzyAuraEl = null;
       }
       if (meta.shortcut && !entry.shortcut) {
         entry.shortcut = meta.shortcut;
+      }
+      if (!Array.isArray(entry.sections)) {
+        entry.sections = [];
+      }
+      const sectionLabel = getSectionDisplayName(sectionId);
+      if (sectionLabel && !entry.sections.includes(sectionLabel)) {
+        entry.sections.push(sectionLabel);
       }
       const attemptNumber = entry.attempts + 1;
       entry.attempts = attemptNumber;
@@ -5608,10 +5624,19 @@ let frenzyAuraEl = null;
         }, 600);
       }
 
+      function logFastPacedResult(isCorrect) {
+        const answer = fastState.currentAnswer;
+        if (!answer || !answer.combo) return;
+        const label = answer.label || answer.display || answer.combo;
+        const full = `${label} (${answer.combo})`;
+        recordPromptResult(sectionId, full, Boolean(isCorrect));
+      }
+
       function handleSelection(option, button) {
         if (!fastState.awaitingInput) return;
         fastState.awaitingInput = false;
         const success = option.combo === fastState.currentAnswer.combo;
+        logFastPacedResult(success);
         button.classList.add(success ? "correct" : "incorrect");
         if (!success) {
           elements.options.querySelectorAll("button").forEach(btn => {
@@ -5676,6 +5701,7 @@ let frenzyAuraEl = null;
               }
               btn.disabled = true;
             });
+            logFastPacedResult(false);
             updateHourglass(1);
             endRound(false);
           }
@@ -6052,6 +6078,13 @@ let frenzyAuraEl = null;
         const slotsWrap = document.createElement("div");
         slotsWrap.className = "combo-slots";
         const answers = Array.isArray(combo.answers) ? combo.answers : [];
+        const comboAnswerFull = answers
+          .map(ans => {
+            const meta = normalizeComboOption(ans);
+            return meta ? meta.value : (typeof ans === "string" ? ans : "");
+          })
+          .filter(Boolean)
+          .join("+");
         const optionPool = buildComboOptionList(
           Array.isArray(combo.options) && combo.options.length ? combo.options :
           (Array.isArray(config.defaultOptions) ? config.defaultOptions : []),
@@ -6069,6 +6102,9 @@ let frenzyAuraEl = null;
           const select = document.createElement("select");
           const answerMeta = normalizeComboOption(answer);
           select.dataset.answer = answerMeta ? answerMeta.value : (typeof answer === "string" ? answer : "");
+          select.dataset.comboKey = `${sectionId}-${comboIndex}`;
+          select.dataset.comboPrompt = combo.prompt || combo.title || "";
+          select.dataset.comboAnswerFull = comboAnswerFull;
           select.dataset.comboSlot = `${sectionId}-${comboIndex}-${slotIndex}`;
           const placeholder = document.createElement("option");
           placeholder.value = "";
@@ -8431,10 +8467,21 @@ let frenzyAuraEl = null;
       }) || null;
     }
 
+    function getSectionDisplayName(sectionId) {
+      if (!sectionId) return "";
+      const meta = getSectionMeta(sectionId);
+      const rawTitle = meta && meta.title ? meta.title : "";
+      const normalizedTitle = rawTitle ? rawTitle.replace(/^\d+(?:[.)]\s*)?/, "").trim() : "";
+      return normalizedTitle
+        ? `Abschnitt ${sectionId} ${normalizedTitle}`
+        : `Abschnitt ${sectionId}`;
+    }
+
     function gradeSection(sectionId, triggerBtn) {
       const section = document.querySelector(`.section[data-section="${sectionId}"]`);
       if (!section) return;
       const fields = section.querySelectorAll("[data-answer], .dnd-target");
+      const comboResults = new Map();
       let correctCount = 0;
       const total = fields.length;
       fields.forEach(field => {
@@ -8444,6 +8491,9 @@ let frenzyAuraEl = null;
         let slotRef = null;
         const solution = (field.getAttribute("data-answer") || "").trim();
         let userValue = "";
+        const comboKey = field.dataset.comboKey || "";
+        const comboPrompt = field.dataset.comboPrompt || "";
+        const comboAnswerFull = field.dataset.comboAnswerFull || "";
         if (field.classList.contains("dnd-target")) {
           slotRef = field.querySelector(".drop-slot");
           if (slotRef) slotRef.classList.remove("correct", "incorrect");
@@ -8481,7 +8531,24 @@ let frenzyAuraEl = null;
           if (wrap) wrap.classList.add("incorrect");
           if (slotRef) slotRef.classList.add("incorrect");
         }
-        recordPromptResult(sectionId, promptText || solution || field.tagName, isCorrect);
+        if (comboKey) {
+          if (!comboResults.has(comboKey)) {
+            comboResults.set(comboKey, {
+              prompt: comboPrompt || promptText || "",
+              answer: comboAnswerFull || solution,
+              isFullyCorrect: true
+            });
+          }
+          const entry = comboResults.get(comboKey);
+          if (promptText && !entry.prompt) entry.prompt = promptText;
+          if (!isCorrect) entry.isFullyCorrect = false;
+        } else {
+          recordPromptResult(sectionId, promptText || solution || field.tagName, isCorrect);
+        }
+      });
+      comboResults.forEach(entry => {
+        const promptLabel = entry.answer || entry.prompt || "Combo";
+        recordPromptResult(sectionId, promptLabel, entry.isFullyCorrect);
       });
       const percent = total === 0 ? 0 : Math.round((correctCount / total) * 100);
       let resultMsg = `${correctCount}/${total} richtig (${percent}%)`;
@@ -8805,30 +8872,44 @@ let frenzyAuraEl = null;
             const correct = Math.max(0, entry.attempts - (entry.misses || 0));
             const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
             const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            const sectionLabels = [];
+            if (Array.isArray(entry.sections)) {
+              entry.sections.forEach(label => {
+                if (label && !sectionLabels.includes(label)) sectionLabels.push(label);
+              });
+            }
+            if (Array.isArray(entry.history)) {
+              entry.history.forEach(item => {
+                const label = getSectionDisplayName(item.sectionId);
+                if (label && !sectionLabels.includes(label)) sectionLabels.push(label);
+              });
+            }
             return {
               label: entry.label,
               shortcut: entry.shortcut || "",
               displayLabel,
               attempts: entry.attempts,
               correctPct,
-              wrongPct: Math.max(0, 100 - correctPct)
+              wrongPct: Math.max(0, 100 - correctPct),
+              sections: sectionLabels
             };
           })
           .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
-        comboFallbackEntries.forEach(entry => {
-          if (statsKeySet.has(entry.key) || entry.attempts <= 0) return;
-          const correct = Math.max(0, entry.attempts - (entry.misses || 0));
-          const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
-          const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
-          comboRatioData.push({
-            label: entry.label,
-            shortcut: entry.shortcut || "",
-            displayLabel,
-            attempts: entry.attempts,
-            correctPct,
-            wrongPct: Math.max(0, 100 - correctPct)
+          comboFallbackEntries.forEach(entry => {
+            if (statsKeySet.has(entry.key) || entry.attempts <= 0) return;
+            const correct = Math.max(0, entry.attempts - (entry.misses || 0));
+            const correctPct = entry.attempts ? Math.round((correct / entry.attempts) * 100) : 0;
+            const displayLabel = entry.shortcut ? `${entry.label} (${entry.shortcut})` : entry.label;
+            comboRatioData.push({
+              label: entry.label,
+              shortcut: entry.shortcut || "",
+              displayLabel,
+              attempts: entry.attempts,
+              correctPct,
+              wrongPct: Math.max(0, 100 - correctPct),
+              sections: Array.isArray(entry.sections) ? entry.sections.slice() : []
+            });
           });
-        });
         comboRatioData.sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
         comboAttemptData = comboStatsEntries
           .map(entry => {
@@ -8878,7 +8959,8 @@ let frenzyAuraEl = null;
               displayLabel,
               attempts: row.attempts,
               correctPct,
-              wrongPct: Math.max(0, 100 - correctPct)
+              wrongPct: Math.max(0, 100 - correctPct),
+              sections: Array.isArray(row.sections) ? row.sections.slice() : []
             };
           })
           .sort((a, b) => (a.correctPct - b.correctPct) || (b.attempts - a.attempts));
@@ -9042,11 +9124,15 @@ let frenzyAuraEl = null;
         chartEntries.push({ card: errorCard, render: () => renderErrorComboChart(errorChartData, "reportChartErrorsTab") });
       }
       if (chartEntries.length) {
-        const grid = document.createElement("div");
-        grid.className = "report-chart-grid";
-        chartEntries.forEach(entry => grid.appendChild(entry.card));
-        reportContent.appendChild(grid);
-        chartEntries.forEach(entry => entry.render());
+        const stack = document.createElement("div");
+        stack.className = "report-chart-column";
+        const renderQueue = [];
+        chartEntries.forEach(entry => {
+          stack.appendChild(entry.card);
+          renderQueue.push(entry.render);
+        });
+        reportContent.appendChild(stack);
+        renderQueue.forEach(fn => fn && fn());
       }
       if (comboAttemptData.length) {
         const attemptCard = createChartCard("Versuchshistorie pro Kombination", "🎯", "reportChartComboAttempts");
@@ -9645,15 +9731,21 @@ let frenzyAuraEl = null;
         tooltip: {
           shared: true,
           intersect: false,
-          y: {
-            formatter: val => `${val}%`
-          },
-          x: {
-            formatter: (_, opts) => {
-              const idx = opts.dataPointIndex;
-              const entry = rows[idx];
-              return entry && (entry.displayLabel || formatPromptLabel(entry.label)) || "";
-            }
+          custom: ({ series, dataPointIndex }) => {
+            const entry = rows[dataPointIndex] || {};
+            const label = categories[dataPointIndex] || "";
+            const sections = Array.isArray(entry.sections) ? entry.sections.filter(Boolean) : [];
+            const sectionLine = sections.length
+              ? sections.map(sec => `<div class="apexcharts-tooltip-text">Abschnitt: ${sec}</div>`).join("")
+              : "";
+            const correctVal = series[0] && series[0][dataPointIndex] !== undefined ? Math.round(series[0][dataPointIndex]) : 0;
+            const wrongVal = series[1] && series[1][dataPointIndex] !== undefined ? Math.round(series[1][dataPointIndex]) : 0;
+            return [
+              `<div class="apexcharts-tooltip-title">${label}</div>`,
+              sectionLine,
+              `<div class="apexcharts-tooltip-text"><span style="color:#22c55e;">●</span> Richtig: ${correctVal}%</div>`,
+              `<div class="apexcharts-tooltip-text"><span style="color:#f87171;">●</span> Falsch: ${wrongVal}%</div>`
+            ].join("");
           }
         },
         grid: { borderColor: "rgba(148,163,184,0.2)" },
