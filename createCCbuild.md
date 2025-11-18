@@ -16,6 +16,19 @@ Whenever `index.html` (root) changes:
 1. Copy the updated root file over the CC version: `cp index.html cc/index.html`.
 2. Re-apply the CC-specific hooks:
    - Ensure the `<head>` still links `color-chooser.css`.
+   - Add the redirect guard to force `/cc` → `/cc/` so relative assets load on Vercel:
+     ```html
+     <script>
+       (function enforceTrailingSlash() {
+         const path = window.location.pathname;
+         if (path === "/cc") {
+           const search = window.location.search || "";
+           const hash = window.location.hash || "";
+           window.location.replace("/cc/" + search + hash);
+         }
+       })();
+     </script>
+     ```
    - Re-insert the color chooser markup block (place it directly inside `<body>` before the main layout begins) if the copy step overwrote it.
    - Update static asset/script paths so they reference the parent directory (e.g. change `href="favicon.svg"` → `href="../favicon.svg"` and `src="assets/...` → `src="../assets/...`) since the CC build lives under `cc/`.
    - Re-add `window.activeReportCharts = activeReportCharts;` after the `const activeReportCharts = []` declaration so the color chooser script can reach the chart instances.
