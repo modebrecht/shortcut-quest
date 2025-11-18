@@ -5196,8 +5196,14 @@ let frenzyAuraEl = null;
         if (!pair) return "";
         if (pair.label) return pair.label;
         const entries = Array.isArray(pair.cards) ? pair.cards : Array.isArray(pair.labels) ? pair.labels : [];
-        const parts = entries.slice(0, 2).map(formatCardLabel).filter(Boolean);
-        return parts.join(" ↔ ");
+        const parts = entries.map(formatCardLabel).filter(Boolean);
+        if (parts.length >= 2) {
+          const primary = parts[0];
+          const rest = parts.slice(1).join(" + ");
+          return `${primary} (${rest})`;
+        }
+        if (parts.length === 1) return parts[0];
+        return "";
       };
       pairs.forEach(pair => {
         const pairId = String(pair.id || `pair-${Math.random().toString(36).slice(2)}`);
@@ -9399,6 +9405,12 @@ let frenzyAuraEl = null;
         xaxis: {
           categories: labelSet
         },
+        yaxis: {
+          labels: {
+            maxWidth: 500,
+            trim: false
+          }
+        },
         tooltip: {
           y: {
             formatter: val => `${val} Fehlversuche`
@@ -9726,6 +9738,12 @@ let frenzyAuraEl = null;
           max: 100,
           labels: {
             formatter: val => `${Math.round(val)}%`
+          }
+        },
+        yaxis: {
+          labels: {
+            maxWidth: 500,
+            trim: false
           }
         },
         tooltip: {
