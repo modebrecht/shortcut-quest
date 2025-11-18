@@ -8817,18 +8817,20 @@ let frenzyAuraEl = null;
           });
         });
       });
-      const toughestPrompts = promptRows
-        .filter(row => row.misses > 0)
-        .sort((a, b) => (b.misses - a.misses) || (b.attempts - a.attempts))
-        .slice(0, 5);
+      const toughestMisses = promptRows
+        .filter(row => row.misses > 1)
+        .sort((a, b) => (b.misses - a.misses) || (b.attempts - a.attempts));
+      const toughestSingles = promptRows
+        .filter(row => row.misses === 1)
+        .sort((a, b) => (b.attempts - a.attempts));
+      const toughestPrompts = [...toughestMisses, ...toughestSingles];
       const solidPrompts = promptRows
         .filter(row => row.attempts > 0 && row.misses === 0)
         .sort((a, b) => b.attempts - a.attempts)
         .slice(0, 5);
       const sectionChallenge = sectionRows
-        .filter(row => row.checks > 0)
-        .sort((a, b) => (b.misses - a.misses) || (a.successes - b.successes))
-        .slice(0, 5);
+        .filter(row => row.checks > 0 && row.misses > 0)
+        .sort((a, b) => (b.misses - a.misses) || (a.successes - b.successes));
       const sectionSuccess = sectionRows
         .filter(row => row.successes > 0)
         .sort((a, b) => (b.successes - a.successes) || (b.bestScore - a.bestScore))
@@ -8841,12 +8843,14 @@ let frenzyAuraEl = null;
         comboFallbackByKey[entry.key] = entry;
       });
 
-      const errorChartData = toughestPrompts.map(row => ({
-        label: row.prompt,
-        displayLabel: formatPromptLabel(row.prompt),
-        section: row.sectionName,
-        value: row.misses
-      }));
+      const errorChartData = toughestPrompts
+        .filter(row => row.misses > 0)
+        .map(row => ({
+          label: row.prompt,
+          displayLabel: formatPromptLabel(row.prompt),
+          section: row.sectionName,
+          value: row.misses
+        }));
       const sectionScoreData = sectionRows
         .filter(row => row.bestScore > 0)
         .sort((a, b) => b.bestScore - a.bestScore)
@@ -9376,10 +9380,11 @@ let frenzyAuraEl = null;
       const labelSet = rows.map(row => row.displayLabel || formatPromptLabel(row.label));
       const sectionSet = rows.map(row => row.section || "");
       const values = rows.map(row => row.value || 0);
+      const height = Math.max(320, rows.length * 34 + 140);
       const options = {
         chart: {
           type: "bar",
-          height: 320,
+          height,
           foreColor: "#e2e8f0",
           background: "transparent",
           toolbar: { show: false }
@@ -9771,10 +9776,10 @@ let frenzyAuraEl = null;
           custom: ({ series, dataPointIndex }) => {
             const entry = rows[dataPointIndex] || {};
             const label = categories[dataPointIndex] || "";
-            const sections = Array.isArray(entry.sections) ? entry.sections.filter(Boolean) : [];
-            const sectionLine = sections.length
-              ? sections.map(sec => `<div class="apexcharts-tooltip-text">Abschnitt: ${sec}</div>`).join("")
-              : "";
+        const sections = Array.isArray(entry.sections) ? entry.sections.filter(Boolean) : [];
+        const sectionLine = sections.length
+          ? sections.map(sec => `<div class="apexcharts-tooltip-text">${sec}</div>`).join("")
+          : "";
             const correctVal = series[0] && series[0][dataPointIndex] !== undefined ? Math.round(series[0][dataPointIndex]) : 0;
             const wrongVal = series[1] && series[1][dataPointIndex] !== undefined ? Math.round(series[1][dataPointIndex]) : 0;
             return [
