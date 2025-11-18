@@ -7,23 +7,23 @@
       id: "1",
       tabLabel: "Abschnitt 1",
       title: "1. Selber tippen",
-      description: "Löse die folgenden Aufgaben, um dein Muscle Memory aufzuwärmen.",
+      description: "Tippe folgende Begriffe ab.",
       tasks: [
         {
           type: "input",
-          prompt: "Drucken",
+          prompt: "Druckdialog öffnen",
           answer: "Ctrl+P",
           hint: "Ctrl+P"
         },
         {
           type: "input",
           prompt: "Neuer Tab",
-          answer: "Ctrl+N",
-          hint: "Ctrl+N"
+          answer: "Ctrl+T",
+          hint: "Ctrl+T"
         },
         {
           type: "input",
-          prompt: "Fenster schließen",
+          prompt: "Tab schliessen",
           answer: "Ctrl+W",
           hint: "Ctrl+W"
         },
@@ -32,6 +32,12 @@
           prompt: "Screenshot-Ausschnitt",
           answer: "Win+Shift+S",
           hint: "Win+Shift+S"
+        },
+        {
+          type: "input",
+          prompt: "Fenster schliessen",
+          answer: "Alt+F4",
+          hint: "Alt+F4"
         }
       ]
     },
@@ -105,7 +111,7 @@
         },
         {
           type: "select",
-          prompt: "Drucken",
+          prompt: "Druckdialog öffnen",
           answer: "Ctrl+P",
           options: ["Ctrl+I", "Ctrl+D", "Ctrl+F", "Ctrl+O", "Ctrl+P"]
         },
@@ -131,7 +137,7 @@
         },
         {
           type: "select",
-          prompt: "Suche öffnen",
+          prompt: "Nach Begriff suchen",
           answer: "Ctrl+F",
           options: ["Ctrl+F", "Ctrl+H", "Ctrl+G", "Ctrl+Space", "Ctrl+Shift+F"]
         },
@@ -210,7 +216,7 @@
           tokens: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+F", "Ctrl+S", "Ctrl+Z", "Ctrl+A", "Ctrl+N"],
           targets: [
             { label: "Markiertes kopieren", answer: "Ctrl+C" },
-            { label: "Markiertes einfügen", answer: "Ctrl+V" },
+            { label: "Einfügen", answer: "Ctrl+V" },
             { label: "Markiertes ausschneiden", answer: "Ctrl+X" },
             { label: "Inhalt durchsuchen", answer: "Ctrl+F" },
             { label: "Datei speichern", answer: "Ctrl+S" },
@@ -260,8 +266,8 @@
           { label: "Rückgängig", combo: "Ctrl+Z" },
           { label: "Wiederholen", combo: "Ctrl+Y" },
           { label: "Neues Dokument", combo: "Ctrl+N" },
-          { label: "Suche öffnen", combo: "Ctrl+F" },
-          { label: "Drucken", combo: "Ctrl+P" },
+          { label: "Nach Begriff suchen", combo: "Ctrl+F" },
+          { label: "Druckdialog öffnen", combo: "Ctrl+P" },
           { label: "Dokument öffnen", combo: "Ctrl+O" }
         ]
       },
@@ -303,7 +309,7 @@
             answers: ["F5"]
           },
           {
-            scene: "Die Pause klingelt, Sofia schließt das PowerPoint blitzschnell.",
+            scene: "Die Pause klingelt, Sofia schliesst das PowerPoint blitzschnell.",
             prompt: "Sie beendet das Programm mit ____ + ____.",
             missingSlots: 2,
             options: [
@@ -355,7 +361,7 @@
           },
           {
             scene: "Sein Browser ist mit Tabs überfüllt. Welche Kombination empfiehlst du ihm, um Tabs schnell zu schliessen?",
-            prompt: "Jonas nutzt ____ + ____ um den aktuellen Tab zu schließen.",
+            prompt: "Jonas nutzt ____ + ____ um den aktuellen Tab zu schliessen.",
             missingSlots: 2,
             options: [
               { label: "Ctrl", value: "Ctrl" },
@@ -588,7 +594,7 @@
           targets: [
             { label: "Einstellungen öffnen", answer: "Win+I" },
             { label: "Emoji-Panel öffnen", answer: "Win+." },
-            { label: "Suche starten", answer: "Win+S" },
+            { label: "Systemsuche starten", answer: "Win+S" },
             { label: "Screenshot-Ausschnitt aufnehmen", answer: "Win+Shift+S" },
           ]
         },
@@ -753,7 +759,7 @@
             { label: "Startmenü schnell öffnen", answer: "Ctrl+Esc" },
             { label: "Desktop zeigen", answer: "Win+D" },
             { label: "Explorer öffnen", answer: "Win+E" },
-            { label: "Suche öffnen", answer: "Win+S" },
+            { label: "Systemsuche öffnen", answer: "Win+S" },
             { label: "Fenster links andocken", answer: "Win+PfeiltasteLinks" },
             { label: "Fenster rechts andocken", answer: "Win+PfeiltasteRechts" }
           ]
@@ -776,7 +782,7 @@
           type: "select",
           prompt: "Starte Einstellungen",
           answer: "Win+I",
-          options: ["Win+Ctrl+O", "Win+P", "Win+V", "Ctrl+I", "Win+I"]
+          options: ["Ctrl+Win+O", "Win+P", "Win+V", "Ctrl+I", "Win+I"]
         },
         {
           type: "select",
@@ -832,12 +838,13 @@
       comboBuilder: {
         title: "System Combo Builder",
         instructions: "Setze jeweils die richtige Reihenfolge zusammen.",
-        defaultOptions: ["Ctrl", "Shift", "Win", "Alt", "S", "L", "I", "V", "P", "E"],
+        defaultOptions: ["Ctrl", "Shift", "Win", "Alt", "S", "L", "I", "V", "P", "E", "F4"],
         combos: [
           { title: "Lock-In-Place", prompt: "Sperre das Gerät sofort.", answers: ["Win", "L"] },
           { title: "Search Recall", prompt: "Starte die Suche wieder.", answers: ["Win", "S"] },
           { title: "Settings", prompt: "Einstellungen öffnen.", answers: ["Win", "I"] },
-          { title: "Clip Explorer", prompt: "Zwischenablage-Verlauf.", answers: ["Win", "V"] }
+          { title: "Clip Explorer", prompt: "Zwischenablage-Verlauf.", answers: ["Win", "V"] },
+          { title: "Fenster schliessen", prompt: "Aktives Fenster sofort schliessen.", answers: ["Alt", "F4"] }
         ]
       },
       tasks: []
@@ -850,12 +857,12 @@
       tasks: [
         {
           type: "dnd",
-          tokens: ["Win+.", "Win+Shift+S", "Alt+Tab", "Win+Ctrl+O"],
+          tokens: ["Win+.", "Win+Shift+S", "Alt+Tab", "Ctrl+Win+O"],
           targets: [
             { label: "Emoji-Panel für Reaktionen starten", answer: "Win+." },
             { label: "Screenshot-Ausschnitt aufnehmen", answer: "Win+Shift+S" },
             { label: "Zwischen laufenden Programmen wechseln", answer: "Alt+Tab" },
-            { label: "Bildschirmtastatur öffnen", answer: "Win+Ctrl+O" }
+            { label: "Bildschirmtastatur öffnen", answer: "Ctrl+Win+O" }
           ]
         },
         {
@@ -878,7 +885,7 @@
         combos: [
           { label: "PC Sperren", combo: "Win+L" },
           { label: "Einstellungen", combo: "Win+I" },
-          { label: "Suche", combo: "Win+S" },
+          { label: "Systemsuche", combo: "Win+S" },
           { label: "Zwischenablage-Verlauf", combo: "Win+V" },
           { label: "Explorer", combo: "Win+E" },
           { label: "Fenster Links ausrichten", combo: "Win+PfeiltasteLinks" }
@@ -891,11 +898,12 @@
       id: "31",
       tabLabel: "Abschnitt 31",
       title: "31. Selber tippen – Schnellrunde",
-      description: "Wiederhole die ersten Kürzel nur mit einem Eingabefeld.",
+      description: "Wiederhole die ersten Kürzel.",
       tasks: [
-        { type: "input", prompt: "Drucken", answer: "Ctrl+P" },
-        { type: "input", prompt: "Neuer Tab", answer: "Ctrl+N" },
-        { type: "input", prompt: "Fenster schließen", answer: "Ctrl+W" },
+        { type: "input", prompt: "Druckdialog öffnen", answer: "Ctrl+P" },
+        { type: "input", prompt: "Neuer Tab", answer: "Ctrl+T" },
+        { type: "input", prompt: "Tab schliessen", answer: "Ctrl+W" },
+        { type: "input", prompt: "Fenster schliessen", answer: "Alt+F4" },
         { type: "input", prompt: "Screenshot-Ausschnitt", answer: "Win+Shift+S" }
       ]
     },
@@ -923,11 +931,11 @@
           { id: "desktop", cards: ["Desktop anzeigen", "Win+D"] },
           { id: "lock", cards: ["PC sperren", "Win+L"] },
           { id: "explorer", cards: ["Explorer öffnen", "Win+E"] },
-          { id: "search", cards: ["Suche starten", "Win+S"] },
+          { id: "search", cards: ["Systemsuche starten", "Win+S"] },
           { id: "settings", cards: ["Einstellungen öffnen", "Win+I"] },
           { id: "clipboard", cards: ["Zwischenablage-Verlauf", "Win+V"] },
           { id: "screenshot", cards: ["Screenshot-Ausschnitt", "Win+Shift+S"] },
-          { id: "keyboard", cards: ["Bildschirmtastatur", "Win+Ctrl+O"] },
+          { id: "keyboard", cards: ["Bildschirmtastatur", "Ctrl+Win+O"] },
           { id: "emoji", cards: ["Emoji-Panel", "Win+."] },
           { id: "task", cards: ["Task-Ansicht", "Win+Tab"] }
         ]
@@ -1152,11 +1160,12 @@
       tasks: [
         {
           type: "dnd",
-          tokens: ["Win+Tab", "Win+D", "Ctrl+Esc"],
+          tokens: ["Win+Tab", "Win+D", "Ctrl+Esc", "Alt+F4"],
           targets: [
             { label: "Task-Ansicht öffnen", answer: "Win+Tab" },
             { label: "Desktop sofort zeigen", answer: "Win+D" },
-            { label: "Startmenü per Tastatur", answer: "Ctrl+Esc" }
+            { label: "Startmenü per Tastatur", answer: "Ctrl+Esc" },
+            { label: "Fenster schliessen", answer: "Alt+F4" }
           ]
         }
       ]
@@ -1177,7 +1186,7 @@
           { label: "Ausführen-Dialog", combo: "Win+R" },
           { label: "Emoji-Panel", combo: "Win+." },
           { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
-          { label: "Bildschirmtastatur", combo: "Win+Ctrl+O" }
+          { label: "Bildschirmtastatur", combo: "Ctrl+Win+O" }
         ]
       },
       tasks: [],
@@ -1454,10 +1463,10 @@
           { label: "Ausführen-Dialog", combo: "Win+R" },
           { label: "Zwischenablage-Verlauf", combo: "Win+V" },
           { label: "Emoji-Panel", combo: "Win+." },
-          { label: "Suche", combo: "Win+S" },
+          { label: "Systemsuche", combo: "Win+S" },
           { label: "Explorer öffnen", combo: "Win+E" },
           { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
-          { label: "Bildschirmtastatur", combo: "Win+Ctrl+O" },
+          { label: "Bildschirmtastatur", combo: "Ctrl+Win+O" },
           { label: "Task-Ansicht", combo: "Win+Tab" },
           { label: "Zwischen Programmen wechseln", combo: "Alt+Tab" },
           { label: "Task-Manager", combo: "Ctrl+Shift+Esc" },
@@ -1478,7 +1487,7 @@
       tasks: [
         { type: "input", prompt: "Speichern", answer: "Ctrl+S" },
         { type: "input", prompt: "Neues Dokument", answer: "Ctrl+N" },
-        { type: "input", prompt: "Drucken", answer: "Ctrl+P" },
+        { type: "input", prompt: "Druckdialog öffnen", answer: "Ctrl+P" },
         { type: "input", prompt: "Rückgängig", answer: "Ctrl+Z" }
       ]
     },
@@ -1489,7 +1498,7 @@
       description: "Der zweite Teil nochmal als reine Eingabeübung.",
       tasks: [
         { type: "input", prompt: "Alles markieren", answer: "Ctrl+A" },
-        { type: "input", prompt: "Suche öffnen", answer: "Ctrl+F" },
+        { type: "input", prompt: "Nach Begriff suchen", answer: "Ctrl+F" },
         { type: "input", prompt: "Wiederholen", answer: "Ctrl+Y" },
         { type: "input", prompt: "Fett formatieren", answer: "Ctrl+B" }
       ]
@@ -1528,7 +1537,7 @@
             answers: ["Win", "L"]
           },
           {
-            scene: "Anschließend startet sie den Ausführen-Dialog, um den Backup-Befehl zu tippen.",
+            scene: "Anschliessend startet sie den Ausführen-Dialog, um den Backup-Befehl zu tippen.",
             prompt: "Wie öffnet sie ihn? ____ + ____",
             missingSlots: 2,
             options: [
@@ -1572,10 +1581,10 @@
           { label: "Ausführen-Dialog", combo: "Win+R" },
           { label: "Zwischenablage-Verlauf", combo: "Win+V" },
           { label: "Emoji-Panel", combo: "Win+." },
-          { label: "Suche", combo: "Win+S" },
+          { label: "Systemsuche", combo: "Win+S" },
           { label: "Explorer öffnen", combo: "Win+E" },
           { label: "Screenshot-Ausschnitt", combo: "Win+Shift+S" },
-          { label: "Bildschirmtastatur", combo: "Win+Ctrl+O" },
+          { label: "Bildschirmtastatur", combo: "Ctrl+Win+O" },
           { label: "Task-Ansicht", combo: "Win+Tab" },
           { label: "Zwischen Programmen wechseln", combo: "Alt+Tab" },
           { label: "Task-Manager", combo: "Ctrl+Shift+Esc" },
