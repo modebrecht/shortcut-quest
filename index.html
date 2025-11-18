@@ -4086,7 +4086,7 @@
               <span class="gacha-remaining" data-remaining-category="skill">--</span>
             </label>
           </div>
-          <button id="gachaBtn" class="shop-buy-btn"><span class="emoji">🛍️</span>Item kaufen (25x Coins)</button>
+          <button id="gachaBtn" class="shop-buy-btn"><span class="emoji">🛍️</span>Item kaufen (20x Coins)</button>
           <div class="shop-latest" id="shopLatest">
             <h3>Neueste Belohnung</h3>
             <p class="shop-latest-empty" id="shopLatestEmpty">Noch keine Belohnung gezogen.</p>
@@ -4341,8 +4341,7 @@
         <circle class="healing-spark spark-3" cx="110" cy="70" r="4"></circle>
       </svg>
     `;
-    const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 5, 2: 10, 3: 15, 4: 20 });
-    const RUNEN_AMULET_DYNAMIC_CAP = 55;
+    const RUNEN_AMULET_TIER_BONUS = Object.freeze({ 1: 1, 2: 2, 3: 4, 4: 6, 5: 10 });
     const LEBENS_RING_HP_BY_TIER = Object.freeze({ 1: 20, 2: 40, 3: 60, 4: 80, 5: 120 });
     const GLUECKS_RING_CRIT_BY_TIER = Object.freeze({ 1: 1, 2: 3, 3: 5, 4: 8, 5: 12 });
     const BASE_ATK = 1;
@@ -7176,10 +7175,6 @@ let frenzyAuraEl = null;
       const equippedRunen = getEquippedItems().find(item => item && item.key === RUNEN_AMULET_KEY);
       if (!equippedRunen) return 0;
       const tier = Math.max(1, Math.floor(equippedRunen.tier || 1));
-      if (tier >= 5) {
-        const completed = getCompletedSectionCount();
-        return Math.min(RUNEN_AMULET_DYNAMIC_CAP, completed);
-      }
       return RUNEN_AMULET_TIER_BONUS[tier] || RUNEN_AMULET_TIER_BONUS[4];
     }
     function applyCoinBonus(baseAmount) {
@@ -8651,9 +8646,9 @@ let frenzyAuraEl = null;
     }
 
     gachaBtn.addEventListener("click", () => {
-      const cost = 25;
+      const cost = 20;
       if (state.coins < cost) {
-        setGachaStatus("Nicht genug Coins (25 nötig).");
+        setGachaStatus("Nicht genug Coins (20 nötig).");
         return;
       }
       const type = getSelectedGachaType();
