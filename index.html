@@ -4688,9 +4688,8 @@ let frenzyAuraEl = null;
       Object.assign(state, nextState);
       normalizeStateShape();
       saveState();
-      updateUI();
-      updateOverallSummary();
-      renderReport();
+      // Nach dem Import neu laden, damit alle Caches/Charts sauber sind
+      location.reload();
     }
     const coinTop = document.getElementById("coinTop");
     const atkDisplay = document.getElementById("atkDisplay");
