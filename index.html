@@ -4663,7 +4663,15 @@ let frenzyAuraEl = null;
     function exportGameState() {
       try {
         normalizeStateShape();
-        const payload = JSON.stringify(state, null, 2);
+        const exportState = JSON.parse(JSON.stringify(state));
+        const itemCount = Array.isArray(exportState.items) ? exportState.items.length : 0;
+        exportState.coinInfo = {
+          itemCount,
+          itemsValueCoins: itemCount * 20
+        };
+        exportState.items = [];
+        exportState.skills = [];
+        const payload = JSON.stringify(exportState, null, 2);
         const stamp = new Date().toISOString().replace(/[:.]/g, "-");
         const filename = `shortcut-ritter-save-${stamp}.json`;
         const blob = new Blob([payload], { type: "application/json" });
@@ -4686,6 +4694,9 @@ let frenzyAuraEl = null;
         throw new Error("Ungültiger Spielstand.");
       }
       Object.assign(state, nextState);
+      if (nextState.coinInfo && typeof nextState.coinInfo.itemsValueCoins === "number") {
+        state.coins = Math.max(0, Math.floor(nextState.coinInfo.itemsValueCoins));
+      }
       normalizeStateShape();
       saveState();
       // Nach dem Import neu laden, damit alle Caches/Charts sauber sind
