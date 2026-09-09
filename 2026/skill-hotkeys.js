@@ -90,7 +90,6 @@
       }
     }
 
-    // Learners do not need to remember which former worksheet introduced a shortcut.
     sections.forEach(section => {
       if (!section) return;
       section.title = stripWorksheetRefs(section.title);
@@ -287,6 +286,7 @@
     const style = document.createElement("style");
     style.id = "a8ChoiceStyles";
     style.textContent = `
+      #overviewCard { display:none!important; }
       #sectionTabs { flex-wrap: nowrap !important; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; padding-bottom: .25rem; }
       #sectionTabs .section-tab { flex: 0 0 auto; }
       #learnView .nav-card > .small { margin: .45rem 0 0; }
@@ -711,7 +711,6 @@
       const used = new Set(values.filter(Boolean));
       const filled = values.filter(Boolean).length;
       if (!values[activeIndex]) {
-        // keep current target
       } else {
         const next = nextOpenIndex(activeIndex);
         if (next >= 0) activeIndex = next;
