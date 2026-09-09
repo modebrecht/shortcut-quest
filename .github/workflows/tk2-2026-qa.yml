@@ -73,6 +73,8 @@ jobs:
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
           grep -q 'shortcutRitter_2026_v1' 2026/skill-hotkeys.js
+          grep -q 'tk_global_xp_v1' 2026/skill-hotkeys.js
+          grep -q 'HINT_COST_XP_2026 = 30' 2026/skill-hotkeys.js
           ! grep -q 'memoryGame:' 2026/sections-data.js
 
       - name: Vercel autodeploy stays disabled
@@ -91,7 +93,10 @@ jobs:
       - name: Install Chromium smoke dependency
         run: |
           npm install --no-save playwright
-          npx playwright install --with-deps chromium
+          # GitHub's Ubuntu image already contains Chromium runtime libraries.
+          # Avoid --with-deps here: that unnecessarily hits the external Google
+          # APT index, which can transiently publish mismatched Packages hashes.
+          npx playwright install chromium
 
       - name: Serve TK2 2026 locally
         run: |
