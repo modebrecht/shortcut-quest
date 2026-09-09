@@ -73,7 +73,8 @@ try {
   const reflexRound = page.locator('.section[data-section="2"]');
   assert.equal(await reflexRound.locator('.fast-paced').count(), 1, 'Section 2 should render the reflex round');
   assert.equal(await reflexRound.locator('input[data-answer]').count(), 0, 'Section 2 must not contain copy-recall inputs');
-  assert.ok(await reflexRound.locator('.fast-paced-start').isVisible(), 'Section 2 reflex start button should be visible');
+  await page.locator('.section-tab[data-goto="2"]').click();
+  assert.ok(await reflexRound.locator('.fast-paced-start').isVisible(), 'Section 2 reflex start button should be visible when its tab is active');
 
   // First progression clear now uses a recognition section rather than the
   // deliberately game-like opening mission.
