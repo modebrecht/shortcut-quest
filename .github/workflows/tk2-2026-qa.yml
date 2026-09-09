@@ -7,6 +7,10 @@ on:
       - '2026/**'
       - '.github/workflows/tk2-2026-qa.yml'
 
+concurrency:
+  group: tk2-2026-qa
+  cancel-in-progress: true
+
 jobs:
   static-qa:
     runs-on: ubuntu-latest
