@@ -10,6 +10,8 @@
   // 1.16x restores almost exactly the same first-clear purchasing power.
   const REWARD_SCALE_2026 = 1.16;
   const RUNEN_AMULET_KEY_2026 = "runen_amulet";
+  const XP_STORAGE_KEY_2026 = "tk_global_xp_v1";
+  const HINT_COST_XP_2026 = 30;
 
   function narrativeEntry(scene, prompt, options, answers) {
     return {
@@ -263,6 +265,425 @@
     });
   }
 
+  function getSharedXP() {
+    if (typeof global.localStorage === "undefined") return 0;
+    const value = parseInt(global.localStorage.getItem(XP_STORAGE_KEY_2026) || "0", 10);
+    return Number.isFinite(value) ? Math.max(0, value) : 0;
+  }
+
+  function setSharedXP(value) {
+    if (typeof global.localStorage === "undefined") return;
+    global.localStorage.setItem(XP_STORAGE_KEY_2026, String(Math.max(0, Math.floor(Number(value) || 0))));
+    renderSharedXP();
+    refreshHintButtons();
+  }
+
+  function renderSharedXP() {
+    if (typeof document === "undefined") return;
+    const headerRight = document.querySelector("header .header-right");
+    if (!headerRight) return;
+    let badge = document.getElementById("a8XpTop");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "a8XpTop";
+      badge.className = "badge";
+      const coinBadge = document.getElementById("coinTop");
+      if (coinBadge) headerRight.insertBefore(badge, coinBadge);
+      else headerRight.appendChild(badge);
+    }
+    badge.textContent = `⚡ XP: ${getSharedXP()}`;
+    badge.title = "Kurs-XP aus TK2 · Tipps kosten 30 XP";
+  }
+
+  function injectChoiceStyles() {
+    if (typeof document === "undefined" || document.getElementById("a8ChoiceStyles")) return;
+    const style = document.createElement("style");
+    style.id = "a8ChoiceStyles";
+    style.textContent = `
+      #learnSections select.a8-native-select {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        overflow: hidden !important;
+        clip: rect(0 0 0 0) !important;
+      }
+      .a8-choice-ui { display: flex; flex-direction: column; gap: .65rem; width: 100%; margin-top: .55rem; }
+      .a8-choice-options { display: grid; grid-template-columns: repeat(auto-fit,minmax(112px,1fr)); gap: .55rem; width: 100%; }
+      .a8-choice-option, .a8-combo-bank-option, .a8-combo-slot-button {
+        appearance: none; border: 1px solid rgba(148,163,184,.38); border-radius: .85rem;
+        background: rgba(15,23,42,.58); color: var(--text); min-height: 44px; padding: .62rem .8rem;
+        font: inherit; font-weight: 750; cursor: pointer; transition: transform .12s ease,border-color .12s ease,background .12s ease,opacity .12s ease;
+      }
+      .a8-choice-option:hover:not(:disabled), .a8-combo-bank-option:hover:not(:disabled), .a8-combo-slot-button:hover:not(:disabled) {
+        border-color: var(--accent); background: rgba(245,158,11,.14); transform: translateY(-1px);
+      }
+      .a8-choice-option.selected, .a8-combo-bank-option.selected, .a8-combo-slot-button.active {
+        border-color: rgba(245,158,11,.82); background: rgba(245,158,11,.2); box-shadow: 0 0 0 2px rgba(245,158,11,.12);
+      }
+      .a8-choice-option.removed { opacity: .22; text-decoration: line-through; pointer-events: none; }
+      .a8-choice-option.correct, .a8-combo-slot-button.correct { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+      .a8-choice-option.wrong, .a8-combo-slot-button.incorrect { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+      .a8-choice-option.correct-answer, .a8-combo-bank-option.correct-answer { border-color: var(--good); box-shadow: 0 0 0 2px rgba(34,197,94,.12); }
+      .a8-hint-row { display:flex; align-items:center; flex-wrap:wrap; gap:.55rem; }
+      .a8-hint-button {
+        border: 1px solid rgba(250,204,21,.4); border-radius: .75rem; background: rgba(250,204,21,.10);
+        color: #fde68a; padding: .48rem .72rem; font: inherit; font-size: .84rem; font-weight: 750; cursor: pointer;
+      }
+      .a8-hint-button:disabled { opacity: .48; cursor: not-allowed; }
+      .a8-hint-note { color: var(--muted); font-size: .82rem; }
+      .a8-combo-controls { display:flex; flex-direction:column; gap:.7rem; width:100%; margin-top:.7rem; }
+      .a8-combo-bank { display:flex; flex-wrap:wrap; gap:.48rem; align-items:center; }
+      .a8-combo-bank-option { min-height: 40px; padding:.5rem .7rem; font-size:.88rem; }
+      .combo-slot .a8-combo-slot-button { min-width: 88px; }
+      .a8-combo-bank-option.hint-removed { opacity:.2; text-decoration:line-through; pointer-events:none; }
+      @media (max-width: 620px) {
+        .a8-choice-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
+        .a8-choice-option { min-width:0; padding:.6rem .45rem; }
+        .a8-combo-bank { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .a8-combo-bank-option { min-width:0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function updateHintButton(hint, owner) {
+    if (!hint) return;
+    const used = hint.dataset.used === "true";
+    const locked = Boolean(owner && owner.closest && owner.closest(".section.section-locked"));
+    const xp = getSharedXP();
+    hint.disabled = used || locked || xp < HINT_COST_XP_2026;
+    hint.textContent = used
+      ? `💡 Tipp genutzt (-${HINT_COST_XP_2026} XP)`
+      : xp < HINT_COST_XP_2026
+        ? `💡 Tipp (-${HINT_COST_XP_2026} XP | Zu wenig XP)`
+        : `💡 Tipp (-${HINT_COST_XP_2026} XP)`;
+  }
+
+  function refreshHintButtons() {
+    if (typeof document === "undefined") return;
+    document.querySelectorAll("#learnSections .a8-hint-button").forEach(hint => {
+      updateHintButton(hint, hint.closest(".a8-choice-ui,.combo-row"));
+    });
+  }
+
+  function spendHintXP() {
+    const current = getSharedXP();
+    if (current < HINT_COST_XP_2026) return false;
+    setSharedXP(current - HINT_COST_XP_2026);
+    if (typeof global.playSound === "function") global.playSound("hint");
+    return true;
+  }
+
+  function syncSimpleChoice(select, ui) {
+    if (!select || !ui) return;
+    const value = select.value || "";
+    const answer = select.dataset.answer || "";
+    const isCorrect = select.classList.contains("correct");
+    const isIncorrect = select.classList.contains("incorrect");
+    ui.querySelectorAll(".a8-choice-option").forEach(button => {
+      const selected = button.dataset.value === value;
+      button.classList.toggle("selected", selected);
+      button.classList.toggle("correct", selected && isCorrect);
+      button.classList.toggle("wrong", selected && isIncorrect);
+      button.classList.toggle("correct-answer", isIncorrect && button.dataset.value === answer);
+      button.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
+  }
+
+  function resetSimpleChoice(select, ui) {
+    if (!select || !ui) return;
+    ui.querySelectorAll(".a8-choice-option").forEach(button => {
+      button.classList.remove("removed","correct","wrong","correct-answer");
+      button.disabled = false;
+    });
+    const hint = ui.querySelector(".a8-hint-button");
+    if (hint) hint.dataset.used = "false";
+    const note = ui.querySelector(".a8-hint-note");
+    if (note) note.textContent = "";
+    syncSimpleChoice(select, ui);
+    updateHintButton(hint, ui);
+  }
+
+  function upgradeSimpleSelect(select) {
+    if (!select || select.dataset.a8Buttonized === "true") return;
+    select.dataset.a8Buttonized = "true";
+    select.classList.add("a8-native-select");
+    const options = Array.from(select.options).filter(option => option.value);
+    if (!options.length) return;
+
+    const ui = document.createElement("div");
+    ui.className = "a8-choice-ui";
+    const optionWrap = document.createElement("div");
+    optionWrap.className = "a8-choice-options";
+    options.forEach(option => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "a8-choice-option";
+      button.dataset.value = option.value;
+      button.textContent = option.textContent || option.value;
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        if (button.classList.contains("removed")) return;
+        select.value = button.dataset.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        syncSimpleChoice(select, ui);
+      });
+      optionWrap.appendChild(button);
+    });
+
+    const hintRow = document.createElement("div");
+    hintRow.className = "a8-hint-row";
+    const hint = document.createElement("button");
+    hint.type = "button";
+    hint.className = "a8-hint-button";
+    hint.dataset.used = "false";
+    const note = document.createElement("span");
+    note.className = "a8-hint-note";
+    hint.addEventListener("click", event => {
+      event.preventDefault();
+      if (hint.dataset.used === "true" || hint.disabled) return;
+      const answer = select.dataset.answer || "";
+      const candidates = Array.from(optionWrap.querySelectorAll(".a8-choice-option")).filter(button =>
+        button.dataset.value !== answer && button.dataset.value !== select.value && !button.classList.contains("removed")
+      );
+      if (!candidates.length) return;
+      if (!spendHintXP()) return;
+      const removed = candidates[Math.floor(Math.random() * candidates.length)];
+      removed.classList.add("removed");
+      removed.disabled = true;
+      hint.dataset.used = "true";
+      note.textContent = "Eine falsche Antwort wurde entfernt.";
+      updateHintButton(hint, ui);
+    });
+    hintRow.appendChild(hint);
+    hintRow.appendChild(note);
+    ui.appendChild(optionWrap);
+    ui.appendChild(hintRow);
+    select.parentNode.insertBefore(ui, select);
+
+    new MutationObserver(() => syncSimpleChoice(select, ui)).observe(select, { attributes: true, attributeFilter: ["class"] });
+    syncSimpleChoice(select, ui);
+    updateHintButton(hint, ui);
+  }
+
+  function comboOptionValues(selects) {
+    const values = [];
+    const seen = new Set();
+    selects.forEach(select => {
+      Array.from(select.options).forEach(option => {
+        if (!option.value || seen.has(option.value)) return;
+        seen.add(option.value);
+        values.push({ value: option.value, label: option.textContent || option.value });
+      });
+    });
+    return values;
+  }
+
+  function upgradeComboRow(row) {
+    if (!row || row.dataset.a8Buttonized === "true") return;
+    const selects = Array.from(row.querySelectorAll(".combo-slot select"));
+    if (!selects.length) return;
+    row.dataset.a8Buttonized = "true";
+    row.dataset.a8ActiveSlot = "0";
+    row.dataset.a8HintSlot = "";
+    row.dataset.a8HintRemoved = "";
+    const slotButtons = [];
+
+    const controls = document.createElement("div");
+    controls.className = "a8-combo-controls";
+    const bank = document.createElement("div");
+    bank.className = "a8-combo-bank";
+    const bankButtons = [];
+    comboOptionValues(selects).forEach(meta => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "a8-combo-bank-option";
+      button.dataset.value = meta.value;
+      button.textContent = meta.label;
+      bank.appendChild(button);
+      bankButtons.push(button);
+    });
+
+    function activeIndex() {
+      return Math.max(0, Math.min(selects.length - 1, Number(row.dataset.a8ActiveSlot) || 0));
+    }
+
+    function syncCombo() {
+      const active = activeIndex();
+      selects.forEach((select, index) => {
+        const button = slotButtons[index];
+        if (!button) return;
+        button.textContent = select.value || "Wählen";
+        button.classList.toggle("active", index === active);
+        button.classList.toggle("correct", select.classList.contains("correct"));
+        button.classList.toggle("incorrect", select.classList.contains("incorrect"));
+      });
+      const current = selects[active];
+      const hintSlot = Number(row.dataset.a8HintSlot);
+      const removedValue = row.dataset.a8HintRemoved || "";
+      bankButtons.forEach(button => {
+        const selected = current && current.value === button.dataset.value;
+        const removed = row.dataset.a8HintSlot !== "" && hintSlot === active && removedValue === button.dataset.value;
+        button.classList.toggle("selected", selected);
+        button.classList.toggle("hint-removed", removed);
+        button.disabled = removed;
+        button.classList.toggle("correct-answer", Boolean(current && current.classList.contains("incorrect") && current.dataset.answer === button.dataset.value));
+      });
+    }
+
+    selects.forEach((select, index) => {
+      select.dataset.a8Buttonized = "true";
+      select.classList.add("a8-native-select");
+      const slot = select.closest(".combo-slot");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "a8-combo-slot-button";
+      button.textContent = select.value || "Wählen";
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        row.dataset.a8ActiveSlot = String(index);
+        syncCombo();
+      });
+      if (slot) slot.insertBefore(button, select);
+      slotButtons.push(button);
+      new MutationObserver(syncCombo).observe(select, { attributes: true, attributeFilter: ["class"] });
+    });
+
+    bankButtons.forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        const index = activeIndex();
+        const select = selects[index];
+        if (!select || button.disabled) return;
+        select.value = button.dataset.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        if (index < selects.length - 1) row.dataset.a8ActiveSlot = String(index + 1);
+        syncCombo();
+      });
+    });
+
+    const hintRow = document.createElement("div");
+    hintRow.className = "a8-hint-row";
+    const hint = document.createElement("button");
+    hint.type = "button";
+    hint.className = "a8-hint-button";
+    hint.dataset.used = "false";
+    const note = document.createElement("span");
+    note.className = "a8-hint-note";
+    hint.addEventListener("click", event => {
+      event.preventDefault();
+      if (hint.disabled || hint.dataset.used === "true") return;
+      const index = activeIndex();
+      const select = selects[index];
+      if (!select) return;
+      const answer = select.dataset.answer || "";
+      const candidates = bankButtons.filter(button => button.dataset.value !== answer && button.dataset.value !== select.value);
+      if (!candidates.length) return;
+      if (!spendHintXP()) return;
+      const removed = candidates[Math.floor(Math.random() * candidates.length)];
+      row.dataset.a8HintSlot = String(index);
+      row.dataset.a8HintRemoved = removed.dataset.value;
+      hint.dataset.used = "true";
+      note.textContent = `Für Slot ${index + 1} wurde eine falsche Antwort entfernt.`;
+      updateHintButton(hint, row);
+      syncCombo();
+    });
+    hintRow.appendChild(hint);
+    hintRow.appendChild(note);
+    controls.appendChild(bank);
+    controls.appendChild(hintRow);
+    row.appendChild(controls);
+    row.__a8SyncCombo = syncCombo;
+    row.__a8ResetCombo = () => {
+      row.dataset.a8ActiveSlot = "0";
+      row.dataset.a8HintSlot = "";
+      row.dataset.a8HintRemoved = "";
+      hint.dataset.used = "false";
+      note.textContent = "";
+      updateHintButton(hint, row);
+      syncCombo();
+    };
+    updateHintButton(hint, row);
+    syncCombo();
+  }
+
+  function upgradeAllSelects() {
+    if (typeof document === "undefined") return;
+    const host = document.getElementById("learnSections");
+    if (!host) return;
+    host.querySelectorAll(".combo-row").forEach(upgradeComboRow);
+    host.querySelectorAll("select:not([data-a8-buttonized='true'])").forEach(select => {
+      if (!select.closest(".combo-row")) upgradeSimpleSelect(select);
+    });
+  }
+
+  function resetButtonUI(section) {
+    if (!section) return;
+    section.querySelectorAll("select.a8-native-select").forEach(select => {
+      if (select.closest(".combo-row")) return;
+      const ui = select.previousElementSibling && select.previousElementSibling.classList.contains("a8-choice-ui")
+        ? select.previousElementSibling
+        : null;
+      if (ui) resetSimpleChoice(select, ui);
+    });
+    section.querySelectorAll(".combo-row").forEach(row => {
+      if (typeof row.__a8ResetCombo === "function") row.__a8ResetCombo();
+    });
+  }
+
+  function install2026ButtonChoices() {
+    if (typeof document === "undefined" || global.__shortcutQuest2026ButtonChoicesInstalled) return;
+    global.__shortcutQuest2026ButtonChoicesInstalled = true;
+    injectChoiceStyles();
+    renderSharedXP();
+    upgradeAllSelects();
+    refreshHintButtons();
+
+    const host = document.getElementById("learnSections");
+    if (host) {
+      new MutationObserver(() => queueMicrotask(() => {
+        upgradeAllSelects();
+        refreshHintButtons();
+      })).observe(host, { childList: true, subtree: true });
+    }
+
+    document.addEventListener("click", event => {
+      const reset = event.target && event.target.closest ? event.target.closest(".reset-section") : null;
+      if (reset) {
+        const section = reset.closest(".section");
+        setTimeout(() => resetButtonUI(section), 0);
+      }
+      const check = event.target && event.target.closest ? event.target.closest(".check-section") : null;
+      if (check) {
+        setTimeout(() => {
+          upgradeAllSelects();
+          refreshHintButtons();
+          const section = check.closest(".section");
+          if (section) {
+            section.querySelectorAll(".combo-row").forEach(row => {
+              if (typeof row.__a8SyncCombo === "function") row.__a8SyncCombo();
+            });
+          }
+        }, 0);
+      }
+    });
+
+    global.addEventListener("storage", event => {
+      if (event.key === XP_STORAGE_KEY_2026) {
+        renderSharedXP();
+        refreshHintButtons();
+      }
+    });
+    global.SHORTCUT_QUEST_2026_HINTS = Object.freeze({
+      costXP: HINT_COST_XP_2026,
+      storageKey: XP_STORAGE_KEY_2026,
+      behavior: "remove-one-wrong-answer"
+    });
+  }
+
   // Clear visual identity: this is A8, not the archived v1.8 root edition.
   if (typeof document !== "undefined") {
     document.title = "A8 · Shortcut Quest 2026";
@@ -298,8 +719,11 @@
 
     render2026Progress(global.__shortcutQuest2026InitialState || {});
     // The 2026 helper loads before the inherited inline runtime. Install economy
-    // overrides only once the parser has finished and all legacy helpers exist.
-    const installAfterRuntime = () => queueMicrotask(install2026EconomyOverrides);
+    // and 2026-only UI overrides once the parser has finished.
+    const installAfterRuntime = () => queueMicrotask(() => {
+      install2026EconomyOverrides();
+      install2026ButtonChoices();
+    });
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", installAfterRuntime, { once: true });
     } else {
