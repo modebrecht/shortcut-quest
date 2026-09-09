@@ -17,6 +17,7 @@ jobs:
         run: |
           node --check 2026/sections-data.js
           node --check 2026/skill-hotkeys.js
+          node --check 2026/qa/browser-smoke.mjs
 
       - name: Curated course invariants
         run: |
@@ -60,6 +61,7 @@ jobs:
           test -f 2026/skill-hotkeys.js
           test -f 2026/apexcharts.min.js
           test -f 2026/favicon.svg
+          test -f 2026/qa/browser-smoke.mjs
           test -d 2026/assets
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
@@ -69,3 +71,35 @@ jobs:
       - name: Vercel autodeploy stays disabled
         run: |
           node -e "const v=require('./vercel.json'); if(v.git?.deploymentEnabled!==false) process.exit(1)"
+
+  browser-smoke:
+    needs: static-qa
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Chromium smoke dependency
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Serve TK2 2026 locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/tk2-2026-http.log 2>&1 &
+          echo $! > /tmp/tk2-2026-http.pid
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/2026/ >/dev/null; then exit 0; fi
+            sleep 0.5
+          done
+          cat /tmp/tk2-2026-http.log
+          exit 1
+
+      - name: Browser E2E smoke
+        run: node 2026/qa/browser-smoke.mjs
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat /tmp/tk2-2026-http.log || true
