@@ -72,6 +72,7 @@ jobs:
           test -f 2026/modern-exercises.css
           test -f 2026/modern-game.css
           test -f 2026/modern-battle.css
+          test -f 2026/modern-report.css
           test -f 2026/apexcharts.min.js
           test -f 2026/favicon.svg
           test -f 2026/qa/browser-smoke.mjs
@@ -84,6 +85,7 @@ jobs:
           grep -q 'modern-exercises.css' 2026/skill-hotkeys.js
           grep -q 'modern-game.css' 2026/skill-hotkeys.js
           grep -q 'modern-battle.css' 2026/skill-hotkeys.js
+          grep -q 'modern-report.css' 2026/modern-game.css
           grep -q 'shortcutRitter_2026_v1' 2026/skill-hotkeys.js
           grep -q 'tk_global_xp_v1' 2026/skill-hotkeys.js
           grep -q 'HINT_COST_XP_2026 = 30' 2026/skill-hotkeys.js
