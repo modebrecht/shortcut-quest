@@ -265,6 +265,11 @@
   box-shadow: 0 12px 28px rgba(2,6,23,.36) !important;
 }
 
+/* Cross-view focus safeguard: once combat starts, the selection view is gone. */
+#battleView #battleSimulation:not(.hidden) + .battle-overview {
+  display: none;
+}
+
 @media (max-width: 760px) {
   #reportView .report-card {
     padding: .65rem;
