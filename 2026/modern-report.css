@@ -320,3 +320,52 @@
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
 }
+
+/* Cross-view polish: normal recognition questions stay compact and unambiguous. */
+@media (min-width: 701px) {
+  #learnSections .a8-choice-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) {
+  #learnSections .a8-choice-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+#learnSections .a8-choice-option:hover:not(:disabled):not(.removed):not(.selected),
+#learnSections .a8-choice-option:focus:not(:disabled):not(.removed):not(.selected),
+#learnSections .a8-choice-option:focus-visible:not(:disabled):not(.removed):not(.selected) {
+  border-color: rgba(96,165,250,.66) !important;
+  background: linear-gradient(145deg, rgba(37,63,102,.82), rgba(15,30,54,.94)) !important;
+  box-shadow: 0 0 0 2px rgba(96,165,250,.10), 0 10px 24px rgba(2,6,23,.20) !important;
+  outline: none !important;
+}
+
+#learnSections .a8-choice-option.selected,
+#learnSections .a8-choice-option.selected:hover,
+#learnSections .a8-choice-option.selected:focus,
+#learnSections .a8-choice-option.selected:focus-visible {
+  border-color: rgba(251,191,36,.78) !important;
+  background: linear-gradient(145deg, rgba(120,78,12,.32), rgba(45,38,30,.76)) !important;
+  box-shadow: 0 0 0 2px rgba(251,191,36,.08), 0 10px 24px rgba(245,158,11,.08) !important;
+  outline: none !important;
+}
+
+/* AltGr used to expose ten answers at once. Keep all ten learning targets,
+   but show only one correct answer plus three plausible distractors per question. */
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+2"]) .a8-choice-option:not(:is([data-value="AltGr+2"],[data-value="AltGr+3"],[data-value="AltGr+E"],[data-value="AltGr+4"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+3"]) .a8-choice-option:not(:is([data-value="AltGr+3"],[data-value="AltGr+2"],[data-value="AltGr+7"],[data-value="AltGr+4"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+E"]) .a8-choice-option:not(:is([data-value="AltGr+E"],[data-value="AltGr+2"],[data-value="AltGr+3"],[data-value="AltGr+$"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+4"]) .a8-choice-option:not(:is([data-value="AltGr+4"],[data-value="AltGr+2"],[data-value="AltGr+7"],[data-value="AltGr+<"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+7"]) .a8-choice-option:not(:is([data-value="AltGr+7"],[data-value="AltGr+<"],[data-value="AltGr+4"],[data-value="AltGr+$"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+<"]) .a8-choice-option:not(:is([data-value="AltGr+<"],[data-value="AltGr+7"],[data-value="AltGr+ü"],[data-value="AltGr+¨"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+ü"]) .a8-choice-option:not(:is([data-value="AltGr+ü"],[data-value="AltGr+¨"],[data-value="AltGr+ä"],[data-value="AltGr+<"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+¨"]) .a8-choice-option:not(:is([data-value="AltGr+¨"],[data-value="AltGr+ü"],[data-value="AltGr+ä"],[data-value="AltGr+$"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+ä"]) .a8-choice-option:not(:is([data-value="AltGr+ä"],[data-value="AltGr+ü"],[data-value="AltGr+¨"],[data-value="AltGr+$"])),
+#learnSections .section[data-section="5"] .task-field:has(select[data-answer="AltGr+$"]) .a8-choice-option:not(:is([data-value="AltGr+$"],[data-value="AltGr+ä"],[data-value="AltGr+¨"],[data-value="AltGr+ü"])) {
+  display: none !important;
+}
