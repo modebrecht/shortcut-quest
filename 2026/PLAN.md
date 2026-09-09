@@ -11,7 +11,8 @@ Goal: keep the existing Shortcut Quest RPG loop (coins, shop, inventory, skills,
 - [x] Repetition is allowed only when retrieval mode, context or difficulty changes meaningfully.
 - [x] Avoid near-identical duplicate sections.
 - [x] Use exactly 30 learning sections so the RPG loop has enough runway.
-- [x] Raise difficulty from recall/recognition through construction and workflow transfer to mixed retrieval, pressure and mastery.
+- [x] Start with game-like contextual decisions instead of copy-the-shortcut input fields.
+- [x] Raise difficulty from contextual activation/recognition through construction and workflow transfer to mixed retrieval, pressure and mastery.
 
 ## New 2026 mechanic — Workflow Chains
 
@@ -41,7 +42,7 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 - [x] Collapse duplicate navigation puzzles into one stronger mixed navigation puzzle.
 - [x] Collapse overlapping Combo Builders into distinct construction challenges.
 - [x] Reduce repeated story scenes to a small set with different contexts.
-- [x] Reduce Fast-Paced variants to a clear Basics -> Browser -> Windows -> Mastery progression.
+- [x] Reduce Fast-Paced variants to a clear early reflex round -> Basics -> Browser -> Windows -> Mastery progression.
 - [x] Reduce duplicate Drag & Drop variants to purposeful A1 / Browser / Windows rounds.
 - [x] Replace every shortcut not covered by current TK2 A1–A7.
 - [x] Correct AltGr mappings specifically for the Swiss keyboard used in TK2.
@@ -50,9 +51,9 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 
 ## Target 2026 learning path — 30 sections
 
-### Phase 1 — Recall foundation
-- [x] 01 Warm-up – Grundlagen.
-- [x] 02 A1 – Advanced Recall.
+### Phase 1 — Game-first activation
+- [x] 01 Mission – Abgabe in 60 Sekunden.
+- [x] 02 Reflex-Runde – A1.
 - [x] 03 Programme & Browser.
 - [x] 04 Windows & Arbeitsalltag.
 - [x] 05 AltGr – Schweizer Tastatur.
