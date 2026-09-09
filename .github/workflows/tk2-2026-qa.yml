@@ -19,6 +19,7 @@ jobs:
           node --check 2026/skill-hotkeys.js
           node --check 2026/qa/browser-smoke.mjs
           node --check 2026/qa/economy-audit.mjs
+          node --check 2026/qa/economy-browser.mjs
 
       - name: Curated course invariants
         run: |
@@ -67,6 +68,7 @@ jobs:
           test -f 2026/favicon.svg
           test -f 2026/qa/browser-smoke.mjs
           test -f 2026/qa/economy-audit.mjs
+          test -f 2026/qa/economy-browser.mjs
           test -d 2026/assets
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
@@ -104,6 +106,9 @@ jobs:
 
       - name: Browser E2E smoke
         run: node 2026/qa/browser-smoke.mjs
+
+      - name: Economy browser gate
+        run: node 2026/qa/economy-browser.mjs
 
       - name: Show server log on failure
         if: failure()
