@@ -66,11 +66,21 @@ try {
   assert.equal(await page.locator('.section-tab').count(), 10, 'Expected 10 initially available sections');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must not be rendered in A8');
 
-  // First real completion. Use human-style spacing to verify Ctrl + C is accepted
-  // exactly like Ctrl+C by the 2026 input normalizer.
-  await solveSimpleSection('1', { spacedPlus: true });
+  // Game-first opening gate: A8 must not begin with copy-the-shortcut text fields.
+  const openingMission = page.locator('.section[data-section="1"]');
+  assert.equal(await openingMission.locator('.narrative-card').count(), 6, 'Section 1 should render six scenario cards');
+  assert.equal(await openingMission.locator('input[data-answer]').count(), 0, 'Section 1 must not contain copy-recall inputs');
+  const reflexRound = page.locator('.section[data-section="2"]');
+  assert.equal(await reflexRound.locator('.fast-paced').count(), 1, 'Section 2 should render the reflex round');
+  assert.equal(await reflexRound.locator('input[data-answer]').count(), 0, 'Section 2 must not contain copy-recall inputs');
+  assert.ok(await reflexRound.locator('.fast-paced-start').isVisible(), 'Section 2 reflex start button should be visible');
+
+  // First progression clear now uses a recognition section rather than the
+  // deliberately game-like opening mission.
+  await page.locator('.section-tab[data-goto="3"]').click();
+  await solveSimpleSection('3');
   let state = await readState();
-  assert.ok(Number(state.sectionClears?.['1']) > 0, 'Section 1 was not persisted as cleared');
+  assert.ok(Number(state.sectionClears?.['3']) > 0, 'Section 3 was not persisted as cleared');
   assert.ok(Number(state.coins) > 0, 'Perfect section should award coins');
   assert.equal(Number(state.sectionsUnlocked), 11, 'First clear should unlock section 11');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '1 / 30');
@@ -85,8 +95,8 @@ try {
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '2 / 30');
 
   // Third learned section: learning alone must NOT skip Battle 1.
-  await page.locator('.section-tab[data-goto="2"]').click();
-  await solveSimpleSection('2');
+  await page.locator('.section-tab[data-goto="4"]').click();
+  await solveSimpleSection('4');
   state = await readState();
   assert.equal(Number(state.battleUnlocked), 1, 'Battle 2 must stay gated until Battle 1 is defeated');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '3 / 30');
@@ -113,6 +123,19 @@ try {
   await solveDndSection('6');
   state = await readState();
   assert.ok(Number(state.sectionClears?.['6']) > 0, 'Drag & Drop section did not score/persist');
+
+  // Keep the typed-input spacing regression test, but move it to a later recall
+  // section so the opening itself can stay game-first.
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
+    state.sectionsUnlocked = Math.max(20, Number(state.sectionsUnlocked) || 0);
+    localStorage.setItem('shortcutRitter_v1', JSON.stringify(state));
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('.section-tab[data-goto="20"]').click();
+  await solveSimpleSection('20', { spacedPlus: true });
+  state = await readState();
+  assert.ok(Number(state.sectionClears?.['20']) > 0, 'Typed spacing section did not score/persist');
 
   // Shop -> inventory -> equipment loop with a deterministic starting budget.
   await page.evaluate(() => {
@@ -162,10 +185,10 @@ try {
   // Reload verifies the isolated 2026 state survives a real navigation cycle.
   await page.reload({ waitUntil: 'networkidle' });
   state = await readState();
-  assert.ok(Number(state.sectionClears?.['1']) > 0 && Number(state.sectionClears?.['2']) > 0 && Number(state.sectionClears?.['6']) > 0 && Number(state.sectionClears?.['11']) > 0,
+  assert.ok(Number(state.sectionClears?.['3']) > 0 && Number(state.sectionClears?.['4']) > 0 && Number(state.sectionClears?.['6']) > 0 && Number(state.sectionClears?.['11']) > 0 && Number(state.sectionClears?.['20']) > 0,
     'Cleared sections did not survive reload');
   assert.equal(Number(state.battleUnlocked), 2, 'Battle progression did not survive reload');
-  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '4 / 30');
+  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '5 / 30');
 
   // Renderer gate: force the complete course visible, reload, and activate every
   // section once. This catches late-section renderer/data incompatibilities.
@@ -199,7 +222,7 @@ try {
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
 
-  console.log('OK: browser smoke passed — inputs, DnD, Workflow Chain, shop, equipment, skills, battle gates, all 30 renderers and mobile layout.');
+  console.log('OK: browser smoke passed — game-first opening, inputs, DnD, Workflow Chain, shop, equipment, skills, battle gates, all 30 renderers and mobile layout.');
 } finally {
   await browser.close();
 }
