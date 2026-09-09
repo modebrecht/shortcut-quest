@@ -43,9 +43,6 @@ async function solveSimpleSection(sectionId, { spacedPlus = false } = {}) {
     if (await ui.count()) {
       await chooseButtonValue(ui, answer);
     } else {
-      // Combo Builder keeps the native select only as a hidden grading/state
-      // bridge. Set it through the DOM while separate assertions below verify
-      // that students interact through slot + button-bank controls instead.
       await select.evaluate((el, value) => {
         el.value = value;
         el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -53,7 +50,7 @@ async function solveSimpleSection(sectionId, { spacedPlus = false } = {}) {
     }
   }
   await section.locator(`.check-section[data-check-section="${sectionId}"]`).click();
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(180);
 }
 
 async function solveDndSection(sectionId) {
@@ -70,7 +67,7 @@ async function solveDndSection(sectionId) {
     });
   }, sectionId);
   await page.locator(`.section[data-section="${sectionId}"] .check-section[data-check-section="${sectionId}"]`).click();
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(180);
 }
 
 async function readState() {
@@ -79,31 +76,53 @@ async function readState() {
 
 try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => window.SHORTCUT_QUEST_2026_HINTS?.costXP === 30);
+  await page.waitForFunction(() => window.SHORTCUT_QUEST_2026_HINTS?.costXP === 30 && window.SHORTCUT_QUEST_2026_XP?.perCorrect === 5);
 
-  assert.equal(await page.title(), 'A8 · Shortcut Quest 2026');
+  assert.equal(await page.title(), 'Shortcut Quest 2026');
   assert.equal(await page.locator('html').getAttribute('data-edition'), 'tk2-2026');
-  assert.match((await page.locator('header .title').textContent()) || '', /A8.*Shortcut Quest 2026/);
+  assert.equal((await page.locator('header .title').textContent())?.trim(), 'Shortcut Quest 2026');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '0 / 30');
-
-  // The inherited runtime deliberately exposes the first 10 training sections.
   assert.equal(await page.locator('.section-tab').count(), 10, 'Expected 10 initially available sections');
-  assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must not be rendered in A8');
+  assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must not be rendered');
 
-  // A8 UI rule: never make students operate native dropdowns. Selects remain
-  // hidden behind the scenes only to preserve the inherited grader/state model.
-  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native select may be visible in A8');
+  // Student-facing copy must not rely on remembering old worksheet numbers.
+  const visibleLearningText = await page.locator('#learnView').innerText();
+  assert.equal(/\bA[1-8]\b/.test(visibleLearningText), false, 'Student-facing learning UI must not mention old worksheet labels');
+  assert.match((await page.locator('#learnView .nav-card > .small').textContent()) || '', /Richtig = \+5 XP/);
+
+  // Never make learners operate native dropdowns.
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native select may be visible');
   assert.ok(await page.locator('.section[data-section="3"] .a8-choice-option').count() > 0, 'Recognition questions should render answer buttons');
   assert.ok(await page.locator('.section[data-section="10"] .a8-combo-slot-button').count() > 0, 'Combo Builder should render clickable slots');
   assert.ok(await page.locator('.section[data-section="10"] .a8-combo-bank-option').count() > 0, 'Combo Builder should render a shared button bank');
 
   const hintConfig = await page.evaluate(() => window.SHORTCUT_QUEST_2026_HINTS);
-  assert.equal(hintConfig.costXP, 30, 'A8 hint price must match earlier TK2 exercises');
-  assert.equal(hintConfig.storageKey, 'tk_global_xp_v1', 'A8 must reuse shared TK2 XP');
+  const xpConfig = await page.evaluate(() => window.SHORTCUT_QUEST_2026_XP);
+  assert.equal(hintConfig.costXP, 30);
+  assert.equal(hintConfig.storageKey, 'tk_global_xp_v1');
   assert.equal(hintConfig.behavior, 'remove-one-wrong-answer');
+  assert.equal(xpConfig.perCorrect, 5, 'Every correct answer should award 5 XP');
+  assert.equal(xpConfig.storageKey, 'tk_global_xp_v1');
 
-  // Real hint purchase: reuse the shared course XP, charge 30 XP and eliminate
-  // exactly one wrong answer, matching A4-A6 behavior.
+  // Focused DnD: only one target is presented, tokens are tappable, and a used
+  // token disappears until the compact assignment is reopened.
+  await page.locator('.section-tab[data-goto="6"]').click();
+  const dndSection = page.locator('.section[data-section="6"]');
+  const dndShell = dndSection.locator('.a8-dnd-shell');
+  assert.equal(await dndShell.count(), 1, 'DnD should be upgraded to the focus shell');
+  assert.equal(await dndShell.locator('.dnd-target.a8-active').count(), 1, 'Exactly one DnD target should be active');
+  const visibleTokensBefore = await dndShell.locator('.dnd-token:visible').count();
+  assert.ok(visibleTokensBefore > 1, 'DnD should expose a compact token pool');
+  await dndShell.locator('.dnd-token:visible').first().click();
+  await page.waitForTimeout(60);
+  assert.equal(await dndShell.locator('.dnd-token:visible').count(), visibleTokensBefore - 1, 'Used DnD token should disappear from the pool');
+  assert.equal(await dndShell.locator('.a8-dnd-assignment').count(), 1, 'Used token should become one compact assignment');
+  await dndShell.locator('.a8-dnd-assignment').first().click();
+  await page.waitForTimeout(60);
+  assert.equal(await dndShell.locator('.dnd-token:visible').count(), visibleTokensBefore, 'Reopening an assignment should return its token');
+  assert.equal(await dndShell.locator('.a8-dnd-assignment').count(), 0, 'Reopened assignment should return to the active task');
+
+  // Real hint purchase: shared course XP, exact 30-XP price, one wrong answer removed.
   await page.evaluate(() => localStorage.setItem('tk_global_xp_v1', '60'));
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.SHORTCUT_QUEST_2026_HINTS?.costXP === 30);
@@ -115,10 +134,19 @@ try {
   assert.equal(await page.evaluate(() => localStorage.getItem('tk_global_xp_v1')), '30', 'Hint must deduct exactly 30 XP');
   assert.equal(await firstChoice.locator('.a8-choice-option.removed').count(), 1, 'Hint must remove exactly one wrong answer');
   assert.equal(await firstChoice.locator('.a8-choice-option').count(), optionCountBefore, 'Hint should eliminate, not delete/reflow, an option');
-  assert.match((await firstChoice.locator('.a8-hint-note').textContent()) || '', /Eine falsche Antwort wurde entfernt/);
 
-  // Combo Builder UX: selecting a slot and then one shared-bank button must
-  // update the hidden grading bridge without showing a dropdown.
+  // Solve eight button questions: each correct answer earns 5 XP, so 30 -> 70.
+  await solveSimpleSection('3');
+  assert.equal(await page.evaluate(() => localStorage.getItem('tk_global_xp_v1')), '70', 'Eight correct answers should award +40 XP');
+  assert.match((await page.locator('.section[data-section="3"] .a8-xp-earned').textContent()) || '', /\+40 XP/);
+  let state = await readState();
+  assert.ok(Number(state.sectionClears?.['3']) > 0, 'Section 3 was not persisted as cleared');
+  assert.ok(Number(state.coins) > 0, 'Perfect section should award coins');
+  assert.equal(Number(state.sectionsUnlocked), 11, 'First clear should unlock section 11');
+  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '1 / 30');
+  assert.equal(await page.locator('.section-tab').count(), 11, 'Section 11 tab should appear after first clear');
+
+  // Combo Builder UX: slot + shared button bank, never a dropdown.
   await page.locator('.section-tab[data-goto="10"]').click();
   const comboRow = page.locator('.section[data-section="10"] .combo-row').first();
   const firstComboSelect = comboRow.locator('select[data-answer]').first();
@@ -139,7 +167,7 @@ try {
   assert.equal(await firstComboSelect.inputValue(), comboAnswer, 'Combo button bank must update the grader value');
   assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'Combo interaction must not reveal native selects');
 
-  // Game-first opening gate: A8 must not begin with copy-the-shortcut text fields.
+  // Game-first opening gate.
   const openingMission = page.locator('.section[data-section="1"]');
   assert.equal(await openingMission.locator('.narrative-card').count(), 6, 'Section 1 should render six scenario cards');
   assert.equal(await openingMission.locator('input[data-answer]').count(), 0, 'Section 1 must not contain copy-recall inputs');
@@ -149,18 +177,7 @@ try {
   await page.locator('.section-tab[data-goto="2"]').click();
   assert.ok(await reflexRound.locator('.fast-paced-start').isVisible(), 'Section 2 reflex start button should be visible when its tab is active');
 
-  // First progression clear now uses a recognition section rather than the
-  // deliberately game-like opening mission.
-  await page.locator('.section-tab[data-goto="3"]').click();
-  await solveSimpleSection('3');
-  let state = await readState();
-  assert.ok(Number(state.sectionClears?.['3']) > 0, 'Section 3 was not persisted as cleared');
-  assert.ok(Number(state.coins) > 0, 'Perfect section should award coins');
-  assert.equal(Number(state.sectionsUnlocked), 11, 'First clear should unlock section 11');
-  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '1 / 30');
-  assert.equal(await page.locator('.section-tab').count(), 11, 'Section 11 tab should appear after first clear');
-
-  // New 2026 mechanic: Workflow Chain uses the stable Combo Builder runtime.
+  // Workflow Chain progression.
   await page.locator('.section-tab[data-goto="11"]').click();
   await solveSimpleSection('11');
   state = await readState();
@@ -179,8 +196,6 @@ try {
   assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');
   assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), true, 'Battle 2 should still be locked');
 
-  // Simulate the persisted result of winning Battle 1; the 2026 state normalizer
-  // must now permit Battle 2 because three sections are already mastered.
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
     state.battleClears = { ...(state.battleClears || {}), '1': true };
@@ -192,14 +207,13 @@ try {
   await page.locator('.nav-toggle[data-view="battle"]').click();
   assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), false, 'Battle 2 button should unlock after reload');
 
-  // Exercise a real Drag & Drop grading path.
+  // Exercise a real DnD grading path and persistence.
   await page.locator('.nav-toggle[data-view="learn"]').click();
   await solveDndSection('6');
   state = await readState();
   assert.ok(Number(state.sectionClears?.['6']) > 0, 'Drag & Drop section did not score/persist');
 
-  // Keep the typed-input spacing regression test, but move it to a later recall
-  // section so the opening itself can stay game-first.
+  // Typed-input spacing regression test.
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
     state.sectionsUnlocked = Math.max(20, Number(state.sectionsUnlocked) || 0);
@@ -211,7 +225,7 @@ try {
   state = await readState();
   assert.ok(Number(state.sectionClears?.['20']) > 0, 'Typed spacing section did not score/persist');
 
-  // Shop -> inventory -> equipment loop with a deterministic starting budget.
+  // Shop -> inventory -> equipment loop.
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
     state.coins = 100;
@@ -234,7 +248,7 @@ try {
   assert.ok(Object.values(state.equipment || {}).some(Boolean), 'Auto-equip did not equip the purchased item');
   assert.ok(await page.locator('.equipment-slot.equipped').count() > 0, 'Equipped item is not reflected in the UI');
 
-  // Skill purchase uses the same shop loop but a different collection.
+  // Skill purchase.
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
     state.gachaPreference = 'skill';
@@ -249,14 +263,12 @@ try {
   assert.equal(state.lastShopPurchase?.type, 'skill', 'Shop should persist the purchased skill');
   assert.ok(Array.isArray(state.skills) && state.skills.length > 0, 'Purchased skill missing from skill collection');
 
-  // RPG/meta views still have to remain reachable after the content rewrite.
   for (const view of ['inventory', 'skills', 'shop', 'battle', 'report', 'learn']) {
     const button = page.locator(`.nav-toggle[data-view="${view}"]`);
     await button.click();
     assert.ok(await button.evaluate(el => el.classList.contains('active')), `${view} navigation did not activate`);
   }
 
-  // Reload verifies the isolated 2026 state survives a real navigation cycle.
   await page.reload({ waitUntil: 'networkidle' });
   state = await readState();
   assert.ok(Number(state.sectionClears?.['3']) > 0 && Number(state.sectionClears?.['4']) > 0 && Number(state.sectionClears?.['6']) > 0 && Number(state.sectionClears?.['11']) > 0 && Number(state.sectionClears?.['20']) > 0,
@@ -264,8 +276,7 @@ try {
   assert.equal(Number(state.battleUnlocked), 2, 'Battle progression did not survive reload');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '5 / 30');
 
-  // Renderer gate: force the complete course visible, reload, and activate every
-  // section once. This catches late-section renderer/data incompatibilities.
+  // Renderer gate: all 30 sections.
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
     state.sectionsUnlocked = 30;
@@ -276,7 +287,7 @@ try {
   await page.reload({ waitUntil: 'networkidle' });
   assert.equal(await page.locator('.section-tab').count(), 30, 'All 30 section tabs must render');
   assert.equal(await page.locator('#learnSections .section').count(), 30, 'All 30 section bodies must render');
-  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), 'A8 abgeschlossen ✓');
+  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), 'Abgeschlossen ✓');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must stay absent with all sections rendered');
   assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native dropdown may become visible after all sections unlock');
 
@@ -287,7 +298,7 @@ try {
     assert.ok(await section.evaluate(el => el.classList.contains('active')), `Section ${id} did not activate`);
   }
 
-  // Basic mobile-layout smoke after the desktop course loop.
+  // Mobile gate.
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: 'networkidle' });
   assert.ok(await page.locator('#mobileNavToggle').isVisible(), 'Mobile navigation toggle should be visible');
@@ -298,7 +309,7 @@ try {
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
 
-  console.log('OK: browser smoke passed — button-only choices, 30-XP hints, game-first opening, DnD, Workflow Chain, shop, equipment, skills, battle gates, all 30 renderers and mobile layout.');
+  console.log('OK: browser smoke passed — focused DnD, used-token removal, +5 XP per correct answer, 30-XP hints, no worksheet labels, button-only choices, RPG progression and mobile layout.');
 } finally {
   await browser.close();
 }
