@@ -297,9 +297,14 @@
     }, true);
 
     render2026Progress(global.__shortcutQuest2026InitialState || {});
-    // skill-hotkeys.js executes before the inherited inline runtime. Delay this
-    // patch until that runtime has defined its reward/item helper functions.
-    setTimeout(install2026EconomyOverrides, 0);
+    // The 2026 helper loads before the inherited inline runtime. Install economy
+    // overrides only once the parser has finished and all legacy helpers exist.
+    const installAfterRuntime = () => queueMicrotask(install2026EconomyOverrides);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", installAfterRuntime, { once: true });
+    } else {
+      installAfterRuntime();
+    }
   }
 
   // Battle hotkeys deliberately stay on safe Ctrl-based combinations. Windows
