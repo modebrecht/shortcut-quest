@@ -942,6 +942,13 @@
   }
 
   if (typeof document !== "undefined") {
+    if (!document.getElementById("shortcutQuestModernUi")) {
+      const modernUi = document.createElement("link");
+      modernUi.id = "shortcutQuestModernUi";
+      modernUi.rel = "stylesheet";
+      modernUi.href = "modern-ui.css";
+      document.head.appendChild(modernUi);
+    }
     document.title = "Shortcut Quest 2026";
     document.documentElement.dataset.edition = "tk2-2026";
     const title = document.querySelector("header .title");
