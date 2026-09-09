@@ -18,6 +18,7 @@ jobs:
           node --check 2026/sections-data.js
           node --check 2026/skill-hotkeys.js
           node --check 2026/qa/browser-smoke.mjs
+          node --check 2026/qa/economy-audit.mjs
 
       - name: Curated course invariants
         run: |
@@ -54,6 +55,9 @@ jobs:
           console.log(`OK: ${sections.length} sections; ${workflowSections.length} Workflow Chain sections; no Memory.`);
           NODE
 
+      - name: Reward economy audit
+        run: node 2026/qa/economy-audit.mjs
+
       - name: Runtime file contract
         run: |
           test -f 2026/index.html
@@ -62,6 +66,7 @@ jobs:
           test -f 2026/apexcharts.min.js
           test -f 2026/favicon.svg
           test -f 2026/qa/browser-smoke.mjs
+          test -f 2026/qa/economy-audit.mjs
           test -d 2026/assets
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
