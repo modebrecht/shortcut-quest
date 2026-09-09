@@ -21,12 +21,12 @@
       return rawRemove.call(this, mapKey(this, key));
     };
 
-    // Start the curated course with Phase 1 open. Every first clear unlocks
-    // one more section through the existing progression logic.
+    // The inherited runtime intentionally exposes the first 10 sections.
+    // Each first clear then unlocks one additional section, up to all 30.
     if (rawGet.call(global.localStorage, STORAGE_2026_KEY) === null) {
       rawSet.call(global.localStorage, STORAGE_2026_KEY, JSON.stringify({
         edition: "tk2-2026",
-        sectionsUnlocked: 5
+        sectionsUnlocked: 10
       }));
     }
     global.__shortcutQuest2026StoragePatched = true;
