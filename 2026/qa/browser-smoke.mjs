@@ -89,10 +89,39 @@ try {
   assert.equal(Number(state.battleUnlocked), 2, 'Battle progression did not survive reload');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '3 / 30');
 
+  // Renderer gate: force the complete course visible, reload, and activate every
+  // section once. This catches late-section renderer/data incompatibilities.
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
+    state.sectionsUnlocked = 30;
+    state.sectionClears = { ...(state.sectionClears || {}) };
+    for (let i = 1; i <= 30; i += 1) state.sectionClears[String(i)] = Math.max(1, Number(state.sectionClears[String(i)]) || 0);
+    localStorage.setItem('shortcutRitter_v1', JSON.stringify(state));
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.equal(await page.locator('.section-tab').count(), 30, 'All 30 section tabs must render');
+  assert.equal(await page.locator('#learnSections .section').count(), 30, 'All 30 section bodies must render');
+  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), 'A8 abgeschlossen ✓');
+  assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must stay absent with all sections rendered');
+
+  for (let i = 1; i <= 30; i += 1) {
+    const id = String(i);
+    await page.locator(`.section-tab[data-goto="${id}"]`).click();
+    const section = page.locator(`.section[data-section="${id}"]`);
+    assert.ok(await section.evaluate(el => el.classList.contains('active')), `Section ${id} did not activate`);
+  }
+
+  // Basic mobile-layout smoke after the desktop course loop.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.ok(await page.locator('#mobileNavToggle').isVisible(), 'Mobile navigation toggle should be visible');
+  const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert.ok(horizontalOverflow <= 2, `Unexpected mobile horizontal overflow: ${horizontalOverflow}px`);
+
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
 
-  console.log('OK: browser smoke passed — load, A8 identity, section grading, Workflow Chain, persistence, RPG nav and battle progression.');
+  console.log('OK: browser smoke passed — grading, Workflow Chain, persistence, RPG nav, battle progression, all 30 renderers and mobile layout.');
 } finally {
   await browser.close();
 }
