@@ -20,12 +20,12 @@
 
   const sections=[
     section(1,'Mission – Abgabe in 60 Sekunden','Kein Abschreiben: Löse sechs kleine Pannen in einem laufenden Dokumentauftrag.',{narrative:narrative([
-      ['Du hast gerade den falschen Absatz gelöscht.','Welche Tastenkombination rettet die letzte Aktion? ____ + ____.',['Ctrl','Z','Y','X'],['Ctrl','Z']],
-      ['Du kopierst Text aus einer Webseite, aber die fremde Formatierung soll weg.','Du fügst sauber ein mit ____ + ____ + ____.',['Ctrl','Shift','V','C'],['Ctrl','Shift','V']],
-      ['Im langen Dokument musst du sofort den Abschnitt „Quellen“ finden.','Du öffnest die Suche mit ____ + ____.',['Ctrl','F','H','S'],['Ctrl','F']],
-      ['Ein veralteter Begriff kommt überall vor und muss ersetzt werden.','Du öffnest Suchen & Ersetzen mit ____ + ____.',['Ctrl','H','F','Y'],['Ctrl','H']],
-      ['Du bist auf Seite 8 und willst direkt ganz nach oben.','Du springst zum Dokumentanfang mit ____ + ____.',['Ctrl','Home','End','O'],['Ctrl','Home']],
-      ['Noch wenige Sekunden bis zur Abgabe. Nichts darf verloren gehen.','Du speicherst mit ____ + ____.',['Ctrl','S','P','A'],['Ctrl','S']]
+      ['Du hast gerade den falschen Absatz gelöscht.','Wähle den Rettungs-Shortcut: ____',['Ctrl+Z','Ctrl+Y','Ctrl+X','Ctrl+S'],['Ctrl+Z']],
+      ['Du kopierst Text aus einer Webseite, aber die fremde Formatierung soll weg.','Wähle den sauberen Einfüge-Shortcut: ____',['Ctrl+Shift+V','Ctrl+V','Win+V','Ctrl+C'],['Ctrl+Shift+V']],
+      ['Im langen Dokument musst du sofort den Abschnitt „Quellen“ finden.','Wähle den Such-Shortcut: ____',['Ctrl+F','Ctrl+H','Ctrl+S','Ctrl+O'],['Ctrl+F']],
+      ['Ein veralteter Begriff kommt überall vor und muss ersetzt werden.','Wähle Suchen & Ersetzen: ____',['Ctrl+H','Ctrl+F','Ctrl+Y','Ctrl+P'],['Ctrl+H']],
+      ['Du bist auf Seite 8 und willst direkt ganz nach oben.','Wähle den Sprung zum Dokumentanfang: ____',['Ctrl+Home','Ctrl+End','Ctrl+O','Ctrl+A'],['Ctrl+Home']],
+      ['Noch wenige Sekunden bis zur Abgabe. Nichts darf verloren gehen.','Wähle Speichern: ____',['Ctrl+S','Ctrl+P','Ctrl+A','Ctrl+Z'],['Ctrl+S']]
     ]),tasks:[]}),
 
     section(2,'Reflex-Runde – A1','Situation lesen, passendes Kürzel antippen. Sechs schnelle Entscheidungen – kein Abschreiben.',{fastPaced:fast(6,10,4,[
