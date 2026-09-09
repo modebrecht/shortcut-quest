@@ -1,0 +1,71 @@
+name: TK2 2026 QA
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '2026/**'
+      - '.github/workflows/tk2-2026-qa.yml'
+
+jobs:
+  static-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JavaScript syntax
+        run: |
+          node --check 2026/sections-data.js
+          node --check 2026/skill-hotkeys.js
+
+      - name: Curated course invariants
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const code = fs.readFileSync('2026/sections-data.js', 'utf8');
+          const sandbox = {};
+          vm.createContext(sandbox);
+          vm.runInContext(code, sandbox, { filename: '2026/sections-data.js' });
+          const sections = sandbox.LEARN_SECTION_BLUEPRINTS;
+          if (!Array.isArray(sections)) throw new Error('LEARN_SECTION_BLUEPRINTS missing');
+          if (sections.length !== 30) throw new Error(`Expected 30 sections, got ${sections.length}`);
+          sections.forEach((section, index) => {
+            const expected = String(index + 1);
+            if (String(section.id) !== expected) throw new Error(`Section id mismatch at ${index}: ${section.id}`);
+            if (section.memoryGame) throw new Error(`Memory must not exist in 2026 path: section ${section.id}`);
+            const hasActivity = (Array.isArray(section.tasks) && section.tasks.length > 0)
+              || section.fastPaced || section.narrative || section.comboBuilder;
+            if (!hasActivity) throw new Error(`Section ${section.id} has no activity`);
+          });
+          const workflowSections = sections.filter(section => /Workflow Chain/i.test(section.title || ''));
+          if (workflowSections.length < 4) throw new Error(`Expected at least 4 Workflow Chain sections, got ${workflowSections.length}`);
+          for (const section of workflowSections) {
+            const builder = section.comboBuilder;
+            if (!builder || !Array.isArray(builder.combos)) throw new Error(`Workflow section ${section.id} missing Combo Builder data`);
+            const options = new Set((builder.defaultOptions || []).map(String));
+            for (const combo of builder.combos) {
+              for (const answer of combo.answers || []) {
+                if (!options.has(String(answer))) throw new Error(`Workflow ${section.id}: answer ${answer} missing from selectable options`);
+              }
+            }
+          }
+          console.log(`OK: ${sections.length} sections; ${workflowSections.length} Workflow Chain sections; no Memory.`);
+          NODE
+
+      - name: Runtime file contract
+        run: |
+          test -f 2026/index.html
+          test -f 2026/sections-data.js
+          test -f 2026/skill-hotkeys.js
+          test -f 2026/apexcharts.min.js
+          test -f 2026/favicon.svg
+          test -d 2026/assets
+          grep -q 'src="sections-data.js"' 2026/index.html
+          grep -q 'src="skill-hotkeys.js"' 2026/index.html
+          grep -q 'shortcutRitter_2026_v1' 2026/skill-hotkeys.js
+          ! grep -q 'memoryGame:' 2026/sections-data.js
+
+      - name: Vercel autodeploy stays disabled
+        run: |
+          node -e "const v=require('./vercel.json'); if(v.git?.deploymentEnabled!==false) process.exit(1)"
