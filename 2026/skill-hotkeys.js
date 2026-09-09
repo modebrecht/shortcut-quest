@@ -6,6 +6,10 @@
   const STORAGE_2026_KEY = "shortcutRitter_2026_v1";
   const BATTLE_COUNT_2026 = 11;
   const SECTION_COUNT_2026 = 30;
+  // Economy audit: 55-section legacy = 322 reward units, curated 2026 = 278.
+  // 1.16x restores almost exactly the same first-clear purchasing power.
+  const REWARD_SCALE_2026 = 1.16;
+  const RUNEN_AMULET_KEY_2026 = "runen_amulet";
 
   function narrativeEntry(scene, prompt, options, answers) {
     return {
@@ -122,6 +126,15 @@
     return next;
   }
 
+  function migrateRunenAmuletItems(state) {
+    if (!state || !Array.isArray(state.items)) return;
+    state.items.forEach(item => {
+      if (!item || item.key !== RUNEN_AMULET_KEY_2026) return;
+      item.baseDef = 1;
+      item.description = "Runenschutz: erhöht DEF um 1 pro Tier.";
+    });
+  }
+
   function normalize2026State(serialized) {
     try {
       const state = JSON.parse(serialized);
@@ -134,6 +147,7 @@
       const battleCap = sequentialBattleProgress(state);
       state.battleUnlocked = Math.max(1, Math.min(learningCap, battleCap));
       state.edition = "tk2-2026";
+      migrateRunenAmuletItems(state);
       return { serialized: JSON.stringify(state), state };
     } catch (_) {
       return { serialized, state: null };
@@ -201,6 +215,54 @@
     }
   }
 
+  function install2026EconomyOverrides() {
+    // Remove the inherited equipment-based coin multiplier entirely. Rewards are
+    // scaled once, globally, so the shorter 30-section course keeps the same
+    // purchasing power as the former 55-section version.
+    if (typeof global.getRunenAmuletCoinBonusPercent === "function") {
+      global.getRunenAmuletCoinBonusPercent = () => 0;
+    }
+    if (typeof global.applyCoinBonus === "function") {
+      global.applyCoinBonus = baseAmount => {
+        const amount = Number(baseAmount) || 0;
+        if (amount <= 0) return amount;
+        return Math.max(0, Math.round(amount * REWARD_SCALE_2026));
+      };
+    }
+
+    // The Runen-Amulett becomes a straightforward defensive necklace instead of
+    // an economy multiplier: +1 DEF per tier.
+    if (typeof global.updateItemDerivedStats === "function") {
+      const legacyUpdateItemDerivedStats = global.updateItemDerivedStats;
+      global.updateItemDerivedStats = item => {
+        if (item && item.key === RUNEN_AMULET_KEY_2026) {
+          item.baseDef = 1;
+          item.description = "Runenschutz: erhöht DEF um 1 pro Tier.";
+        }
+        return legacyUpdateItemDerivedStats(item);
+      };
+    }
+    if (typeof global.collectItemStats === "function") {
+      const legacyCollectItemStats = global.collectItemStats;
+      global.collectItemStats = item => {
+        const stats = legacyCollectItemStats(item);
+        if (!item || item.key !== RUNEN_AMULET_KEY_2026) return stats;
+        const cleaned = stats.filter(stat => stat && stat.label !== "Münzen");
+        if (Number(item.def || 0) > 0 && !cleaned.some(stat => stat && stat.label === "DEF")) {
+          cleaned.push({ label: "DEF", value: String(item.def), className: "def" });
+        }
+        return cleaned;
+      };
+    }
+
+    if (typeof global.updateUI === "function") global.updateUI();
+    global.SHORTCUT_QUEST_2026_ECONOMY = Object.freeze({
+      rewardScale: REWARD_SCALE_2026,
+      runenAmuletEffect: "+1 DEF per tier",
+      equipmentCoinBonus: false
+    });
+  }
+
   // Clear visual identity: this is A8, not the archived v1.8 root edition.
   if (typeof document !== "undefined") {
     document.title = "A8 · Shortcut Quest 2026";
@@ -235,6 +297,9 @@
     }, true);
 
     render2026Progress(global.__shortcutQuest2026InitialState || {});
+    // skill-hotkeys.js executes before the inherited inline runtime. Delay this
+    // patch until that runtime has defined its reward/item helper functions.
+    setTimeout(install2026EconomyOverrides, 0);
   }
 
   // Battle hotkeys deliberately stay on safe Ctrl-based combinations. Windows
