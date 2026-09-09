@@ -124,4 +124,4 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 - [x] Browser smoke: verify header progress updates and 30/30 completion state.
 - [x] Browser smoke: render and activate all 30 sections without runtime errors.
 - [x] Browser smoke: mobile layout has a visible menu toggle and no horizontal overflow at 390 px.
-- [ ] Final repository cleanup and diff review.
+- [x] Final repository cleanup and diff review.
