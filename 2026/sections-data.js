@@ -16,6 +16,12 @@
     const shift=seed%picked.length;
     return picked.map((_,index)=>picked[(index+shift)%picked.length]);
   };
+  if(typeof document!=='undefined'&&!document.getElementById('a8ChoiceDensityStyle')){
+    const style=document.createElement('style');
+    style.id='a8ChoiceDensityStyle';
+    style.textContent='#learnSections .a8-choice-options{grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;max-width:none!important}@media(max-width:720px){#learnSections .a8-choice-options{grid-template-columns:repeat(2,minmax(0,1fr))!important}}';
+    document.head.appendChild(style);
+  }
   const S=(prompt,answer,options)=>({type:'select',prompt,answer,options:compactChoices(prompt,answer,options)});
   const D=(tokens,targets)=>({type:'dnd',tokens,targets:targets.map(([label,answer])=>({label,answer}))});
   const section=(id,title,description,extra={})=>({id:String(id),tabLabel:`Abschnitt ${id}`,title:`${id}. ${title}`,description,...extra});
