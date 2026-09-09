@@ -947,13 +947,6 @@
     const title = document.querySelector("header .title");
     if (title) {
       title.textContent = "Shortcut Quest 2026";
-      if (!document.getElementById("tk2EditionBadge")) {
-        const badge = document.createElement("span");
-        badge.id = "tk2EditionBadge";
-        badge.textContent = "TK2";
-        badge.style.cssText = "font-size:.7rem;font-weight:800;letter-spacing:.06em;padding:.25rem .5rem;border-radius:999px;background:rgba(245,158,11,.16);border:1px solid rgba(245,158,11,.38);color:#fde68a;white-space:nowrap";
-        title.insertAdjacentElement("afterend", badge);
-      }
     }
     const trainingNav = document.querySelector('[data-view="learn"]');
     if (trainingNav) {
