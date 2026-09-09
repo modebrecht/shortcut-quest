@@ -1,0 +1,517 @@
+/* Shortcut Quest 2026 — modern UI pass 1: header + learning sections */
+:root {
+  --sq-bg-deep: #07101f;
+  --sq-surface: rgba(17, 28, 48, 0.88);
+  --sq-surface-strong: rgba(22, 35, 58, 0.96);
+  --sq-line: rgba(148, 163, 184, 0.16);
+  --sq-line-strong: rgba(148, 163, 184, 0.28);
+  --sq-accent: #fbbf24;
+  --sq-accent-strong: #f59e0b;
+  --sq-blue: #60a5fa;
+  --sq-text: #f8fafc;
+  --sq-muted: #9fb0c7;
+  --sq-radius-xl: 1.45rem;
+  --sq-shadow: 0 22px 60px rgba(2, 6, 23, 0.34);
+}
+
+body {
+  background:
+    radial-gradient(900px 520px at 7% -10%, rgba(37, 99, 235, 0.17), transparent 64%),
+    radial-gradient(760px 460px at 92% 3%, rgba(245, 158, 11, 0.10), transparent 68%),
+    linear-gradient(180deg, #0a1426 0%, var(--sq-bg-deep) 56%, #08111f 100%);
+  color: var(--sq-text);
+}
+
+/* HEADER --------------------------------------------------------------- */
+header {
+  min-height: 68px;
+  padding: .7rem clamp(1rem, 2.5vw, 2rem);
+  gap: 1rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.13);
+  background: rgba(7, 16, 31, 0.78);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 10px 34px rgba(2, 6, 23, .24);
+}
+
+.header-left {
+  min-width: 0;
+  gap: clamp(.8rem, 2vw, 1.45rem);
+}
+
+.title {
+  flex: 0 0 auto;
+  font-size: clamp(1.02rem, 1.7vw, 1.28rem);
+  font-weight: 850;
+  letter-spacing: -.025em;
+  color: #fff;
+  text-shadow: 0 1px 18px rgba(96, 165, 250, .13);
+}
+
+.top-nav {
+  gap: .22rem;
+  padding: .24rem;
+  border: 1px solid rgba(148, 163, 184, .13);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, .52);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
+}
+
+.nav-toggle {
+  min-height: 38px;
+  padding: .48rem .72rem;
+  border-radius: .78rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #aebed2;
+  font-size: .8rem;
+  font-weight: 720;
+  transition: color .16s ease, background .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+.nav-toggle:hover:not(.active) {
+  color: #edf4ff;
+  background: rgba(148, 163, 184, .10);
+}
+
+.nav-toggle.active {
+  color: #fff7db;
+  border-color: rgba(251, 191, 36, .26);
+  background: linear-gradient(135deg, rgba(245, 158, 11, .24), rgba(251, 191, 36, .10));
+  box-shadow: 0 5px 14px rgba(245, 158, 11, .08), inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+
+.nav-toggle .emoji {
+  margin-right: .18rem;
+  opacity: .92;
+}
+
+.header-right {
+  flex: 0 0 auto;
+  gap: .4rem;
+}
+
+.header-right .badge,
+#a8XpTop,
+#coinTop,
+#a8ProgressBadge {
+  min-height: 34px !important;
+  padding: .42rem .68rem !important;
+  border-radius: .72rem !important;
+  border: 1px solid rgba(148, 163, 184, .17) !important;
+  background: rgba(15, 23, 42, .66) !important;
+  color: #dbe7f5 !important;
+  font-size: .75rem !important;
+  font-weight: 780 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
+}
+
+#a8XpTop {
+  color: #bfdbfe !important;
+  border-color: rgba(96, 165, 250, .22) !important;
+  background: rgba(30, 64, 175, .12) !important;
+}
+
+#coinTop {
+  color: #fde68a !important;
+  border-color: rgba(251, 191, 36, .22) !important;
+  background: rgba(161, 98, 7, .12) !important;
+}
+
+#a8ProgressBadge {
+  color: #bbf7d0 !important;
+  border-color: rgba(34, 197, 94, .20) !important;
+  background: rgba(22, 101, 52, .13) !important;
+}
+
+.mobile-nav-toggle {
+  min-height: 38px;
+  padding: .45rem .72rem;
+  border-radius: .78rem;
+  border-color: rgba(148, 163, 184, .2);
+  background: rgba(15, 23, 42, .64);
+  font-weight: 750;
+}
+
+/* LEARNING SHELL ------------------------------------------------------- */
+main {
+  width: min(1180px, calc(100% - 2rem));
+  margin-top: 1.15rem;
+  gap: 1.1rem;
+}
+
+#learnView {
+  gap: 1rem;
+}
+
+#learnView .nav-card {
+  padding: .72rem .78rem .62rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(148, 163, 184, .14);
+  background: rgba(12, 22, 40, .67);
+  box-shadow: 0 12px 36px rgba(2, 6, 23, .18), inset 0 1px 0 rgba(255, 255, 255, .025);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+#sectionTabs {
+  gap: .42rem !important;
+  padding: .08rem .05rem .34rem;
+  scrollbar-width: none !important;
+  scroll-snap-type: x proximity;
+}
+
+#sectionTabs::-webkit-scrollbar { display: none; }
+
+.section-tab {
+  scroll-snap-align: start;
+  min-height: 39px;
+  padding: .48rem .72rem;
+  border-radius: .8rem;
+  border: 1px solid rgba(148, 163, 184, .13);
+  background: rgba(15, 23, 42, .58);
+  color: #91a4bd;
+  font-size: .78rem;
+  font-weight: 760;
+  letter-spacing: -.005em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .02);
+  transition: transform .14s ease, color .14s ease, background .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+
+.section-tab:hover:not(.active) {
+  color: #e8f1fb;
+  border-color: rgba(148, 163, 184, .25);
+  background: rgba(30, 41, 59, .72);
+  transform: translateY(-1px);
+}
+
+.section-tab.active {
+  color: #111827;
+  border-color: rgba(251, 191, 36, .80);
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, .18);
+  transform: translateY(-1px);
+}
+
+.section-tab.completed:not(.active) {
+  color: #bbf7d0;
+  border-color: rgba(34, 197, 94, .22);
+  background: rgba(22, 101, 52, .13);
+  box-shadow: none;
+}
+
+.section-tab.completed:not(.active)::before {
+  content: "✓";
+  display: inline-grid;
+  place-items: center;
+  width: 1.12rem;
+  height: 1.12rem;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, .18);
+  color: #86efac;
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+#learnView .nav-card > .small {
+  margin: .38rem .18rem 0 !important;
+  color: #7f93ad;
+  font-size: .76rem;
+}
+
+/* SECTION CARD --------------------------------------------------------- */
+#learnSections .card--section {
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, .14);
+  border-radius: var(--sq-radius-xl);
+  background:
+    linear-gradient(145deg, rgba(24, 38, 62, .94), rgba(13, 24, 43, .96));
+  box-shadow: var(--sq-shadow), inset 0 1px 0 rgba(255, 255, 255, .025);
+  overflow: hidden;
+}
+
+#learnSections .card--section::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, #60a5fa 0%, #fbbf24 46%, transparent 92%);
+  opacity: .7;
+  pointer-events: none;
+}
+
+#learnSections .card-header {
+  min-height: 82px;
+  padding: 1.15rem 1.35rem 1.05rem 1.45rem;
+  border-bottom: 1px solid rgba(148, 163, 184, .10);
+  background:
+    radial-gradient(460px 150px at 8% 0%, rgba(96, 165, 250, .09), transparent 72%),
+    rgba(12, 22, 40, .30);
+}
+
+#learnSections .card-header-text {
+  gap: .28rem;
+  min-width: 0;
+}
+
+#learnSections .card-header-text h2,
+#learnSections .card-header-text h3 {
+  color: #fff;
+  font-size: clamp(1.12rem, 2.2vw, 1.38rem);
+  font-weight: 850;
+  letter-spacing: -.02em;
+  line-height: 1.16;
+}
+
+#learnSections .card-header-text .small,
+#learnSections .card-header > .small {
+  margin: 0;
+  color: #96a8bf;
+  font-size: .84rem;
+  line-height: 1.45;
+}
+
+#learnSections .card-body {
+  padding: 1.18rem 1.35rem 1.35rem 1.45rem;
+}
+
+.section-cleared-hint {
+  padding: .38rem .66rem;
+  border-radius: .72rem;
+  border-color: rgba(34, 197, 94, .24);
+  background: rgba(22, 101, 52, .13);
+  color: #bbf7d0;
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+.section-cleared-hint::before {
+  content: "✓";
+}
+
+.task-field {
+  margin-top: .62rem;
+  padding: .78rem .84rem;
+  border-radius: .95rem;
+  border-color: rgba(148, 163, 184, .12);
+  background: rgba(8, 18, 34, .36);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .018);
+}
+
+.task-field span.question-text {
+  margin-bottom: .48rem;
+  color: #e7eef8;
+  font-weight: 680;
+  line-height: 1.35;
+}
+
+.action-card {
+  margin-top: .35rem;
+  padding-top: .95rem;
+  border-top: 1px solid rgba(148, 163, 184, .10);
+  gap: .55rem;
+}
+
+.action-card button:not(.reset-section) {
+  min-height: 44px;
+  padding: .7rem 1rem;
+  border-radius: .85rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #172033;
+  font-weight: 850;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, .15);
+}
+
+.reset-section {
+  min-height: 44px;
+  padding: .68rem .9rem;
+  border-radius: .85rem;
+  border-color: rgba(148, 163, 184, .18);
+  background: rgba(15, 23, 42, .34);
+  color: #9fb0c7;
+}
+
+/* Existing activity shells: visually align them with the new section card. */
+.fast-paced,
+.narrative-card,
+.combo-builder {
+  border-color: rgba(148, 163, 184, .13);
+  background: rgba(8, 18, 34, .42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .02), 0 14px 34px rgba(2, 6, 23, .18);
+}
+
+.fast-paced,
+.narrative-card {
+  border-radius: 1.18rem;
+}
+
+.combo-builder {
+  border-style: solid;
+  border-radius: 1.1rem;
+}
+
+@media (min-width: 721px) {
+  #learnView .nav-card {
+    position: sticky;
+    top: 78px;
+    z-index: 12;
+  }
+}
+
+@media (max-width: 900px) {
+  header {
+    padding-inline: 1rem;
+  }
+  .nav-toggle {
+    padding-inline: .6rem;
+  }
+  .nav-toggle .emoji {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  header {
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: .55rem;
+    padding: .62rem .72rem;
+  }
+
+  .header-left {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: .48rem;
+  }
+
+  .title {
+    flex: 1 1 auto;
+    min-width: 150px;
+    font-size: 1rem;
+  }
+
+  .mobile-nav-toggle {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .top-nav {
+    order: 3;
+    width: 100%;
+    margin-top: .1rem;
+    padding: .35rem;
+    border-top: 0;
+    border: 1px solid rgba(148, 163, 184, .13);
+    border-radius: .9rem;
+    background: rgba(8, 18, 34, .93);
+  }
+
+  .top-nav.open {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-toggle {
+    width: 100%;
+    text-align: center;
+    min-height: 42px;
+  }
+
+  .nav-toggle .emoji {
+    display: inline-block;
+  }
+
+  .header-right {
+    width: auto;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: .28rem;
+  }
+
+  .header-right .badge,
+  #a8XpTop,
+  #coinTop,
+  #a8ProgressBadge {
+    width: auto !important;
+    min-height: 31px !important;
+    padding: .36rem .5rem !important;
+    font-size: .69rem !important;
+  }
+
+  main {
+    width: min(100% - 1rem, 1180px);
+    margin-top: .72rem;
+  }
+
+  #learnView .nav-card {
+    padding: .58rem .58rem .48rem;
+    border-radius: .95rem;
+  }
+
+  .section-tab {
+    min-height: 37px;
+    padding: .44rem .62rem;
+  }
+
+  #learnSections .card--section {
+    border-radius: 1.12rem;
+  }
+
+  #learnSections .card-header {
+    min-height: 0;
+    padding: .9rem .9rem .82rem 1rem;
+    align-items: flex-start;
+  }
+
+  #learnSections .card-header-text h2,
+  #learnSections .card-header-text h3 {
+    font-size: 1.08rem;
+  }
+
+  #learnSections .card-body {
+    padding: .85rem .82rem 1rem .95rem;
+  }
+
+  .task-field {
+    padding: .72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: .02rem;
+  }
+
+  .header-right::-webkit-scrollbar { display: none; }
+
+  #learnView .nav-card > .small {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-toggle,
+  .section-tab,
+  .action-card button {
+    transition: none !important;
+    transform: none !important;
+  }
+}
