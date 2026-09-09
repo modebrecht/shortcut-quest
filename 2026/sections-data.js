@@ -3,7 +3,20 @@
 // Memory is intentionally excluded: TK2 A7 already contains Memory.
 (function attachSectionBlueprints(global) {
   const I=(prompt,answer,hint)=>({type:'input',prompt,answer,...(hint?{hint}: {})});
-  const S=(prompt,answer,options)=>({type:'select',prompt,answer,options});
+  const compactChoices=(prompt,answer,options)=>{
+    const source=[...new Set([...(Array.isArray(options)?options:[]),answer].filter(Boolean))];
+    if(source.length<=4)return source;
+    const answerIndex=Math.max(0,source.indexOf(answer));
+    const picked=[answer];
+    for(let offset=1;picked.length<4&&offset<source.length;offset+=1){
+      const value=source[(answerIndex+offset)%source.length];
+      if(value!==answer&&!picked.includes(value))picked.push(value);
+    }
+    const seed=Array.from(`${prompt}|${answer}`).reduce((sum,char)=>sum+char.charCodeAt(0),0);
+    const shift=seed%picked.length;
+    return picked.map((_,index)=>picked[(index+shift)%picked.length]);
+  };
+  const S=(prompt,answer,options)=>({type:'select',prompt,answer,options:compactChoices(prompt,answer,options)});
   const D=(tokens,targets)=>({type:'dnd',tokens,targets:targets.map(([label,answer])=>({label,answer}))});
   const section=(id,title,description,extra={})=>({id:String(id),tabLabel:`Abschnitt ${id}`,title:`${id}. ${title}`,description,...extra});
   const fast=(rounds,timeLimitSeconds,optionsPerRound,combos)=>({rounds,timeLimitSeconds,optionsPerRound,combos:combos.map(([label,combo])=>({label,combo}))});
