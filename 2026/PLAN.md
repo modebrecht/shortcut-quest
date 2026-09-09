@@ -4,110 +4,117 @@ Goal: keep the existing Shortcut Quest RPG loop (coins, shop, inventory, skills,
 
 ## Non-negotiables
 
-- [ ] Keep the existing RPG/meta systems: coins, shop, inventory, skills, battles, progression and report.
-- [ ] Do not modify the current root version; all TK2 2026 work lives in `/2026/`.
-- [ ] A8 introduces no new shortcut content that was not taught in TK2 A1–A7.
-- [ ] Remove all Memory sections from the 2026 learning path because A7 already contains Memory as a required station.
-- [ ] Repetition is allowed when the retrieval mode, context or difficulty changes meaningfully.
-- [ ] Avoid near-identical duplicate sections.
-- [ ] Keep the course long enough for the RPG systems to matter: target exactly 30 learning sections.
-- [ ] Difficulty should rise from recognition -> recall -> construction -> workflow transfer -> mixed retrieval -> time pressure -> mastery.
+- [x] Keep the existing RPG/meta systems: coins, shop, inventory, skills, battles, progression and report.
+- [x] Keep TK2 game changes isolated in `/2026/`; the legacy root game stays preserved.
+- [x] A8 introduces no new shortcut content that was not taught in current TK2 A1–A7.
+- [x] Remove all Memory sections from the 2026 learning path because A7 already contains Memory as a required station.
+- [x] Repetition is allowed only when retrieval mode, context or difficulty changes meaningfully.
+- [x] Avoid near-identical duplicate sections.
+- [x] Use exactly 30 learning sections so the RPG loop has enough runway.
+- [x] Raise difficulty from recall/recognition through construction and workflow transfer to mixed retrieval, pressure and mastery.
 
 ## New 2026 mechanic — Workflow Chains
 
-Memory is not replaced by another matching game. The 2026 version adds a transfer mechanic called **Workflow Chains**.
-
-Instead of identifying one shortcut, students solve a short real-world workflow by choosing several complete shortcuts in the correct order.
+Memory is not replaced by another matching game. **Workflow Chains** ask students to solve a real workflow by choosing several complete shortcuts in the correct order.
 
 Example:
 
-`Neuer Browser-Tab -> Adresszeile fokussieren -> Tab schliessen`
+`Neuer Browser-Tab -> Adresszeile fokussieren -> auf Seite suchen -> Tab schliessen`
 
 Correct chain:
 
-`Ctrl+T -> Ctrl+L -> Ctrl+W`
+`Ctrl+T -> Ctrl+L -> Ctrl+F -> Ctrl+W`
 
-Implementation should reuse the stable Combo Builder interaction where possible, but present whole shortcuts as selectable workflow steps rather than individual key parts.
+The implementation reuses the stable Combo Builder interaction, but each selectable unit is a whole shortcut rather than one key.
 
-- [ ] Add Workflow Chain: Browser research.
-- [ ] Add Workflow Chain: Document editing.
-- [ ] Add Workflow Chain: Windows workspace.
-- [ ] Add a harder mixed Workflow Chain Gauntlet near the end.
-- [ ] Give Workflow Chains their own titles/instructions so they do not feel like ordinary Combo Builder sections.
+- [x] Workflow Chain: Browser research.
+- [x] Workflow Chain: Document editing.
+- [x] Workflow Chain: Long-document navigation/editing.
+- [x] Workflow Chain: Windows workspace.
+- [x] Harder mixed Workflow Chain Gauntlet near the end.
+- [x] Workflow Chains have their own titles/instructions and read as workflows, not ordinary Combo Builders.
 
 ## Content audit
 
-- [ ] Remove Memory sections 3, 7 and 33.
-- [ ] Remove obvious copy/repeat sections such as the late duplicate input rounds (31, 32, 51, 52, 53) unless one is repurposed into a harder mixed-recall task.
-- [ ] Collapse duplicate navigation puzzles (for example 25 / 42) into one stronger version.
-- [ ] Collapse overlapping system/combo builders (22, 23, 28, 37, 43, 48) into a smaller set of distinct builders.
-- [ ] Reduce repeated story scenes (11, 12, 27, 34, 36, 38, 39, 41, 44, 46, 54) to a smaller set with genuinely different contexts.
-- [ ] Reduce Fast-Paced variants (10, 20, 30, 40, 50, 55) to a progression of distinct speed challenges.
-- [ ] Reduce duplicate Drag & Drop variants (8, 9, 18, 19, 21, 35, 42, 47) to a smaller set of mixed-difficulty challenges.
-- [ ] Remove or replace shortcut items not covered by TK2 A1–A7.
+- [x] Remove old Memory sections from the curated 2026 path.
+- [x] Remove obvious late duplicate input rounds.
+- [x] Collapse duplicate navigation puzzles into one stronger mixed navigation puzzle.
+- [x] Collapse overlapping Combo Builders into distinct construction challenges.
+- [x] Reduce repeated story scenes to a small set with different contexts.
+- [x] Reduce Fast-Paced variants to a clear Basics -> Browser -> Windows -> Mastery progression.
+- [x] Reduce duplicate Drag & Drop variants to purposeful A1 / Browser / Windows rounds.
+- [x] Replace every shortcut not covered by current TK2 A1–A7.
+- [x] Correct AltGr mappings specifically for the Swiss keyboard used in TK2.
 
 ## Target 2026 learning path — 30 sections
 
 ### Phase 1 — Recall foundation
-- [ ] 01 Warm-up recall: general shortcuts.
-- [ ] 02 Browser & tab recall.
-- [ ] 03 Windows basics recognition.
-- [ ] 04 AltGr / special-character retrieval.
-- [ ] 05 Mixed typed recall.
+- [x] 01 Warm-up – Grundlagen.
+- [x] 02 A1 – Advanced Recall.
+- [x] 03 Programme & Browser.
+- [x] 04 Windows & Arbeitsalltag.
+- [x] 05 AltGr – Schweizer Tastatur.
 
 ### Phase 2 — Association and construction
-- [ ] 06 Drag & Drop: general shortcuts.
-- [ ] 07 Drag & Drop: browser/program shortcuts.
-- [ ] 08 Drag & Drop: Windows shortcuts.
-- [ ] 09 Combo Builder: general/browser shortcuts.
-- [ ] 10 Combo Builder: Windows/system shortcuts.
+- [x] 06 Drag & Drop – Grundlagen.
+- [x] 07 Drag & Drop – A1 Spezial.
+- [x] 08 Drag & Drop – Browser.
+- [x] 09 Drag & Drop – Windows.
+- [x] 10 Combo Builder – Mixed.
 
 ### Phase 3 — Workflow transfer
-- [ ] 11 Workflow Chain: browser research.
-- [ ] 12 Workflow Chain: document editing.
-- [ ] 13 Workflow Chain: Windows workspace.
-- [ ] 14 Scenario: school document workflow.
-- [ ] 15 Scenario: presentation / classroom workflow.
-- [ ] 16 Scenario: stuck app / system workflow.
+- [x] 11 Workflow Chain – Browser-Recherche.
+- [x] 12 Workflow Chain – Dokument.
+- [x] 13 Workflow Chain – Langes Dokument.
+- [x] 14 Workflow Chain – Windows Workspace.
+- [x] 15 Szenario – Schulauftrag.
+- [x] 16 Szenario – Browser unter Druck.
 
 ### Phase 4 — Mixed retrieval
-- [ ] 17 Shortcut Shuffle I.
-- [ ] 18 Shortcut Shuffle II.
-- [ ] 19 Navigation puzzle.
-- [ ] 20 System quick access.
-- [ ] 21 Mixed no-hint recall.
+- [x] 17 Shortcut Shuffle I.
+- [x] 18 Shortcut Shuffle II.
+- [x] 19 Navigation Puzzle.
+- [x] 20 System Quick Access.
+- [x] 21 AltGr No-Hint Recall.
 
 ### Phase 5 — Speed and pressure
-- [ ] 22 Fast-Paced Basics.
-- [ ] 23 Fast-Paced Browser + Program.
-- [ ] 24 Fast-Paced Windows.
-- [ ] 25 Error-resistant mixed challenge with close distractors.
+- [x] 22 Fast-Paced Basics.
+- [x] 23 Fast-Paced Browser.
+- [x] 24 Fast-Paced Windows.
+- [x] 25 Verwechslungsgefahr.
 
 ### Phase 6 — Mastery / RPG payoff
-- [ ] 26 Advanced mixed Combo Builder.
-- [ ] 27 Workflow Chain Gauntlet.
-- [ ] 28 Real-world mixed scenario gauntlet.
-- [ ] 29 Mastery sprint.
-- [ ] 30 Final mastery / boss gate.
+- [x] 26 Advanced Combo Builder.
+- [x] 27 Workflow Chain Gauntlet.
+- [x] 28 Real-World Gauntlet.
+- [x] 29 Mastery Sprint.
+- [x] 30 Final Mastery.
 
 ## RPG / UX integration
 
-- [ ] Keep coins as the reward for learning actions.
-- [ ] Keep shop purchases meaningful across the 30-section progression.
-- [ ] Keep inventory/equipment and skills functional.
-- [ ] Keep battles, but place them as payoff/progression beats instead of learning substitutes.
-- [ ] Ensure learning progress still unlocks the next relevant content/battle cleanly.
-- [ ] Keep report/statistics, but do not duplicate A7's formal training-evidence role.
-- [ ] Add a clear 2026/TK2 identity in the UI so students know this is A8.
-- [ ] Add a concise completion state suitable for the TK2 diligence-grade workflow.
+- [x] Keep coins as the reward for learning actions.
+- [x] Keep shop, inventory/equipment and skills in the 2026 runtime.
+- [x] Keep all 11 battles.
+- [x] Tie battle progression to learning: Battle 1 is available immediately; each 3 first-time section clears permit the next rank, while the previous enemy must also be defeated.
+- [x] Existing learning progression uses the actual `SECTION_BLUEPRINTS.length`, so it scales to the curated 30-section list.
+- [x] Keep report/statistics rather than creating another A7-style formal evidence system.
+- [x] Add clear `A8 · Shortcut Quest 2026` / `TK2` identity in the UI.
+- [x] Add concise `x / 30` completion status; at 30/30 it becomes `A8 abgeschlossen ✓`.
+- [x] Isolate the 2026 save state as `shortcutRitter_2026_v1` so the legacy game save is not overwritten.
 
 ## QA
 
-- [ ] Verify every retained shortcut belongs to the current TK2 A1–A7 content set.
-- [ ] Verify no Memory mode remains in the 2026 path.
-- [ ] Verify all 30 sections can be unlocked and completed.
-- [ ] Verify Workflow Chains score/unlock correctly.
-- [ ] Verify coins, shop, inventory, skills and battles still work after the content reduction.
-- [ ] Verify localStorage does not collide destructively with the old root version.
-- [ ] Verify the 2026 version loads correctly from `/2026/` with all relative asset/script paths working.
-- [ ] Smoke-test desktop interaction and the core completion loop.
+- [x] Static content audit: every retained learning shortcut belongs to current TK2 A1–A7.
+- [x] Static content audit: no `memoryGame` section remains in `2026/sections-data.js`.
+- [x] Static progression audit: section count is dynamic and first clears unlock further sections up to all 30.
+- [x] Static Workflow Chain audit: implementation uses the existing Combo Builder string-option/scoring path.
+- [x] Relative runtime files copied into `/2026/`: index, section data, hotkeys, chart library, favicon and assets.
+- [x] Save-state collision protection added before the inherited inline runtime loads.
+- [ ] Browser smoke: `/2026/` loads without console errors.
+- [ ] Browser smoke: complete one normal input/select section and verify coins + next unlock.
+- [ ] Browser smoke: complete one Drag & Drop section.
+- [ ] Browser smoke: complete one Workflow Chain section and verify scoring/unlock.
+- [ ] Browser smoke: verify shop purchase, equipment/skills and Battle 1.
+- [ ] Browser smoke: verify Battle 2 stays gated until 3 sections + Battle 1 clear.
+- [ ] Browser smoke: verify header progress updates and 30/30 completion state.
+- [ ] Final repository cleanup and diff review.
