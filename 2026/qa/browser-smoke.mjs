@@ -12,7 +12,7 @@ page.on('console', message => {
   if (message.type() === 'error') consoleErrors.push(message.text());
 });
 
-async function solveSimpleSection(sectionId) {
+async function solveSimpleSection(sectionId, { spacedPlus = false } = {}) {
   const section = page.locator(`.section[data-section="${sectionId}"]`);
   await section.waitFor({ state: 'attached' });
   const inputs = section.locator('input[data-answer]');
@@ -20,7 +20,7 @@ async function solveSimpleSection(sectionId) {
     const input = inputs.nth(i);
     const answer = await input.getAttribute('data-answer');
     assert.ok(answer, `Section ${sectionId}: input ${i} has no answer`);
-    await input.fill(answer);
+    await input.fill(spacedPlus ? answer.replace(/\+/g, ' + ') : answer);
   }
   const selects = section.locator('select[data-answer]');
   for (let i = 0; i < await selects.count(); i += 1) {
@@ -31,6 +31,27 @@ async function solveSimpleSection(sectionId) {
   }
   await section.locator(`.check-section[data-check-section="${sectionId}"]`).click();
   await page.waitForTimeout(150);
+}
+
+async function solveDndSection(sectionId) {
+  await page.locator(`.section-tab[data-goto="${sectionId}"]`).click();
+  await page.evaluate(id => {
+    const section = document.querySelector(`.section[data-section="${id}"]`);
+    if (!section) throw new Error(`DnD section ${id} missing`);
+    section.querySelectorAll('.dnd-target').forEach(target => {
+      const answer = target.getAttribute('data-answer');
+      const slot = target.querySelector('.drop-slot');
+      if (!answer || !slot) throw new Error(`DnD target incomplete in section ${id}`);
+      slot.dataset.value = answer;
+      slot.textContent = answer;
+    });
+  }, sectionId);
+  await page.locator(`.section[data-section="${sectionId}"] .check-section[data-check-section="${sectionId}"]`).click();
+  await page.waitForTimeout(150);
+}
+
+async function readState() {
+  return page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
 }
 
 try {
@@ -45,9 +66,10 @@ try {
   assert.equal(await page.locator('.section-tab').count(), 10, 'Expected 10 initially available sections');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must not be rendered in A8');
 
-  // First real completion: grading, coins, persistence and next-section unlock.
-  await solveSimpleSection('1');
-  let state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
+  // First real completion. Use human-style spacing to verify Ctrl + C is accepted
+  // exactly like Ctrl+C by the 2026 input normalizer.
+  await solveSimpleSection('1', { spacedPlus: true });
+  let state = await readState();
   assert.ok(Number(state.sectionClears?.['1']) > 0, 'Section 1 was not persisted as cleared');
   assert.ok(Number(state.coins) > 0, 'Perfect section should award coins');
   assert.equal(Number(state.sectionsUnlocked), 11, 'First clear should unlock section 11');
@@ -57,22 +79,78 @@ try {
   // New 2026 mechanic: Workflow Chain uses the stable Combo Builder runtime.
   await page.locator('.section-tab[data-goto="11"]').click();
   await solveSimpleSection('11');
-  state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
+  state = await readState();
   assert.ok(Number(state.sectionClears?.['11']) > 0, 'Workflow Chain section did not score/persist');
   assert.equal(Number(state.sectionsUnlocked), 12, 'Workflow clear should unlock the next section');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '2 / 30');
 
-  // A third learned section plus battle 1 clear should allow battle rank 2.
+  // Third learned section: learning alone must NOT skip Battle 1.
   await page.locator('.section-tab[data-goto="2"]').click();
   await solveSimpleSection('2');
+  state = await readState();
+  assert.equal(Number(state.battleUnlocked), 1, 'Battle 2 must stay gated until Battle 1 is defeated');
+  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '3 / 30');
+
+  await page.locator('.nav-toggle[data-view="battle"]').click();
+  assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');
+  assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), true, 'Battle 2 should still be locked');
+
+  // Simulate the persisted result of winning Battle 1; the 2026 state normalizer
+  // must now permit Battle 2 because three sections are already mastered.
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
     state.battleClears = { ...(state.battleClears || {}), '1': true };
     localStorage.setItem('shortcutRitter_v1', JSON.stringify(state));
   });
-  state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
-  assert.equal(Number(state.battleUnlocked), 2, 'Three section clears + battle 1 should unlock battle rank 2');
-  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '3 / 30');
+  state = await readState();
+  assert.equal(Number(state.battleUnlocked), 2, 'Three section clears + Battle 1 should unlock Battle 2');
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('.nav-toggle[data-view="battle"]').click();
+  assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), false, 'Battle 2 button should unlock after reload');
+
+  // Exercise a real Drag & Drop grading path.
+  await page.locator('.nav-toggle[data-view="learn"]').click();
+  await solveDndSection('6');
+  state = await readState();
+  assert.ok(Number(state.sectionClears?.['6']) > 0, 'Drag & Drop section did not score/persist');
+
+  // Shop -> inventory -> equipment loop with a deterministic starting budget.
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
+    state.coins = 100;
+    state.gachaPreference = 'weapon';
+    localStorage.setItem('shortcutRitter_v1', JSON.stringify(state));
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('.nav-toggle[data-view="shop"]').click();
+  await page.locator('#gachaBtn').click();
+  await page.waitForTimeout(250);
+  state = await readState();
+  assert.equal(Number(state.coins), 80, 'Weapon purchase should cost 20 coins');
+  assert.equal(state.lastShopPurchase?.type, 'item', 'Shop should persist the purchased item');
+  assert.ok(Array.isArray(state.items) && state.items.length > 0, 'Purchased item missing from inventory state');
+
+  await page.locator('.nav-toggle[data-view="inventory"]').click();
+  await page.locator('#autoEquipBtn').click();
+  await page.waitForTimeout(150);
+  state = await readState();
+  assert.ok(Object.values(state.equipment || {}).some(Boolean), 'Auto-equip did not equip the purchased item');
+  assert.ok(await page.locator('.equipment-slot.equipped').count() > 0, 'Equipped item is not reflected in the UI');
+
+  // Skill purchase uses the same shop loop but a different collection.
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('shortcutRitter_v1'));
+    state.gachaPreference = 'skill';
+    localStorage.setItem('shortcutRitter_v1', JSON.stringify(state));
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('.nav-toggle[data-view="shop"]').click();
+  await page.locator('#gachaBtn').click();
+  await page.waitForTimeout(250);
+  state = await readState();
+  assert.equal(Number(state.coins), 60, 'Skill purchase should cost another 20 coins');
+  assert.equal(state.lastShopPurchase?.type, 'skill', 'Shop should persist the purchased skill');
+  assert.ok(Array.isArray(state.skills) && state.skills.length > 0, 'Purchased skill missing from skill collection');
 
   // RPG/meta views still have to remain reachable after the content rewrite.
   for (const view of ['inventory', 'skills', 'shop', 'battle', 'report', 'learn']) {
@@ -83,11 +161,11 @@ try {
 
   // Reload verifies the isolated 2026 state survives a real navigation cycle.
   await page.reload({ waitUntil: 'networkidle' });
-  state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
-  assert.ok(Number(state.sectionClears?.['1']) > 0 && Number(state.sectionClears?.['2']) > 0 && Number(state.sectionClears?.['11']) > 0,
+  state = await readState();
+  assert.ok(Number(state.sectionClears?.['1']) > 0 && Number(state.sectionClears?.['2']) > 0 && Number(state.sectionClears?.['6']) > 0 && Number(state.sectionClears?.['11']) > 0,
     'Cleared sections did not survive reload');
   assert.equal(Number(state.battleUnlocked), 2, 'Battle progression did not survive reload');
-  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '3 / 30');
+  assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '4 / 30');
 
   // Renderer gate: force the complete course visible, reload, and activate every
   // section once. This catches late-section renderer/data incompatibilities.
@@ -121,7 +199,7 @@ try {
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
 
-  console.log('OK: browser smoke passed — grading, Workflow Chain, persistence, RPG nav, battle progression, all 30 renderers and mobile layout.');
+  console.log('OK: browser smoke passed — inputs, DnD, Workflow Chain, shop, equipment, skills, battle gates, all 30 renderers and mobile layout.');
 } finally {
   await browser.close();
 }
