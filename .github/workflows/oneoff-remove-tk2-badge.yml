@@ -16,25 +16,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: tk2-2026
-      - name: Remove TK2 edition badge
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('2026/skill-hotkeys.js')
-          s = p.read_text(encoding='utf-8')
-          old = '''      if (!document.getElementById("tk2EditionBadge")) {
-        const badge = document.createElement("span");
-        badge.id = "tk2EditionBadge";
-        badge.textContent = "TK2";
-        badge.style.cssText = "font-size:.7rem;font-weight:800;letter-spacing:.06em;padding:.25rem .5rem;border-radius:999px;background:rgba(245,158,11,.16);border:1px solid rgba(245,158,11,.38);color:#fde68a;white-space:nowrap";
-        title.insertAdjacentElement("afterend", badge);
-      }
-'''
-          if old not in s:
-              raise SystemExit('TK2 badge block not found')
-          p.write_text(s.replace(old, ''), encoding='utf-8')
-          PY
-      - name: Commit
+      - name: Apply patch
+        run: python3 2026/qa/remove_badge.py
+      - name: Commit patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
