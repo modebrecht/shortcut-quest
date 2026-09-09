@@ -1,17 +1,13 @@
 (function attachSkillHotkeys(global) {
-  // TK2 2026 runs beside the legacy root edition. The inherited runtime still
-  // asks localStorage for shortcutRitter_v1, so namespace that key only on
-  // this page before the inline game runtime starts.
   const LEGACY_STORAGE_KEY = "shortcutRitter_v1";
   const STORAGE_2026_KEY = "shortcutRitter_2026_v1";
   const BATTLE_COUNT_2026 = 11;
   const SECTION_COUNT_2026 = 30;
-  // Economy audit: 55-section legacy = 322 reward units, curated 2026 = 278.
-  // 1.16x restores almost exactly the same first-clear purchasing power.
   const REWARD_SCALE_2026 = 1.16;
   const RUNEN_AMULET_KEY_2026 = "runen_amulet";
   const XP_STORAGE_KEY_2026 = "tk_global_xp_v1";
   const HINT_COST_XP_2026 = 30;
+  const XP_PER_CORRECT_2026 = 5;
 
   function narrativeEntry(scene, prompt, options, answers) {
     return {
@@ -23,12 +19,22 @@
     };
   }
 
+  function stripWorksheetRefs(value) {
+    if (typeof value !== "string") return value;
+    return value
+      .replace(/\bA[1-8]\s*\+\s*A[1-8]\b/gi, "gemischt")
+      .replace(/\s+(?:aus|von)\s+A[1-8]\b/gi, "")
+      .replace(/\bA[1-8]\b/gi, "")
+      .replace(/\s+([,.;:])/g, "$1")
+      .replace(/\s{2,}/g, " ")
+      .replace(/\s*[–-]\s*$/g, "")
+      .trim();
+  }
+
   function applyDidacticOverrides() {
     const sections = Array.isArray(global.LEARN_SECTION_BLUEPRINTS) ? global.LEARN_SECTION_BLUEPRINTS : [];
     const byId = id => sections.find(section => String(section && section.id) === String(id));
 
-    // Section 12: make the document chain an authentic cross-program workflow
-    // instead of copying and pasting back into the same document.
     const s12 = byId(12);
     if (s12) {
       s12.title = "12. Workflow Chain – Dokument";
@@ -53,8 +59,6 @@
       s12.tasks = [];
     }
 
-    // Section 16: replace another browser repetition with a distinct system
-    // recovery scenario so students transfer A5 shortcuts into a real problem.
     const s16 = byId(16);
     if (s16) {
       s16.title = "16. Szenario – System unter Druck";
@@ -62,43 +66,16 @@
       s16.narrative = {
         autoCheck: false,
         entries: [
-          narrativeEntry(
-            "Ein Programm reagiert nicht mehr.",
-            "Du öffnest den Task-Manager direkt mit ____ + ____ + ____.",
-            ["Ctrl", "Shift", "Esc", "Alt", "Tab"],
-            ["Ctrl", "Shift", "Esc"]
-          ),
-          narrativeEntry(
-            "Du willst kurz zu einem anderen geöffneten Programm wechseln.",
-            "Du nutzt ____ + ____.",
-            ["Alt", "Tab", "Ctrl", "Shift"],
-            ["Alt", "Tab"]
-          ),
-          narrativeEntry(
-            "Das aktive Problemfenster soll geschlossen werden.",
-            "Du nutzt ____ + ____.",
-            ["Alt", "F4", "Ctrl", "W"],
-            ["Alt", "F4"]
-          ),
-          narrativeEntry(
-            "Danach brauchst du eine Datei aus dem Explorer.",
-            "Du nutzt ____ + ____.",
-            ["Win", "E", "D", "L"],
-            ["Win", "E"]
-          ),
-          narrativeEntry(
-            "Du verlässt den Arbeitsplatz.",
-            "Du sperrst den PC mit ____ + ____.",
-            ["Win", "L", "Ctrl", "D"],
-            ["Win", "L"]
-          )
+          narrativeEntry("Ein Programm reagiert nicht mehr.", "Du öffnest den Task-Manager direkt mit ____ + ____ + ____.", ["Ctrl", "Shift", "Esc", "Alt", "Tab"], ["Ctrl", "Shift", "Esc"]),
+          narrativeEntry("Du willst kurz zu einem anderen geöffneten Programm wechseln.", "Du nutzt ____ + ____.", ["Alt", "Tab", "Ctrl", "Shift"], ["Alt", "Tab"]),
+          narrativeEntry("Das aktive Problemfenster soll geschlossen werden.", "Du nutzt ____ + ____.", ["Alt", "F4", "Ctrl", "W"], ["Alt", "F4"]),
+          narrativeEntry("Danach brauchst du eine Datei aus dem Explorer.", "Du nutzt ____ + ____.", ["Win", "E", "D", "L"], ["Win", "E"]),
+          narrativeEntry("Du verlässt den Arbeitsplatz.", "Du sperrst den PC mit ____ + ____.", ["Win", "L", "Ctrl", "D"], ["Win", "L"])
         ]
       };
       s16.tasks = [];
     }
 
-    // Section 30 is typed recall. Do not require students to somehow type the
-    // visual arrow glyphs used by Win+Arrow shortcuts into a text field.
     const s30 = byId(30);
     if (s30 && Array.isArray(s30.tasks)) {
       const leftArrow = s30.tasks.find(task => task && task.answer === "Win+←");
@@ -112,6 +89,22 @@
         upArrow.answer = "Alt+F4";
       }
     }
+
+    // Learners do not need to remember which former worksheet introduced a shortcut.
+    sections.forEach(section => {
+      if (!section) return;
+      section.title = stripWorksheetRefs(section.title);
+      section.description = stripWorksheetRefs(section.description);
+      section.tabLabel = stripWorksheetRefs(section.tabLabel);
+      if (section.fastPaced) {
+        section.fastPaced.title = stripWorksheetRefs(section.fastPaced.title);
+        section.fastPaced.instructions = stripWorksheetRefs(section.fastPaced.instructions);
+      }
+      if (section.comboBuilder) {
+        section.comboBuilder.title = stripWorksheetRefs(section.comboBuilder.title);
+        section.comboBuilder.instructions = stripWorksheetRefs(section.comboBuilder.instructions);
+      }
+    });
   }
 
   applyDidacticOverrides();
@@ -141,10 +134,6 @@
     try {
       const state = JSON.parse(serialized);
       if (!state || typeof state !== "object") return { serialized, state: null };
-
-      // Battle 1 is available immediately. Each three first-time section clears
-      // permit one additional battle rank. The player must also have cleared the
-      // preceding battle, so learning and RPG progression advance together.
       const learningCap = Math.min(BATTLE_COUNT_2026, 1 + Math.floor(completedSectionCount(state) / 3));
       const battleCap = sequentialBattleProgress(state);
       state.battleUnlocked = Math.max(1, Math.min(learningCap, battleCap));
@@ -169,10 +158,10 @@
       (editionBadge || title).insertAdjacentElement("afterend", badge);
     }
     if (!badge) return;
-    badge.textContent = completed >= SECTION_COUNT_2026 ? "A8 abgeschlossen ✓" : `${completed} / ${SECTION_COUNT_2026}`;
+    badge.textContent = completed >= SECTION_COUNT_2026 ? "Abgeschlossen ✓" : `${completed} / ${SECTION_COUNT_2026}`;
     badge.title = completed >= SECTION_COUNT_2026
-      ? "Alle 30 A8-Abschnitte gemeistert"
-      : `${completed} von ${SECTION_COUNT_2026} A8-Abschnitten gemeistert`;
+      ? "Alle Übungen abgeschlossen"
+      : `${completed} von ${SECTION_COUNT_2026} Übungen abgeschlossen`;
   }
 
   if (typeof Storage !== "undefined" && !global.__shortcutQuest2026StoragePatched) {
@@ -198,8 +187,6 @@
       return rawRemove.call(this, mapKey(this, key));
     };
 
-    // The inherited runtime intentionally exposes the first 10 sections.
-    // Each first clear then unlocks one additional section, up to all 30.
     if (rawGet.call(global.localStorage, STORAGE_2026_KEY) === null) {
       rawSet.call(global.localStorage, STORAGE_2026_KEY, JSON.stringify({
         edition: "tk2-2026",
@@ -218,9 +205,6 @@
   }
 
   function install2026EconomyOverrides() {
-    // Remove the inherited equipment-based coin multiplier entirely. Rewards are
-    // scaled once, globally, so the shorter 30-section course keeps the same
-    // purchasing power as the former 55-section version.
     if (typeof global.getRunenAmuletCoinBonusPercent === "function") {
       global.getRunenAmuletCoinBonusPercent = () => 0;
     }
@@ -231,9 +215,6 @@
         return Math.max(0, Math.round(amount * REWARD_SCALE_2026));
       };
     }
-
-    // The Runen-Amulett becomes a straightforward defensive necklace instead of
-    // an economy multiplier: +1 DEF per tier.
     if (typeof global.updateItemDerivedStats === "function") {
       const legacyUpdateItemDerivedStats = global.updateItemDerivedStats;
       global.updateItemDerivedStats = item => {
@@ -256,7 +237,6 @@
         return cleaned;
       };
     }
-
     if (typeof global.updateUI === "function") global.updateUI();
     global.SHORTCUT_QUEST_2026_ECONOMY = Object.freeze({
       rewardScale: REWARD_SCALE_2026,
@@ -278,6 +258,13 @@
     refreshHintButtons();
   }
 
+  function addSharedXP(amount) {
+    const value = Math.max(0, Math.floor(Number(amount) || 0));
+    if (!value) return 0;
+    setSharedXP(getSharedXP() + value);
+    return value;
+  }
+
   function renderSharedXP() {
     if (typeof document === "undefined") return;
     const headerRight = document.querySelector("header .header-right");
@@ -292,7 +279,7 @@
       else headerRight.appendChild(badge);
     }
     badge.textContent = `⚡ XP: ${getSharedXP()}`;
-    badge.title = "Kurs-XP aus TK2 · Tipps kosten 30 XP";
+    badge.title = `Jede richtige Antwort bringt ${XP_PER_CORRECT_2026} XP · Tipps kosten ${HINT_COST_XP_2026} XP`;
   }
 
   function injectChoiceStyles() {
@@ -300,49 +287,60 @@
     const style = document.createElement("style");
     style.id = "a8ChoiceStyles";
     style.textContent = `
-      #learnSections select.a8-native-select {
-        position: absolute !important;
-        width: 1px !important;
-        height: 1px !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        overflow: hidden !important;
-        clip: rect(0 0 0 0) !important;
-      }
-      .a8-choice-ui { display: flex; flex-direction: column; gap: .65rem; width: 100%; margin-top: .55rem; }
-      .a8-choice-options { display: grid; grid-template-columns: repeat(auto-fit,minmax(112px,1fr)); gap: .55rem; width: 100%; }
-      .a8-choice-option, .a8-combo-bank-option, .a8-combo-slot-button {
-        appearance: none; border: 1px solid rgba(148,163,184,.38); border-radius: .85rem;
-        background: rgba(15,23,42,.58); color: var(--text); min-height: 44px; padding: .62rem .8rem;
-        font: inherit; font-weight: 750; cursor: pointer; transition: transform .12s ease,border-color .12s ease,background .12s ease,opacity .12s ease;
-      }
-      .a8-choice-option:hover:not(:disabled), .a8-combo-bank-option:hover:not(:disabled), .a8-combo-slot-button:hover:not(:disabled) {
-        border-color: var(--accent); background: rgba(245,158,11,.14); transform: translateY(-1px);
-      }
-      .a8-choice-option.selected, .a8-combo-bank-option.selected, .a8-combo-slot-button.active {
-        border-color: rgba(245,158,11,.82); background: rgba(245,158,11,.2); box-shadow: 0 0 0 2px rgba(245,158,11,.12);
-      }
-      .a8-choice-option.removed { opacity: .22; text-decoration: line-through; pointer-events: none; }
-      .a8-choice-option.correct, .a8-combo-slot-button.correct { border-color: var(--good); background: var(--good-soft); color: var(--good); }
-      .a8-choice-option.wrong, .a8-combo-slot-button.incorrect { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
-      .a8-choice-option.correct-answer, .a8-combo-bank-option.correct-answer { border-color: var(--good); box-shadow: 0 0 0 2px rgba(34,197,94,.12); }
-      .a8-hint-row { display:flex; align-items:center; flex-wrap:wrap; gap:.55rem; }
-      .a8-hint-button {
-        border: 1px solid rgba(250,204,21,.4); border-radius: .75rem; background: rgba(250,204,21,.10);
-        color: #fde68a; padding: .48rem .72rem; font: inherit; font-size: .84rem; font-weight: 750; cursor: pointer;
-      }
-      .a8-hint-button:disabled { opacity: .48; cursor: not-allowed; }
-      .a8-hint-note { color: var(--muted); font-size: .82rem; }
-      .a8-combo-controls { display:flex; flex-direction:column; gap:.7rem; width:100%; margin-top:.7rem; }
-      .a8-combo-bank { display:flex; flex-wrap:wrap; gap:.48rem; align-items:center; }
-      .a8-combo-bank-option { min-height: 40px; padding:.5rem .7rem; font-size:.88rem; }
-      .combo-slot .a8-combo-slot-button { min-width: 88px; }
-      .a8-combo-bank-option.hint-removed { opacity:.2; text-decoration:line-through; pointer-events:none; }
-      @media (max-width: 620px) {
-        .a8-choice-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
-        .a8-choice-option { min-width:0; padding:.6rem .45rem; }
-        .a8-combo-bank { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+      #sectionTabs { flex-wrap: nowrap !important; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; padding-bottom: .25rem; }
+      #sectionTabs .section-tab { flex: 0 0 auto; }
+      #learnView .nav-card > .small { margin: .45rem 0 0; }
+      #learnSections select.a8-native-select { position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;clip:rect(0 0 0 0)!important; }
+      .a8-choice-ui { display:flex;flex-direction:column;gap:.65rem;width:100%;margin-top:.55rem; }
+      .a8-choice-options { display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:.55rem;width:100%; }
+      .a8-choice-option,.a8-combo-bank-option,.a8-combo-slot-button { appearance:none;border:1px solid rgba(148,163,184,.38);border-radius:.85rem;background:rgba(15,23,42,.58);color:var(--text);min-height:44px;padding:.62rem .8rem;font:inherit;font-weight:750;cursor:pointer;transition:transform .12s ease,border-color .12s ease,background .12s ease,opacity .12s ease; }
+      .a8-choice-option:hover:not(:disabled),.a8-combo-bank-option:hover:not(:disabled),.a8-combo-slot-button:hover:not(:disabled) { border-color:var(--accent);background:rgba(245,158,11,.14);transform:translateY(-1px); }
+      .a8-choice-option.selected,.a8-combo-bank-option.selected,.a8-combo-slot-button.active { border-color:rgba(245,158,11,.82);background:rgba(245,158,11,.2);box-shadow:0 0 0 2px rgba(245,158,11,.12); }
+      .a8-choice-option.removed { opacity:.22;text-decoration:line-through;pointer-events:none; }
+      .a8-choice-option.correct,.a8-combo-slot-button.correct { border-color:var(--good);background:var(--good-soft);color:var(--good); }
+      .a8-choice-option.wrong,.a8-combo-slot-button.incorrect { border-color:var(--bad);background:var(--bad-soft);color:var(--bad); }
+      .a8-choice-option.correct-answer,.a8-combo-bank-option.correct-answer { border-color:var(--good);box-shadow:0 0 0 2px rgba(34,197,94,.12); }
+      .a8-hint-row { display:flex;align-items:center;flex-wrap:wrap;gap:.55rem; }
+      .a8-hint-button { border:1px solid rgba(250,204,21,.4);border-radius:.75rem;background:rgba(250,204,21,.10);color:#fde68a;padding:.48rem .72rem;font:inherit;font-size:.84rem;font-weight:750;cursor:pointer; }
+      .a8-hint-button:disabled { opacity:.48;cursor:not-allowed; }
+      .a8-hint-note { color:var(--muted);font-size:.82rem; }
+      .a8-combo-controls { display:flex;flex-direction:column;gap:.7rem;width:100%;margin-top:.7rem; }
+      .a8-combo-bank { display:flex;flex-wrap:wrap;gap:.48rem;align-items:center; }
+      .a8-combo-bank-option { min-height:40px;padding:.5rem .7rem;font-size:.88rem; }
+      .combo-slot .a8-combo-slot-button { min-width:88px; }
+      .a8-combo-bank-option.hint-removed { opacity:.2;text-decoration:line-through;pointer-events:none; }
+
+      .a8-dnd-shell { display:flex;flex-direction:column;gap:.85rem;margin-top:.5rem; }
+      .a8-dnd-head { display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap; }
+      .a8-dnd-progress { font-size:.82rem;font-weight:800;color:#fde68a;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);border-radius:999px;padding:.3rem .65rem; }
+      .a8-dnd-help { margin:0;color:var(--muted);font-size:.86rem; }
+      .a8-dnd-shell .dnd-pool { display:flex!important;gap:.5rem!important;flex-wrap:wrap!important;justify-content:flex-start!important;padding:.8rem!important;border:1px solid rgba(148,163,184,.2)!important;border-radius:1rem!important;background:rgba(15,23,42,.35)!important;min-height:62px; }
+      .a8-dnd-shell .dnd-token { border-radius:999px!important;padding:.55rem .78rem!important;background:rgba(30,41,59,.9)!important;border:1px solid rgba(96,165,250,.42)!important;color:#dbeafe!important;font-weight:800!important;cursor:grab!important;box-shadow:none!important; }
+      .a8-dnd-shell .dnd-token:hover { transform:translateY(-1px);border-color:#60a5fa!important;background:rgba(37,99,235,.18)!important; }
+      .a8-dnd-shell .dnd-token.a8-used,.a8-dnd-shell .dnd-token.a8-hint-hidden { display:none!important; }
+      .a8-dnd-shell .dnd-targets { display:block!important; }
+      .a8-dnd-shell .dnd-target { display:none!important; }
+      .a8-dnd-shell .dnd-target.a8-active { display:flex!important;align-items:center;justify-content:space-between;gap:1rem;min-height:86px;padding:1rem 1.1rem!important;border:1px solid rgba(245,158,11,.46)!important;border-radius:1rem!important;background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(15,23,42,.56))!important;box-shadow:0 12px 30px rgba(2,6,23,.2); }
+      .a8-dnd-shell .dnd-target.a8-active .question-text { font-size:1.05rem;font-weight:800; }
+      .a8-dnd-shell .dnd-target.a8-active .drop-slot { min-width:150px;min-height:48px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(245,158,11,.65)!important;border-radius:.8rem!important;background:rgba(15,23,42,.45)!important;color:#fde68a;font-weight:800; }
+      .a8-dnd-done { display:none;padding:.85rem 1rem;border-radius:.9rem;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);color:#bbf7d0;font-weight:800; }
+      .a8-dnd-done.visible { display:block; }
+      .a8-dnd-assignments { display:flex;flex-wrap:wrap;gap:.45rem; }
+      .a8-dnd-assignment { border:1px solid rgba(148,163,184,.26);border-radius:999px;background:rgba(15,23,42,.48);color:var(--muted);padding:.42rem .65rem;font:inherit;font-size:.8rem;cursor:pointer; }
+      .a8-dnd-assignment strong { color:var(--text); }
+      .a8-dnd-assignment.correct { border-color:rgba(34,197,94,.5);color:#bbf7d0; }
+      .a8-dnd-assignment.incorrect { border-color:rgba(248,113,113,.5);color:#fecaca; }
+      .a8-xp-earned { display:inline-flex;align-items:center;margin-left:.5rem;padding:.25rem .5rem;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#bbf7d0;font-size:.8rem;font-weight:850;animation:a8XpPop .5s ease; }
+      .a8-xp-float { position:fixed;z-index:9999;pointer-events:none;font-weight:900;color:#bbf7d0;text-shadow:0 2px 8px #020617;animation:a8XpFloat .8s ease forwards; }
+      @keyframes a8XpPop { from{transform:scale(.75);opacity:0} to{transform:scale(1);opacity:1} }
+      @keyframes a8XpFloat { 0%{transform:translateY(0) scale(.8);opacity:0} 20%{opacity:1} 100%{transform:translateY(-38px) scale(1.08);opacity:0} }
+      @media (max-width:620px) {
+        .a8-choice-options { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .a8-choice-option { min-width:0;padding:.6rem .45rem; }
+        .a8-combo-bank { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
         .a8-combo-bank-option { min-width:0; }
+        .a8-dnd-shell .dnd-target.a8-active { flex-direction:column;align-items:stretch; }
+        .a8-dnd-shell .dnd-target.a8-active .drop-slot { width:100%;min-width:0; }
       }
     `;
     document.head.appendChild(style);
@@ -363,8 +361,11 @@
 
   function refreshHintButtons() {
     if (typeof document === "undefined") return;
-    document.querySelectorAll("#learnSections .a8-hint-button").forEach(hint => {
+    document.querySelectorAll("#learnSections .a8-hint-button:not(.a8-dnd-hint)").forEach(hint => {
       updateHintButton(hint, hint.closest(".a8-choice-ui,.combo-row"));
+    });
+    document.querySelectorAll(".a8-dnd-shell").forEach(shell => {
+      if (typeof shell.__a8SyncDnd === "function") shell.__a8SyncDnd();
     });
   }
 
@@ -395,7 +396,7 @@
   function resetSimpleChoice(select, ui) {
     if (!select || !ui) return;
     ui.querySelectorAll(".a8-choice-option").forEach(button => {
-      button.classList.remove("removed","correct","wrong","correct-answer");
+      button.classList.remove("removed", "correct", "wrong", "correct-answer");
       button.disabled = false;
     });
     const hint = ui.querySelector(".a8-hint-button");
@@ -449,8 +450,7 @@
       const candidates = Array.from(optionWrap.querySelectorAll(".a8-choice-option")).filter(button =>
         button.dataset.value !== answer && button.dataset.value !== select.value && !button.classList.contains("removed")
       );
-      if (!candidates.length) return;
-      if (!spendHintXP()) return;
+      if (!candidates.length || !spendHintXP()) return;
       const removed = candidates[Math.floor(Math.random() * candidates.length)];
       removed.classList.add("removed");
       removed.disabled = true;
@@ -491,12 +491,12 @@
     row.dataset.a8HintSlot = "";
     row.dataset.a8HintRemoved = "";
     const slotButtons = [];
-
     const controls = document.createElement("div");
     controls.className = "a8-combo-controls";
     const bank = document.createElement("div");
     bank.className = "a8-combo-bank";
     const bankButtons = [];
+
     comboOptionValues(selects).forEach(meta => {
       const button = document.createElement("button");
       button.type = "button";
@@ -581,8 +581,7 @@
       if (!select) return;
       const answer = select.dataset.answer || "";
       const candidates = bankButtons.filter(button => button.dataset.value !== answer && button.dataset.value !== select.value);
-      if (!candidates.length) return;
-      if (!spendHintXP()) return;
+      if (!candidates.length || !spendHintXP()) return;
       const removed = candidates[Math.floor(Math.random() * candidates.length)];
       row.dataset.a8HintSlot = String(index);
       row.dataset.a8HintRemoved = removed.dataset.value;
@@ -610,7 +609,208 @@
     syncCombo();
   }
 
-  function upgradeAllSelects() {
+  function upgradeDndPool(pool) {
+    if (!pool || pool.dataset.a8DndUpgraded === "true") return;
+    const targetsWrap = pool.nextElementSibling;
+    if (!targetsWrap || !targetsWrap.classList.contains("dnd-targets")) return;
+    const targets = Array.from(targetsWrap.querySelectorAll(".dnd-target"));
+    const tokens = Array.from(pool.querySelectorAll(".dnd-token"));
+    if (!targets.length || !tokens.length) return;
+    pool.dataset.a8DndUpgraded = "true";
+
+    const shell = document.createElement("div");
+    shell.className = "a8-dnd-shell";
+    pool.parentNode.insertBefore(shell, pool);
+    shell.appendChild(pool);
+    shell.appendChild(targetsWrap);
+
+    const head = document.createElement("div");
+    head.className = "a8-dnd-head";
+    const help = document.createElement("p");
+    help.className = "a8-dnd-help";
+    help.textContent = "Tippe oder ziehe das passende Kürzel. Verwendete Kürzel verschwinden.";
+    const progress = document.createElement("span");
+    progress.className = "a8-dnd-progress";
+    head.appendChild(help);
+    head.appendChild(progress);
+    shell.insertBefore(head, pool);
+
+    const hintRow = document.createElement("div");
+    hintRow.className = "a8-hint-row";
+    const hint = document.createElement("button");
+    hint.type = "button";
+    hint.className = "a8-hint-button a8-dnd-hint";
+    const hintNote = document.createElement("span");
+    hintNote.className = "a8-hint-note";
+    hintRow.appendChild(hint);
+    hintRow.appendChild(hintNote);
+    shell.insertBefore(hintRow, targetsWrap);
+
+    const done = document.createElement("div");
+    done.className = "a8-dnd-done";
+    done.textContent = "✓ Alles zugeordnet. Prüfe kurz deine Auswahl und klicke dann auf „Abschnitt prüfen“.";
+    shell.appendChild(done);
+    const assignments = document.createElement("div");
+    assignments.className = "a8-dnd-assignments";
+    shell.appendChild(assignments);
+
+    const hintUsed = new Set();
+    const hintRemoved = new Map();
+    let activeIndex = Math.max(0, targets.findIndex(target => !(target.querySelector(".drop-slot")?.dataset.value)));
+    if (activeIndex < 0) activeIndex = 0;
+    let syncing = false;
+
+    function slotFor(target) {
+      return target ? target.querySelector(".drop-slot") : null;
+    }
+
+    function valueFor(target) {
+      const slot = slotFor(target);
+      return slot ? (slot.dataset.value || "") : "";
+    }
+
+    function nextOpenIndex(fromIndex) {
+      for (let offset = 1; offset <= targets.length; offset += 1) {
+        const index = (fromIndex + offset) % targets.length;
+        if (!valueFor(targets[index])) return index;
+      }
+      return -1;
+    }
+
+    function clearTarget(target) {
+      const slot = slotFor(target);
+      if (!slot) return;
+      slot.textContent = "";
+      delete slot.dataset.value;
+      slot.classList.remove("correct", "incorrect");
+      target.classList.remove("correct", "incorrect");
+      const wrap = target.closest(".task-field");
+      if (wrap) wrap.classList.remove("correct", "incorrect");
+    }
+
+    function assignValue(target, value) {
+      if (!target || !value) return;
+      const slot = slotFor(target);
+      if (!slot) return;
+      slot.textContent = value;
+      slot.dataset.value = value;
+      slot.classList.remove("correct", "incorrect");
+      target.classList.remove("correct", "incorrect");
+      const wrap = target.closest(".task-field");
+      if (wrap) wrap.classList.remove("correct", "incorrect");
+      const current = targets.indexOf(target);
+      const next = nextOpenIndex(current);
+      if (next >= 0) activeIndex = next;
+      sync();
+    }
+
+    function sync() {
+      if (syncing) return;
+      syncing = true;
+      const values = targets.map(valueFor);
+      const used = new Set(values.filter(Boolean));
+      const filled = values.filter(Boolean).length;
+      if (!values[activeIndex]) {
+        // keep current target
+      } else {
+        const next = nextOpenIndex(activeIndex);
+        if (next >= 0) activeIndex = next;
+      }
+      const allFilled = filled === targets.length;
+      targets.forEach((target, index) => target.classList.toggle("a8-active", !allFilled && index === activeIndex));
+      progress.textContent = `${filled} / ${targets.length}`;
+      done.classList.toggle("visible", allFilled);
+
+      const currentRemoved = hintRemoved.get(activeIndex) || "";
+      tokens.forEach(token => {
+        const value = token.dataset.value || "";
+        token.classList.toggle("a8-used", used.has(value));
+        token.classList.toggle("a8-hint-hidden", Boolean(currentRemoved && currentRemoved === value && !used.has(value)));
+      });
+
+      assignments.innerHTML = "";
+      targets.forEach((target, index) => {
+        const value = valueFor(target);
+        if (!value) return;
+        const label = target.querySelector(".question-text")?.textContent?.trim() || `Zuordnung ${index + 1}`;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "a8-dnd-assignment";
+        button.innerHTML = `<span>${label}</span> · <strong>${value}</strong>`;
+        button.classList.toggle("correct", target.classList.contains("correct"));
+        button.classList.toggle("incorrect", target.classList.contains("incorrect"));
+        button.title = "Zum Ändern anklicken";
+        button.addEventListener("click", () => {
+          clearTarget(target);
+          activeIndex = index;
+          sync();
+        });
+        assignments.appendChild(button);
+      });
+
+      const usedHint = hintUsed.has(activeIndex);
+      const xp = getSharedXP();
+      hint.dataset.used = usedHint ? "true" : "false";
+      hint.disabled = allFilled || usedHint || xp < HINT_COST_XP_2026;
+      hint.textContent = usedHint
+        ? `💡 Tipp genutzt (-${HINT_COST_XP_2026} XP)`
+        : xp < HINT_COST_XP_2026
+          ? `💡 Tipp (-${HINT_COST_XP_2026} XP | Zu wenig XP)`
+          : `💡 Tipp (-${HINT_COST_XP_2026} XP)`;
+      hintNote.textContent = usedHint ? "Eine falsche Möglichkeit wurde entfernt." : "";
+      syncing = false;
+    }
+
+    tokens.forEach(token => {
+      token.setAttribute("role", "button");
+      token.setAttribute("tabindex", "0");
+      const choose = () => {
+        if (token.classList.contains("a8-used") || token.classList.contains("a8-hint-hidden")) return;
+        assignValue(targets[activeIndex], token.dataset.value || "");
+      };
+      token.addEventListener("click", choose);
+      token.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        choose();
+      });
+    });
+
+    hint.addEventListener("click", event => {
+      event.preventDefault();
+      if (hint.disabled || hintUsed.has(activeIndex)) return;
+      const target = targets[activeIndex];
+      const answer = target?.dataset.answer || "";
+      const used = new Set(targets.map(valueFor).filter(Boolean));
+      const candidates = tokens.filter(token => {
+        const value = token.dataset.value || "";
+        return value && value !== answer && !used.has(value);
+      });
+      if (!candidates.length || !spendHintXP()) return;
+      const removed = candidates[Math.floor(Math.random() * candidates.length)];
+      hintUsed.add(activeIndex);
+      hintRemoved.set(activeIndex, removed.dataset.value || "");
+      sync();
+    });
+
+    new MutationObserver(() => sync()).observe(targetsWrap, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-value"]
+    });
+
+    shell.__a8SyncDnd = sync;
+    shell.__a8ResetDnd = () => {
+      activeIndex = 0;
+      hintUsed.clear();
+      hintRemoved.clear();
+      sync();
+    };
+    sync();
+  }
+
+  function upgradeAllInteractiveUI() {
     if (typeof document === "undefined") return;
     const host = document.getElementById("learnSections");
     if (!host) return;
@@ -618,34 +818,71 @@
     host.querySelectorAll("select:not([data-a8-buttonized='true'])").forEach(select => {
       if (!select.closest(".combo-row")) upgradeSimpleSelect(select);
     });
+    host.querySelectorAll(".dnd-pool:not([data-a8-dnd-upgraded='true'])").forEach(upgradeDndPool);
   }
 
-  function resetButtonUI(section) {
+  function showXpEarned(section, amount) {
+    if (!section || amount <= 0) return;
+    const result = section.querySelector(".result-text") || section.querySelector(".card-header") || section;
+    const old = result.querySelector?.(".a8-xp-earned");
+    if (old) old.remove();
+    const badge = document.createElement("span");
+    badge.className = "a8-xp-earned";
+    badge.textContent = `+${amount} XP`;
+    result.appendChild(badge);
+  }
+
+  function showFloatingXp(element, amount) {
+    if (!element || amount <= 0) return;
+    const rect = element.getBoundingClientRect();
+    const pop = document.createElement("span");
+    pop.className = "a8-xp-float";
+    pop.textContent = `+${amount} XP`;
+    pop.style.left = `${Math.max(8, rect.left + rect.width / 2 - 25)}px`;
+    pop.style.top = `${Math.max(8, rect.top)}px`;
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 900);
+  }
+
+  function awardCheckedAnswers(section) {
+    if (!section) return 0;
+    const fields = Array.from(section.querySelectorAll("[data-answer], .dnd-target"));
+    let newlyCorrect = 0;
+    fields.forEach(field => {
+      if (!field.classList.contains("correct") || field.dataset.a8XpAwarded === "true") return;
+      field.dataset.a8XpAwarded = "true";
+      newlyCorrect += 1;
+    });
+    const xp = newlyCorrect * XP_PER_CORRECT_2026;
+    if (xp > 0) {
+      addSharedXP(xp);
+      showXpEarned(section, xp);
+    }
+    return xp;
+  }
+
+  function resetAttemptXp(section) {
     if (!section) return;
-    section.querySelectorAll("select.a8-native-select").forEach(select => {
-      if (select.closest(".combo-row")) return;
-      const ui = select.previousElementSibling && select.previousElementSibling.classList.contains("a8-choice-ui")
-        ? select.previousElementSibling
-        : null;
-      if (ui) resetSimpleChoice(select, ui);
-    });
-    section.querySelectorAll(".combo-row").forEach(row => {
-      if (typeof row.__a8ResetCombo === "function") row.__a8ResetCombo();
-    });
+    section.querySelectorAll("[data-a8-xp-awarded='true']").forEach(field => delete field.dataset.a8XpAwarded);
+    const badge = section.querySelector(".a8-xp-earned");
+    if (badge) badge.remove();
   }
 
-  function install2026ButtonChoices() {
-    if (typeof document === "undefined" || global.__shortcutQuest2026ButtonChoicesInstalled) return;
-    global.__shortcutQuest2026ButtonChoicesInstalled = true;
+  function install2026Interactions() {
+    if (typeof document === "undefined" || global.__shortcutQuest2026InteractionsInstalled) return;
+    global.__shortcutQuest2026InteractionsInstalled = true;
     injectChoiceStyles();
     renderSharedXP();
-    upgradeAllSelects();
+    upgradeAllInteractiveUI();
     refreshHintButtons();
+
+    const navHelp = document.querySelector("#learnView .nav-card > .small");
+    if (navHelp) navHelp.textContent = `Richtig = +${XP_PER_CORRECT_2026} XP. Perfekte Abschnitte bringen zusätzlich Coins.`;
 
     const host = document.getElementById("learnSections");
     if (host) {
       new MutationObserver(() => queueMicrotask(() => {
-        upgradeAllSelects();
+        upgradeAllInteractiveUI();
         refreshHintButtons();
       })).observe(host, { childList: true, subtree: true });
     }
@@ -654,19 +891,37 @@
       const reset = event.target && event.target.closest ? event.target.closest(".reset-section") : null;
       if (reset) {
         const section = reset.closest(".section");
-        setTimeout(() => resetButtonUI(section), 0);
+        setTimeout(() => {
+          resetAttemptXp(section);
+          section?.querySelectorAll("select.a8-native-select").forEach(select => {
+            if (select.closest(".combo-row")) return;
+            const ui = select.previousElementSibling?.classList.contains("a8-choice-ui") ? select.previousElementSibling : null;
+            if (ui) resetSimpleChoice(select, ui);
+          });
+          section?.querySelectorAll(".combo-row").forEach(row => row.__a8ResetCombo?.());
+          section?.querySelectorAll(".a8-dnd-shell").forEach(shell => shell.__a8ResetDnd?.());
+        }, 0);
       }
+
       const check = event.target && event.target.closest ? event.target.closest(".check-section") : null;
       if (check) {
+        const section = check.closest(".section");
         setTimeout(() => {
-          upgradeAllSelects();
+          awardCheckedAnswers(section);
+          upgradeAllInteractiveUI();
           refreshHintButtons();
-          const section = check.closest(".section");
-          if (section) {
-            section.querySelectorAll(".combo-row").forEach(row => {
-              if (typeof row.__a8SyncCombo === "function") row.__a8SyncCombo();
-            });
-          }
+          section?.querySelectorAll(".combo-row").forEach(row => row.__a8SyncCombo?.());
+          section?.querySelectorAll(".a8-dnd-shell").forEach(shell => shell.__a8SyncDnd?.());
+        }, 0);
+      }
+
+      const fastOption = event.target && event.target.closest ? event.target.closest(".fast-paced-option") : null;
+      if (fastOption) {
+        setTimeout(() => {
+          if (!fastOption.classList.contains("correct") || fastOption.dataset.a8XpAwarded === "true") return;
+          fastOption.dataset.a8XpAwarded = "true";
+          addSharedXP(XP_PER_CORRECT_2026);
+          showFloatingXp(fastOption, XP_PER_CORRECT_2026);
         }, 0);
       }
     });
@@ -677,20 +932,24 @@
         refreshHintButtons();
       }
     });
+
     global.SHORTCUT_QUEST_2026_HINTS = Object.freeze({
       costXP: HINT_COST_XP_2026,
       storageKey: XP_STORAGE_KEY_2026,
       behavior: "remove-one-wrong-answer"
     });
+    global.SHORTCUT_QUEST_2026_XP = Object.freeze({
+      perCorrect: XP_PER_CORRECT_2026,
+      storageKey: XP_STORAGE_KEY_2026
+    });
   }
 
-  // Clear visual identity: this is A8, not the archived v1.8 root edition.
   if (typeof document !== "undefined") {
-    document.title = "A8 · Shortcut Quest 2026";
+    document.title = "Shortcut Quest 2026";
     document.documentElement.dataset.edition = "tk2-2026";
     const title = document.querySelector("header .title");
     if (title) {
-      title.textContent = "A8 · Shortcut Quest 2026";
+      title.textContent = "Shortcut Quest 2026";
       if (!document.getElementById("tk2EditionBadge")) {
         const badge = document.createElement("span");
         badge.id = "tk2EditionBadge";
@@ -702,11 +961,9 @@
     const trainingNav = document.querySelector('[data-view="learn"]');
     if (trainingNav) {
       const labelNode = Array.from(trainingNav.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-      if (labelNode) labelNode.textContent = " A8 Training";
+      if (labelNode) labelNode.textContent = " Training";
     }
 
-    // Students naturally type both "Ctrl+C" and "Ctrl + C". Normalize spacing
-    // before the inherited strict grader runs, without weakening the answer itself.
     document.addEventListener("click", event => {
       const check = event.target && event.target.closest ? event.target.closest(".check-section") : null;
       if (!check) return;
@@ -718,11 +975,9 @@
     }, true);
 
     render2026Progress(global.__shortcutQuest2026InitialState || {});
-    // The 2026 helper loads before the inherited inline runtime. Install economy
-    // and 2026-only UI overrides once the parser has finished.
     const installAfterRuntime = () => queueMicrotask(() => {
       install2026EconomyOverrides();
-      install2026ButtonChoices();
+      install2026Interactions();
     });
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", installAfterRuntime, { once: true });
@@ -731,8 +986,6 @@
     }
   }
 
-  // Battle hotkeys deliberately stay on safe Ctrl-based combinations. Windows
-  // system shortcuts such as Win+L must not be used as live battle keypresses.
   const data = [
     { label: "Kopieren (CTRL+C)", keys: ["Control", "C"] },
     { label: "Ausschneiden (CTRL+X)", keys: ["Control", "X"] },
