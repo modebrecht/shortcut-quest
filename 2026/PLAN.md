@@ -8,10 +8,32 @@ Goal: keep the existing Shortcut Quest RPG loop (coins, shop, inventory, skills,
 - [ ] Do not modify the current root version; all TK2 2026 work lives in `/2026/`.
 - [ ] A8 introduces no new shortcut content that was not taught in TK2 A1–A7.
 - [ ] Remove all Memory sections from the 2026 learning path because A7 already contains Memory as a required station.
-- [ ] Repetition is allowed only when the retrieval mode or context changes meaningfully.
+- [ ] Repetition is allowed when the retrieval mode, context or difficulty changes meaningfully.
 - [ ] Avoid near-identical duplicate sections.
-- [ ] Keep the course long enough for the RPG systems to matter: target roughly 24–30 learning sections.
-- [ ] Difficulty should rise from recognition -> recall -> contextual choice -> mixed retrieval -> time pressure -> mastery.
+- [ ] Keep the course long enough for the RPG systems to matter: target exactly 30 learning sections.
+- [ ] Difficulty should rise from recognition -> recall -> construction -> workflow transfer -> mixed retrieval -> time pressure -> mastery.
+
+## New 2026 mechanic — Workflow Chains
+
+Memory is not replaced by another matching game. The 2026 version adds a transfer mechanic called **Workflow Chains**.
+
+Instead of identifying one shortcut, students solve a short real-world workflow by choosing several complete shortcuts in the correct order.
+
+Example:
+
+`Neuer Browser-Tab -> Adresszeile fokussieren -> Tab schliessen`
+
+Correct chain:
+
+`Ctrl+T -> Ctrl+L -> Ctrl+W`
+
+Implementation should reuse the stable Combo Builder interaction where possible, but present whole shortcuts as selectable workflow steps rather than individual key parts.
+
+- [ ] Add Workflow Chain: Browser research.
+- [ ] Add Workflow Chain: Document editing.
+- [ ] Add Workflow Chain: Windows workspace.
+- [ ] Add a harder mixed Workflow Chain Gauntlet near the end.
+- [ ] Give Workflow Chains their own titles/instructions so they do not feel like ordinary Combo Builder sections.
 
 ## Content audit
 
@@ -24,7 +46,7 @@ Goal: keep the existing Shortcut Quest RPG loop (coins, shop, inventory, skills,
 - [ ] Reduce duplicate Drag & Drop variants (8, 9, 18, 19, 21, 35, 42, 47) to a smaller set of mixed-difficulty challenges.
 - [ ] Remove or replace shortcut items not covered by TK2 A1–A7.
 
-## Target 2026 learning path
+## Target 2026 learning path — 30 sections
 
 ### Phase 1 — Recall foundation
 - [ ] 01 Warm-up recall: general shortcuts.
@@ -37,39 +59,41 @@ Goal: keep the existing Shortcut Quest RPG loop (coins, shop, inventory, skills,
 - [ ] 06 Drag & Drop: general shortcuts.
 - [ ] 07 Drag & Drop: browser/program shortcuts.
 - [ ] 08 Drag & Drop: Windows shortcuts.
-- [ ] 09 Combo Builder: general/browser.
-- [ ] 10 Combo Builder: Windows/system.
+- [ ] 09 Combo Builder: general/browser shortcuts.
+- [ ] 10 Combo Builder: Windows/system shortcuts.
 
-### Phase 3 — Context transfer
-- [ ] 11 Scenario: school document workflow.
-- [ ] 12 Scenario: browser research workflow.
-- [ ] 13 Scenario: presentation / classroom workflow.
-- [ ] 14 Scenario: window-management workflow.
-- [ ] 15 Scenario: stuck app / system workflow.
+### Phase 3 — Workflow transfer
+- [ ] 11 Workflow Chain: browser research.
+- [ ] 12 Workflow Chain: document editing.
+- [ ] 13 Workflow Chain: Windows workspace.
+- [ ] 14 Scenario: school document workflow.
+- [ ] 15 Scenario: presentation / classroom workflow.
+- [ ] 16 Scenario: stuck app / system workflow.
 
 ### Phase 4 — Mixed retrieval
-- [ ] 16 Shortcut Shuffle I.
-- [ ] 17 Shortcut Shuffle II.
-- [ ] 18 Navigation puzzle.
-- [ ] 19 System quick access.
-- [ ] 20 Mixed no-hint recall.
+- [ ] 17 Shortcut Shuffle I.
+- [ ] 18 Shortcut Shuffle II.
+- [ ] 19 Navigation puzzle.
+- [ ] 20 System quick access.
+- [ ] 21 Mixed no-hint recall.
 
 ### Phase 5 — Speed and pressure
-- [ ] 21 Fast-Paced Basics.
-- [ ] 22 Fast-Paced Browser + Program.
-- [ ] 23 Fast-Paced Windows.
-- [ ] 24 Error-resistant mixed challenge.
+- [ ] 22 Fast-Paced Basics.
+- [ ] 23 Fast-Paced Browser + Program.
+- [ ] 24 Fast-Paced Windows.
+- [ ] 25 Error-resistant mixed challenge with close distractors.
 
 ### Phase 6 — Mastery / RPG payoff
-- [ ] 25 Advanced mixed Combo Builder.
-- [ ] 26 Real-world mixed scenario gauntlet.
-- [ ] 27 Mastery sprint.
-- [ ] 28 Final mastery / boss gate.
+- [ ] 26 Advanced mixed Combo Builder.
+- [ ] 27 Workflow Chain Gauntlet.
+- [ ] 28 Real-world mixed scenario gauntlet.
+- [ ] 29 Mastery sprint.
+- [ ] 30 Final mastery / boss gate.
 
 ## RPG / UX integration
 
 - [ ] Keep coins as the reward for learning actions.
-- [ ] Keep shop purchases meaningful across the 28-section progression.
+- [ ] Keep shop purchases meaningful across the 30-section progression.
 - [ ] Keep inventory/equipment and skills functional.
 - [ ] Keep battles, but place them as payoff/progression beats instead of learning substitutes.
 - [ ] Ensure learning progress still unlocks the next relevant content/battle cleanly.
@@ -81,7 +105,8 @@ Goal: keep the existing Shortcut Quest RPG loop (coins, shop, inventory, skills,
 
 - [ ] Verify every retained shortcut belongs to the current TK2 A1–A7 content set.
 - [ ] Verify no Memory mode remains in the 2026 path.
-- [ ] Verify all 28 sections can be unlocked and completed.
+- [ ] Verify all 30 sections can be unlocked and completed.
+- [ ] Verify Workflow Chains score/unlock correctly.
 - [ ] Verify coins, shop, inventory, skills and battles still work after the content reduction.
 - [ ] Verify localStorage does not collide destructively with the old root version.
 - [ ] Verify the 2026 version loads correctly from `/2026/` with all relative asset/script paths working.
