@@ -5,6 +5,7 @@
   const LEGACY_STORAGE_KEY = "shortcutRitter_v1";
   const STORAGE_2026_KEY = "shortcutRitter_2026_v1";
   const BATTLE_COUNT_2026 = 11;
+  const SECTION_COUNT_2026 = 30;
 
   function completedSectionCount(state) {
     if (!state || !state.sectionClears || typeof state.sectionClears !== "object") return 0;
@@ -18,10 +19,10 @@
     return next;
   }
 
-  function apply2026BattleGate(serialized) {
+  function normalize2026State(serialized) {
     try {
       const state = JSON.parse(serialized);
-      if (!state || typeof state !== "object") return serialized;
+      if (!state || typeof state !== "object") return { serialized, state: null };
 
       // Battle 1 is available immediately. Each three first-time section clears
       // permit one additional battle rank. The player must also have cleared the
@@ -30,10 +31,29 @@
       const battleCap = sequentialBattleProgress(state);
       state.battleUnlocked = Math.max(1, Math.min(learningCap, battleCap));
       state.edition = "tk2-2026";
-      return JSON.stringify(state);
+      return { serialized: JSON.stringify(state), state };
     } catch (_) {
-      return serialized;
+      return { serialized, state: null };
     }
+  }
+
+  function render2026Progress(state) {
+    if (typeof document === "undefined") return;
+    const completed = Math.min(SECTION_COUNT_2026, completedSectionCount(state));
+    let badge = document.getElementById("a8ProgressBadge");
+    const editionBadge = document.getElementById("tk2EditionBadge");
+    const title = document.querySelector("header .title");
+    if (!badge && (editionBadge || title)) {
+      badge = document.createElement("span");
+      badge.id = "a8ProgressBadge";
+      badge.style.cssText = "font-size:.72rem;font-weight:800;padding:.25rem .55rem;border-radius:999px;background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.28);color:#bbf7d0;white-space:nowrap";
+      (editionBadge || title).insertAdjacentElement("afterend", badge);
+    }
+    if (!badge) return;
+    badge.textContent = completed >= SECTION_COUNT_2026 ? "A8 abgeschlossen ✓" : `${completed} / ${SECTION_COUNT_2026}`;
+    badge.title = completed >= SECTION_COUNT_2026
+      ? "Alle 30 A8-Abschnitte gemeistert"
+      : `${completed} von ${SECTION_COUNT_2026} A8-Abschnitten gemeistert`;
   }
 
   if (typeof Storage !== "undefined" && !global.__shortcutQuest2026StoragePatched) {
@@ -47,10 +67,13 @@
     };
     Storage.prototype.setItem = function(key, value) {
       const mapped = mapKey(this, key);
-      const nextValue = this === global.localStorage && mapped === STORAGE_2026_KEY
-        ? apply2026BattleGate(String(value))
-        : value;
-      return rawSet.call(this, mapped, nextValue);
+      if (this === global.localStorage && mapped === STORAGE_2026_KEY) {
+        const normalized = normalize2026State(String(value));
+        const result = rawSet.call(this, mapped, normalized.serialized);
+        if (normalized.state) queueMicrotask(() => render2026Progress(normalized.state));
+        return result;
+      }
+      return rawSet.call(this, mapped, value);
     };
     Storage.prototype.removeItem = function(key) {
       return rawRemove.call(this, mapKey(this, key));
@@ -66,6 +89,13 @@
       }));
     }
     global.__shortcutQuest2026StoragePatched = true;
+
+    const stored = rawGet.call(global.localStorage, STORAGE_2026_KEY);
+    if (stored) {
+      const normalized = normalize2026State(stored);
+      if (normalized.serialized !== stored) rawSet.call(global.localStorage, STORAGE_2026_KEY, normalized.serialized);
+      global.__shortcutQuest2026InitialState = normalized.state;
+    }
   }
 
   // Clear visual identity: this is A8, not the archived v1.8 root edition.
@@ -88,6 +118,7 @@
       const labelNode = Array.from(trainingNav.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
       if (labelNode) labelNode.textContent = " A8 Training";
     }
+    render2026Progress(global.__shortcutQuest2026InitialState || {});
   }
 
   // Battle hotkeys deliberately stay on safe Ctrl-based combinations. Windows
