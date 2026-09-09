@@ -1,0 +1,27 @@
+name: One-off Modern Battle Link
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-modern-battle-link.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+      - name: Apply battle UI loader
+        run: python3 2026/qa/apply_modern_battle_link.py
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/skill-hotkeys.js
+          git commit -m "A8: load modern battle styles"
+          git push origin HEAD:tk2-2026
