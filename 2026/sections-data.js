@@ -19,13 +19,18 @@
   const ALTGR=['AltGr+2','AltGr+3','AltGr+E','AltGr+4','AltGr+7','AltGr+<','AltGr+ü','AltGr+¨','AltGr+ä','AltGr+$'];
 
   const sections=[
-    section(1,'Warm-up – Grundlagen','Die wichtigsten allgemeinen Kürzel ohne Umweg abrufen.',{tasks:[
-      I('Kopieren','Ctrl+C'),I('Einfügen','Ctrl+V'),I('Ausschneiden','Ctrl+X'),I('Rückgängig','Ctrl+Z'),I('Speichern','Ctrl+S'),I('Alles markieren','Ctrl+A')
-    ]}),
+    section(1,'Mission – Abgabe in 60 Sekunden','Kein Abschreiben: Löse sechs kleine Pannen in einem laufenden Dokumentauftrag.',{narrative:narrative([
+      ['Du hast gerade den falschen Absatz gelöscht.','Welche Tastenkombination rettet die letzte Aktion? ____ + ____.',['Ctrl','Z','Y','X'],['Ctrl','Z']],
+      ['Du kopierst Text aus einer Webseite, aber die fremde Formatierung soll weg.','Du fügst sauber ein mit ____ + ____ + ____.',['Ctrl','Shift','V','C'],['Ctrl','Shift','V']],
+      ['Im langen Dokument musst du sofort den Abschnitt „Quellen“ finden.','Du öffnest die Suche mit ____ + ____.',['Ctrl','F','H','S'],['Ctrl','F']],
+      ['Ein veralteter Begriff kommt überall vor und muss ersetzt werden.','Du öffnest Suchen & Ersetzen mit ____ + ____.',['Ctrl','H','F','Y'],['Ctrl','H']],
+      ['Du bist auf Seite 8 und willst direkt ganz nach oben.','Du springst zum Dokumentanfang mit ____ + ____.',['Ctrl','Home','End','O'],['Ctrl','Home']],
+      ['Noch wenige Sekunden bis zur Abgabe. Nichts darf verloren gehen.','Du speicherst mit ____ + ____.',['Ctrl','S','P','A'],['Ctrl','S']]
+    ]),tasks:[]}),
 
-    section(2,'A1 – Advanced Recall','Auch die weniger offensichtlichen A1-Kürzel gehören zum Repertoire.',{tasks:[
-      I('Ohne Formatierung einfügen','Ctrl+Shift+V'),I('Suchen & Ersetzen','Ctrl+H'),I('Datei öffnen','Ctrl+O'),I('Zum Dokumentanfang springen','Ctrl+Home'),I('Zum Dokumentende springen','Ctrl+End'),I('Wiederherstellen / erneut ausführen','Ctrl+Y')
-    ]}),
+    section(2,'Reflex-Runde – A1','Situation lesen, passendes Kürzel antippen. Sechs schnelle Entscheidungen – kein Abschreiben.',{fastPaced:fast(6,10,4,[
+      ['Text kopieren','Ctrl+C'],['Text ausschneiden','Ctrl+X'],['Text einfügen','Ctrl+V'],['Alles markieren','Ctrl+A'],['Datei öffnen','Ctrl+O'],['Druckdialog öffnen','Ctrl+P'],['Wiederherstellen / erneut ausführen','Ctrl+Y'],['Zum Dokumentende','Ctrl+End']
+    ]),tasks:[],hideActions:true}),
 
     section(3,'Programme & Browser','Die acht Kürzel aus A4 erkennen und unterscheiden.',{tasks:[
       S('Neues Dokument','Ctrl+N',['Ctrl+N','Ctrl+T','Ctrl+O','Ctrl+W']),
