@@ -22,7 +22,8 @@ try {
         baseAtk: 0,
         baseDef: 0,
         tier: 3,
-        totalCopies: 3,
+        // Item tiers use powers-of-two copy thresholds: tier 3 needs 4 copies.
+        totalCopies: 4,
         description: 'legacy'
       };
       window.updateItemDerivedStats(item);
