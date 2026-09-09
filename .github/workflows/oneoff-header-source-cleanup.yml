@@ -10,13 +10,9 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: tk2-2026-qa
-  cancel-in-progress: true
-
 jobs:
   cleanup:
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,7 +20,7 @@ jobs:
       - name: Replace header emoji sources with inline SVG
         shell: bash
         run: |
-          python3 - <<'PY'
+          python - <<'PY'
           from pathlib import Path
 
           index = Path('2026/index.html')
@@ -61,8 +57,9 @@ jobs:
 
           css = Path('2026/modern-ui.css')
           c = css.read_text(encoding='utf-8')
-          cleanup = '''\n/* SOURCE SVG HEADER OVERRIDES ----------------------------------------- */\nheader .nav-toggle::before,\nheader .mobile-nav-toggle::before,\nheader #coinTop::before,\nheader #a8XpTop::before {\n  content: none !important;\n  display: none !important;\n}\n\nheader .sq-header-icon {\n  width: 15px;\n  height: 15px;\n  flex: 0 0 auto;\n  display: block;\n}\n\nheader #coinTop,\nheader #a8XpTop,\nheader .mobile-nav-toggle {\n  display: inline-flex !important;\n  align-items: center;\n  gap: .38rem;\n}\n\nheader #a8XpTop {\n  padding-left: .65rem !important;\n  overflow: visible;\n}\n\nheader #a8XpTop::first-letter {\n  font-size: inherit;\n}\n\nheader .mobile-nav-toggle {\n  font-size: .78rem !important;\n}\n\nheader .mobile-nav-toggle::after {\n  content: none !important;\n}\n'''
-          marker = '/* SOURCE SVG HEADER OVERRIDES ----------------------------------------- */'
+          c = c.replace('''\n.nav-toggle .emoji {\n  margin-right: .18rem;\n  opacity: .92;\n}\n''', '\n')
+          cleanup = '''\n/* SOURCE SVG HEADER --------------------------------------------------- */\nheader .sq-header-icon {\n  width: 15px;\n  height: 15px;\n  flex: 0 0 auto;\n  display: block;\n}\n\nheader .nav-toggle,\nheader #coinTop,\nheader #a8XpTop,\nheader .mobile-nav-toggle {\n  display: inline-flex;\n  align-items: center;\n  gap: .38rem;\n}\n'''
+          marker = '/* SOURCE SVG HEADER --------------------------------------------------- */'
           if marker not in c:
             c += cleanup
           css.write_text(c, encoding='utf-8')
