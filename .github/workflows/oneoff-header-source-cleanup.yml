@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: tk2-2026-qa
+  cancel-in-progress: true
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
