@@ -41,23 +41,27 @@ try {
   assert.ok(economy.runen.stats.some(stat => stat.label === 'DEF' && String(stat.value) === '3'), 'Runen-Amulett stats should show DEF 3');
   assert.ok(!economy.runen.stats.some(stat => /Münzen/i.test(stat.label)), 'Runen-Amulett stats must not show a coin bonus');
 
-  // Verify the real learner reward path, not just the exposed helper. Section 1
-  // has 6 first-clear actions: legacy base 60 coins -> 2026 scaled reward 70.
+  // Verify the real learner reward path through the new game-first opening.
+  // Section 1 still has 6 first-clear actions: legacy base 60 -> scaled reward 70.
   const section = page.locator('.section[data-section="1"]');
-  const inputs = section.locator('input[data-answer]');
-  assert.equal(await inputs.count(), 6, 'Economy gate assumes six Section-1 actions');
-  for (let i = 0; i < await inputs.count(); i += 1) {
-    const input = inputs.nth(i);
-    const answer = await input.getAttribute('data-answer');
-    assert.ok(answer);
-    await input.fill(answer);
-  }
+  assert.equal(await section.locator('.narrative-card').count(), 6, 'Opening mission should contain six scenario cards');
+  assert.equal(await section.locator('input[data-answer]').count(), 0, 'Opening mission must not fall back to copy-the-shortcut inputs');
+  await page.evaluate(() => {
+    const section = document.querySelector('.section[data-section="1"]');
+    if (!section) throw new Error('Section 1 missing');
+    section.querySelectorAll('.narrative-blank').forEach(blank => {
+      const answer = blank.dataset.answer || '';
+      blank.dataset.value = answer;
+      blank.dataset.filled = 'true';
+      blank.textContent = answer;
+    });
+  });
   await section.locator('.check-section[data-check-section="1"]').click();
   await page.waitForTimeout(200);
   const state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
-  assert.equal(Number(state.coins), 70, 'Perfect Section 1 should award 70 scaled coins in 2026');
+  assert.equal(Number(state.coins), 70, 'Perfect Section 1 mission should award 70 scaled coins in 2026');
 
-  console.log('ECONOMY BROWSER OK: real Section-1 reward=70, no gear coin bonus, Runen-Amulett = +1 DEF/tier.');
+  console.log('ECONOMY BROWSER OK: opening mission reward=70, no gear coin bonus, Runen-Amulett = +1 DEF/tier.');
 } finally {
   await browser.close();
 }
