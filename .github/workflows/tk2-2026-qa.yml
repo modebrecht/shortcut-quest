@@ -64,6 +64,8 @@ jobs:
           test -f 2026/index.html
           test -f 2026/sections-data.js
           test -f 2026/skill-hotkeys.js
+          test -f 2026/modern-ui.css
+          test -f 2026/modern-exercises.css
           test -f 2026/apexcharts.min.js
           test -f 2026/favicon.svg
           test -f 2026/qa/browser-smoke.mjs
@@ -72,6 +74,8 @@ jobs:
           test -d 2026/assets
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
+          grep -q 'modern-ui.css' 2026/skill-hotkeys.js
+          grep -q 'modern-exercises.css' 2026/skill-hotkeys.js
           grep -q 'shortcutRitter_2026_v1' 2026/skill-hotkeys.js
           grep -q 'tk_global_xp_v1' 2026/skill-hotkeys.js
           grep -q 'HINT_COST_XP_2026 = 30' 2026/skill-hotkeys.js
