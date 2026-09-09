@@ -956,6 +956,13 @@
       modernExercises.href = "modern-exercises.css";
       document.head.appendChild(modernExercises);
     }
+    if (!document.getElementById("shortcutQuestModernGame")) {
+      const modernGame = document.createElement("link");
+      modernGame.id = "shortcutQuestModernGame";
+      modernGame.rel = "stylesheet";
+      modernGame.href = "modern-game.css";
+      document.head.appendChild(modernGame);
+    }
     document.title = "Shortcut Quest 2026";
     document.documentElement.dataset.edition = "tk2-2026";
     const title = document.querySelector("header .title");
