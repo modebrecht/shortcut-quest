@@ -12,6 +12,18 @@ page.on('console', message => {
   if (message.type() === 'error') consoleErrors.push(message.text());
 });
 
+async function chooseButtonValue(ui, answer) {
+  const buttons = ui.locator('.a8-choice-option');
+  for (let i = 0; i < await buttons.count(); i += 1) {
+    const button = buttons.nth(i);
+    if ((await button.getAttribute('data-value')) === answer) {
+      await button.click();
+      return;
+    }
+  }
+  throw new Error(`Button answer not found: ${answer}`);
+}
+
 async function solveSimpleSection(sectionId, { spacedPlus = false } = {}) {
   const section = page.locator(`.section[data-section="${sectionId}"]`);
   await section.waitFor({ state: 'attached' });
@@ -27,7 +39,18 @@ async function solveSimpleSection(sectionId, { spacedPlus = false } = {}) {
     const select = selects.nth(i);
     const answer = await select.getAttribute('data-answer');
     assert.ok(answer, `Section ${sectionId}: select ${i} has no answer`);
-    await select.selectOption({ value: answer });
+    const ui = select.locator('xpath=preceding-sibling::div[contains(@class,"a8-choice-ui")][1]');
+    if (await ui.count()) {
+      await chooseButtonValue(ui, answer);
+    } else {
+      // Combo Builder keeps the native select only as a hidden grading/state
+      // bridge. Set it through the DOM while separate assertions below verify
+      // that students interact through slot + button-bank controls instead.
+      await select.evaluate((el, value) => {
+        el.value = value;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }, answer);
+    }
   }
   await section.locator(`.check-section[data-check-section="${sectionId}"]`).click();
   await page.waitForTimeout(150);
@@ -56,6 +79,7 @@ async function readState() {
 
 try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.SHORTCUT_QUEST_2026_HINTS?.costXP === 30);
 
   assert.equal(await page.title(), 'A8 · Shortcut Quest 2026');
   assert.equal(await page.locator('html').getAttribute('data-edition'), 'tk2-2026');
@@ -65,6 +89,55 @@ try {
   // The inherited runtime deliberately exposes the first 10 training sections.
   assert.equal(await page.locator('.section-tab').count(), 10, 'Expected 10 initially available sections');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must not be rendered in A8');
+
+  // A8 UI rule: never make students operate native dropdowns. Selects remain
+  // hidden behind the scenes only to preserve the inherited grader/state model.
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native select may be visible in A8');
+  assert.ok(await page.locator('.section[data-section="3"] .a8-choice-option').count() > 0, 'Recognition questions should render answer buttons');
+  assert.ok(await page.locator('.section[data-section="10"] .a8-combo-slot-button').count() > 0, 'Combo Builder should render clickable slots');
+  assert.ok(await page.locator('.section[data-section="10"] .a8-combo-bank-option').count() > 0, 'Combo Builder should render a shared button bank');
+
+  const hintConfig = await page.evaluate(() => window.SHORTCUT_QUEST_2026_HINTS);
+  assert.equal(hintConfig.costXP, 30, 'A8 hint price must match earlier TK2 exercises');
+  assert.equal(hintConfig.storageKey, 'tk_global_xp_v1', 'A8 must reuse shared TK2 XP');
+  assert.equal(hintConfig.behavior, 'remove-one-wrong-answer');
+
+  // Real hint purchase: reuse the shared course XP, charge 30 XP and eliminate
+  // exactly one wrong answer, matching A4-A6 behavior.
+  await page.evaluate(() => localStorage.setItem('tk_global_xp_v1', '60'));
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.SHORTCUT_QUEST_2026_HINTS?.costXP === 30);
+  assert.equal((await page.locator('#a8XpTop').textContent())?.trim(), '⚡ XP: 60');
+  await page.locator('.section-tab[data-goto="3"]').click();
+  const firstChoice = page.locator('.section[data-section="3"] .a8-choice-ui').first();
+  const optionCountBefore = await firstChoice.locator('.a8-choice-option').count();
+  await firstChoice.locator('.a8-hint-button').click();
+  assert.equal(await page.evaluate(() => localStorage.getItem('tk_global_xp_v1')), '30', 'Hint must deduct exactly 30 XP');
+  assert.equal(await firstChoice.locator('.a8-choice-option.removed').count(), 1, 'Hint must remove exactly one wrong answer');
+  assert.equal(await firstChoice.locator('.a8-choice-option').count(), optionCountBefore, 'Hint should eliminate, not delete/reflow, an option');
+  assert.match((await firstChoice.locator('.a8-hint-note').textContent()) || '', /Eine falsche Antwort wurde entfernt/);
+
+  // Combo Builder UX: selecting a slot and then one shared-bank button must
+  // update the hidden grading bridge without showing a dropdown.
+  await page.locator('.section-tab[data-goto="10"]').click();
+  const comboRow = page.locator('.section[data-section="10"] .combo-row').first();
+  const firstComboSelect = comboRow.locator('select[data-answer]').first();
+  const comboAnswer = await firstComboSelect.getAttribute('data-answer');
+  assert.ok(comboAnswer);
+  await comboRow.locator('.a8-combo-slot-button').first().click();
+  const bankButtons = comboRow.locator('.a8-combo-bank-option');
+  let comboAnswerButton = null;
+  for (let i = 0; i < await bankButtons.count(); i += 1) {
+    const button = bankButtons.nth(i);
+    if ((await button.getAttribute('data-value')) === comboAnswer) {
+      comboAnswerButton = button;
+      break;
+    }
+  }
+  assert.ok(comboAnswerButton, 'Correct Combo Builder answer must exist in shared button bank');
+  await comboAnswerButton.click();
+  assert.equal(await firstComboSelect.inputValue(), comboAnswer, 'Combo button bank must update the grader value');
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'Combo interaction must not reveal native selects');
 
   // Game-first opening gate: A8 must not begin with copy-the-shortcut text fields.
   const openingMission = page.locator('.section[data-section="1"]');
@@ -205,6 +278,7 @@ try {
   assert.equal(await page.locator('#learnSections .section').count(), 30, 'All 30 section bodies must render');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), 'A8 abgeschlossen ✓');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must stay absent with all sections rendered');
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native dropdown may become visible after all sections unlock');
 
   for (let i = 1; i <= 30; i += 1) {
     const id = String(i);
@@ -217,13 +291,14 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: 'networkidle' });
   assert.ok(await page.locator('#mobileNavToggle').isVisible(), 'Mobile navigation toggle should be visible');
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'Native selects must remain hidden on mobile');
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(horizontalOverflow <= 2, `Unexpected mobile horizontal overflow: ${horizontalOverflow}px`);
 
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
 
-  console.log('OK: browser smoke passed — game-first opening, inputs, DnD, Workflow Chain, shop, equipment, skills, battle gates, all 30 renderers and mobile layout.');
+  console.log('OK: browser smoke passed — button-only choices, 30-XP hints, game-first opening, DnD, Workflow Chain, shop, equipment, skills, battle gates, all 30 renderers and mobile layout.');
 } finally {
   await browser.close();
 }
