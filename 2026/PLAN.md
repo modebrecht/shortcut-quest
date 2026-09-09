@@ -45,6 +45,8 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 - [x] Reduce duplicate Drag & Drop variants to purposeful A1 / Browser / Windows rounds.
 - [x] Replace every shortcut not covered by current TK2 A1–A7.
 - [x] Correct AltGr mappings specifically for the Swiss keyboard used in TK2.
+- [x] Make typed shortcut input tolerant of spacing such as `Ctrl + C` vs. `Ctrl+C`.
+- [x] Avoid typed-arrow-glyph answers such as `Win+←` in the final recall section.
 
 ## Target 2026 learning path — 30 sections
 
@@ -68,7 +70,7 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 - [x] 13 Workflow Chain – Langes Dokument.
 - [x] 14 Workflow Chain – Windows Workspace.
 - [x] 15 Szenario – Schulauftrag.
-- [x] 16 Szenario – Browser unter Druck.
+- [x] 16 Szenario – System unter Druck.
 
 ### Phase 4 — Mixed retrieval
 - [x] 17 Shortcut Shuffle I.
@@ -101,6 +103,7 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 - [x] Add clear `A8 · Shortcut Quest 2026` / `TK2` identity in the UI.
 - [x] Add concise `x / 30` completion status; at 30/30 it becomes `A8 abgeschlossen ✓`.
 - [x] Isolate the 2026 save state as `shortcutRitter_2026_v1` so the legacy game save is not overwritten.
+- [x] Keep the first 10 sections available as a free training hall; first clears then unlock sections 11–30 sequentially.
 
 ## QA
 
@@ -110,11 +113,15 @@ The implementation reuses the stable Combo Builder interaction, but each selecta
 - [x] Static Workflow Chain audit: implementation uses the existing Combo Builder string-option/scoring path.
 - [x] Relative runtime files copied into `/2026/`: index, section data, hotkeys, chart library, favicon and assets.
 - [x] Save-state collision protection added before the inherited inline runtime loads.
-- [ ] Browser smoke: `/2026/` loads without console errors.
-- [ ] Browser smoke: complete one normal input/select section and verify coins + next unlock.
-- [ ] Browser smoke: complete one Drag & Drop section.
-- [ ] Browser smoke: complete one Workflow Chain section and verify scoring/unlock.
-- [ ] Browser smoke: verify shop purchase, equipment/skills and Battle 1.
-- [ ] Browser smoke: verify Battle 2 stays gated until 3 sections + Battle 1 clear.
-- [ ] Browser smoke: verify header progress updates and 30/30 completion state.
+- [x] Browser smoke: `/2026/` loads without console/page errors.
+- [x] Browser smoke: complete a normal typed section with human-style `Ctrl + C` spacing and verify coins + next unlock.
+- [x] Browser smoke: complete a Drag & Drop section and verify persistence.
+- [x] Browser smoke: complete a Workflow Chain section and verify scoring/unlock.
+- [x] Browser smoke: verify Shop item purchase, inventory persistence and Auto-Equip.
+- [x] Browser smoke: verify Skill purchase and skill collection persistence.
+- [x] Browser smoke: verify Battle 1 is available immediately.
+- [x] Browser smoke: verify Battle 2 stays gated after 3 sections until Battle 1 is cleared, then unlocks.
+- [x] Browser smoke: verify header progress updates and 30/30 completion state.
+- [x] Browser smoke: render and activate all 30 sections without runtime errors.
+- [x] Browser smoke: mobile layout has a visible menu toggle and no horizontal overflow at 390 px.
 - [ ] Final repository cleanup and diff review.
