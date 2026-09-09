@@ -1,0 +1,82 @@
+name: One-off Header SVG Source Cleanup
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-header-source-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+      - name: Replace header emoji sources with inline SVG
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          index = Path('2026/index.html')
+          s = index.read_text(encoding='utf-8-sig')
+
+          replacements = {
+            '<button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-expanded="false" aria-controls="topNav">Menü &#8801;</button>': '<button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-expanded="false" aria-controls="topNav"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menü</span></button>',
+            '<button class="nav-toggle active" data-view="learn"><span class="emoji">🎯</span>Training</button>': '<button class="nav-toggle active" data-view="learn"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg><span>Training</span></button>',
+            '<button class="nav-toggle" data-view="inventory"><span class="emoji">🎒</span>Inventar</button>': '<button class="nav-toggle" data-view="inventory"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 8V6a5 5 0 0 1 10 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M9 12h6"/></svg><span>Inventar</span></button>',
+            '<button class="nav-toggle" data-view="skills"><span class="emoji">✨</span>Skills</button>': '<button class="nav-toggle" data-view="skills"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4L12 3Z"/><path d="m18.5 14 .8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></svg><span>Skills</span></button>',
+            '<button class="nav-toggle" data-view="shop"><span class="emoji">🏪</span>Shop</button>': '<button class="nav-toggle" data-view="shop"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 10v10h16V10"/><path d="M3 10 5 4h14l2 6"/><path d="M3 10a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M9 20v-5h6v5"/></svg><span>Shop</span></button>',
+            '<button class="nav-toggle" data-view="battle"><span class="emoji">⚔️</span>Battle</button>': '<button class="nav-toggle" data-view="battle"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5.5 4-4 2 2-4 4"/><path d="m3 21 7.5-7.5"/><path d="m9.5 5.5-4-4-2 2 4 4"/><path d="m21 21-7.5-7.5"/></svg><span>Battle</span></button>',
+            '<button class="nav-toggle" data-view="report"><span class="emoji">📊</span>Report</button>': '<button class="nav-toggle" data-view="report"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Report</span></button>',
+            '<span class="badge" id="coinTop">Coins: 0</span>': '<span class="badge" id="coinTop"><svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8.5" ry="5.5"/><path d="M3.5 9v6c0 3 3.8 5.5 8.5 5.5s8.5-2.5 8.5-5.5V9"/></svg><span class="sq-header-label">Coins: 0</span></span>',
+            'if (coinTop) coinTop.textContent = "Coins: " + state.coins;': 'if (coinTop) { const label = coinTop.querySelector(".sq-header-label"); if (label) label.textContent = "Coins: " + state.coins; else coinTop.textContent = "Coins: " + state.coins; }',
+          }
+          for old, new in replacements.items():
+            if old not in s:
+              raise SystemExit(f'index anchor not found: {old[:70]}')
+            s = s.replace(old, new, 1)
+
+          emoji_css = '''    .emoji {\n      font-size: 1.1em;\n      line-height: 1;\n      display: inline-block;\n      margin-right: 0.2em;\n    }\n'''
+          s = s.replace(emoji_css, '', 1)
+          index.write_text(s, encoding='utf-8')
+
+          hotkeys = Path('2026/skill-hotkeys.js')
+          h = hotkeys.read_text(encoding='utf-8')
+          old_xp = '    badge.textContent = `⚡ XP: ${getSharedXP()}`;\n'
+          new_xp = '''    badge.innerHTML = `<svg class="sq-header-icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M13.5 2 5 13h6l-1 9 9-12h-6l.5-8Z"/></svg><span>XP: ${getSharedXP()}</span>`;\n'''
+          if old_xp not in h:
+            raise SystemExit('XP emoji source anchor not found')
+          h = h.replace(old_xp, new_xp, 1)
+          hotkeys.write_text(h, encoding='utf-8')
+
+          css = Path('2026/modern-ui.css')
+          c = css.read_text(encoding='utf-8')
+          cleanup = '''\n/* SOURCE SVG HEADER OVERRIDES ----------------------------------------- */\nheader .nav-toggle::before,\nheader .mobile-nav-toggle::before,\nheader #coinTop::before,\nheader #a8XpTop::before {\n  content: none !important;\n  display: none !important;\n}\n\nheader .sq-header-icon {\n  width: 15px;\n  height: 15px;\n  flex: 0 0 auto;\n  display: block;\n}\n\nheader #coinTop,\nheader #a8XpTop,\nheader .mobile-nav-toggle {\n  display: inline-flex !important;\n  align-items: center;\n  gap: .38rem;\n}\n\nheader #a8XpTop {\n  padding-left: .65rem !important;\n  overflow: visible;\n}\n\nheader #a8XpTop::first-letter {\n  font-size: inherit;\n}\n\nheader .mobile-nav-toggle {\n  font-size: .78rem !important;\n}\n\nheader .mobile-nav-toggle::after {\n  content: none !important;\n}\n'''
+          marker = '/* SOURCE SVG HEADER OVERRIDES ----------------------------------------- */'
+          if marker not in c:
+            c += cleanup
+          css.write_text(c, encoding='utf-8')
+
+          header = s[s.index('<header>'):s.index('</header>') + len('</header>')]
+          forbidden = ['🎯','🎒','✨','🏪','⚔️','📊','⚡','&#8801;','class="emoji"']
+          found = [token for token in forbidden if token in header]
+          if found:
+            raise SystemExit(f'header still contains legacy icon sources: {found}')
+          if '⚡ XP:' in h:
+            raise SystemExit('XP emoji source still present')
+          PY
+      - name: Commit cleanup and remove one-off workflow
+        shell: bash
+        run: |
+          rm .github/workflows/oneoff-header-source-cleanup.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/index.html 2026/skill-hotkeys.js 2026/modern-ui.css .github/workflows/oneoff-header-source-cleanup.yml
+          git commit -m "A8: make header SVG-only at source"
+          git push origin HEAD:tk2-2026
