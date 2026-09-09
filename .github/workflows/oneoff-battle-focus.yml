@@ -1,0 +1,27 @@
+name: One-off Battle Focus
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-battle-focus.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+      - name: Apply active battle focus rule
+        run: python3 2026/qa/append_battle_focus_rule.py
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/modern-battle.css
+          git commit -m "A8: focus active battle on arena"
+          git push origin HEAD:tk2-2026
