@@ -89,10 +89,8 @@ try {
   assert.equal(/\bA[1-8]\b/.test(visibleLearningText), false, 'Student-facing learning UI must not mention old worksheet labels');
   assert.match((await page.locator('#learnView .nav-card > .small').textContent()) || '', /Richtig = \+5 XP/);
 
-  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native select may be visible');
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No dropdown should be visible before a Combo Builder is opened');
   assert.ok(await page.locator('.section[data-section="3"] .a8-choice-option').count() > 0, 'Recognition questions should render answer buttons');
-  assert.ok(await page.locator('.section[data-section="10"] .a8-combo-slot-button').count() > 0, 'Combo Builder should render clickable slots');
-  assert.ok(await page.locator('.section[data-section="10"] .a8-combo-bank-option').count() > 0, 'Combo Builder should render a shared button bank');
 
   const hintConfig = await page.evaluate(() => window.SHORTCUT_QUEST_2026_HINTS);
   const xpConfig = await page.evaluate(() => window.SHORTCUT_QUEST_2026_XP);
@@ -142,23 +140,19 @@ try {
 
   await page.locator('.section-tab[data-goto="10"]').click();
   const comboRow = page.locator('.section[data-section="10"] .combo-row').first();
-  const firstComboSelect = comboRow.locator('select[data-answer]').first();
-  const comboAnswer = await firstComboSelect.getAttribute('data-answer');
+  const comboSelects = comboRow.locator('select[data-answer]');
+  assert.ok(await comboSelects.count() >= 2, 'Combo Builder should keep compact native selects');
+  assert.ok(await comboSelects.first().isVisible(), 'Combo Builder selects should be visible');
+  const firstOptions = await comboSelects.first().locator('option').evaluateAll(options => options.map(option => option.value).filter(Boolean));
+  assert.ok(firstOptions.length <= 5, 'First Combo Builder select must stay compact');
+  assert.ok(firstOptions.every(value => ['Ctrl','Shift','Alt','AltGr','Win'].includes(value)), 'First Combo Builder select may only contain modifier keys');
+  const lastOptions = await comboSelects.last().locator('option').evaluateAll(options => options.map(option => option.value).filter(Boolean));
+  assert.ok(lastOptions.length <= 6, 'Final Combo Builder select must stay compact');
+  assert.equal(await comboRow.locator('.a8-combo-bank-option').count(), 0, 'Old shared button bank must be removed');
+  const comboAnswer = await comboSelects.first().getAttribute('data-answer');
   assert.ok(comboAnswer);
-  await comboRow.locator('.a8-combo-slot-button').first().click();
-  const bankButtons = comboRow.locator('.a8-combo-bank-option');
-  let comboAnswerButton = null;
-  for (let i = 0; i < await bankButtons.count(); i += 1) {
-    const button = bankButtons.nth(i);
-    if ((await button.getAttribute('data-value')) === comboAnswer) {
-      comboAnswerButton = button;
-      break;
-    }
-  }
-  assert.ok(comboAnswerButton, 'Correct Combo Builder answer must exist in shared button bank');
-  await comboAnswerButton.click();
-  assert.equal(await firstComboSelect.inputValue(), comboAnswer, 'Combo button bank must update the grader value');
-  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'Combo interaction must not reveal native selects');
+  await comboSelects.first().selectOption(comboAnswer);
+  assert.equal(await comboSelects.first().inputValue(), comboAnswer, 'Filtered Combo Builder select must accept the correct modifier');
 
   const openingMission = page.locator('.section[data-section="1"]');
   assert.equal(await openingMission.locator('.narrative-card').count(), 6, 'Section 1 should render six scenario cards');
@@ -274,7 +268,7 @@ try {
   assert.equal(await page.locator('#learnSections .section').count(), 30, 'All 30 section bodies must render');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), 'Abgeschlossen ✓');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must stay absent with all sections rendered');
-  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No native dropdown may become visible after all sections unlock');
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No dropdown should be visible while a non-Combo section is active');
 
   for (let i = 1; i <= 30; i += 1) {
     const id = String(i);
@@ -286,14 +280,14 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: 'networkidle' });
   assert.ok(await page.locator('#mobileNavToggle').isVisible(), 'Mobile navigation toggle should be visible');
-  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'Native selects must remain hidden on mobile');
+  assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No dropdown should be visible on mobile while a non-Combo section is active');
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(horizontalOverflow <= 2, `Unexpected mobile horizontal overflow: ${horizontalOverflow}px`);
 
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
 
-  console.log('OK: browser smoke passed — focused DnD, used-token removal, +5 XP per correct answer, 30-XP hints, no worksheet labels, button-only choices, RPG progression and mobile layout.');
+  console.log('OK: browser smoke passed — focused DnD, used-token removal, +5 XP per correct answer, 30-XP hints, no worksheet labels, filtered Combo Builder selects, button choices, RPG progression and mobile layout.');
 } finally {
   await browser.close();
 }

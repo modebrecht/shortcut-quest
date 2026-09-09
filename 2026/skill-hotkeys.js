@@ -310,6 +310,10 @@
       .combo-slot .a8-combo-slot-button { min-width:88px; }
       .a8-combo-bank-option.hint-removed { opacity:.2;text-decoration:line-through;pointer-events:none; }
 
+      .a8-filtered-combo { align-items:flex-end;gap:.55rem!important; }
+      .a8-filtered-combo .combo-slot select { display:block!important;position:static!important;width:auto!important;height:44px!important;min-width:128px;max-width:180px;opacity:1!important;pointer-events:auto!important;clip:auto!important;overflow:visible!important;border:1px solid rgba(148,163,184,.38);border-radius:.8rem;background:#111c31;color:var(--text);padding:.45rem .65rem;font:inherit;font-weight:750; }
+      .a8-filtered-combo .combo-slot select:focus { outline:2px solid rgba(245,158,11,.55);outline-offset:2px;border-color:var(--accent); }
+      .a8-filtered-combo .a8-combo-select-hint { flex-basis:100%;margin-top:.2rem; }
       .a8-dnd-shell { display:flex;flex-direction:column;gap:.85rem;margin-top:.5rem; }
       .a8-dnd-head { display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap; }
       .a8-dnd-progress { font-size:.82rem;font-weight:800;color:#fde68a;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);border-radius:999px;padding:.3rem .65rem; }
@@ -469,143 +473,137 @@
     updateHintButton(hint, ui);
   }
 
-  function comboOptionValues(selects) {
-    const values = [];
+  const COMBO_MODIFIER_OPTIONS = ["Ctrl", "Shift", "Alt", "AltGr", "Win"];
+
+  function uniqueComboValues(values) {
     const seen = new Set();
-    selects.forEach(select => {
-      Array.from(select.options).forEach(option => {
-        if (!option.value || seen.has(option.value)) return;
-        seen.add(option.value);
-        values.push({ value: option.value, label: option.textContent || option.value });
-      });
+    return values.filter(value => {
+      const clean = String(value || "").trim();
+      if (!clean || seen.has(clean)) return false;
+      seen.add(clean);
+      return true;
     });
-    return values;
+  }
+
+  function compactComboCandidates(answer, preferred, fallback, limit = 6) {
+    const result = [];
+    const add = value => {
+      const clean = String(value || "").trim();
+      if (!clean || result.includes(clean)) return;
+      result.push(clean);
+    };
+    add(answer);
+    preferred.forEach(add);
+    fallback.forEach(add);
+    return result.slice(0, Math.max(2, limit));
+  }
+
+  function writeComboSelectOptions(select, values) {
+    if (!select) return;
+    const current = select.value || "";
+    const answer = select.dataset.answer || "";
+    const labels = new Map(Array.from(select.options).map(option => [option.value, option.textContent || option.value]));
+    const finalValues = uniqueComboValues([...values, answer]);
+    select.innerHTML = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "auswählen";
+    select.appendChild(placeholder);
+    finalValues.forEach(value => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = labels.get(value) || value;
+      select.appendChild(option);
+    });
+    select.value = finalValues.includes(current) ? current : "";
   }
 
   function upgradeComboRow(row) {
-    if (!row || row.dataset.a8Buttonized === "true") return;
+    if (!row || row.dataset.a8ComboFiltered === "true") return;
     const selects = Array.from(row.querySelectorAll(".combo-slot select"));
     if (!selects.length) return;
-    row.dataset.a8Buttonized = "true";
-    row.dataset.a8ActiveSlot = "0";
-    row.dataset.a8HintSlot = "";
-    row.dataset.a8HintRemoved = "";
-    const slotButtons = [];
-    const controls = document.createElement("div");
-    controls.className = "a8-combo-controls";
-    const bank = document.createElement("div");
-    bank.className = "a8-combo-bank";
-    const bankButtons = [];
+    row.dataset.a8ComboFiltered = "true";
+    row.classList.add("a8-filtered-combo");
+    row.querySelectorAll(".a8-combo-slot-button,.a8-combo-controls").forEach(node => node.remove());
 
-    comboOptionValues(selects).forEach(meta => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "a8-combo-bank-option";
-      button.dataset.value = meta.value;
-      button.textContent = meta.label;
-      bank.appendChild(button);
-      bankButtons.push(button);
-    });
+    const section = row.closest(".section");
+    const sectionSelects = Array.from(section?.querySelectorAll(".combo-row .combo-slot select") || selects);
+    const sectionAnswers = sectionSelects.map(select => select.dataset.answer || "").filter(Boolean);
+    const terminalPool = uniqueComboValues(sectionAnswers.filter(value => !COMBO_MODIFIER_OPTIONS.includes(value) && !value.includes("+")));
+    const wholeShortcutPool = uniqueComboValues(sectionAnswers.filter(value => value.includes("+")));
+    const atomicRow = selects.every(select => !(select.dataset.answer || "").includes("+"));
+    const originalBySelect = new Map(selects.map(select => [select, Array.from(select.options).map(option => option.value).filter(Boolean)]));
 
-    function activeIndex() {
-      return Math.max(0, Math.min(selects.length - 1, Number(row.dataset.a8ActiveSlot) || 0));
-    }
-
-    function syncCombo() {
-      const active = activeIndex();
-      selects.forEach((select, index) => {
-        const button = slotButtons[index];
-        if (!button) return;
-        button.textContent = select.value || "Wählen";
-        button.classList.toggle("active", index === active);
-        button.classList.toggle("correct", select.classList.contains("correct"));
-        button.classList.toggle("incorrect", select.classList.contains("incorrect"));
-      });
-      const current = selects[active];
-      const hintSlot = Number(row.dataset.a8HintSlot);
-      const removedValue = row.dataset.a8HintRemoved || "";
-      bankButtons.forEach(button => {
-        const selected = current && current.value === button.dataset.value;
-        const removed = row.dataset.a8HintSlot !== "" && hintSlot === active && removedValue === button.dataset.value;
-        button.classList.toggle("selected", selected);
-        button.classList.toggle("hint-removed", removed);
-        button.disabled = removed;
-        button.classList.toggle("correct-answer", Boolean(current && current.classList.contains("incorrect") && current.dataset.answer === button.dataset.value));
-      });
+    function baseCandidates(select, index) {
+      const answer = select.dataset.answer || "";
+      const original = originalBySelect.get(select) || [];
+      if (!atomicRow) return compactComboCandidates(answer, wholeShortcutPool, original, 5);
+      if (index === 0) return compactComboCandidates(answer, COMBO_MODIFIER_OPTIONS, original, 5);
+      if (index < selects.length - 1) return compactComboCandidates(answer, COMBO_MODIFIER_OPTIONS, original, 5);
+      return compactComboCandidates(answer, terminalPool, original.filter(value => !COMBO_MODIFIER_OPTIONS.includes(value)), 6);
     }
 
     selects.forEach((select, index) => {
-      select.dataset.a8Buttonized = "true";
-      select.classList.add("a8-native-select");
-      const slot = select.closest(".combo-slot");
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "a8-combo-slot-button";
-      button.textContent = select.value || "Wählen";
-      button.addEventListener("click", event => {
-        event.preventDefault();
-        row.dataset.a8ActiveSlot = String(index);
-        syncCombo();
-      });
-      if (slot) slot.insertBefore(button, select);
-      slotButtons.push(button);
-      new MutationObserver(syncCombo).observe(select, { attributes: true, attributeFilter: ["class"] });
-    });
-
-    bankButtons.forEach(button => {
-      button.addEventListener("click", event => {
-        event.preventDefault();
-        const index = activeIndex();
-        const select = selects[index];
-        if (!select || button.disabled) return;
-        select.value = button.dataset.value;
-        select.dispatchEvent(new Event("change", { bubbles: true }));
-        if (index < selects.length - 1) row.dataset.a8ActiveSlot = String(index + 1);
-        syncCombo();
-      });
+      select.classList.remove("a8-native-select");
+      select.dataset.a8ComboSelect = "true";
+      const values = baseCandidates(select, index);
+      writeComboSelectOptions(select, values);
+      select.__a8BaseComboValues = values.slice();
     });
 
     const hintRow = document.createElement("div");
-    hintRow.className = "a8-hint-row";
+    hintRow.className = "a8-hint-row a8-combo-select-hint";
     const hint = document.createElement("button");
     hint.type = "button";
     hint.className = "a8-hint-button";
     hint.dataset.used = "false";
     const note = document.createElement("span");
     note.className = "a8-hint-note";
+    hintRow.appendChild(hint);
+    hintRow.appendChild(note);
+    row.appendChild(hintRow);
+
+    function hintTarget() {
+      return selects.find(select => !select.value)
+        || selects.find(select => select.classList.contains("incorrect"))
+        || selects[selects.length - 1];
+    }
+
+    function syncCombo() {
+      const xp = getSharedXP();
+      const used = hint.dataset.used === "true";
+      hint.disabled = used || xp < HINT_COST_XP_2026;
+      hint.textContent = used
+        ? `💡 Tipp genutzt (-${HINT_COST_XP_2026} XP)`
+        : xp < HINT_COST_XP_2026
+          ? `💡 Tipp (-${HINT_COST_XP_2026} XP | Zu wenig XP)`
+          : `💡 Tipp (-${HINT_COST_XP_2026} XP)`;
+    }
+
     hint.addEventListener("click", event => {
       event.preventDefault();
       if (hint.disabled || hint.dataset.used === "true") return;
-      const index = activeIndex();
-      const select = selects[index];
+      const select = hintTarget();
       if (!select) return;
       const answer = select.dataset.answer || "";
-      const candidates = bankButtons.filter(button => button.dataset.value !== answer && button.dataset.value !== select.value);
-      if (!candidates.length || !spendHintXP()) return;
-      const removed = candidates[Math.floor(Math.random() * candidates.length)];
-      row.dataset.a8HintSlot = String(index);
-      row.dataset.a8HintRemoved = removed.dataset.value;
+      const wrongOptions = Array.from(select.options).filter(option => option.value && option.value !== answer && option.value !== select.value);
+      if (!wrongOptions.length || !spendHintXP()) return;
+      wrongOptions[Math.floor(Math.random() * wrongOptions.length)].remove();
       hint.dataset.used = "true";
-      note.textContent = `Für Slot ${index + 1} wurde eine falsche Antwort entfernt.`;
-      updateHintButton(hint, row);
+      note.textContent = "Eine falsche Auswahl wurde entfernt.";
       syncCombo();
     });
-    hintRow.appendChild(hint);
-    hintRow.appendChild(note);
-    controls.appendChild(bank);
-    controls.appendChild(hintRow);
-    row.appendChild(controls);
+
     row.__a8SyncCombo = syncCombo;
     row.__a8ResetCombo = () => {
-      row.dataset.a8ActiveSlot = "0";
-      row.dataset.a8HintSlot = "";
-      row.dataset.a8HintRemoved = "";
+      selects.forEach(select => {
+        writeComboSelectOptions(select, select.__a8BaseComboValues || []);
+        select.classList.remove("correct", "incorrect");
+      });
       hint.dataset.used = "false";
       note.textContent = "";
-      updateHintButton(hint, row);
       syncCombo();
     };
-    updateHintButton(hint, row);
     syncCombo();
   }
 
