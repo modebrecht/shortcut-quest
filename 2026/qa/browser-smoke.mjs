@@ -84,6 +84,9 @@ try {
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '0 / 30');
   assert.equal(await page.locator('.section-tab').count(), 10, 'Expected 10 initially available sections');
   assert.equal(await page.locator('.section-stage-button').count(), 3, '30 sections should be represented as three navigation stages');
+  assert.equal(await page.locator('.section-stage-meta').count(), 0, 'Legacy section meta labels should be removed');
+  assert.deepEqual(await page.locator('.section-stage-button').allTextContents(), ['10', '20', '30'], 'Stage chooser should use the compact 10/20/30 labels');
+  assert.deepEqual((await page.locator('#sectionTabs .section-tab:visible .section-tab-label').allTextContents()).slice(0, 10), ['1','2','3','4','5','6','7','8','9','10'], 'Visible section tabs should use numbers only');
   assert.ok(await page.locator('.section-stage-button[data-stage="0"]').evaluate(el => el.classList.contains('active')), 'Stage 1-10 should be active initially');
   assert.equal(await page.locator('.section-stage-button[data-stage="1"]').isDisabled(), true, 'Stage 11-20 should start locked');
   assert.equal(await page.locator('.section-stage-button[data-stage="2"]').isDisabled(), true, 'Stage 21-30 should start locked');
@@ -295,6 +298,7 @@ try {
   await page.reload({ waitUntil: 'networkidle' });
   assert.equal(await page.locator('#mobileNavToggle').isVisible(), false, 'Desktop should use inline navigation, not the menu button');
   assert.ok(await page.locator('#topNav .nav-toggle').first().isVisible(), 'Desktop inline navigation should be visible');
+  assert.equal(await page.locator('#a8SectionStageNav #sectionTabs').count(), 1, 'Section numbers should live inside the game-style stage chooser');
 
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.reload({ waitUntil: 'networkidle' });

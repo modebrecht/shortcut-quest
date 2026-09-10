@@ -968,15 +968,25 @@
     stageNav.id = "a8SectionStageNav";
     stageNav.className = "section-stage-nav";
 
-    const meta = document.createElement("div");
-    meta.className = "section-stage-meta";
-    meta.innerHTML = '<strong>30 Abschnitte</strong><span>3 Etappen</span>';
-
     const controls = document.createElement("div");
     controls.className = "section-stage-controls";
-    stageNav.appendChild(meta);
+    controls.setAttribute("aria-label", "Abschnittsgruppen");
     stageNav.appendChild(controls);
+
+    const divider = document.createElement("span");
+    divider.className = "section-stage-divider";
+    divider.setAttribute("aria-hidden", "true");
+    stageNav.appendChild(divider);
+
     navCard.insertBefore(stageNav, tabsHost);
+    stageNav.appendChild(tabsHost);
+
+    const rewardHint = navCard.querySelector(":scope > .small");
+    if (rewardHint) {
+      rewardHint.classList.add("section-reward-hint");
+      rewardHint.textContent = "+5 XP pro richtige Antwort · Perfekt = Bonus-Coins";
+      navCard.insertAdjacentElement("afterend", rewardHint);
+    }
 
     const sectionNumber = tab => Number(tab?.dataset?.sectionId || tab?.dataset?.goto || 0);
     let activeStage = 0;
@@ -988,7 +998,8 @@
       button.type = "button";
       button.className = "section-stage-button";
       button.dataset.stage = String(stageIndex);
-      button.innerHTML = `<span class="section-stage-range">${start}–${end}</span><span class="section-stage-progress">gesperrt</span>`;
+      button.textContent = String(end);
+      button.title = `Abschnitte ${start}–${end}`;
       button.addEventListener("click", () => {
         if (button.disabled) return;
         showStage(stageIndex, true);
@@ -1002,8 +1013,10 @@
         const label = tab.querySelector(".section-tab-label");
         const number = sectionNumber(tab);
         if (!label || !number) return;
-        const targetLabel = tab.dataset.baseLabel || `Abschnitt ${number}`;
+        const targetLabel = String(number);
         if (label.textContent !== targetLabel) label.textContent = targetLabel;
+        tab.setAttribute("aria-label", `Abschnitt ${number}`);
+        tab.title = `Abschnitt ${number}`;
       });
     };
 
@@ -1019,8 +1032,7 @@
         const available = stageTabs.length > 0;
         button.disabled = !available;
         button.classList.toggle("active", stageIndex === activeStage);
-        const progress = button.querySelector(".section-stage-progress");
-        if (progress) progress.textContent = available ? `${completed}/10` : "gesperrt";
+        button.classList.toggle("completed", completed >= 10);
         button.setAttribute("aria-label", available
           ? `Abschnitte ${start} bis ${end}, ${completed} von 10 abgeschlossen`
           : `Abschnitte ${start} bis ${end}, noch gesperrt`);
