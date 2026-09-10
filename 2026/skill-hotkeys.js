@@ -878,10 +878,26 @@
 
     const host = document.getElementById("learnSections");
     if (host) {
-      new MutationObserver(() => queueMicrotask(() => {
-        upgradeAllInteractiveUI();
-        refreshHintButtons();
-      })).observe(host, { childList: true, subtree: true });
+      let upgradeQueued = false;
+      const nodeNeedsUpgrade = node => {
+        if (!(node instanceof Element)) return false;
+        if (node.matches(".combo-row:not([data-a8-combo-filtered='true']), .dnd-pool:not([data-a8-dnd-upgraded='true'])")) return true;
+        if (node.matches("select:not([data-a8-buttonized='true'])") && !node.closest(".combo-row[data-a8-combo-filtered='true']")) return true;
+        if (node.querySelector(".combo-row:not([data-a8-combo-filtered='true']), .dnd-pool:not([data-a8-dnd-upgraded='true'])")) return true;
+        return Array.from(node.querySelectorAll("select:not([data-a8-buttonized='true'])"))
+          .some(select => !select.closest(".combo-row[data-a8-combo-filtered='true']"));
+      };
+      new MutationObserver(records => {
+        if (upgradeQueued) return;
+        const needsUpgrade = records.some(record => Array.from(record.addedNodes).some(nodeNeedsUpgrade));
+        if (!needsUpgrade) return;
+        upgradeQueued = true;
+        queueMicrotask(() => {
+          upgradeQueued = false;
+          upgradeAllInteractiveUI();
+          refreshHintButtons();
+        });
+      }).observe(host, { childList: true, subtree: true });
     }
 
     document.addEventListener("click", event => {
