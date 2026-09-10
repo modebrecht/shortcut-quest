@@ -1,0 +1,168 @@
+name: One-off A8 paid-submit lock
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-lock-after-paid-submit.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+
+      - name: Enforce hard lock until reset and strengthen replay E2E
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          index_path = Path('2026/index.html')
+          text = index_path.read_text(encoding='utf-8-sig')
+
+          def replace_once(old, new, label):
+              global text
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected exactly one match, got {count}')
+              text = text.replace(old, new, 1)
+
+          css_anchor = '''    .section.section-locked .card-body .narrative-blank {
+              cursor: not-allowed;
+            }
+            .result-text { flex: 1 1 100%; margin: 0; }'''
+          css_new = '''    .section.section-locked .card-body .narrative-blank {
+              cursor: not-allowed;
+            }
+            .section.section-locked .card-body > *:not(.section-actions) {
+              pointer-events: none;
+              user-select: none;
+            }
+            .section.section-locked .section-actions .check-section {
+              pointer-events: none;
+              opacity: 0.55;
+              cursor: not-allowed !important;
+            }
+            .section.section-locked .section-actions .reset-section {
+              pointer-events: auto;
+              cursor: pointer !important;
+            }
+            .result-text { flex: 1 1 100%; margin: 0; }'''
+          replace_once(css_anchor, css_new, 'locked CSS')
+
+          completion_old = '''        const resetBtn = section.querySelector(".reset-section");
+                if (resetBtn) resetBtn.classList.toggle("highlight", !hasFastPaced && locked);
+                section.classList.toggle("section-locked", !hasFastPaced && locked);
+              });'''
+          completion_new = '''        const workLocked = !hasFastPaced && locked;
+                const resetBtn = section.querySelector(".reset-section");
+                if (resetBtn) resetBtn.classList.toggle("highlight", workLocked);
+                section.classList.toggle("section-locked", workLocked);
+
+                const body = section.querySelector(".card-body");
+                if (body) {
+                  Array.from(body.children).forEach(child => {
+                    if (child.classList.contains("section-actions")) return;
+                    child.inert = workLocked;
+                  });
+                }
+                const checkBtn = section.querySelector(".check-section");
+                if (checkBtn) {
+                  checkBtn.classList.toggle("locked-until-reset", workLocked);
+                  checkBtn.setAttribute("aria-disabled", workLocked ? "true" : "false");
+                }
+              });'''
+          replace_once(completion_old, completion_new, 'completion hard lock')
+
+          click_old = '''        const checkBtn = event.target.closest(".check-section");
+                if (checkBtn) {
+                  gradeSection(checkBtn.dataset.checkSection, checkBtn);
+                  return;
+                }'''
+          click_new = '''        const checkBtn = event.target.closest(".check-section");
+                if (checkBtn) {
+                  const sectionId = checkBtn.dataset.checkSection;
+                  if (sectionLocked(sectionId)) {
+                    const resultEl = document.getElementById(`result-${sectionId}`);
+                    if (resultEl) resultEl.textContent = "Für einen neuen vergüteten Durchlauf zuerst zurücksetzen.";
+                    return;
+                  }
+                  gradeSection(sectionId, checkBtn);
+                  return;
+                }'''
+          replace_once(click_old, click_new, 'check click guard')
+
+          index_path.write_text(text, encoding='utf-8')
+
+          test_path = Path('2026/qa/replay-policy-browser.mjs')
+          test = test_path.read_text(encoding='utf-8')
+
+          reward_anchor = '''      const isFinalSubmission = sectionId === 30 && run === 3;
+              if (!isFinalSubmission) {'''
+          reward_insert = '''      if (!meta.fast) {
+                const section = page.locator(`.section[data-section="${sectionId}"]`);
+                const check = section.locator('.check-section');
+                assert.equal(await section.evaluate(el => el.classList.contains('section-locked')), true,
+                  `Section ${sectionId} run ${run}: paid submission must lock the work area until reset`);
+                assert.equal(await check.getAttribute('aria-disabled'), 'true',
+                  `Section ${sectionId} run ${run}: check action must advertise locked state`);
+                const inertWorkChildren = await section.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
+                  nodes.filter(node => node.inert).length);
+                assert.ok(inertWorkChildren > 0,
+                  `Section ${sectionId} run ${run}: answer workspace must be inert after paid submission`);
+
+                const blockedCoinsBefore = Number((await readState()).coins || 0);
+                await check.evaluate(button => button.click());
+                await page.waitForTimeout(40);
+                const blockedCoinsAfter = Number((await readState()).coins || 0);
+                assert.equal(blockedCoinsAfter, blockedCoinsBefore,
+                  `Section ${sectionId} run ${run}: blocked duplicate submit must not change coins`);
+              }
+
+              const isFinalSubmission = sectionId === 30 && run === 3;
+              if (!isFinalSubmission) {'''
+          if test.count(reward_anchor) != 1:
+              raise SystemExit(f'replay post-reward anchor: expected exactly one match, got {test.count(reward_anchor)}')
+          test = test.replace(reward_anchor, reward_insert, 1)
+
+          reset_old = '''      if (run < 3 && !meta.fast) {
+                const reset = page.locator(`.section[data-section="${sectionId}"] .reset-section`);
+                assert.equal(await reset.isDisabled(), false, `Section ${sectionId}: reset must stay available before 3/3`);
+                await reset.click();
+                await page.waitForTimeout(70);
+              }'''
+          reset_new = '''      if (run < 3 && !meta.fast) {
+                const section = page.locator(`.section[data-section="${sectionId}"]`);
+                const reset = section.locator('.reset-section');
+                assert.equal(await reset.isDisabled(), false, `Section ${sectionId}: reset must stay available before 3/3`);
+                await reset.click();
+                await page.waitForTimeout(70);
+                assert.equal(await section.evaluate(el => el.classList.contains('section-locked')), false,
+                  `Section ${sectionId} run ${run}: reset must reopen the work area`);
+                assert.equal(await section.locator('.check-section').getAttribute('aria-disabled'), 'false',
+                  `Section ${sectionId} run ${run}: reset must release check lock`);
+                const inertAfterReset = await section.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
+                  nodes.filter(node => node.inert).length);
+                assert.equal(inertAfterReset, 0,
+                  `Section ${sectionId} run ${run}: reset must make answer workspace interactive again`);
+              }'''
+          if test.count(reset_old) != 1:
+              raise SystemExit(f'replay reset anchor: expected exactly one match, got {test.count(reset_old)}')
+          test = test.replace(reset_old, reset_new, 1)
+          test_path.write_text(test, encoding='utf-8')
+          PY
+
+          rm .github/workflows/oneoff-lock-after-paid-submit.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/index.html 2026/qa/replay-policy-browser.mjs .github/workflows/oneoff-lock-after-paid-submit.yml
+          git commit -m "fix: lock paid section until reset"
+          git push origin HEAD:tk2-2026
