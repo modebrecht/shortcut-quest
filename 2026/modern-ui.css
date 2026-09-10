@@ -617,10 +617,29 @@ header #a8XpTop::before {
 }
 
 header .mobile-nav-toggle {
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: .38rem;
   font-size: 0 !important;
+  position: relative;
+  z-index: 40;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+@media (max-width: 720px) {
+  header .mobile-nav-toggle {
+    display: inline-flex;
+  }
+
+  header .top-nav:not(.open) {
+    display: none;
+  }
+
+  header .top-nav.open {
+    display: grid;
+  }
 }
 
 header .mobile-nav-toggle::before {

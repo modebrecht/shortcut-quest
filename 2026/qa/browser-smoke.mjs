@@ -293,7 +293,15 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: 'networkidle' });
-  assert.ok(await page.locator('#mobileNavToggle').isVisible(), 'Mobile navigation toggle should be visible');
+  const mobileMenu = page.locator('#mobileNavToggle');
+  assert.ok(await mobileMenu.isVisible(), 'Mobile navigation toggle should be visible');
+  assert.equal(await mobileMenu.getAttribute('aria-expanded'), 'false', 'Mobile menu should start closed');
+  await mobileMenu.click();
+  assert.equal(await mobileMenu.getAttribute('aria-expanded'), 'true', 'Mobile menu button should open the navigation');
+  assert.ok(await page.locator('#topNav').evaluate(el => el.classList.contains('open')), 'Mobile navigation should receive the open state');
+  assert.ok(await page.locator('#topNav .nav-toggle').first().isVisible(), 'Mobile navigation choices should be visible after opening');
+  await mobileMenu.click();
+  assert.equal(await mobileMenu.getAttribute('aria-expanded'), 'false', 'Mobile menu button should close the navigation again');
   assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No dropdown should be visible on mobile while a non-Combo section is active');
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(horizontalOverflow <= 2, `Unexpected mobile horizontal overflow: ${horizontalOverflow}px`);
