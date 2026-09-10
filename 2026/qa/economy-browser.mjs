@@ -61,7 +61,7 @@ try {
   const state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
   assert.equal(Number(state.coins), 70, 'Perfect Section 1 mission should award 70 scaled coins in 2026');
 
-  // Arena presentation regressions are covered by browser-smoke.mjs.
+  // Arena layout and interaction regressions are covered by browser-smoke.mjs.
   console.log('ECONOMY BROWSER OK: opening mission reward=70, no gear coin bonus, Runen-Amulett = +1 DEF/tier.');
 } finally {
   await browser.close();
