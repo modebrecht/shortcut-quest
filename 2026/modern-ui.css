@@ -644,3 +644,116 @@ header .mobile-nav-toggle::after {
   header .nav-toggle .emoji { display: none !important; }
   header .nav-toggle { justify-content: flex-start; }
 }
+
+
+/* SECTION STAGE NAVIGATION ------------------------------------------- */
+.section-stage-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: .02rem .05rem .48rem;
+}
+
+.section-stage-meta {
+  display: flex;
+  align-items: baseline;
+  gap: .45rem;
+  white-space: nowrap;
+}
+
+.section-stage-meta strong {
+  color: #dce7f5;
+  font-size: .76rem;
+  font-weight: 850;
+}
+
+.section-stage-meta span {
+  color: #71849d;
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+.section-stage-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 390px);
+  gap: .28rem;
+  padding: .22rem;
+  border: 1px solid rgba(148, 163, 184, .10);
+  border-radius: .78rem;
+  background: rgba(7, 16, 31, .34);
+}
+
+.section-stage-button {
+  min-height: 34px;
+  padding: .3rem .5rem;
+  border: 1px solid transparent;
+  border-radius: .62rem;
+  background: transparent;
+  color: #8092a9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .38rem;
+  font: inherit;
+  cursor: pointer;
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+
+.section-stage-button:hover:not(:disabled):not(.active) {
+  color: #dbe7f5;
+  background: rgba(148, 163, 184, .08);
+}
+
+.section-stage-button.active {
+  color: #172033;
+  border-color: rgba(251, 191, 36, .62);
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.section-stage-button:disabled {
+  cursor: default;
+  opacity: .38;
+}
+
+.section-stage-range {
+  font-size: .74rem;
+  font-weight: 850;
+}
+
+.section-stage-progress {
+  font-size: .62rem;
+  font-weight: 800;
+  opacity: .72;
+}
+
+#sectionTabs .section-tab[hidden] {
+  display: none !important;
+}
+
+/* Completed sections keep their full label; completion is additive, not a replacement. */
+#sectionTabs .section-tab.completed:not(.active) {
+  min-width: max-content;
+}
+
+#sectionTabs .section-tab-label {
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .section-stage-nav {
+    align-items: stretch;
+    flex-direction: column;
+    gap: .42rem;
+  }
+  .section-stage-meta {
+    justify-content: space-between;
+  }
+  .section-stage-controls {
+    width: 100%;
+  }
+  .section-stage-button {
+    min-height: 38px;
+  }
+}

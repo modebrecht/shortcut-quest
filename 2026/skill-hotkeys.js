@@ -957,6 +957,139 @@
     });
   }
 
+  function install2026SectionStageNav() {
+    if (typeof document === "undefined") return;
+    const tabsHost = document.getElementById("sectionTabs");
+    if (!tabsHost || tabsHost.dataset.stageNavInstalled === "true") return;
+    const navCard = tabsHost.closest(".nav-card");
+    if (!navCard) return;
+
+    const stageNav = document.createElement("div");
+    stageNav.id = "a8SectionStageNav";
+    stageNav.className = "section-stage-nav";
+
+    const meta = document.createElement("div");
+    meta.className = "section-stage-meta";
+    meta.innerHTML = '<strong>30 Abschnitte</strong><span>3 Etappen</span>';
+
+    const controls = document.createElement("div");
+    controls.className = "section-stage-controls";
+    stageNav.appendChild(meta);
+    stageNav.appendChild(controls);
+    navCard.insertBefore(stageNav, tabsHost);
+
+    const sectionNumber = tab => Number(tab?.dataset?.sectionId || tab?.dataset?.goto || 0);
+    let activeStage = 0;
+
+    const stageButtons = Array.from({ length: 3 }, (_, stageIndex) => {
+      const start = stageIndex * 10 + 1;
+      const end = start + 9;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "section-stage-button";
+      button.dataset.stage = String(stageIndex);
+      button.innerHTML = `<span class="section-stage-range">${start}–${end}</span><span class="section-stage-progress">gesperrt</span>`;
+      button.addEventListener("click", () => {
+        if (button.disabled) return;
+        showStage(stageIndex, true);
+      });
+      controls.appendChild(button);
+      return button;
+    });
+
+    const normalizeTabLabels = tabs => {
+      tabs.forEach(tab => {
+        const label = tab.querySelector(".section-tab-label");
+        const number = sectionNumber(tab);
+        if (!label || !number) return;
+        label.textContent = tab.dataset.baseLabel || `Abschnitt ${number}`;
+      });
+    };
+
+    const updateStageButtons = tabs => {
+      stageButtons.forEach((button, stageIndex) => {
+        const start = stageIndex * 10 + 1;
+        const end = start + 9;
+        const stageTabs = tabs.filter(tab => {
+          const number = sectionNumber(tab);
+          return number >= start && number <= end;
+        });
+        const completed = stageTabs.filter(tab => tab.classList.contains("completed")).length;
+        const available = stageTabs.length > 0;
+        button.disabled = !available;
+        button.classList.toggle("active", stageIndex === activeStage);
+        const progress = button.querySelector(".section-stage-progress");
+        if (progress) progress.textContent = available ? `${completed}/10` : "gesperrt";
+        button.setAttribute("aria-label", available
+          ? `Abschnitte ${start} bis ${end}, ${completed} von 10 abgeschlossen`
+          : `Abschnitte ${start} bis ${end}, noch gesperrt`);
+      });
+    };
+
+    function showStage(stageIndex, selectFirst = false) {
+      const tabs = Array.from(tabsHost.querySelectorAll(".section-tab"));
+      const start = stageIndex * 10 + 1;
+      const end = start + 9;
+      const visibleTabs = tabs.filter(tab => {
+        const number = sectionNumber(tab);
+        return number >= start && number <= end;
+      });
+      if (!visibleTabs.length) return false;
+
+      activeStage = stageIndex;
+      tabsHost.dataset.stage = String(stageIndex + 1);
+      tabs.forEach(tab => {
+        const number = sectionNumber(tab);
+        tab.hidden = number < start || number > end;
+      });
+      normalizeTabLabels(tabs);
+      updateStageButtons(tabs);
+
+      if (selectFirst && !visibleTabs.some(tab => tab.classList.contains("active"))) {
+        visibleTabs[0].click();
+      }
+      return true;
+    }
+
+    const initialTabs = Array.from(tabsHost.querySelectorAll(".section-tab"));
+    normalizeTabLabels(initialTabs);
+    const initialActive = initialTabs.find(tab => tab.classList.contains("active"));
+    const initialNumber = sectionNumber(initialActive) || sectionNumber(initialTabs[0]) || 1;
+    activeStage = Math.max(0, Math.min(2, Math.floor((initialNumber - 1) / 10)));
+    let previousMaxStage = initialTabs.length
+      ? Math.max(...initialTabs.map(sectionNumber).filter(Boolean).map(number => Math.floor((number - 1) / 10)))
+      : 0;
+    showStage(activeStage, false);
+
+    tabsHost.addEventListener("click", event => {
+      const tab = event.target.closest(".section-tab");
+      if (!tab) return;
+      const number = sectionNumber(tab);
+      if (!number) return;
+      activeStage = Math.floor((number - 1) / 10);
+      setTimeout(() => {
+        const tabs = Array.from(tabsHost.querySelectorAll(".section-tab"));
+        normalizeTabLabels(tabs);
+        updateStageButtons(tabs);
+      }, 0);
+    });
+
+    const observer = new MutationObserver(() => {
+      const tabs = Array.from(tabsHost.querySelectorAll(".section-tab"));
+      if (!tabs.length) return;
+      normalizeTabLabels(tabs);
+      const maxStage = Math.max(...tabs.map(sectionNumber).filter(Boolean).map(number => Math.floor((number - 1) / 10)));
+      if (maxStage > previousMaxStage) {
+        previousMaxStage = maxStage;
+        showStage(maxStage, true);
+        return;
+      }
+      showStage(activeStage, false);
+    });
+    observer.observe(tabsHost, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+    tabsHost.dataset.stageNavInstalled = "true";
+  }
+
   if (typeof document !== "undefined") {
     if (!document.getElementById("shortcutQuestModernUi")) {
       const modernUi = document.createElement("link");
@@ -1012,6 +1145,7 @@
     const installAfterRuntime = () => queueMicrotask(() => {
       install2026EconomyOverrides();
       install2026Interactions();
+      install2026SectionStageNav();
     });
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", installAfterRuntime, { once: true });
