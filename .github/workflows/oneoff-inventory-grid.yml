@@ -1,0 +1,31 @@
+name: One-off Inventory Grid Repair
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-inventory-grid.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+      - name: Apply inventory repair
+        run: python3 2026/qa/patch_inventory_grid.py
+      - name: Verify syntax
+        run: |
+          node --check 2026/qa/browser-smoke.mjs
+      - name: Commit runtime and smoke changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/index.html 2026/modern-game.css 2026/qa/browser-smoke.mjs
+          git commit -m "A8: repair inventory as stable 3x3 loadout"
+          git push origin HEAD:tk2-2026
