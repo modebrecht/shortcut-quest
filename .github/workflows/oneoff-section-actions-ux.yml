@@ -40,6 +40,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add 2026/index.html 2026/modern-exercises.css
-          git diff --cached --check
+          git diff --cached --stat
           git commit -m "A8: integrate section check actions into task card"
           git push origin HEAD:tk2-2026
