@@ -1,0 +1,31 @@
+name: One-off arena AAA rebuild
+
+on:
+  push:
+    branches:
+      - tk2-2026
+    paths:
+      - '.github/workflows/oneoff-arena-aaa-rebuild.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 0
+      - name: Apply AAA arena rebuild
+        run: python 2026/qa/oneoff_arena_aaa_rebuild.py
+      - name: Commit runtime and remove helpers
+        run: |
+          rm -f 2026/qa/oneoff_arena_aaa_rebuild.py
+          rm -f .github/workflows/oneoff-arena-aaa-rebuild.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 2026/modern-battle.css 2026/qa/oneoff_arena_aaa_rebuild.py .github/workflows/oneoff-arena-aaa-rebuild.yml
+          git commit -m 'style: rebuild arena scene without stretched background'
+          git push origin HEAD:tk2-2026
