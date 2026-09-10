@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -586,7 +586,20 @@
     .section.section-locked .card-body .narrative-blank {
       cursor: not-allowed;
     }
-    .result-text { flex: 1 1 100%; margin: 0; }
+    .section.section-locked .card-body > *:not(.section-actions) {
+    pointer-events: none;
+    user-select: none;
+  }
+  .section.section-locked .section-actions .check-section {
+    pointer-events: none;
+    opacity: 0.55;
+    cursor: not-allowed !important;
+  }
+  .section.section-locked .section-actions .reset-section {
+    pointer-events: auto;
+    cursor: pointer !important;
+  }
+  .result-text { flex: 1 1 100%; margin: 0; }
     .result-text:empty { display: none; }
     .dnd-pool {
       display: flex;
@@ -5268,7 +5281,20 @@ let frenzyAuraEl = null;
         }
         const resetBtn = section.querySelector(".reset-section");
         if (resetBtn) resetBtn.classList.toggle("highlight", !hasFastPaced && locked);
-        section.classList.toggle("section-locked", !hasFastPaced && locked);
+        const workLocked = !hasFastPaced && locked;
+      section.classList.toggle("section-locked", workLocked);
+      const body = section.querySelector(".card-body");
+      if (body) {
+        Array.from(body.children).forEach(child => {
+          if (child.classList.contains("section-actions")) return;
+          child.inert = workLocked;
+        });
+      }
+      const checkBtn = section.querySelector(".check-section");
+      if (checkBtn) {
+        checkBtn.classList.toggle("locked-until-reset", workLocked);
+        checkBtn.setAttribute("aria-disabled", workLocked ? "true" : "false");
+      }
       });
       document.querySelectorAll(".section-tab").forEach(tab => {
         updateTabCompletionState(tab, tab.dataset.goto || tab.dataset.sectionId);
@@ -6287,7 +6313,13 @@ let frenzyAuraEl = null;
       learnSectionsHost.addEventListener("click", event => {
         const checkBtn = event.target.closest(".check-section");
         if (checkBtn) {
-          gradeSection(checkBtn.dataset.checkSection, checkBtn);
+          const sectionId = checkBtn.dataset.checkSection;
+        if (sectionLocked(sectionId)) {
+          const resultEl = document.getElementById(`result-${sectionId}`);
+          if (resultEl) resultEl.textContent = "Für einen neuen vergüteten Durchlauf zuerst zurücksetzen.";
+          return;
+        }
+        gradeSection(sectionId, checkBtn);
           return;
         }
         const resetBtn = event.target.closest(".reset-section");
