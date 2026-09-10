@@ -273,6 +273,15 @@ try {
   assert.equal(state.lastShopPurchase?.type, 'skill', 'Shop should persist the purchased skill');
   assert.ok(Array.isArray(state.skills) && state.skills.length > 0, 'Purchased skill missing from skill collection');
 
+  await page.locator('.nav-toggle[data-view="skills"]').click();
+  assert.ok(await page.locator('#skillsView .inventory-item[data-skill-key]').count() > 0, 'Purchased skill should render as a skill card');
+  const skillAvatarBox = await page.locator('#skillsView .skill-avatar').boundingBox();
+  assert.ok(skillAvatarBox && skillAvatarBox.height <= 285, 'Desktop skill avatar should stay compact');
+  const skillColumns = await page.locator('#skillsView .skill-list').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
+  assert.equal(skillColumns, 2, 'Desktop skill list should use two compact columns');
+  const skillsOverflow = await page.locator('#skillsView #skillCard').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(skillsOverflow, false, 'Skills card must not overflow horizontally');
+
   for (const view of ['inventory', 'skills', 'shop', 'battle', 'report', 'learn']) {
     const button = page.locator(`.nav-toggle[data-view="${view}"]`);
     await button.click();
