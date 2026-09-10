@@ -19,7 +19,15 @@ jobs:
         with:
           ref: tk2-2026
       - name: Apply section action UX patch
-        run: python3 2026/qa/patch_section_actions.py
+        shell: bash
+        run: |
+          python3 2026/qa/patch_section_actions.py
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('2026/index.html')
+          text = path.read_text(encoding='utf-8-sig').replace('\r\n', '\n').replace('\r', '\n')
+          path.write_bytes(text.replace('\n', '\r\n').encode('utf-8-sig'))
+          PY
       - name: Verify patch
         run: |
           grep -q 'section-actions' 2026/index.html
