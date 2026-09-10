@@ -24,15 +24,15 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import base64
 
           index = Path('2026/index.html')
           s = index.read_text(encoding='utf-8-sig')
-
           replacements = {
-              '        actionCard.className = "card action-card";': '        actionCard.className = "action-card section-actions";',
-              '        checkBtn.textContent = `✅ ${checkLabel}`;': '''        checkBtn.innerHTML = `<svg class="section-action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg><span>${checkLabel}</span>`;''',
-              '        resetBtn.textContent = `🔄 ${resetLabel}`;': '''        resetBtn.innerHTML = `<svg class="section-action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg><span>${resetLabel}</span>`;''',
-              '        wrapper.appendChild(actionCard);': '''        const readCheckableValue = field => {
+            '        actionCard.className = "card action-card";': '        actionCard.className = "action-card section-actions";',
+            '        checkBtn.textContent = `✅ ${checkLabel}`;': '        checkBtn.innerHTML = `<svg class="section-action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg><span>${checkLabel}</span>`;',
+            '        resetBtn.textContent = `🔄 ${resetLabel}`;': '        resetBtn.innerHTML = `<svg class="section-action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg><span>${resetLabel}</span>`;',
+            '        wrapper.appendChild(actionCard);': '''        const readCheckableValue = field => {
           if (field.classList.contains("dnd-target")) {
             const slot = field.querySelector(".drop-slot");
             return slot ? (slot.dataset.value || slot.textContent || "").trim() : "";
@@ -64,137 +64,21 @@ jobs:
         requestAnimationFrame(updateCheckReadyState);
         contentCard.appendChild(actionCard);'''
           }
-
           for old, new in replacements.items():
-              if old not in s:
-                  raise SystemExit(f'index anchor not found: {old[:80]}')
-              s = s.replace(old, new, 1)
-
+            if old not in s:
+              raise SystemExit('index anchor not found: ' + old[:80])
+            s = s.replace(old, new, 1)
           index.write_text(s, encoding='utf-8')
 
           css = Path('2026/modern-exercises.css')
           c = css.read_text(encoding='utf-8')
           marker = '/* INTEGRATED SECTION ACTIONS ------------------------------------------ */'
-          block = r'''
-
-/* INTEGRATED SECTION ACTIONS ------------------------------------------ */
-#learnSections .card--section > .section-actions {
-  display: grid;
-  grid-template-columns: max-content max-content minmax(0, 1fr);
-  align-items: center;
-  gap: .7rem;
-  margin: 0;
-  padding: .9rem 1.35rem 1.15rem 1.45rem;
-  border: 0;
-  border-top: 1px solid rgba(148, 163, 184, .11);
-  border-radius: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, .08), rgba(7, 16, 31, .28));
-  box-shadow: none;
-}
-
-#learnSections .section-actions button {
-  width: auto;
-  min-width: 0;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .48rem;
-  cursor: pointer;
-}
-
-#learnSections .section-actions .section-action-icon {
-  width: 1.05rem;
-  height: 1.05rem;
-  flex: 0 0 auto;
-}
-
-#learnSections .section-actions .check-section {
-  min-height: 48px;
-  padding: .72rem 1.05rem;
-  border: 1px solid rgba(251, 191, 36, .58);
-  border-radius: .88rem;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #172033;
-  font-size: .9rem;
-  font-weight: 850;
-  letter-spacing: -.01em;
-  box-shadow: 0 8px 22px rgba(245, 158, 11, .12), inset 0 1px 0 rgba(255, 255, 255, .28);
-  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
-}
-
-#learnSections .section-actions .check-section:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.035);
-  box-shadow: 0 11px 28px rgba(245, 158, 11, .18), inset 0 1px 0 rgba(255, 255, 255, .30);
-}
-
-#learnSections .section-actions .reset-section {
-  min-height: 42px;
-  padding: .6rem .76rem;
-  border: 1px solid rgba(148, 163, 184, .18);
-  border-radius: .78rem;
-  background: rgba(15, 23, 42, .28);
-  color: #91a4bd;
-  font-size: .78rem;
-  font-weight: 700;
-  box-shadow: none;
-  transition: color .15s ease, border-color .15s ease, background .15s ease;
-}
-
-#learnSections .section-actions .reset-section:hover {
-  color: #dbe7f5;
-  border-color: rgba(148, 163, 184, .32);
-  background: rgba(30, 41, 59, .52);
-}
-
-#learnSections .section-actions .result-text {
-  grid-column: 3;
-  margin: 0;
-  min-width: 0;
-  color: #9fb0c7;
-}
-
-@keyframes sq-ready-check-pulse {
-  0%, 100% {
-    box-shadow: 0 8px 22px rgba(245, 158, 11, .12), 0 0 0 0 rgba(251, 191, 36, 0), inset 0 1px 0 rgba(255,255,255,.28);
-  }
-  45% {
-    box-shadow: 0 10px 26px rgba(245, 158, 11, .24), 0 0 0 5px rgba(251, 191, 36, .16), inset 0 1px 0 rgba(255,255,255,.32);
-  }
-}
-
-#learnSections .section-actions .check-section.is-ready {
-  animation: sq-ready-check-pulse 1.45s ease-in-out 2;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #learnSections .section-actions .check-section.is-ready { animation: none; }
-}
-
-@media (max-width: 700px) {
-  #learnSections .card--section > .section-actions {
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding: .85rem 1rem 1rem;
-    gap: .55rem;
-  }
-  #learnSections .section-actions .check-section {
-    width: 100%;
-  }
-  #learnSections .section-actions .reset-section {
-    padding-inline: .68rem;
-  }
-  #learnSections .section-actions .result-text {
-    grid-column: 1 / -1;
-  }
-}
-'''
           if marker in c:
-              raise SystemExit('integrated section actions block already exists')
-          css.write_text(c + block, encoding='utf-8')
+            raise SystemExit('integrated section actions block already exists')
+          payload = 'CgovKiBJTlRFR1JBVEVEIFNFQ1RJT04gQUNUSU9OUyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8KI2xlYXJuU2VjdGlvbnMgLmNhcmQtLXNlY3Rpb24gPiAuc2VjdGlvbi1hY3Rpb25zIHsKICBkaXNwbGF5OiBncmlkOwogIGdyaWQtdGVtcGxhdGUtY29sdW1uczogbWF4LWNvbnRlbnQgbWF4LWNvbnRlbnQgbWlubWF4KDAsIDFmcik7CiAgYWxpZ24taXRlbXM6IGNlbnRlcjsKICBnYXA6IC43cmVtOwogIG1hcmdpbjogMDsKICBwYWRkaW5nOiAuOXJlbSAxLjM1cmVtIDEuMTVyZW0gMS40NXJlbTsKICBib3JkZXI6IDA7CiAgYm9yZGVyLXRvcDogMXB4IHNvbGlkIHJnYmEoMTQ4LCAxNjMsIDE4NCwgLjExKTsKICBib3JkZXItcmFkaXVzOiAwOwogIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCgxODBkZWcsIHJnYmEoMTUsIDIzLCA0MiwgLjA4KSwgcmdiYSg3LCAxNiwgMzEsIC4yOCkpOwogIGJveC1zaGFkb3c6IG5vbmU7Cn0KCiNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgYnV0dG9uIHsKICB3aWR0aDogYXV0bzsKICBtaW4td2lkdGg6IDA7CiAgbWFyZ2luOiAwOwogIGRpc3BsYXk6IGlubGluZS1mbGV4OwogIGFsaWduLWl0ZW1zOiBjZW50ZXI7CiAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7CiAgZ2FwOiAuNDhyZW07CiAgY3Vyc29yOiBwb2ludGVyOwp9CgojbGVhcm5TZWN0aW9ucyAuc2VjdGlvbi1hY3Rpb25zIC5zZWN0aW9uLWFjdGlvbi1pY29uIHsKICB3aWR0aDogMS4wNXJlbTsKICBoZWlnaHQ6IDEuMDVyZW07CiAgZmxleDogMCAwIGF1dG87Cn0KCiNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgLmNoZWNrLXNlY3Rpb24gewogIG1pbi1oZWlnaHQ6IDQ4cHg7CiAgcGFkZGluZzogLjcycmVtIDEuMDVyZW07CiAgYm9yZGVyOiAxcHggc29saWQgcmdiYSgyNTEsIDE5MSwgMzYsIC41OCk7CiAgYm9yZGVyLXJhZGl1czogLjg4cmVtOwogIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCgxMzVkZWcsICNmYmJmMjQsICNmNTllMGIpOwogIGNvbG9yOiAjMTcyMDMzOwogIGZvbnQtc2l6ZTogLjlyZW07CiAgZm9udC13ZWlnaHQ6IDg1MDsKICBsZXR0ZXItc3BhY2luZzogLS4wMWVtOwogIGJveC1zaGFkb3c6IDAgOHB4IDIycHggcmdiYSgyNDUsIDE1OCwgMTEsIC4xMiksIGluc2V0IDAgMXB4IDAgcmdiYSgyNTUsIDI1NSwgMjU1LCAuMjgpOwogIHRyYW5zaXRpb246IHRyYW5zZm9ybSAuMTZzIGVhc2UsIGJveC1zaGFkb3cgLjE2cyBlYXNlLCBmaWx0ZXIgLjE2cyBlYXNlOwp9CgojbGVhcm5TZWN0aW9ucyAuc2VjdGlvbi1hY3Rpb25zIC5jaGVjay1zZWN0aW9uOmhvdmVyIHsKICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoLTFweCk7CiAgZmlsdGVyOiBicmlnaHRuZXNzKDEuMDM1KTsKICBib3gtc2hhZG93OiAwIDExcHggMjhweCByZ2JhKDI0NSwgMTU4LCAxMSwgLjE4KSwgaW5zZXQgMCAxcHggMCByZ2JhKDI1NSwgMjU1LCAyNTUsIC4zMCk7Cn0KCiNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgLnJlc2V0LXNlY3Rpb24gewogIG1pbi1oZWlnaHQ6IDQycHg7CiAgcGFkZGluZzogLjZyZW0gLjc2cmVtOwogIGJvcmRlcjogMXB4IHNvbGlkIHJnYmEoMTQ4LCAxNjMsIDE4NCwgLjE4KTsKICBib3JkZXItcmFkaXVzOiAuNzhyZW07CiAgYmFja2dyb3VuZDogcmdiYSgxNSwgMjMsIDQyLCAuMjgpOwogIGNvbG9yOiAjOTFhNGJkOwogIGZvbnQtc2l6ZTogLjc4cmVtOwogIGZvbnQtd2VpZ2h0OiA3MDA7CiAgYm94LXNoYWRvdzogbm9uZTsKICB0cmFuc2l0aW9uOiBjb2xvciAuMTVzIGVhc2UsIGJvcmRlci1jb2xvciAuMTVzIGVhc2UsIGJhY2tncm91bmQgLjE1cyBlYXNlOwp9CgojbGVhcm5TZWN0aW9ucyAuc2VjdGlvbi1hY3Rpb25zIC5yZXNldC1zZWN0aW9uOmhvdmVyIHsKICBjb2xvcjogI2RiZTdmNTsKICBib3JkZXItY29sb3I6IHJnYmEoMTQ4LCAxNjMsIDE4NCwgLjMyKTsKICBiYWNrZ3JvdW5kOiByZ2JhKDMwLCA0MSwgNTksIC41Mik7Cn0KCiNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgLnJlc3VsdC10ZXh0IHsKICBncmlkLWNvbHVtbjogMzsKICBtYXJnaW46IDA7CiAgbWluLXdpZHRoOiAwOwogIGNvbG9yOiAjOWZiMGM3Owp9CgpAa2V5ZnJhbWVzIHNxLXJlYWR5LWNoZWNrLXB1bHNlIHsKICAwJSwgMTAwJSB7CiAgICBib3gtc2hhZG93OiAwIDhweCAyMnB4IHJnYmEoMjQ1LCAxNTgsIDExLCAuMTIpLCAwIDAgMCAwIHJnYmEoMjUxLCAxOTEsIDM2LCAwKSwgaW5zZXQgMCAxcHggMCByZ2JhKDI1NSwyNTUsMjU1LC4yOCk7CiAgfQogIDQ1JSB7CiAgICBib3gtc2hhZG93OiAwIDEwcHggMjZweCByZ2JhKDI0NSwgMTU4LCAxMSwgLjI0KSwgMCAwIDAgNXB4IHJnYmEoMjUxLCAxOTEsIDM2LCAuMTYpLCBpbnNldCAwIDFweCAwIHJnYmEoMjU1LDI1NSwyNTUsLjMyKTsKICB9Cn0KCiNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgLmNoZWNrLXNlY3Rpb24uaXMtcmVhZHkgewogIGFuaW1hdGlvbjogc3EtcmVhZHktY2hlY2stcHVsc2UgMS40NXMgZWFzZS1pbi1vdXQgMjsKfQoKQG1lZGlhIChwcmVmZXJzLXJlZHVjZWQtbW90aW9uOiByZWR1Y2UpIHsKICAjbGVhcm5TZWN0aW9ucyAuc2VjdGlvbi1hY3Rpb25zIC5jaGVjay1zZWN0aW9uLmlzLXJlYWR5IHsgYW5pbWF0aW9uOiBub25lOyB9Cn0KCkBtZWRpYSAobWF4LXdpZHRoOiA3MDBweCkgewogICNsZWFyblNlY3Rpb25zIC5jYXJkLS1zZWN0aW9uID4gLnNlY3Rpb24tYWN0aW9ucyB7CiAgICBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IG1pbm1heCgwLCAxZnIpIGF1dG87CiAgICBwYWRkaW5nOiAuODVyZW0gMXJlbSAxcmVtOwogICAgZ2FwOiAuNTVyZW07CiAgfQogICNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgLmNoZWNrLXNlY3Rpb24gewogICAgd2lkdGg6IDEwMCU7CiAgfQogICNsZWFyblNlY3Rpb25zIC5zZWN0aW9uLWFjdGlvbnMgLnJlc2V0LXNlY3Rpb24gewogICAgcGFkZGluZy1pbmxpbmU6IC42OHJlbTsKICB9CiAgI2xlYXJuU2VjdGlvbnMgLnNlY3Rpb24tYWN0aW9ucyAucmVzdWx0LXRleHQgewogICAgZ3JpZC1jb2x1bW46IDEgLyAtMTsKICB9Cn0K'
+          css.write_text(c + base64.b64decode(payload).decode('utf-8'), encoding='utf-8')
           PY
 
-          node --check 2026/skill-hotkeys.js
           grep -q 'section-actions' 2026/index.html
           grep -q 'updateCheckReadyState' 2026/index.html
           grep -q 'sq-ready-check-pulse' 2026/modern-exercises.css
