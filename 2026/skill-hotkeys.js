@@ -1002,7 +1002,8 @@
         const label = tab.querySelector(".section-tab-label");
         const number = sectionNumber(tab);
         if (!label || !number) return;
-        label.textContent = tab.dataset.baseLabel || `Abschnitt ${number}`;
+        const targetLabel = tab.dataset.baseLabel || `Abschnitt ${number}`;
+        if (label.textContent !== targetLabel) label.textContent = targetLabel;
       });
     };
 
