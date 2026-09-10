@@ -90,15 +90,15 @@
 
     section(8,'Drag & Drop – Browser','Tabs und Browsernavigation als zusammenhängender Block.',{tasks:[D(
       A4,
-      [['Neues Dokument','Ctrl+N'],['Neuer Tab','Ctrl+T'],['Tab schliessen','Ctrl+W'],['Tab wiederherstellen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Adressleiste','Ctrl+L'],['Nächster Tab','Ctrl+Tab'],['Vorheriger Tab','Ctrl+Shift+Tab']]
+      [['Neues Browserfenster','Ctrl+N'],['Neuer Tab','Ctrl+T'],['Tab schliessen','Ctrl+W'],['Tab wiederherstellen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Adressleiste','Ctrl+L'],['Nächster Tab','Ctrl+Tab'],['Vorheriger Tab','Ctrl+Shift+Tab']]
     )]}),
 
     section(9,'Drag & Drop – Windows','Fenster, Werkzeuge und Schnellzugriffe zuordnen.',{tasks:[D(
       A5,
-      [['PC sperren','Win+L'],['Desktop anzeigen','Win+D'],['Explorer','Win+E'],['Screenshot','Win+Shift+S'],['Programme wechseln','Alt+Tab'],['Task-Manager','Ctrl+Shift+Esc'],['Zwischenablage','Win+V'],['Fenster schliessen','Alt+F4'],['Links andocken','Win+←'],['Rechts andocken','Win+→'],['Maximieren','Win+↑'],['Verkleinern / minimieren','Win+↓']]
+      [['PC sperren','Win+L'],['Desktop anzeigen','Win+D'],['Explorer','Win+E'],['Screenshot','Win+Shift+S'],['Programme wechseln','Alt+Tab'],['Task-Manager','Ctrl+Shift+Esc'],['Zwischenablage-Verlauf','Win+V'],['Fenster schliessen','Alt+F4'],['Links andocken','Win+←'],['Rechts andocken','Win+→'],['Maximieren','Win+↑'],['Verkleinern / minimieren','Win+↓']]
     )]}),
 
-    section(10,'Combo Builder – Mixed','Baue ein-, zwei- und dreiteilige Kombinationen aus Tastenbausteinen.',{comboBuilder:builder(
+    section(10,'Combo Builder – Mixed','Baue zwei- und dreiteilige Kombinationen aus Tastenbausteinen.',{comboBuilder:builder(
       'Combo Builder','Wähle die richtigen Tasten in der richtigen Reihenfolge.',
       ['Ctrl','Shift','Win','Alt','C','V','T','W','S','Esc','Tab','F4'],[
         ['Ohne Formatierung','Baue „Einfügen ohne Formatierung“.',['Ctrl','Shift','V']],
@@ -175,7 +175,7 @@
       [['Dokumentanfang','Ctrl+Home'],['Dokumentende','Ctrl+End'],['Nächster Browser-Tab','Ctrl+Tab'],['Vorheriger Browser-Tab','Ctrl+Shift+Tab'],['Programm wechseln','Alt+Tab'],['Fenster links','Win+←'],['Fenster rechts','Win+→'],['Maximieren','Win+↑'],['Verkleinern / minimieren','Win+↓']]
     )]}),
 
-    section(20,'System Quick Access','Windows-Werkzeuge ohne Maus direkt aufrufen.',{tasks:[
+    section(20,'System Quick Access','Windows-Funktionen und Werkzeuge ohne Maus direkt aufrufen.',{tasks:[
       I('PC sperren','Win+L'),I('Desktop anzeigen','Win+D'),I('Explorer öffnen','Win+E'),I('Screenshot-Ausschnitt','Win+Shift+S'),I('Task-Manager öffnen','Ctrl+Shift+Esc'),I('Zwischenablage-Verlauf','Win+V')
     ]}),
 
@@ -187,12 +187,12 @@
       ['Kopieren','Ctrl+C'],['Ausschneiden','Ctrl+X'],['Einfügen','Ctrl+V'],['Ohne Formatierung','Ctrl+Shift+V'],['Rückgängig','Ctrl+Z'],['Wiederherstellen','Ctrl+Y'],['Speichern','Ctrl+S'],['Alles markieren','Ctrl+A'],['Suchen','Ctrl+F'],['Suchen & Ersetzen','Ctrl+H'],['Öffnen','Ctrl+O']
     ]),tasks:[],hideActions:true}),
 
-    section(23,'Fast-Paced Browser','Alle acht A4-Kürzel in einer schnellen Runde.',{fastPaced:fast(10,7,4,[
+    section(23,'Fast-Paced Browser','Alle acht Browser-Kürzel in einer schnellen Runde.',{fastPaced:fast(10,7,4,[
       ['Neues Dokument','Ctrl+N'],['Neuer Tab','Ctrl+T'],['Tab schliessen','Ctrl+W'],['Tab zurückholen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Adressleiste','Ctrl+L'],['Nächster Tab','Ctrl+Tab'],['Vorheriger Tab','Ctrl+Shift+Tab']
     ]),tasks:[],hideActions:true}),
 
     section(24,'Fast-Paced Windows','Fenster und Werkzeuge unter Zeitdruck.',{fastPaced:fast(10,7,4,[
-      ['PC sperren','Win+L'],['Desktop','Win+D'],['Explorer','Win+E'],['Screenshot','Win+Shift+S'],['Programme wechseln','Alt+Tab'],['Task-Manager','Ctrl+Shift+Esc'],['Zwischenablage','Win+V'],['Fenster schliessen','Alt+F4'],['Links andocken','Win+←'],['Rechts andocken','Win+→'],['Maximieren','Win+↑'],['Minimieren','Win+↓']
+      ['PC sperren','Win+L'],['Desktop','Win+D'],['Explorer','Win+E'],['Screenshot','Win+Shift+S'],['Programme wechseln','Alt+Tab'],['Task-Manager','Ctrl+Shift+Esc'],['Zwischenablage-Verlauf','Win+V'],['Fenster schliessen','Alt+F4'],['Links andocken','Win+←'],['Rechts andocken','Win+→'],['Maximieren','Win+↑'],['Minimieren','Win+↓']
     ]),tasks:[],hideActions:true}),
 
     section(25,'Verwechslungsgefahr','Bewusst ähnliche Kürzel auseinanderhalten.',{tasks:[
@@ -206,7 +206,7 @@
       S('Zwischen Programmen wechseln','Alt+Tab',['Alt+Tab','Ctrl+Tab','Ctrl+Shift+Tab','Win+D'])
     ]}),
 
-    section(26,'Advanced Combo Builder','Dreiteilige Kombinationen und nahe Verwandte bauen.',{comboBuilder:builder(
+    section(26,'Advanced Combo Builder','Anspruchsvolle zwei- und dreiteilige Kombinationen bauen.',{comboBuilder:builder(
       'Advanced Builder','Baue die vollständige Kombination.',
       ['Ctrl','Shift','Win','Alt','V','T','Tab','Esc','S','L','F4'],[
         ['Ohne Formatierung','Einfügen ohne Formatierung.',['Ctrl','Shift','V']],
@@ -240,7 +240,7 @@
     ]),tasks:[]}),
 
     section(29,'Mastery Sprint','Eine schnelle, breite Mischung kurz vor dem Finale.',{fastPaced:fast(14,6,5,[
-      ['Kopieren','Ctrl+C'],['Ohne Formatierung','Ctrl+Shift+V'],['Suchen & Ersetzen','Ctrl+H'],['Dokumentende','Ctrl+End'],['Neuer Tab','Ctrl+T'],['Tab zurückholen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Vorheriger Tab','Ctrl+Shift+Tab'],['Desktop','Win+D'],['Task-Manager','Ctrl+Shift+Esc'],['Zwischenablage','Win+V'],['Fenster schliessen','Alt+F4'],['Links andocken','Win+←'],['Maximieren','Win+↑']
+      ['Kopieren','Ctrl+C'],['Ohne Formatierung','Ctrl+Shift+V'],['Suchen & Ersetzen','Ctrl+H'],['Dokumentende','Ctrl+End'],['Neuer Tab','Ctrl+T'],['Tab zurückholen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Vorheriger Tab','Ctrl+Shift+Tab'],['Desktop','Win+D'],['Task-Manager','Ctrl+Shift+Esc'],['Zwischenablage-Verlauf','Win+V'],['Fenster schliessen','Alt+F4'],['Links andocken','Win+←'],['Maximieren','Win+↑']
     ]),tasks:[],hideActions:true}),
 
     section(30,'Final Mastery','Der letzte gemischte Recall vor dem finalen Battle.',{tasks:[

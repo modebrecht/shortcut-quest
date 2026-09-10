@@ -357,10 +357,10 @@
     const xp = getSharedXP();
     hint.disabled = used || locked || xp < HINT_COST_XP_2026;
     hint.textContent = used
-      ? `💡 Tipp genutzt (-${HINT_COST_XP_2026} XP)`
+      ? `Tipp genutzt · ${HINT_COST_XP_2026} XP`
       : xp < HINT_COST_XP_2026
-        ? `💡 Tipp (-${HINT_COST_XP_2026} XP | Zu wenig XP)`
-        : `💡 Tipp (-${HINT_COST_XP_2026} XP)`;
+        ? `Tipp · ${HINT_COST_XP_2026} XP · Zu wenig XP`
+        : `Tipp kaufen · ${HINT_COST_XP_2026} XP`;
   }
 
   function refreshHintButtons() {
@@ -574,10 +574,10 @@
       const used = hint.dataset.used === "true";
       hint.disabled = used || xp < HINT_COST_XP_2026;
       hint.textContent = used
-        ? `💡 Tipp genutzt (-${HINT_COST_XP_2026} XP)`
+        ? `Tipp genutzt · ${HINT_COST_XP_2026} XP`
         : xp < HINT_COST_XP_2026
-          ? `💡 Tipp (-${HINT_COST_XP_2026} XP | Zu wenig XP)`
-          : `💡 Tipp (-${HINT_COST_XP_2026} XP)`;
+          ? `Tipp · ${HINT_COST_XP_2026} XP · Zu wenig XP`
+          : `Tipp kaufen · ${HINT_COST_XP_2026} XP`;
     }
 
     hint.addEventListener("click", event => {
@@ -750,10 +750,10 @@
       hint.dataset.used = usedHint ? "true" : "false";
       hint.disabled = allFilled || usedHint || xp < HINT_COST_XP_2026;
       hint.textContent = usedHint
-        ? `💡 Tipp genutzt (-${HINT_COST_XP_2026} XP)`
+        ? `Tipp genutzt · ${HINT_COST_XP_2026} XP`
         : xp < HINT_COST_XP_2026
-          ? `💡 Tipp (-${HINT_COST_XP_2026} XP | Zu wenig XP)`
-          : `💡 Tipp (-${HINT_COST_XP_2026} XP)`;
+          ? `Tipp · ${HINT_COST_XP_2026} XP · Zu wenig XP`
+          : `Tipp kaufen · ${HINT_COST_XP_2026} XP`;
       hintNote.textContent = usedHint ? "Eine falsche Möglichkeit wurde entfernt." : "";
       syncing = false;
     }
