@@ -197,6 +197,33 @@ try {
   const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
   assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
   assert.equal(await page.locator('#battleStagePreview').count(), 1, 'Arena preview stage should exist');
+  const oneArenaLayout = await page.evaluate(() => {
+    const stage = document.querySelector('#battleStagePreview')?.getBoundingClientRect();
+    const card = document.querySelector('#battleView .battle-card')?.getBoundingClientRect();
+    const hero = document.querySelector('#battleView .battle-side.hero')?.getBoundingClientRect();
+    const enemy = document.querySelector('#battleView .battle-side.enemy')?.getBoundingClientRect();
+    if (!stage || !card || !hero || !enemy) return null;
+    const overlap = (a, b) => Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    return {
+      stageWidthRatio: stage.width / card.width,
+      stageHeight: stage.height,
+      heroVerticalOverlapRatio: overlap(hero, stage) / Math.max(1, hero.height),
+      enemyVerticalOverlapRatio: overlap(enemy, stage) / Math.max(1, enemy.height),
+      heroInsideHorizontally: hero.left >= stage.left - 2 && hero.right <= stage.right + 2,
+      enemyInsideHorizontally: enemy.left >= stage.left - 2 && enemy.right <= stage.right + 2,
+      heroPosition: getComputedStyle(document.querySelector('#battleView .battle-side.hero')).position,
+      enemyPosition: getComputedStyle(document.querySelector('#battleView .battle-side.enemy')).position
+    };
+  });
+  assert.ok(oneArenaLayout, 'One-arena geometry should be measurable');
+  assert.ok(oneArenaLayout.stageWidthRatio > 0.92, 'Arena stage should dominate almost the full battle card width');
+  assert.ok(oneArenaLayout.stageHeight >= 400, 'Desktop one-arena stage should be substantially larger');
+  assert.equal(oneArenaLayout.heroPosition, 'absolute', 'Hero HUD should overlay the arena rather than occupy a separate panel');
+  assert.equal(oneArenaLayout.enemyPosition, 'absolute', 'Enemy HUD should overlay the arena rather than occupy a separate panel');
+  assert.equal(oneArenaLayout.heroInsideHorizontally, true, 'Hero should sit horizontally inside the arena stage');
+  assert.equal(oneArenaLayout.enemyInsideHorizontally, true, 'Enemy should sit horizontally inside the arena stage');
+  assert.ok(oneArenaLayout.heroVerticalOverlapRatio > 0.72, 'Most of the hero presentation should live inside the arena stage');
+  assert.ok(oneArenaLayout.enemyVerticalOverlapRatio > 0.72, 'Most of the enemy presentation should live inside the arena stage');
   const previewArenaBackground = await page.locator('#battleStagePreview').evaluate(el => getComputedStyle(el).backgroundImage);
   assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must use the dark stone arena instead of the forest background');
   assert.equal(await page.locator('#battleStartBtn').count(), 1, 'Arena should expose a dedicated start CTA');
