@@ -1,0 +1,34 @@
+name: One-off Stage Navigation Final
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-stage-nav-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+      - name: Apply final stage navigation behavior
+        run: python3 2026/qa/patch_stage_nav_final.py
+      - name: Verify patch
+        run: |
+          node --check 2026/skill-hotkeys.js
+          node --check 2026/qa/browser-smoke.mjs
+          grep -q 'Stage 11-20 should unlock' 2026/qa/browser-smoke.mjs
+      - name: Commit runtime and QA changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/skill-hotkeys.js 2026/qa/browser-smoke.mjs
+          git commit -m "A8: finalize 30-section stage navigation"
+          git push origin HEAD:tk2-2026
