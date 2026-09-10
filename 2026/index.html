@@ -4326,6 +4326,7 @@
     const STORAGE_KEY = "shortcutRitter_v1";
     const COINS_PER_ACTION = 10;
     const COINS_PER_ACTION_AFTER_RESET = 5;
+    const MAX_SECTION_SUBMISSIONS = 3;
     const INITIAL_SECTION_UNLOCK = 10;
     const CONSTANTS_DEBUG = false;
     const RUNEN_AMULET_KEY = "runen_amulet";
@@ -4652,6 +4653,8 @@ let frenzyAuraEl = null;
       equipment: { ...DEFAULT_EQUIPMENT },
       sectionClears: {},
       sectionResets: {},
+      sectionSubmissions: {},
+      replayCycle: 1,
       sectionReports: {},
       comboStats: {},
       sectionsUnlocked: INITIAL_SECTION_UNLOCK,
@@ -4676,6 +4679,8 @@ let frenzyAuraEl = null;
       }
       if (typeof state.sectionClears !== "object" || !state.sectionClears) state.sectionClears = {};
       if (typeof state.sectionResets !== "object" || !state.sectionResets) state.sectionResets = {};
+      if (typeof state.sectionSubmissions !== "object" || !state.sectionSubmissions) state.sectionSubmissions = {};
+      if (!Number.isFinite(state.replayCycle) || state.replayCycle < 1) state.replayCycle = 1;
       if (typeof state.sectionReports !== "object" || !state.sectionReports) state.sectionReports = {};
       if (typeof state.comboStats !== "object" || !state.comboStats) state.comboStats = {};
       if (typeof state.battleClears !== "object" || !state.battleClears) state.battleClears = {};
@@ -4707,6 +4712,98 @@ let frenzyAuraEl = null;
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
+
+    function getSectionSubmissionCount(sectionId) {
+      if (!sectionId || !state.sectionSubmissions) return 0;
+      const value = Number(state.sectionSubmissions[String(sectionId)] || 0);
+      const safe = Number.isFinite(value) ? Math.floor(value) : 0;
+      return Math.max(0, Math.min(MAX_SECTION_SUBMISSIONS, safe));
+    }
+
+    function sectionSubmissionExhausted(sectionId) {
+      return getSectionSubmissionCount(sectionId) >= MAX_SECTION_SUBMISSIONS;
+    }
+
+    function resetSubmissionCycleIfComplete() {
+      if (!Array.isArray(SECTION_BLUEPRINTS) || !SECTION_BLUEPRINTS.length) return false;
+      const complete = SECTION_BLUEPRINTS.every((section, index) => {
+        const id = resolveSectionId(section, index);
+        return getSectionSubmissionCount(id) >= MAX_SECTION_SUBMISSIONS;
+      });
+      if (!complete) return false;
+      state.sectionSubmissions = {};
+      state.replayCycle = Math.max(1, Math.floor(Number(state.replayCycle) || 1)) + 1;
+      return true;
+    }
+
+    function recordSectionSubmission(sectionId) {
+      const id = String(sectionId || "");
+      if (!id || sectionSubmissionExhausted(id)) return null;
+      state.sectionSubmissions[id] = getSectionSubmissionCount(id) + 1;
+      const count = getSectionSubmissionCount(id);
+      const cycleReset = resetSubmissionCycleIfComplete();
+      updateSectionSubmissionUI();
+      return { count, cycleReset };
+    }
+
+    function updateSectionSubmissionUI() {
+      if (typeof document === "undefined") return;
+      const lockText = "3/3 Durchläufe gespielt – zuerst die anderen Abschnitte abschliessen.";
+      document.querySelectorAll(".section[data-section]").forEach(section => {
+        const id = String(section.dataset.section || "");
+        const count = getSectionSubmissionCount(id);
+        const exhausted = count >= MAX_SECTION_SUBMISSIONS;
+        section.classList.toggle("submission-exhausted", exhausted);
+
+        const header = section.querySelector(".card--section .card-header");
+        if (header) {
+          let badge = header.querySelector(".section-submission-badge");
+          if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "section-submission-badge";
+            header.appendChild(badge);
+          }
+          badge.textContent = `Durchläufe ${count}/${MAX_SECTION_SUBMISSIONS}`;
+          badge.title = exhausted ? lockText : "1. Durchlauf: 100% Coins · 2. und 3. Durchlauf: 50% Coins";
+        }
+
+        [section.querySelector(".check-section"), section.querySelector(".reset-section"), section.querySelector(".fast-paced-start")]
+          .filter(Boolean)
+          .forEach(control => {
+            if (exhausted) {
+              control.dataset.submissionLocked = "true";
+              control.disabled = true;
+              control.title = lockText;
+            } else if (control.dataset.submissionLocked === "true") {
+              delete control.dataset.submissionLocked;
+              control.disabled = false;
+              control.removeAttribute("title");
+            }
+          });
+      });
+
+      document.querySelectorAll(".section-tab").forEach(tab => {
+        const id = String(tab.dataset.sectionId || tab.dataset.goto || "");
+        const exhausted = sectionSubmissionExhausted(id);
+        tab.classList.toggle("submission-exhausted", exhausted);
+        if (exhausted) {
+          tab.dataset.submissionLocked = "true";
+          tab.disabled = true;
+          tab.title = "3/3 Durchläufe gespielt";
+        } else if (tab.dataset.submissionLocked === "true") {
+          delete tab.dataset.submissionLocked;
+          tab.disabled = false;
+          tab.title = `Abschnitt ${id}`;
+        }
+      });
+    }
+
+    window.SHORTCUT_QUEST_2026_REPLAY_POLICY = Object.freeze({
+      maxSubmissionsPerSection: MAX_SECTION_SUBMISSIONS,
+      firstRewardPercent: 100,
+      repeatRewardPercent: 50,
+      resetCondition: "all-30-sections-reach-3"
+    });
 
     function exportGameState() {
       try {
@@ -5835,25 +5932,30 @@ let frenzyAuraEl = null;
         resetOptions();
         elements.root.classList.remove("fast-paced-active");
         updateHourglass(1);
-        const reward = fastState.correct * COINS_PER_ACTION;
         const completionPercent = Math.round((fastState.correct / rounds) * 100);
-        if (reward > 0) {
+        if (completionPercent >= 70) {
+          const currentClears = state.sectionClears[sectionId] || 0;
+          const rewardRate = currentClears > 0 ? COINS_PER_ACTION_AFTER_RESET : COINS_PER_ACTION;
+          const reward = fastState.correct * rewardRate;
           const bonusPercent = getRunenAmuletCoinBonusPercent();
           const finalReward = applyCoinBonus(reward);
           state.coins += finalReward;
           pendingCoinAnimation = { amount: finalReward, anchor: elements.startBtn, variant: "gain" };
-          const bonusText = bonusPercent ? ` (Runenbonus +${bonusPercent}%)` : "";
-          showResult(`Belohnung: +${finalReward} Coins${bonusText}`, true);
-        } else {
-          showResult("Keine Coins in dieser Runde.", false);
-        }
-        if (completionPercent >= 70) {
-          const currentClears = state.sectionClears[sectionId] || 0;
           state.sectionClears[sectionId] = Math.max(currentClears, 1);
+          const submission = recordSectionSubmission(sectionId);
+          const bonusText = bonusPercent ? ` (Runenbonus +${bonusPercent}%)` : "";
+          if (submission && submission.cycleReset) {
+            showResult(`Belohnung: +${finalReward} Coins${bonusText} · Alle Abschnitte 3× gespielt – neue Runde!`, true);
+          } else {
+            const count = submission ? submission.count : getSectionSubmissionCount(sectionId);
+            showResult(`Belohnung: +${finalReward} Coins${bonusText} · Durchlauf ${count}/${MAX_SECTION_SUBMISSIONS}`, true);
+          }
           updateSectionCompletionClasses();
-          saveState();
+        } else {
+          showResult("Unter 70% – keine Coins. Dieser Versuch zählt nicht als Durchlauf.", false);
         }
         updateUI();
+        updateSectionSubmissionUI();
         updateOverallSummary();
         recalcStats();
         saveState();
@@ -5890,6 +5992,11 @@ let frenzyAuraEl = null;
       }
 
       elements.startBtn.addEventListener("click", () => {
+        if (sectionSubmissionExhausted(sectionId)) {
+          showResult("3/3 Durchläufe gespielt – zuerst die anderen Abschnitte abschliessen.", false);
+          updateSectionSubmissionUI();
+          return;
+        }
         resetSession();
         startSession();
       });
@@ -6056,6 +6163,7 @@ let frenzyAuraEl = null;
       }
       updateLockedSectionsHint(targetCount < SECTION_BLUEPRINTS.length);
       updateSectionCompletionClasses();
+      updateSectionSubmissionUI();
     }
 
     function unlockNextSection() {
@@ -6295,6 +6403,7 @@ let frenzyAuraEl = null;
     }
 
     initLearnSections();
+    updateSectionSubmissionUI();
     window.addEventListener("resize", () => {
       refreshAllInputHints();
     });
@@ -8634,6 +8743,12 @@ let frenzyAuraEl = null;
     function gradeSection(sectionId, triggerBtn) {
       const section = document.querySelector(`.section[data-section="${sectionId}"]`);
       if (!section) return;
+      if (sectionSubmissionExhausted(sectionId)) {
+        const lockedResult = document.getElementById(`result-${sectionId}`);
+        if (lockedResult) lockedResult.textContent = "3/3 Durchläufe gespielt – zuerst die anderen Abschnitte abschliessen.";
+        updateSectionSubmissionUI();
+        return;
+      }
       const fields = section.querySelectorAll("[data-answer], .dnd-target");
       const comboResults = new Map();
       let correctCount = 0;
@@ -8729,6 +8844,12 @@ let frenzyAuraEl = null;
           resultMsg += ` | +${finalReward} Coins${bonusText}`;
         } else if (clears > 0) {
           resultMsg += " | für mehr Coins erst zurücksetzen.";
+        }
+        const submission = reward > 0 ? recordSectionSubmission(sectionId) : null;
+        if (submission && submission.cycleReset) {
+          resultMsg += " | Alle Abschnitte 3× gespielt – neue Runde freigeschaltet.";
+        } else if (submission) {
+          resultMsg += ` | Durchlauf ${submission.count}/${MAX_SECTION_SUBMISSIONS}`;
         }
         if (isFirstClear && unlockNextSection()) {
           resultMsg += " | Neuer Abschnitt freigeschaltet.";
