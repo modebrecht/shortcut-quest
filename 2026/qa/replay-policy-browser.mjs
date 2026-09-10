@@ -154,7 +154,7 @@ try {
       if (run === 1) {
         firstReward = rewardDelta;
       } else {
-        assert.equal(rewardDelta, firstReward / 2, `Section ${sectionId} run ${run}: repeat reward must be exactly 50%`i);
+        assert.equal(rewardDelta, firstReward / 2, `Section ${sectionId} run ${run}: repeat reward must be exactly 50%`);
       }
 
       const isFinalSubmission = sectionId === 30 && run === 3;
