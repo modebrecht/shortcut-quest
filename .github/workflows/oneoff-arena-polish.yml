@@ -1,0 +1,29 @@
+name: One-off Arena polish
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - .github/workflows/oneoff-arena-polish.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+      - name: Apply arena polish
+        run: python3 2026/qa/tmp-arena-polish.py
+      - name: Commit runtime and cleanup helpers
+        run: |
+          rm -f 2026/qa/tmp-arena-polish.py .github/workflows/oneoff-arena-polish.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "style: bring arena closer to visual mockup"
+          git push origin HEAD:tk2-2026
