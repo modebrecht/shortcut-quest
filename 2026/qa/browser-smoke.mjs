@@ -123,7 +123,7 @@ try {
   await page.evaluate(() => localStorage.setItem('tk_global_xp_v1', '60'));
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.SHORTCUT_QUEST_2026_HINTS?.costXP === 30);
-  assert.equal((await page.locator('#a8XpTop').textContent())?.trim(), '⚡ XP: 60');
+  assert.equal((await page.locator('#a8XpTop').textContent())?.trim(), 'XP: 60');
   await page.locator('.section-tab[data-goto="3"]').click();
   const firstChoice = page.locator('.section[data-section="3"] .a8-choice-ui').first();
   const optionCountBefore = await firstChoice.locator('.a8-choice-option').count();
@@ -301,6 +301,9 @@ try {
   const tabletMenu = page.locator('#mobileNavToggle');
   assert.ok(await tabletMenu.isVisible(), 'Tablet/compact desktop should use the menu button');
   assert.equal(await page.locator('#topNav .nav-toggle').first().isVisible(), false, 'Compact header should keep inline navigation closed initially');
+  assert.equal(await page.locator('header > .header-right').count(), 0, 'Compact header stats must be moved out of the top header row');
+  assert.equal(await page.locator('#a8XpTop').isVisible(), false, 'XP must stay hidden while the compact menu is closed');
+  assert.equal(await page.locator('#coinTop').isVisible(), false, 'Coins must stay hidden while the compact menu is closed');
   const tabletHeaderOverflow = await page.evaluate(() => {
     const el = document.querySelector('header');
     return el ? el.scrollWidth - el.clientWidth : 0;
@@ -309,6 +312,8 @@ try {
   await tabletMenu.click();
   assert.equal(await tabletMenu.getAttribute('aria-expanded'), 'true', 'Tablet menu should open');
   assert.ok(await page.locator('#topNav .nav-toggle').first().isVisible(), 'Tablet menu choices should be visible after opening');
+  assert.ok(await page.locator('#topNav .header-right #a8XpTop').isVisible(), 'XP should appear inside the opened compact menu');
+  assert.ok(await page.locator('#topNav .header-right #coinTop').isVisible(), 'Coins should appear inside the opened compact menu');
   await tabletMenu.click();
   assert.equal(await tabletMenu.getAttribute('aria-expanded'), 'false', 'Tablet menu should close again');
 

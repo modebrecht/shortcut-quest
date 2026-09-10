@@ -603,10 +603,6 @@ header #a8XpTop {
   overflow: hidden;
 }
 
-header #a8XpTop::first-letter {
-  font-size: 0;
-}
-
 header #a8XpTop::before {
   position: absolute;
   left: .62rem;
@@ -913,5 +909,38 @@ header .mobile-nav-toggle::after {
     left: .5rem;
     right: .5rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* COMPACT HEADER STATS LIVE INSIDE MENU ------------------------------ */
+@media (max-width: 1180px) {
+  /* Before JS relocates the stats, never let them occupy the compact header row. */
+  header > .header-right {
+    display: none !important;
+  }
+
+  /* Once relocated, the stats become the footer row of the opened menu. */
+  header .top-nav .header-right {
+    display: flex !important;
+    grid-column: 1 / -1;
+    width: 100% !important;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: .42rem;
+    margin: .1rem 0 0 !important;
+    padding: .52rem .36rem .08rem !important;
+    border-top: 1px solid rgba(148, 163, 184, .14);
+    overflow: visible;
+  }
+
+  header .top-nav .header-right #a8XpTop,
+  header .top-nav .header-right #coinTop {
+    display: inline-flex !important;
+    width: auto !important;
+    min-height: 32px !important;
+    margin: 0 !important;
   }
 }

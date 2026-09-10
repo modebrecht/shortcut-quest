@@ -277,7 +277,7 @@
       if (coinBadge) headerRight.insertBefore(badge, coinBadge);
       else headerRight.appendChild(badge);
     }
-    badge.textContent = `⚡ XP: ${getSharedXP()}`;
+    badge.textContent = `XP: ${getSharedXP()}`;
     badge.title = `Jede richtige Antwort bringt ${XP_PER_CORRECT_2026} XP · Tipps kosten ${HINT_COST_XP_2026} XP`;
   }
 
@@ -1141,10 +1141,42 @@
     }, true);
 
     render2026Progress(global.__shortcutQuest2026InitialState || {});
+
+  function installCompactHeaderStats() {
+    if (typeof document === "undefined" || global.__shortcutQuestCompactHeaderStatsInstalled) return;
+    const header = document.querySelector("header");
+    const topNav = document.getElementById("topNav");
+    const headerRight = header && header.querySelector(".header-right");
+    if (!header || !topNav || !headerRight) return;
+
+    const compactQuery = typeof global.matchMedia === "function"
+      ? global.matchMedia("(max-width: 1180px)")
+      : null;
+
+    const sync = () => {
+      const compact = compactQuery ? compactQuery.matches : Number(global.innerWidth || 0) <= 1180;
+      if (compact) {
+        if (headerRight.parentElement !== topNav) topNav.appendChild(headerRight);
+      } else if (headerRight.parentElement !== header) {
+        header.appendChild(headerRight);
+      }
+    };
+
+    sync();
+    if (compactQuery) {
+      if (typeof compactQuery.addEventListener === "function") compactQuery.addEventListener("change", sync);
+      else if (typeof compactQuery.addListener === "function") compactQuery.addListener(sync);
+    } else {
+      global.addEventListener("resize", sync);
+    }
+    global.__shortcutQuestCompactHeaderStatsInstalled = true;
+  }
+
     const installAfterRuntime = () => queueMicrotask(() => {
       install2026EconomyOverrides();
       install2026Interactions();
       install2026SectionStageNav();
+      installCompactHeaderStats();
     });
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", installAfterRuntime, { once: true });
