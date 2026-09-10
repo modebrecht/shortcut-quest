@@ -189,6 +189,13 @@ try {
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '3 / 30');
 
   await page.locator('.nav-toggle[data-view="battle"]').click();
+  assert.equal(await page.locator('#battleButtons .battle-btn').count(), 11, 'Battle selector should expose all 11 fights');
+  const battleButtonDisplay = await page.locator('#battleButtons').evaluate(el => getComputedStyle(el).display);
+  assert.equal(battleButtonDisplay, 'grid', 'Battle selector should use a discoverable grid instead of hidden horizontal scrolling');
+  const battleButtonOverflow = await page.locator('#battleButtons').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(battleButtonOverflow, false, 'Battle selector must not require horizontal scrolling');
+  const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
   assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');
   assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), true, 'Battle 2 should still be locked');
 
@@ -366,6 +373,22 @@ try {
   assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No dropdown should be visible on mobile while a non-Combo section is active');
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(horizontalOverflow <= 2, `Unexpected mobile horizontal overflow: ${horizontalOverflow}px`);
+
+  await mobileMenu.click();
+  await page.locator('#topNav .nav-toggle[data-view="battle"]').click();
+  await page.waitForTimeout(80);
+  assert.equal(await page.locator('#battleButtons .battle-btn').count(), 11, 'Mobile battle selector should still expose all 11 fights');
+  const mobileBattleOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(mobileBattleOverflow, false, 'Battle card must not overflow at 390px');
+  const mobileBattleColumns = await page.locator('#battleButtons').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
+  assert.equal(mobileBattleColumns, 2, '390px battle selector should use two readable columns');
+  const availableBattle = page.locator('#battleButtons .battle-btn:not(:disabled)').first();
+  assert.ok(await availableBattle.count(), 'At least one battle must be startable on mobile');
+  await availableBattle.click();
+  await page.waitForTimeout(120);
+  assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting a battle should reveal the battle simulation');
+  const arenaBox = await page.locator('#battleArena').boundingBox();
+  assert.ok(arenaBox && arenaBox.width <= 390, 'Active battle arena must fit inside the mobile viewport');
 
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);

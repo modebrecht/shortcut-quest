@@ -497,3 +497,75 @@
     width: 230px;
   }
 }
+
+
+/* BATTLE FINAL POLISH -------------------------------------------------- */
+/* Keep all 11 battles discoverable: no hidden horizontal scroller. */
+#battleView .battle-buttons {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: .36rem !important;
+  overflow: visible !important;
+  padding: .08rem 0 !important;
+  scroll-snap-type: none !important;
+}
+
+#battleView .battle-btn {
+  width: 100%;
+  min-width: 0 !important;
+  min-height: 40px !important;
+  padding: .46rem .48rem !important;
+  white-space: normal;
+  line-height: 1.15;
+  text-align: center;
+}
+
+#battleView .battle-btn:focus-visible,
+#battleView .skill-cast-btn:focus-visible,
+#battleView .battle-next:focus-visible {
+  outline: 2px solid rgba(251,191,36,.88);
+  outline-offset: 2px;
+}
+
+#battleView .battle-center-actions {
+  min-width: 0;
+}
+
+#battleView .battle-center {
+  overflow: hidden;
+}
+
+#battleView .battle-arena,
+#battleView .modal-battle-overview,
+#battleView .battle-foot {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  #battleView .battle-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: .3rem !important;
+    margin-inline: 0 !important;
+  }
+
+  #battleView .battle-btn {
+    min-height: 38px !important;
+    padding: .42rem .3rem !important;
+    font-size: .69rem !important;
+  }
+
+  #battleView .battle-sim {
+    padding: .55rem !important;
+  }
+
+  #battleView .battle-arena {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  #battleView .battle-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
