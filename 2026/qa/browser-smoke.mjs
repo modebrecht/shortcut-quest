@@ -196,6 +196,9 @@ try {
   assert.equal(battleButtonOverflow, false, 'Battle selector must not require horizontal scrolling');
   const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
   assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
+  assert.equal(await page.locator('#battleStagePreview').count(), 1, 'Arena preview stage should exist');
+  assert.equal(await page.locator('#battleStartBtn').count(), 1, 'Arena should expose a dedicated start CTA');
+  assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Arena should preselect exactly one available battle');
   assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');
   assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), true, 'Battle 2 should still be locked');
 
@@ -383,10 +386,15 @@ try {
   const mobileBattleColumns = await page.locator('#battleButtons').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
   assert.equal(mobileBattleColumns, 2, '390px battle selector should use two readable columns');
   const availableBattle = page.locator('#battleButtons .battle-btn:not(:disabled)').first();
-  assert.ok(await availableBattle.count(), 'At least one battle must be startable on mobile');
+  assert.ok(await availableBattle.count(), 'At least one battle must be selectable on mobile');
   await availableBattle.click();
+  assert.equal(await page.locator('#battleSimulation').isVisible(), false, 'Selecting a battle card should not start combat before the CTA');
+  assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Exactly one battle card should be selected');
+  assert.ok(await page.locator('#battleStartBtn').isVisible(), 'Arena start CTA should stay visible on mobile');
+  assert.equal(await page.locator('#battleStartBtn').isDisabled(), false, 'Arena start CTA should be enabled for the selected battle');
+  await page.locator('#battleStartBtn').click();
   await page.waitForTimeout(120);
-  assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting a battle should reveal the battle simulation');
+  assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting through the arena CTA should reveal the battle simulation');
   const arenaBox = await page.locator('#battleArena').boundingBox();
   assert.ok(arenaBox && arenaBox.width <= 390, 'Active battle arena must fit inside the mobile viewport');
 

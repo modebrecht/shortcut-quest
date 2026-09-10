@@ -4268,12 +4268,31 @@
               </div>
             </div>
             <div class="battle-center">
-              <div class="battle-crest">
+              <div class="battle-center-head">
+                <div class="battle-center-titleline">
+                  <span class="battle-title-rule" aria-hidden="true"></span>
+                  <svg class="battle-title-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l13 13-3 3L4 7V4h3Z"/><path d="M17 4L4 17l3 3L20 7V4h-3Z"/></svg>
+                  <h2>Arena</h2>
+                  <svg class="battle-title-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l13 13-3 3L4 7V4h3Z"/><path d="M17 4L4 17l3 3L20 7V4h-3Z"/></svg>
+                  <span class="battle-title-rule" aria-hidden="true"></span>
+                </div>
+                <p>Stelle dich immer stärkeren Gegnern und beweise deine Fähigkeiten.</p>
+              </div>
+              <div class="battle-stage-preview" id="battleStagePreview" data-battle-theme="forest" aria-hidden="true">
+                <span class="battle-stage-haze"></span>
                 <span class="battle-crest-label">VS</span>
-                <p>Wähle deinen Kampf und nutze Skills in der Schlacht.</p>
               </div>
               <div class="battle-center-actions">
                 <div class="battle-buttons" id="battleButtons"></div>
+                <div class="battle-meta-strip">
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19 19 5M8 5H5v3M16 19h3v-3"/><path d="m7 7 10 10"/></svg><strong id="battleMetaPower">ATK 1 · DEF 0</strong></span>
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/></svg>Steigender Schwierigkeitsgrad</span>
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 8 4 4 4-8 4 8 4-4-2 11H6L4 8Z"/></svg>Bessere Belohnungen</span>
+                </div>
+                <button type="button" class="battle-start-btn" id="battleStartBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l13 13-3 3L4 7V4h3Z"/><path d="M17 4L4 17l3 3L20 7V4h-3Z"/></svg>
+                  <span>Kampf starten</span>
+                </button>
                 <div class="battle-log" id="battleLog"></div>
               </div>
             </div>
@@ -6524,7 +6543,11 @@ let frenzyAuraEl = null;
     const battleNextBtn = document.getElementById("battleNextBtn");
     const testAnimationBtn = document.getElementById("testAnimationBtn");
     const battleButtonContainer = document.getElementById("battleButtons");
+    const battleStartBtn = document.getElementById("battleStartBtn");
+    const battleStagePreview = document.getElementById("battleStagePreview");
+    const battleMetaPower = document.getElementById("battleMetaPower");
     let battleButtons = [];
+    let selectedBattleLevel = 1;
     let currentBattleContext = null;
     let canRenderBattlePreview = false;
     function handleUpgradeClick(container, selector, upgradeFn, readyAttr = "itemUpgradeReady") {
@@ -8648,7 +8671,10 @@ let frenzyAuraEl = null;
           });
         }
       }
-      const previewLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      const maxUnlocked = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      const requestedLevel = Math.max(1, Math.floor(Number(selectedBattleLevel || maxUnlocked)));
+      const previewLevel = Math.min(requestedLevel, maxUnlocked, ENEMY_DATA.length);
+      selectedBattleLevel = previewLevel;
       const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
       if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
       if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
@@ -8656,6 +8682,8 @@ let frenzyAuraEl = null;
       if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
       if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      if (battleMetaPower) battleMetaPower.textContent = `ATK ${heroAtk} · DEF ${heroDef}`;
+      if (battleStagePreview) battleStagePreview.setAttribute("data-battle-theme", getBattleTheme(previewLevel));
       updateEnemyPreviewArt(enemy);
     }
     function pushBattleLog(message, variant = "system") {
@@ -9059,6 +9087,27 @@ let frenzyAuraEl = null;
     });
     let battleInProgress = false;
     let battleSimHideTimer = null;
+    function formatBattleReward(level) {
+      const reward = Math.max(0, Number(BATTLE_LEVEL_REWARDS[level] || 0));
+      return reward === 1 ? "1 Coin" : `${reward} Coins`;
+    }
+
+    function selectBattle(level) {
+      const safeLevel = Math.max(1, Math.min(ENEMY_DATA.length, Math.floor(Number(level || 1))));
+      if (!ENEMIES[safeLevel] || safeLevel > state.battleUnlocked || battleInProgress) return;
+      selectedBattleLevel = safeLevel;
+      updateBattleButtons();
+      updateBattlePreview();
+    }
+
+    function updateBattleStartButton() {
+      if (!battleStartBtn) return;
+      const enemy = ENEMIES[selectedBattleLevel];
+      const locked = !enemy || selectedBattleLevel > state.battleUnlocked;
+      battleStartBtn.disabled = locked || battleInProgress;
+      battleStartBtn.setAttribute("aria-label", enemy ? `Kampf gegen ${enemy.name}, Rang ${selectedBattleLevel}, starten` : "Kampf starten");
+    }
+
     function renderBattleButtons() {
       if (!battleButtonContainer) return;
       battleButtonContainer.innerHTML = "";
@@ -9066,17 +9115,50 @@ let frenzyAuraEl = null;
       ENEMY_DATA.forEach((enemy, index) => {
         const level = index + 1;
         const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = "battle-btn";
         btn.dataset.enemy = String(level);
-        const label = `Rang ${level} ${enemy.name}`;
-        btn.dataset.label = label;
-        btn.textContent = label;
-        btn.addEventListener("click", () => {
-          startBattle(level);
-        });
+        btn.dataset.label = `Rang ${level} ${enemy.name}`;
+
+        const top = document.createElement("span");
+        top.className = "battle-btn-top";
+        const art = document.createElement("span");
+        art.className = "battle-btn-art";
+        const image = document.createElement("img");
+        image.src = getEnemyIconPath({ ...enemy, level }).path;
+        image.alt = "";
+        image.setAttribute("aria-hidden", "true");
+        art.appendChild(image);
+
+        const copy = document.createElement("span");
+        copy.className = "battle-btn-copy";
+        const rank = document.createElement("span");
+        rank.className = "battle-btn-rank";
+        rank.textContent = `Rang ${level}`;
+        const name = document.createElement("strong");
+        name.className = "battle-btn-name";
+        name.textContent = enemy.name;
+        copy.append(rank, name);
+
+        const status = document.createElement("span");
+        status.className = "battle-btn-status";
+        status.setAttribute("aria-hidden", "true");
+        top.append(art, copy, status);
+
+        const reward = document.createElement("span");
+        reward.className = "battle-btn-reward";
+        reward.textContent = `Belohnung: ${formatBattleReward(level)}`;
+        const requirement = document.createElement("span");
+        requirement.className = "battle-btn-requirement";
+
+        btn.append(top, reward, requirement);
+        btn.addEventListener("click", () => selectBattle(level));
         battleButtonContainer.appendChild(btn);
         battleButtons.push(btn);
       });
+      if (!selectedBattleLevel || selectedBattleLevel > state.battleUnlocked) {
+        selectedBattleLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      }
       updateBattleButtons();
     }
 
@@ -10697,6 +10779,12 @@ let frenzyAuraEl = null;
         startBattle(targetLevel);
       });
     }
+    if (battleStartBtn) {
+      battleStartBtn.addEventListener("click", () => {
+        if (battleInProgress || battleStartBtn.disabled) return;
+        startBattle(selectedBattleLevel);
+      });
+    }
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && battleSimulation && !battleSimulation.classList.contains("hidden")) {
         hideBattleSimulation(true);
@@ -10707,6 +10795,9 @@ let frenzyAuraEl = null;
       if (level > state.battleUnlocked) return;
       const enemyBlueprint = ENEMIES[level];
       if (!enemyBlueprint) return;
+      selectedBattleLevel = level;
+      updateBattleButtons();
+      updateBattlePreview();
       if (typeof window !== "undefined" && window.scrollTo) {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -10955,6 +11046,7 @@ let frenzyAuraEl = null;
         const nextLevel = level + 1;
         let unlockText = "";
         if (ENEMIES[nextLevel]) {
+          selectedBattleLevel = nextLevel;
           if (state.battleUnlocked < nextLevel) {
             state.battleUnlocked = nextLevel;
             unlockText = " Nächstes Level freigeschaltet.";
@@ -11011,21 +11103,35 @@ let frenzyAuraEl = null;
 
     function updateBattleButtons() {
       if (!battleButtons || !battleButtons.length) return;
+      const maxUnlocked = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      if (!selectedBattleLevel || selectedBattleLevel > maxUnlocked) selectedBattleLevel = maxUnlocked;
       battleButtons.forEach(btn => {
-        const base = btn.dataset.label || btn.textContent;
         const level = Number(btn.dataset.enemy || "0");
         if (!level) return;
         const locked = level > state.battleUnlocked;
         const cleared = Boolean(state.battleClears && state.battleClears[level]);
-        let label = base;
-        if (locked) {
-          label += " (gesperrt)";
-        } else if (cleared) {
-          label += " (gewonnen)";
-        }
-        btn.textContent = label;
+        const selected = level === selectedBattleLevel && !locked;
         btn.disabled = locked;
+        btn.classList.toggle("locked", locked);
+        btn.classList.toggle("cleared", cleared);
+        btn.classList.toggle("selected", selected);
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+        const status = btn.querySelector(".battle-btn-status");
+        const requirement = btn.querySelector(".battle-btn-requirement");
+        if (status) {
+          if (locked) {
+            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
+          } else if (cleared) {
+            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>';
+          } else {
+            status.innerHTML = "";
+          }
+        }
+        if (requirement) {
+          requirement.textContent = locked ? `Benötigt Rang ${level - 1}` : (cleared ? "Gewonnen" : "Bereit");
+        }
       });
+      updateBattleStartButton();
     }
 
     function updateHpUi(hero, enemy) {
