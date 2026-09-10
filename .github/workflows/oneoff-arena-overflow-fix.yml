@@ -1,0 +1,29 @@
+name: One-off arena overflow fix
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-arena-overflow-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+      - name: Apply arena proportion overflow fix
+        run: python3 2026/qa/_oneoff_arena_overflow_fix.py
+      - name: Commit and cleanup helper
+        run: |
+          rm -f 2026/qa/_oneoff_arena_overflow_fix.py .github/workflows/oneoff-arena-overflow-fix.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 2026/modern-battle.css 2026/qa/_oneoff_arena_overflow_fix.py .github/workflows/oneoff-arena-overflow-fix.yml
+          git commit -m 'fix: keep screenshot arena proportions shrink-safe'
+          git push origin HEAD:tk2-2026
