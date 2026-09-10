@@ -1,0 +1,31 @@
+name: One-off one-arena experiment
+
+on:
+  push:
+    branches:
+      - tk2-2026
+    paths:
+      - .github/workflows/oneoff-one-arena.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 0
+      - name: Apply one-arena pass
+        run: python3 .github/scripts/oneoff-one-arena.py
+      - name: Remove temporary helper
+        run: rm -f .github/scripts/oneoff-one-arena.py .github/workflows/oneoff-one-arena.yml
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/modern-battle.css 2026/qa/browser-smoke.mjs .github/scripts/oneoff-one-arena.py .github/workflows/oneoff-one-arena.yml
+          git commit -m "feat: merge battle overview into one arena"
+          git push origin HEAD:tk2-2026
