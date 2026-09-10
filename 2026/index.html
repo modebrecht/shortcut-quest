@@ -11105,16 +11105,25 @@ let frenzyAuraEl = null;
       if (!battleButtons || !battleButtons.length) return;
       const maxUnlocked = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
       if (!selectedBattleLevel || selectedBattleLevel > maxUnlocked) selectedBattleLevel = maxUnlocked;
+      const featureStart = Math.min(
+        Math.max(1, selectedBattleLevel - 1),
+        Math.max(1, ENEMY_DATA.length - 2)
+      );
+      const featuredLevels = new Set([featureStart, featureStart + 1, featureStart + 2]);
       battleButtons.forEach(btn => {
         const level = Number(btn.dataset.enemy || "0");
         if (!level) return;
         const locked = level > state.battleUnlocked;
         const cleared = Boolean(state.battleClears && state.battleClears[level]);
         const selected = level === selectedBattleLevel && !locked;
+        const featured = featuredLevels.has(level);
         btn.disabled = locked;
         btn.classList.toggle("locked", locked);
         btn.classList.toggle("cleared", cleared);
         btn.classList.toggle("selected", selected);
+        btn.classList.toggle("battle-featured", featured);
+        btn.classList.toggle("battle-compact", !featured);
+        btn.style.order = featured ? String(level - featureStart) : String(10 + level);
         btn.setAttribute("aria-pressed", selected ? "true" : "false");
         const status = btn.querySelector(".battle-btn-status");
         const requirement = btn.querySelector(".battle-btn-requirement");

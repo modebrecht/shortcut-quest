@@ -199,6 +199,8 @@ try {
   assert.equal(await page.locator('#battleStagePreview').count(), 1, 'Arena preview stage should exist');
   assert.equal(await page.locator('#battleStartBtn').count(), 1, 'Arena should expose a dedicated start CTA');
   assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Arena should preselect exactly one available battle');
+  assert.equal(await page.locator('#battleButtons .battle-btn.battle-featured').count(), 3, 'Arena should visually feature exactly three battle cards');
+  assert.equal(await page.locator('#battleButtons .battle-btn.battle-compact').count(), 8, 'Remaining battles should stay reachable as subdued rank chips');
   assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');
   assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), true, 'Battle 2 should still be locked');
 
@@ -384,7 +386,8 @@ try {
   const mobileBattleOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
   assert.equal(mobileBattleOverflow, false, 'Battle card must not overflow at 390px');
   const mobileBattleColumns = await page.locator('#battleButtons').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
-  assert.equal(mobileBattleColumns, 2, '390px battle selector should use two readable columns');
+  assert.equal(mobileBattleColumns, 4, '390px arena should use a four-column track for featured cards plus compact rank chips');
+  assert.equal(await page.locator('#battleButtons .battle-btn.battle-featured').count(), 3, 'Mobile arena should keep exactly three featured battle cards');
   const availableBattle = page.locator('#battleButtons .battle-btn:not(:disabled)').first();
   assert.ok(await availableBattle.count(), 'At least one battle must be selectable on mobile');
   await availableBattle.click();
