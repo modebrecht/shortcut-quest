@@ -291,6 +291,27 @@ try {
     assert.ok(await section.evaluate(el => el.classList.contains('active')), `Section ${id} did not activate`);
   }
 
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.equal(await page.locator('#mobileNavToggle').isVisible(), false, 'Desktop should use inline navigation, not the menu button');
+  assert.ok(await page.locator('#topNav .nav-toggle').first().isVisible(), 'Desktop inline navigation should be visible');
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.reload({ waitUntil: 'networkidle' });
+  const tabletMenu = page.locator('#mobileNavToggle');
+  assert.ok(await tabletMenu.isVisible(), 'Tablet/compact desktop should use the menu button');
+  assert.equal(await page.locator('#topNav .nav-toggle').first().isVisible(), false, 'Compact header should keep inline navigation closed initially');
+  const tabletHeaderOverflow = await page.evaluate(() => {
+    const el = document.querySelector('header');
+    return el ? el.scrollWidth - el.clientWidth : 0;
+  });
+  assert.ok(tabletHeaderOverflow <= 2, `Unexpected tablet header overflow: ${tabletHeaderOverflow}px`);
+  await tabletMenu.click();
+  assert.equal(await tabletMenu.getAttribute('aria-expanded'), 'true', 'Tablet menu should open');
+  assert.ok(await page.locator('#topNav .nav-toggle').first().isVisible(), 'Tablet menu choices should be visible after opening');
+  await tabletMenu.click();
+  assert.equal(await tabletMenu.getAttribute('aria-expanded'), 'false', 'Tablet menu should close again');
+
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: 'networkidle' });
   const mobileMenu = page.locator('#mobileNavToggle');

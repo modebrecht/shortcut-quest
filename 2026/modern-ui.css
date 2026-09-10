@@ -776,3 +776,142 @@ header .mobile-nav-toggle::after {
     min-height: 38px;
   }
 }
+
+
+/* RESPONSIVE COMPACT HEADER ------------------------------------------ */
+/* Full inline navigation is only used when it has enough room. */
+@media (min-width: 1181px) {
+  header .mobile-nav-toggle {
+    display: none !important;
+  }
+
+  header .top-nav {
+    display: flex !important;
+    position: static;
+  }
+}
+
+@media (max-width: 1180px) {
+  header {
+    flex-wrap: nowrap;
+    min-height: 64px;
+    overflow: visible;
+  }
+
+  header .header-left {
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: .7rem;
+  }
+
+  header .title {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  header .mobile-nav-toggle {
+    display: inline-flex !important;
+    position: relative;
+    z-index: 32;
+    flex: 0 0 auto;
+    margin-left: auto;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  header .mobile-nav-toggle[aria-expanded="true"] {
+    color: #fff7db;
+    border-color: rgba(251, 191, 36, .32);
+    background: rgba(245, 158, 11, .14);
+  }
+
+  header .top-nav {
+    display: none !important;
+  }
+
+  header .top-nav.open {
+    display: grid !important;
+    position: absolute;
+    top: calc(100% + .45rem);
+    left: .8rem;
+    right: .8rem;
+    width: auto;
+    margin: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .35rem;
+    padding: .45rem;
+    border: 1px solid rgba(148, 163, 184, .18);
+    border-radius: 1rem;
+    background: rgba(7, 16, 31, .98);
+    box-shadow: 0 22px 54px rgba(2, 6, 23, .52);
+    backdrop-filter: blur(22px) saturate(145%);
+    -webkit-backdrop-filter: blur(22px) saturate(145%);
+    z-index: 31;
+  }
+
+  header .top-nav.open .nav-toggle {
+    width: 100%;
+    min-height: 44px;
+    justify-content: flex-start;
+    text-align: left;
+    padding-inline: .82rem;
+  }
+
+  header .header-right {
+    width: auto;
+    flex: 0 0 auto;
+    margin-left: auto;
+    justify-content: flex-end;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 700px) {
+  header {
+    gap: .42rem;
+    padding: .55rem .62rem;
+  }
+
+  header .header-left {
+    width: auto;
+    flex: 1 1 auto;
+    gap: .38rem;
+  }
+
+  header .title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: .94rem;
+  }
+
+  header .header-right {
+    width: auto;
+    flex: 0 0 auto;
+    margin-left: 0;
+    padding: 0;
+  }
+
+  header #a8XpTop,
+  header #coinTop {
+    display: none !important;
+  }
+
+  header #a8ProgressBadge {
+    min-height: 34px !important;
+  }
+
+  header .mobile-nav-toggle {
+    min-height: 36px;
+    padding-inline: .62rem;
+  }
+
+  header .top-nav.open {
+    left: .5rem;
+    right: .5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
