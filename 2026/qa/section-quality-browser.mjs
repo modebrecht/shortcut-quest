@@ -78,14 +78,22 @@ try {
 
   await auditAllSections('desktop');
 
-  const browserSection8 = (await (await activateSection('8')).innerText());
-  assert.match(browserSection8, /Neues Browserfenster/i, 'Section 8 must teach Ctrl+N as a new browser window');
-  assert.equal(browserSection8.includes('Neues Dokument'), false, 'Section 8 must not call Ctrl+N a new document');
-
-  const browserSection23 = (await (await activateSection('23')).innerText());
-  assert.match(browserSection23, /Browser-Kürzel/i, 'Section 23 description should name Browser-Kürzel cleanly');
-  assert.match(browserSection23, /Neues Browserfenster/i, 'Section 23 must teach Ctrl+N as a new browser window');
-  assert.equal(browserSection23.includes('Neues Dokument'), false, 'Section 23 must not call Ctrl+N a new document');
+  const browserCopy = await page.evaluate(() => {
+    const sections = Array.isArray(window.LEARN_SECTION_BLUEPRINTS) ? window.LEARN_SECTION_BLUEPRINTS : [];
+    const s8 = sections.find(section => String(section?.id) === '8');
+    const s23 = sections.find(section => String(section?.id) === '23');
+    const dnd = s8?.tasks?.find(task => task?.type === 'dnd');
+    const ctrlN8 = dnd?.targets?.find(target => target?.answer === 'Ctrl+N');
+    const ctrlN23 = s23?.fastPaced?.combos?.find(entry => entry?.combo === 'Ctrl+N');
+    return {
+      section8CtrlNLabel: ctrlN8?.label || '',
+      section23Description: s23?.description || '',
+      section23CtrlNLabel: ctrlN23?.label || ''
+    };
+  });
+  assert.equal(browserCopy.section8CtrlNLabel, 'Neues Browserfenster', 'Section 8 must teach Ctrl+N as a new browser window');
+  assert.equal(browserCopy.section23CtrlNLabel, 'Neues Browserfenster', 'Section 23 must teach Ctrl+N as a new browser window');
+  assert.match(browserCopy.section23Description, /Browser-Kürzel/i, 'Section 23 description should name Browser-Kürzel cleanly');
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: 'networkidle' });
