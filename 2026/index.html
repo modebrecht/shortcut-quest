@@ -4724,11 +4724,27 @@ let frenzyAuraEl = null;
       return getSectionSubmissionCount(sectionId) >= MAX_SECTION_SUBMISSIONS;
     }
 
+    function ensureAtLeastOnePlayableSection() {
+      if (!Array.isArray(SECTION_BLUEPRINTS) || !SECTION_BLUEPRINTS.length) return false;
+      const unlockedCount = getUnlockedSectionLimit();
+      const hasPlayable = SECTION_BLUEPRINTS.slice(0, unlockedCount).some((section, index) => {
+        const id = resolveSectionId(section, index);
+        return !sectionSubmissionExhausted(id);
+      });
+      if (hasPlayable || unlockedCount >= SECTION_BLUEPRINTS.length) return false;
+      state.sectionsUnlocked = Math.min(SECTION_BLUEPRINTS.length, unlockedCount + 1);
+      renderLearnSections();
+      setupLearnSectionInteractions();
+      refreshAllInputHints();
+      initFastPacedSections();
+      return true;
+    }
+
     function resetSubmissionCycleIfComplete() {
       if (!Array.isArray(SECTION_BLUEPRINTS) || !SECTION_BLUEPRINTS.length) return false;
       const complete = SECTION_BLUEPRINTS.every((section, index) => {
         const id = resolveSectionId(section, index);
-        return getSectionSubmissionCount(id) > 0;
+        return getSectionSubmissionCount(id) >= MAX_SECTION_SUBMISSIONS;
       });
       if (!complete) return false;
       state.sectionSubmissions = {};
@@ -4742,6 +4758,7 @@ let frenzyAuraEl = null;
       state.sectionSubmissions[id] = getSectionSubmissionCount(id) + 1;
       const count = getSectionSubmissionCount(id);
       const cycleReset = resetSubmissionCycleIfComplete();
+      if (!cycleReset) ensureAtLeastOnePlayableSection();
       updateSectionSubmissionUI();
       return { count, cycleReset };
     }
@@ -4802,7 +4819,7 @@ let frenzyAuraEl = null;
       maxSubmissionsPerSection: MAX_SECTION_SUBMISSIONS,
       firstRewardPercent: 100,
       repeatRewardPercent: 50,
-      resetCondition: "all-30-sections-played-once-in-cycle"
+      resetCondition: "all-30-sections-reach-3"
     });
 
     function exportGameState() {
@@ -5945,7 +5962,7 @@ let frenzyAuraEl = null;
           const submission = recordSectionSubmission(sectionId);
           const bonusText = bonusPercent ? ` (Runenbonus +${bonusPercent}%)` : "";
           if (submission && submission.cycleReset) {
-            showResult(`Belohnung: +${finalReward} Coins${bonusText} · Alle Abschnitte gespielt – neue Runde!`, true);
+            showResult(`Belohnung: +${finalReward} Coins${bonusText} · Alle Abschnitte 3× gespielt – neue Runde!`, true);
           } else {
             const count = submission ? submission.count : getSectionSubmissionCount(sectionId);
             showResult(`Belohnung: +${finalReward} Coins${bonusText} · Durchlauf ${count}/${MAX_SECTION_SUBMISSIONS}`, true);
