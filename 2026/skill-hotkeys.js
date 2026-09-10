@@ -1184,9 +1184,162 @@
     global.__shortcutQuestCompactHeaderStatsInstalled = true;
   }
 
+  function installTargetedHintCoverage() {
+    if (typeof document === "undefined") return;
+    const narrativeIds = new Set(["1", "15", "16", "28"]);
+    const recallIds = new Set(["20"]);
+    const enabledIds = Object.freeze(["1","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","25","26","27","28"]);
+    const excludedIds = Object.freeze(["2","21","22","23","24","29","30"]);
+
+    if (!document.getElementById("a8TargetedHintStyles")) {
+      const style = document.createElement("style");
+      style.id = "a8TargetedHintStyles";
+      style.textContent = `
+        .narrative-option.a8-targeted-hint-removed {
+          opacity: .22;
+          text-decoration: line-through;
+          pointer-events: none;
+        }
+        .a8-targeted-hint-row { margin-top: .7rem; }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const byId = id => Array.isArray(global.LEARN_SECTION_BLUEPRINTS)
+      ? global.LEARN_SECTION_BLUEPRINTS.find(section => String(section && section.id) === String(id))
+      : null;
+
+    function spendHintXP() {
+      if (getSharedXP() < HINT_COST_XP_2026) return false;
+      setSharedXP(getSharedXP() - HINT_COST_XP_2026);
+      return true;
+    }
+
+    function resetHintRow(row, section) {
+      if (!row) return;
+      const hint = row.querySelector(".a8-targeted-hint");
+      const note = row.querySelector(".a8-hint-note");
+      if (hint) {
+        hint.dataset.used = "false";
+        updateHintButton(hint, section);
+      }
+      if (note) note.textContent = "";
+    }
+
+    narrativeIds.forEach(sectionId => {
+      const section = document.querySelector(`.section[data-section="${sectionId}"]`);
+      const blueprint = byId(sectionId);
+      if (!section || !blueprint || !blueprint.narrative || !Array.isArray(blueprint.narrative.entries)) return;
+      const cards = Array.from(section.querySelectorAll(".narrative-card"));
+      cards.forEach((card, index) => {
+        if (card.querySelector(".a8-targeted-hint-row")) return;
+        const entry = blueprint.narrative.entries[index];
+        const optionsRow = card.querySelector(".narrative-options");
+        if (!entry || !optionsRow) return;
+
+        const hintRow = document.createElement("div");
+        hintRow.className = "a8-hint-row a8-targeted-hint-row";
+        const hint = document.createElement("button");
+        hint.type = "button";
+        hint.className = "a8-hint-button a8-targeted-hint";
+        hint.dataset.used = "false";
+        const note = document.createElement("span");
+        note.className = "a8-hint-note";
+        hintRow.appendChild(hint);
+        hintRow.appendChild(note);
+        card.appendChild(hintRow);
+        updateHintButton(hint, section);
+
+        hint.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (hint.dataset.used === "true") return;
+          const answers = new Set((entry.answers || []).map(String));
+          const wrong = Array.from(optionsRow.querySelectorAll(".narrative-option"))
+            .find(button => !button.disabled && !button.classList.contains("a8-targeted-hint-removed") && !answers.has(String(button.dataset.value || button.textContent || "")));
+          if (!wrong) {
+            note.textContent = "Keine falsche Möglichkeit mehr übrig.";
+            return;
+          }
+          if (!spendHintXP()) {
+            updateHintButton(hint, section);
+            return;
+          }
+          wrong.disabled = true;
+          wrong.classList.add("a8-targeted-hint-removed");
+          hint.dataset.used = "true";
+          note.textContent = "Eine falsche Möglichkeit wurde entfernt.";
+          updateHintButton(hint, section);
+        });
+      });
+    });
+
+    recallIds.forEach(sectionId => {
+      const section = document.querySelector(`.section[data-section="${sectionId}"]`);
+      if (!section) return;
+      section.querySelectorAll(".task-field input[data-answer]").forEach(input => {
+        const field = input.closest(".task-field");
+        if (!field || field.querySelector(".a8-targeted-hint-row")) return;
+        const hintRow = document.createElement("div");
+        hintRow.className = "a8-hint-row a8-targeted-hint-row";
+        const hint = document.createElement("button");
+        hint.type = "button";
+        hint.className = "a8-hint-button a8-targeted-hint";
+        hint.dataset.used = "false";
+        const note = document.createElement("span");
+        note.className = "a8-hint-note";
+        hintRow.appendChild(hint);
+        hintRow.appendChild(note);
+        field.appendChild(hintRow);
+        updateHintButton(hint, section);
+
+        hint.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (hint.dataset.used === "true") return;
+          const answer = String(input.dataset.answer || "").trim();
+          const firstKey = answer.split("+")[0].trim();
+          if (!firstKey) {
+            note.textContent = "Kein Tipp verfügbar.";
+            return;
+          }
+          if (!spendHintXP()) {
+            updateHintButton(hint, section);
+            return;
+          }
+          hint.dataset.used = "true";
+          note.textContent = `Start: ${firstKey} + …`;
+          updateHintButton(hint, section);
+        });
+      });
+    });
+
+    const host = document.getElementById("learnSections");
+    if (host && host.dataset.targetedHintResetBound !== "true") {
+      host.dataset.targetedHintResetBound = "true";
+      host.addEventListener("click", event => {
+        const reset = event.target.closest(".reset-section");
+        if (!reset) return;
+        const section = reset.closest(".section");
+        const sectionId = String(section && section.dataset.section || "");
+        if (!narrativeIds.has(sectionId) && !recallIds.has(sectionId)) return;
+        setTimeout(() => {
+          section.querySelectorAll(".narrative-option.a8-targeted-hint-removed").forEach(option => {
+            option.disabled = false;
+            option.classList.remove("a8-targeted-hint-removed");
+          });
+          section.querySelectorAll(".a8-targeted-hint-row").forEach(row => resetHintRow(row, section));
+        }, 0);
+      });
+    }
+
+    global.SHORTCUT_QUEST_2026_HINT_COVERAGE = Object.freeze({ enabledSectionIds: enabledIds, excludedSectionIds: excludedIds });
+  }
+
     const installAfterRuntime = () => queueMicrotask(() => {
       install2026EconomyOverrides();
       install2026Interactions();
+      installTargetedHintCoverage();
       install2026SectionStageNav();
       installCompactHeaderStats();
     });
