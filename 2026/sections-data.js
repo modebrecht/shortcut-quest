@@ -188,7 +188,7 @@
     ]),tasks:[],hideActions:true}),
 
     section(23,'Fast-Paced Browser','Alle acht Browser-Kürzel in einer schnellen Runde.',{fastPaced:fast(10,7,4,[
-      ['Neues Dokument','Ctrl+N'],['Neuer Tab','Ctrl+T'],['Tab schliessen','Ctrl+W'],['Tab zurückholen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Adressleiste','Ctrl+L'],['Nächster Tab','Ctrl+Tab'],['Vorheriger Tab','Ctrl+Shift+Tab']
+      ['Neues Browserfenster','Ctrl+N'],['Neuer Tab','Ctrl+T'],['Tab schliessen','Ctrl+W'],['Tab zurückholen','Ctrl+Shift+T'],['Aktualisieren','F5'],['Adressleiste','Ctrl+L'],['Nächster Tab','Ctrl+Tab'],['Vorheriger Tab','Ctrl+Shift+Tab']
     ]),tasks:[],hideActions:true}),
 
     section(24,'Fast-Paced Windows','Fenster und Werkzeuge unter Zeitdruck.',{fastPaced:fast(10,7,4,[
