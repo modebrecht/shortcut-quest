@@ -1,0 +1,49 @@
+name: One-off A8 replay cycle fix
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-replay-cycle-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+
+      - name: Align global replay reset with all 30 played once
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('2026/index.html')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+            'return getSectionSubmissionCount(id) >= MAX_SECTION_SUBMISSIONS;': 'return getSectionSubmissionCount(id) > 0;',
+            'resetCondition: "all-30-sections-reach-3"': 'resetCondition: "all-30-sections-played-once-in-cycle"',
+            'Alle Abschnitte 3× gespielt – neue Runde!': 'Alle Abschnitte gespielt – neue Runde!',
+            'Alle Abschnitte 3× gespielt – neue Runde freigeschaltet.': 'Alle Abschnitte gespielt – neue Runde freigeschaltet.'
+          }
+          for old, new in replacements.items():
+            count = s.count(old)
+            if count != 1:
+              raise SystemExit(f'Expected one match for {old!r}, got {count}')
+            s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit runtime and remove helper
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/oneoff-replay-cycle-fix.yml
+          git add 2026/index.html
+          git commit -m 'fix: reopen A8 after all sections are played'
+          git push origin HEAD:tk2-2026
