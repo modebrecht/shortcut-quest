@@ -178,6 +178,7 @@ try {
   assert.equal(Number(state.sectionsUnlocked), 12, 'Workflow clear should unlock the next section');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '2 / 30');
 
+  await page.locator('.section-stage-button[data-stage="0"]').click();
   await page.locator('.section-tab[data-goto="4"]').click();
   await solveSimpleSection('4');
   state = await readState();
@@ -200,6 +201,7 @@ try {
   assert.equal(await page.locator('.battle-btn[data-enemy="2"]').isDisabled(), false, 'Battle 2 button should unlock after reload');
 
   await page.locator('.nav-toggle[data-view="learn"]').click();
+  await page.locator('.section-stage-button[data-stage="0"]').click();
   await solveDndSection('6');
   state = await readState();
   assert.ok(Number(state.sectionClears?.['6']) > 0, 'Drag & Drop section did not score/persist');
@@ -210,6 +212,7 @@ try {
     localStorage.setItem('shortcutRitter_v1', JSON.stringify(state));
   });
   await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('.section-stage-button[data-stage="1"]').click();
   await page.locator('.section-tab[data-goto="20"]').click();
   await solveSimpleSection('20', { spacedPlus: true });
   state = await readState();
@@ -280,6 +283,9 @@ try {
 
   for (let i = 1; i <= 30; i += 1) {
     const id = String(i);
+    if (i === 1 || i === 11 || i === 21) {
+      await page.locator(`.section-stage-button[data-stage="${Math.floor((i - 1) / 10)}"]`).click();
+    }
     await page.locator(`.section-tab[data-goto="${id}"]`).click();
     const section = page.locator(`.section[data-section="${id}"]`);
     assert.ok(await section.evaluate(el => el.classList.contains('active')), `Section ${id} did not activate`);
