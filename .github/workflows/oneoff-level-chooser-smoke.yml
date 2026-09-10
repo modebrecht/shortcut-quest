@@ -1,0 +1,28 @@
+name: One-off Level Chooser Smoke Fix
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/oneoff-level-chooser-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+      - run: python3 2026/qa/patch_level_chooser_smoke.py
+      - run: node --check 2026/qa/browser-smoke.mjs
+      - name: Commit smoke correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/qa/browser-smoke.mjs
+          git commit -m "test: follow relocated level chooser reward hint"
+          git push origin HEAD:tk2-2026
