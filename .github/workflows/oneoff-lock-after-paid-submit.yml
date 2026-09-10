@@ -25,14 +25,14 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
 
-          index_path = Path('2026/index.html')
-          text = index_path.read_text(encoding='utf-8-sig')
-
           def replace_once(source, old, new, label):
               count = source.count(old)
               if count != 1:
                   raise SystemExit(f'{label}: expected exactly one match, got {count}')
               return source.replace(old, new, 1)
+
+          index_path = Path('2026/index.html')
+          text = index_path.read_text(encoding='utf-8-sig')
 
           css_anchor = '    .result-text { flex: 1 1 100%; margin: 0; }'
           css_insert = '''    .section.section-locked .card-body > *:not(.section-actions) {
@@ -105,28 +105,18 @@ jobs:
               const isFinalSubmission = sectionId === 30 && run === 3;'''
           test = replace_once(test, reward_anchor, reward_insert, 'replay post-reward anchor')
 
-          reset_anchor = '''      if (run < 3 && !meta.fast) {
-                const reset = page.locator(`.section[data-section="${sectionId}"] .reset-section`);
-                assert.equal(await reset.isDisabled(), false, `Section ${sectionId}: reset must stay available before 3/3`);
-                await reset.click();
-                await page.waitForTimeout(70);
-              }'''
-          reset_insert = '''      if (run < 3 && !meta.fast) {
-                const section = page.locator(`.section[data-section="${sectionId}"]`);
-                const reset = section.locator('.reset-section');
-                assert.equal(await reset.isDisabled(), false, `Section ${sectionId}: reset must stay available before 3/3`);
-                await reset.click();
-                await page.waitForTimeout(70);
-                assert.equal(await section.evaluate(el => el.classList.contains('section-locked')), false,
+          wait_anchor = '        await page.waitForTimeout(70);'
+          wait_insert = '''        await page.waitForTimeout(70);
+                const resetSectionRoot = page.locator(`.section[data-section="${sectionId}"]`);
+                assert.equal(await resetSectionRoot.evaluate(el => el.classList.contains('section-locked')), false,
                   `Section ${sectionId} run ${run}: reset must reopen the work area`);
-                assert.equal(await section.locator('.check-section').getAttribute('aria-disabled'), 'false',
+                assert.equal(await resetSectionRoot.locator('.check-section').getAttribute('aria-disabled'), 'false',
                   `Section ${sectionId} run ${run}: reset must release check lock`);
-                const inertAfterReset = await section.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
+                const inertAfterReset = await resetSectionRoot.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
                   nodes.filter(node => node.inert).length);
                 assert.equal(inertAfterReset, 0,
-                  `Section ${sectionId} run ${run}: reset must make answer workspace interactive again`);
-              }'''
-          test = replace_once(test, reset_anchor, reset_insert, 'replay reset anchor')
+                  `Section ${sectionId} run ${run}: reset must make answer workspace interactive again`);'''
+          test = replace_once(test, wait_anchor, wait_insert, 'replay reset assertion anchor')
           test_path.write_text(test, encoding='utf-8')
           PY
 
