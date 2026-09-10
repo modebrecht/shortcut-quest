@@ -400,6 +400,29 @@ try {
   assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting through the arena CTA should reveal the battle simulation');
   const arenaBox = await page.locator('#battleArena').boundingBox();
   assert.ok(arenaBox && arenaBox.width <= 390, 'Active battle arena must fit inside the mobile viewport');
+  const groundedFighters = await page.evaluate(() => {
+    const arena = document.querySelector('#battleArena')?.getBoundingClientRect();
+    if (!arena) throw new Error('Battle arena missing for grounding check');
+    return ['knight', 'enemy'].map(kind => {
+      const sprite = document.querySelector(`#battleArena .fighter.${kind} .fighter-sprite`);
+      if (!sprite) throw new Error(`${kind} fighter sprite missing`);
+      const rect = sprite.getBoundingClientRect();
+      return {
+        kind,
+        topGap: rect.top - arena.top,
+        bottomGap: arena.bottom - rect.bottom,
+        leftGap: rect.left - arena.left,
+        rightGap: arena.right - rect.right
+      };
+    });
+  });
+  for (const fighter of groundedFighters) {
+    assert.ok(fighter.topGap >= -1, `${fighter.kind} sprite must not be clipped above the arena`);
+    assert.ok(fighter.bottomGap >= 8, `${fighter.kind} sprite should sit above the arena floor instead of being bottom-cropped`);
+    assert.ok(fighter.bottomGap <= 42, `${fighter.kind} sprite should still read as grounded in the scene`);
+    assert.ok(fighter.leftGap >= -1 && fighter.rightGap >= -1, `${fighter.kind} sprite must stay horizontally inside the arena`);
+  }
+  assert.ok(Math.abs(groundedFighters[0].bottomGap - groundedFighters[1].bottomGap) <= 8, 'Hero and enemy should share one visual ground line');
 
   if (pageErrors.length) throw new Error(`Page errors:\n${pageErrors.join('\n')}`);
   if (consoleErrors.length) throw new Error(`Console errors:\n${consoleErrors.join('\n')}`);
