@@ -27,6 +27,7 @@ jobs:
           node --check 2026/qa/economy-browser.mjs
           node --check 2026/qa/replay-policy-browser.mjs
           node --check 2026/qa/hint-coverage-browser.mjs
+          node --check 2026/qa/section-quality-browser.mjs
 
       - name: Curated course invariants
         run: |
@@ -83,6 +84,7 @@ jobs:
           test -f 2026/qa/economy-browser.mjs
           test -f 2026/qa/replay-policy-browser.mjs
           test -f 2026/qa/hint-coverage-browser.mjs
+          test -f 2026/qa/section-quality-browser.mjs
           test -d 2026/assets
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
@@ -145,6 +147,9 @@ jobs:
 
       - name: Hint coverage browser gate
         run: node 2026/qa/hint-coverage-browser.mjs
+
+      - name: All-section quality browser gate
+        run: node 2026/qa/section-quality-browser.mjs
 
       - name: Show server log on failure
         if: failure()
