@@ -165,25 +165,26 @@ try {
       }
 
       if (!meta.fast) {
-      const section = page.locator(`.section[data-section="${sectionId}"]`);
-      const check = section.locator('.check-section');
-      assert.equal(await section.evaluate(el => el.classList.contains('section-locked')), true,
-        `Section ${sectionId} run ${run}: paid submission must lock the work area until reset`);
-      assert.equal(await check.getAttribute('aria-disabled'), 'true',
-        `Section ${sectionId} run ${run}: check action must advertise locked state`);
-      const inertWorkChildren = await section.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
-        nodes.filter(node => node.inert).length);
-      assert.ok(inertWorkChildren > 0,
-        `Section ${sectionId} run ${run}: answer workspace must be inert after paid submission`);
-      const blockedCoinsBefore = Number((await readState()).coins || 0);
-      await check.evaluate(button => button.click());
-      await page.waitForTimeout(40);
-      const blockedCoinsAfter = Number((await readState()).coins || 0);
-      assert.equal(blockedCoinsAfter, blockedCoinsBefore,
-        `Section ${sectionId} run ${run}: blocked duplicate submit must not change coins`);
-    }
+        const section = page.locator(`.section[data-section="${sectionId}"]`);
+        const check = section.locator('.check-section');
+        assert.equal(await section.evaluate(el => el.classList.contains('section-locked')), true,
+          `Section ${sectionId} run ${run}: paid submission must lock the work area until reset`);
+        assert.equal(await check.getAttribute('aria-disabled'), 'true',
+          `Section ${sectionId} run ${run}: check action must advertise locked state`);
+        const inertWorkChildren = await section.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
+          nodes.filter(node => node.inert).length);
+        assert.ok(inertWorkChildren > 0,
+          `Section ${sectionId} run ${run}: answer workspace must be inert after paid submission`);
 
-    const isFinalSubmission = sectionId === 30 && run === 3;
+        const blockedCoinsBefore = Number((await readState()).coins || 0);
+        await check.evaluate(button => button.click());
+        await page.waitForTimeout(40);
+        const blockedCoinsAfter = Number((await readState()).coins || 0);
+        assert.equal(blockedCoinsAfter, blockedCoinsBefore,
+          `Section ${sectionId} run ${run}: blocked duplicate submit must not change coins`);
+      }
+
+      const isFinalSubmission = sectionId === 30 && run === 3;
       if (!isFinalSubmission) {
         assert.equal(Number(after.sectionSubmissions?.[String(sectionId)] || 0), run,
           `Section ${sectionId} run ${run}: submission counter mismatch`);
@@ -210,19 +211,19 @@ try {
       }
 
       if (run < 3 && !meta.fast) {
-        const reset = page.locator(`.section[data-section="${sectionId}"] .reset-section`);
+        const section = page.locator(`.section[data-section="${sectionId}"]`);
+        const reset = section.locator('.reset-section');
         assert.equal(await reset.isDisabled(), false, `Section ${sectionId}: reset must stay available before 3/3`);
         await reset.click();
         await page.waitForTimeout(70);
-      const resetSectionRoot = page.locator(`.section[data-section="${sectionId}"]`);
-      assert.equal(await resetSectionRoot.evaluate(el => el.classList.contains('section-locked')), false,
-        `Section ${sectionId} run ${run}: reset must reopen the work area`);
-      assert.equal(await resetSectionRoot.locator('.check-section').getAttribute('aria-disabled'), 'false',
-        `Section ${sectionId} run ${run}: reset must release check lock`);
-      const inertAfterReset = await resetSectionRoot.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
-        nodes.filter(node => node.inert).length);
-      assert.equal(inertAfterReset, 0,
-        `Section ${sectionId} run ${run}: reset must make answer workspace interactive again`);
+        assert.equal(await section.evaluate(el => el.classList.contains('section-locked')), false,
+          `Section ${sectionId} run ${run}: reset must reopen the work area`);
+        assert.equal(await section.locator('.check-section').getAttribute('aria-disabled'), 'false',
+          `Section ${sectionId} run ${run}: reset must release check lock`);
+        const inertAfterReset = await section.locator('.card-body > :not(.section-actions)').evaluateAll(nodes =>
+          nodes.filter(node => node.inert).length);
+        assert.equal(inertAfterReset, 0,
+          `Section ${sectionId} run ${run}: reset must make answer workspace interactive again`);
       }
     }
   }
@@ -236,7 +237,7 @@ try {
   assert.deepEqual(reopened, Array.from({ length: 30 }, (_, index) => String(index + 1)),
     'Reopened section set should be exactly 1..30');
 
-  console.log('REPLAY POLICY FULL E2E OK: sections 1..30 completed 3x sequentially, rewards 100/50/50, never zero playable sections, then all 30 reopen.');
+  console.log('REPLAY POLICY FULL E2E OK: 90 paid submissions, hard lock until reset, rewards 100/50/50, never zero playable sections, then all 30 reopen.');
 } finally {
   await browser.close();
 }
