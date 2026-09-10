@@ -229,6 +229,12 @@ try {
   });
   await page.reload({ waitUntil: 'networkidle' });
   await page.locator('.nav-toggle[data-view="shop"]').click();
+  const shopColumns = await page.locator('#shopView .gacha-options').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
+  assert.equal(shopColumns, 4, 'Desktop shop should show four balanced category tiles');
+  assert.equal(await page.locator('#shopView .gacha-option').count(), 4, 'Shop should expose four purchase categories');
+  const shopOverflow = await page.locator('#shopView .game-grid > .card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(shopOverflow, false, 'Shop card must not overflow horizontally');
+  assert.ok((await page.locator('#gachaBtn').textContent()).includes('20 Coins'), 'Shop CTA should show its 20 coin price clearly');
   await page.locator('#gachaBtn').click();
   await page.waitForTimeout(250);
   state = await readState();
