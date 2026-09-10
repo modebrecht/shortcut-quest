@@ -95,3 +95,5 @@ if (!runtime.includes('runenAmuletEffect: "+1 DEF per tier"')) throw new Error('
 
 console.log(JSON.stringify({ legacy, source2026, current, parityMultiplier, rewardScale, adjusted2026Coins, parityDelta, sectionEconomy }, null, 2));
 console.log(`ECONOMY OK: runtime=${current.units} units, first-perfect=${adjusted2026Coins} coins, legacy=${legacy.firstClearCoinsAt10}, delta=${(parityDelta * 100).toFixed(2)}%, no equipment coin bonus.`);
+
+// QA trigger: arena selection redesign verified together with the full TK2 2026 suite.
