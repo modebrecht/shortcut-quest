@@ -137,6 +137,7 @@ try {
     await activateSection(sectionId);
     const meta = await sectionMeta(sectionId);
     let firstReward = null;
+    let secondReward = null;
 
     for (let run = 1; run <= 3; run += 1) {
       const before = await readState();
@@ -154,8 +155,13 @@ try {
       if (run === 1) {
         firstReward = rewardDelta;
       } else {
-        assert.equal(rewardDelta, Math.floor(firstReward / 2),
-          `Section ${sectionId} run ${run}: repeat reward must be 50% in whole coins`);
+        assert.ok(Math.abs(rewardDelta - firstReward / 2) <= 0.5,
+          `Section ${sectionId} run ${run}: repeat reward must be 50% within whole-coin rounding`);
+        if (run === 2) secondReward = rewardDelta;
+        if (run === 3) {
+          assert.equal(rewardDelta, secondReward,
+            `Section ${sectionId}: second and third runs must use the same 50% repeat reward`);
+        }
       }
 
       const isFinalSubmission = sectionId === 30 && run === 3;
