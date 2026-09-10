@@ -50,6 +50,8 @@ try {
     'Narrative hint must eliminate exactly one wrong option');
   assert.match((await narrativeCard.locator('.a8-hint-note').textContent()) || '', /falsche Möglichkeit wurde entfernt/i);
 
+  await page.locator('.section-stage-button[data-stage="1"]').click();
+  await page.locator('.section-tab[data-goto="20"]').click();
   const recallField = page.locator('.section[data-section="20"] .task-field').first();
   const recallInput = recallField.locator('input[data-answer]');
   assert.equal(await recallInput.inputValue(), '', 'Recall hint must not pre-fill the answer');
