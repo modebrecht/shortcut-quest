@@ -197,6 +197,8 @@ try {
   const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
   assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
   assert.equal(await page.locator('#battleStagePreview').count(), 1, 'Arena preview stage should exist');
+  const previewArenaBackground = await page.locator('#battleStagePreview').evaluate(el => getComputedStyle(el).backgroundImage);
+  assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must use the dark stone arena instead of the forest background');
   assert.equal(await page.locator('#battleStartBtn').count(), 1, 'Arena should expose a dedicated start CTA');
   assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Arena should preselect exactly one available battle');
   assert.equal(await page.locator('#battleButtons .battle-btn.battle-featured').count(), 3, 'Arena should visually feature exactly three battle cards');
@@ -400,6 +402,8 @@ try {
   assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting through the arena CTA should reveal the battle simulation');
   const arenaBox = await page.locator('#battleArena').boundingBox();
   assert.ok(arenaBox && arenaBox.width <= 390, 'Active battle arena must fit inside the mobile viewport');
+  const activeArenaBackground = await page.locator('#battleArena').evaluate(el => getComputedStyle(el).backgroundImage);
+  assert.equal(/battle-bg-forest/i.test(activeArenaBackground), false, 'Active combat must not switch back to the forest background');
   const groundedFighters = await page.evaluate(() => {
     const arena = document.querySelector('#battleArena')?.getBoundingClientRect();
     if (!arena) throw new Error('Battle arena missing for grounding check');
