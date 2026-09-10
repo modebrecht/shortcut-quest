@@ -25,6 +25,7 @@ jobs:
           node --check 2026/qa/browser-smoke.mjs
           node --check 2026/qa/economy-audit.mjs
           node --check 2026/qa/economy-browser.mjs
+          node --check 2026/qa/replay-policy-browser.mjs
 
       - name: Curated course invariants
         run: |
@@ -79,6 +80,7 @@ jobs:
           test -f 2026/qa/browser-smoke.mjs
           test -f 2026/qa/economy-audit.mjs
           test -f 2026/qa/economy-browser.mjs
+          test -f 2026/qa/replay-policy-browser.mjs
           test -d 2026/assets
           grep -q 'src="sections-data.js"' 2026/index.html
           grep -q 'src="skill-hotkeys.js"' 2026/index.html
@@ -91,6 +93,8 @@ jobs:
           grep -q 'tk_global_xp_v1' 2026/skill-hotkeys.js
           grep -q 'HINT_COST_XP_2026 = 30' 2026/skill-hotkeys.js
           grep -q 'nodeNeedsUpgrade' 2026/skill-hotkeys.js
+          grep -q 'MAX_SECTION_SUBMISSIONS = 3' 2026/index.html
+          grep -q 'SHORTCUT_QUEST_2026_REPLAY_POLICY' 2026/index.html
           ! grep -Fq 'new MutationObserver(() => queueMicrotask(() =>' 2026/skill-hotkeys.js
           ! grep -q 'memoryGame:' 2026/sections-data.js
 
@@ -132,6 +136,9 @@ jobs:
 
       - name: Economy browser gate
         run: node 2026/qa/economy-browser.mjs
+
+      - name: Replay policy browser gate
+        run: node 2026/qa/replay-policy-browser.mjs
 
       - name: Show server log on failure
         if: failure()
