@@ -94,7 +94,7 @@ try {
 
   const visibleLearningText = await page.locator('#learnView').innerText();
   assert.equal(/\bA[1-8]\b/.test(visibleLearningText), false, 'Student-facing learning UI must not mention old worksheet labels');
-  assert.match((await page.locator('#learnView .nav-card > .small').textContent()) || '', /Richtig = \+5 XP/);
+  assert.match((await page.locator('#learnView > .section-reward-hint').textContent()) || '', /\+5 XP pro richtige Antwort/);
 
   assert.equal(await page.locator('#learnSections select:visible').count(), 0, 'No dropdown should be visible before a Combo Builder is opened');
   assert.ok(await page.locator('.section[data-section="3"] .a8-choice-option').count() > 0, 'Recognition questions should render answer buttons');
