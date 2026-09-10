@@ -1082,8 +1082,6 @@
       const maxStage = Math.max(...tabs.map(sectionNumber).filter(Boolean).map(number => Math.floor((number - 1) / 10)));
       if (maxStage > previousMaxStage) {
         previousMaxStage = maxStage;
-        showStage(maxStage, true);
-        return;
       }
       showStage(activeStage, false);
     });

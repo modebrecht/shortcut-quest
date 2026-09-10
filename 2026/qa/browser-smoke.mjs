@@ -83,6 +83,10 @@ try {
   assert.equal((await page.locator('header .title').textContent())?.trim(), 'Shortcut Quest 2026');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '0 / 30');
   assert.equal(await page.locator('.section-tab').count(), 10, 'Expected 10 initially available sections');
+  assert.equal(await page.locator('.section-stage-button').count(), 3, '30 sections should be represented as three navigation stages');
+  assert.ok(await page.locator('.section-stage-button[data-stage="0"]').evaluate(el => el.classList.contains('active')), 'Stage 1-10 should be active initially');
+  assert.equal(await page.locator('.section-stage-button[data-stage="1"]').isDisabled(), true, 'Stage 11-20 should start locked');
+  assert.equal(await page.locator('.section-stage-button[data-stage="2"]').isDisabled(), true, 'Stage 21-30 should start locked');
   assert.equal(await page.locator('.memory-game').count(), 0, 'Memory UI must not be rendered');
 
   const visibleLearningText = await page.locator('#learnView').innerText();
@@ -137,6 +141,8 @@ try {
   assert.equal(Number(state.sectionsUnlocked), 11, 'First clear should unlock section 11');
   assert.equal((await page.locator('#a8ProgressBadge').textContent())?.trim(), '1 / 30');
   assert.equal(await page.locator('.section-tab').count(), 11, 'Section 11 tab should appear after first clear');
+  assert.equal(await page.locator('.section-stage-button[data-stage="1"]').isDisabled(), false, 'Stage 11-20 should unlock when section 11 becomes available');
+  assert.equal(await page.locator('.section-tab[data-goto="11"]').isVisible(), false, 'Section 11 stays hidden until its stage is opened');
 
   await page.locator('.section-tab[data-goto="10"]').click();
   const comboRow = page.locator('.section[data-section="10"] .combo-row').first();
@@ -163,6 +169,8 @@ try {
   await page.locator('.section-tab[data-goto="2"]').click();
   assert.ok(await reflexRound.locator('.fast-paced-start').isVisible(), 'Section 2 reflex start button should be visible when its tab is active');
 
+  await page.locator('.section-stage-button[data-stage="1"]').click();
+  assert.equal(await page.locator('.section-tab[data-goto="11"]').isVisible(), true, 'Opening stage 11-20 should reveal section 11');
   await page.locator('.section-tab[data-goto="11"]').click();
   await solveSimpleSection('11');
   state = await readState();
