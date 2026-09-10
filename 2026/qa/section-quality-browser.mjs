@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
+// Permanent A1–A30 copy/layout gate; keep runtime fixes covered on desktop and mobile.
 const baseUrl = process.env.TK2_BASE_URL || 'http://127.0.0.1:4173/2026/';
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
