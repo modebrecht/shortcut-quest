@@ -45,7 +45,7 @@ try {
   // Section 1 still has 6 first-clear actions: legacy base 60 -> scaled reward 70.
   const section = page.locator('.section[data-section="1"]');
   assert.equal(await section.locator('.narrative-card').count(), 6, 'Opening mission should contain six scenario cards');
-  assert.equal(await section.locator('input[data-answer]').count(), 0, 'Opening mission must not fall back to copy-the-shortcut inputs');
+  assert.equal(await section.locator('input[data-answer]').count(), 0, 'Section 1 must not fall back to copy-the-shortcut inputs');
   await page.evaluate(() => {
     const section = document.querySelector('.section[data-section="1"]');
     if (!section) throw new Error('Section 1 missing');
@@ -61,7 +61,7 @@ try {
   const state = await page.evaluate(() => JSON.parse(localStorage.getItem('shortcutRitter_v1')));
   assert.equal(Number(state.coins), 70, 'Perfect Section 1 mission should award 70 scaled coins in 2026');
 
-  // Arena layout, interaction, fighter grounding, dark-stone background, one-arena composition, and responsive geometry are covered by browser-smoke.mjs.
+  // Arena layout, interaction, fighter grounding, dark-stone background, and the three-round one-arena polish are covered by browser-smoke.mjs.
   console.log('ECONOMY BROWSER OK: opening mission reward=70, no gear coin bonus, Runen-Amulett = +1 DEF/tier.');
 } finally {
   await browser.close();
