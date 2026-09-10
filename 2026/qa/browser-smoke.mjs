@@ -237,6 +237,22 @@ try {
   assert.ok(Array.isArray(state.items) && state.items.length > 0, 'Purchased item missing from inventory state');
 
   await page.locator('.nav-toggle[data-view="inventory"]').click();
+  assert.equal(await page.locator('.equipment-layout > .slot-row').count(), 3, 'Inventory should keep three semantic equipment rows');
+  assert.equal(await page.locator('.equipment-slot').count(), 8, 'Inventory should render eight equipment slots around the hero');
+  const inventoryGridStyle = await page.locator('.equipment-layout').evaluate(el => getComputedStyle(el).display);
+  assert.equal(inventoryGridStyle, 'grid', 'Inventory equipment layout must be a real CSS grid');
+  const heroBox = await page.locator('.equipment-layout .hero-center').boundingBox();
+  assert.ok(heroBox && heroBox.width > 0 && heroBox.height > 0, 'Inventory hero cell must have a stable box');
+  const overlapCount = await page.locator('.equipment-slot').evaluateAll((slots, hero) => {
+    const h = hero.getBoundingClientRect();
+    return slots.filter(slot => {
+      const r = slot.getBoundingClientRect();
+      const x = Math.max(0, Math.min(r.right, h.right) - Math.max(r.left, h.left));
+      const y = Math.max(0, Math.min(r.bottom, h.bottom) - Math.max(r.top, h.top));
+      return x * y > 2;
+    }).length;
+  }, await page.locator('.equipment-layout .hero-center').elementHandle());
+  assert.equal(overlapCount, 0, 'Inventory hero must not overlap equipment slots');
   await page.locator('#autoEquipBtn').click();
   await page.waitForTimeout(150);
   state = await readState();
