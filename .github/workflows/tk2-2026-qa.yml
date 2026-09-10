@@ -90,6 +90,8 @@ jobs:
           grep -q 'shortcutRitter_2026_v1' 2026/skill-hotkeys.js
           grep -q 'tk_global_xp_v1' 2026/skill-hotkeys.js
           grep -q 'HINT_COST_XP_2026 = 30' 2026/skill-hotkeys.js
+          grep -q 'nodeNeedsUpgrade' 2026/skill-hotkeys.js
+          ! grep -Fq 'new MutationObserver(() => queueMicrotask(() =>' 2026/skill-hotkeys.js
           ! grep -q 'memoryGame:' 2026/sections-data.js
 
       - name: Vercel autodeploy stays disabled
