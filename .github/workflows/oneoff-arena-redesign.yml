@@ -1,0 +1,797 @@
+name: One-off Arena redesign
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - .github/workflows/oneoff-arena-redesign.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+      - name: Apply arena redesign
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('2026/index.html')
+          css_path = Path('2026/modern-battle.css')
+          smoke_path = Path('2026/qa/browser-smoke.mjs')
+          index = index_path.read_text()
+          css = css_path.read_text()
+          smoke = smoke_path.read_text()
+
+          marker = '/* ARENA MOCKUP REDESIGN 2026 */'
+          if marker in css:
+              raise SystemExit('Arena redesign already present')
+
+          old_center = '''            <div class="battle-center">
+              <div class="battle-crest">
+                <span class="battle-crest-label">VS</span>
+                <p>Wähle deinen Kampf und nutze Skills in der Schlacht.</p>
+              </div>
+              <div class="battle-center-actions">
+                <div class="battle-buttons" id="battleButtons"></div>
+                <div class="battle-log" id="battleLog"></div>
+              </div>
+            </div>'''
+          new_center = '''            <div class="battle-center">
+              <div class="battle-center-head">
+                <div class="battle-center-titleline">
+                  <span class="battle-title-rule" aria-hidden="true"></span>
+                  <svg class="battle-title-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l13 13-3 3L4 7V4h3Z"/><path d="M17 4L4 17l3 3L20 7V4h-3Z"/></svg>
+                  <h2>Arena</h2>
+                  <svg class="battle-title-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l13 13-3 3L4 7V4h3Z"/><path d="M17 4L4 17l3 3L20 7V4h-3Z"/></svg>
+                  <span class="battle-title-rule" aria-hidden="true"></span>
+                </div>
+                <p>Stelle dich immer stärkeren Gegnern und beweise deine Fähigkeiten.</p>
+              </div>
+              <div class="battle-stage-preview" id="battleStagePreview" data-battle-theme="forest" aria-hidden="true">
+                <span class="battle-stage-haze"></span>
+                <span class="battle-crest-label">VS</span>
+              </div>
+              <div class="battle-center-actions">
+                <div class="battle-buttons" id="battleButtons"></div>
+                <div class="battle-meta-strip">
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19 19 5M8 5H5v3M16 19h3v-3"/><path d="m7 7 10 10"/></svg><strong id="battleMetaPower">ATK 1 · DEF 0</strong></span>
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/></svg>Steigender Schwierigkeitsgrad</span>
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 8 4 4 4-8 4 8 4-4-2 11H6L4 8Z"/></svg>Bessere Belohnungen</span>
+                </div>
+                <button type="button" class="battle-start-btn" id="battleStartBtn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l13 13-3 3L4 7V4h3Z"/><path d="M17 4L4 17l3 3L20 7V4h-3Z"/></svg>
+                  <span>Kampf starten</span>
+                </button>
+                <div class="battle-log" id="battleLog"></div>
+              </div>
+            </div>'''
+          if old_center not in index:
+              raise SystemExit('battle center HTML anchor not found')
+          index = index.replace(old_center, new_center, 1)
+
+          old_refs = '''    const battleButtonContainer = document.getElementById("battleButtons");
+    let battleButtons = [];
+    let currentBattleContext = null;
+    let canRenderBattlePreview = false;'''
+          new_refs = '''    const battleButtonContainer = document.getElementById("battleButtons");
+    const battleStartBtn = document.getElementById("battleStartBtn");
+    const battleStagePreview = document.getElementById("battleStagePreview");
+    const battleMetaPower = document.getElementById("battleMetaPower");
+    let battleButtons = [];
+    let selectedBattleLevel = 1;
+    let currentBattleContext = null;
+    let canRenderBattlePreview = false;'''
+          if old_refs not in index:
+              raise SystemExit('battle refs anchor not found')
+          index = index.replace(old_refs, new_refs, 1)
+
+          old_preview = '''      const previewLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
+      if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
+      if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
+      if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
+      if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
+      if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
+      if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      updateEnemyPreviewArt(enemy);'''
+          new_preview = '''      const maxUnlocked = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      const requestedLevel = Math.max(1, Math.floor(Number(selectedBattleLevel || maxUnlocked)));
+      const previewLevel = Math.min(requestedLevel, maxUnlocked, ENEMY_DATA.length);
+      selectedBattleLevel = previewLevel;
+      const enemy = ENEMIES[previewLevel] || ENEMY_DATA[0];
+      if (battleEnemyPreviewName) battleEnemyPreviewName.textContent = enemy ? enemy.name : "Unbekannt";
+      if (battleEnemyPreviewLevel) battleEnemyPreviewLevel.textContent = enemy ? `Rang ${enemy.level || previewLevel}` : "Rang ?";
+      if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
+      if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
+      if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
+      if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      if (battleMetaPower) battleMetaPower.textContent = `ATK ${heroAtk} · DEF ${heroDef}`;
+      if (battleStagePreview) battleStagePreview.setAttribute("data-battle-theme", getBattleTheme(previewLevel));
+      updateEnemyPreviewArt(enemy);'''
+          if old_preview not in index:
+              raise SystemExit('battle preview anchor not found')
+          index = index.replace(old_preview, new_preview, 1)
+
+          render_pattern = re.compile(r'''    function renderBattleButtons\(\) \{.*?\n    \}\n\n    function renderReport\(\)''', re.S)
+          render_replacement = '''    function formatBattleReward(level) {
+      const reward = Math.max(0, Number(BATTLE_LEVEL_REWARDS[level] || 0));
+      return reward === 1 ? "1 Coin" : `${reward} Coins`;
+    }
+
+    function selectBattle(level) {
+      const safeLevel = Math.max(1, Math.min(ENEMY_DATA.length, Math.floor(Number(level || 1))));
+      if (!ENEMIES[safeLevel] || safeLevel > state.battleUnlocked || battleInProgress) return;
+      selectedBattleLevel = safeLevel;
+      updateBattleButtons();
+      updateBattlePreview();
+    }
+
+    function updateBattleStartButton() {
+      if (!battleStartBtn) return;
+      const enemy = ENEMIES[selectedBattleLevel];
+      const locked = !enemy || selectedBattleLevel > state.battleUnlocked;
+      battleStartBtn.disabled = locked || battleInProgress;
+      battleStartBtn.setAttribute("aria-label", enemy ? `Kampf gegen ${enemy.name}, Rang ${selectedBattleLevel}, starten` : "Kampf starten");
+    }
+
+    function renderBattleButtons() {
+      if (!battleButtonContainer) return;
+      battleButtonContainer.innerHTML = "";
+      battleButtons = [];
+      ENEMY_DATA.forEach((enemy, index) => {
+        const level = index + 1;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "battle-btn";
+        btn.dataset.enemy = String(level);
+        btn.dataset.label = `Rang ${level} ${enemy.name}`;
+
+        const top = document.createElement("span");
+        top.className = "battle-btn-top";
+        const art = document.createElement("span");
+        art.className = "battle-btn-art";
+        const image = document.createElement("img");
+        image.src = getEnemyIconPath({ ...enemy, level }).path;
+        image.alt = "";
+        image.setAttribute("aria-hidden", "true");
+        art.appendChild(image);
+
+        const copy = document.createElement("span");
+        copy.className = "battle-btn-copy";
+        const rank = document.createElement("span");
+        rank.className = "battle-btn-rank";
+        rank.textContent = `Rang ${level}`;
+        const name = document.createElement("strong");
+        name.className = "battle-btn-name";
+        name.textContent = enemy.name;
+        copy.append(rank, name);
+
+        const status = document.createElement("span");
+        status.className = "battle-btn-status";
+        status.setAttribute("aria-hidden", "true");
+        top.append(art, copy, status);
+
+        const reward = document.createElement("span");
+        reward.className = "battle-btn-reward";
+        reward.textContent = `Belohnung: ${formatBattleReward(level)}`;
+        const requirement = document.createElement("span");
+        requirement.className = "battle-btn-requirement";
+
+        btn.append(top, reward, requirement);
+        btn.addEventListener("click", () => selectBattle(level));
+        battleButtonContainer.appendChild(btn);
+        battleButtons.push(btn);
+      });
+      if (!selectedBattleLevel || selectedBattleLevel > state.battleUnlocked) {
+        selectedBattleLevel = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      }
+      updateBattleButtons();
+    }
+
+    function renderReport()'''
+          index, count = render_pattern.subn(render_replacement, index, count=1)
+          if count != 1:
+              raise SystemExit(f'renderBattleButtons patch count={count}')
+
+          update_pattern = re.compile(r'''    function updateBattleButtons\(\) \{.*?\n    \}\n\n    function updateHpUi''', re.S)
+          update_replacement = '''    function updateBattleButtons() {
+      if (!battleButtons || !battleButtons.length) return;
+      const maxUnlocked = Math.min(Math.max(1, state.battleUnlocked || 1), ENEMY_DATA.length);
+      if (!selectedBattleLevel || selectedBattleLevel > maxUnlocked) selectedBattleLevel = maxUnlocked;
+      battleButtons.forEach(btn => {
+        const level = Number(btn.dataset.enemy || "0");
+        if (!level) return;
+        const locked = level > state.battleUnlocked;
+        const cleared = Boolean(state.battleClears && state.battleClears[level]);
+        const selected = level === selectedBattleLevel && !locked;
+        btn.disabled = locked;
+        btn.classList.toggle("locked", locked);
+        btn.classList.toggle("cleared", cleared);
+        btn.classList.toggle("selected", selected);
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+        const status = btn.querySelector(".battle-btn-status");
+        const requirement = btn.querySelector(".battle-btn-requirement");
+        if (status) {
+          if (locked) {
+            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
+          } else if (cleared) {
+            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>';
+          } else {
+            status.innerHTML = "";
+          }
+        }
+        if (requirement) {
+          requirement.textContent = locked ? `Benötigt Rang ${level - 1}` : (cleared ? "Gewonnen" : "Bereit");
+        }
+      });
+      updateBattleStartButton();
+    }
+
+    function updateHpUi'''
+          index, count = update_pattern.subn(update_replacement, index, count=1)
+          if count != 1:
+              raise SystemExit(f'updateBattleButtons patch count={count}')
+
+          old_start = '''      const enemyBlueprint = ENEMIES[level];
+      if (!enemyBlueprint) return;
+      if (typeof window !== "undefined" && window.scrollTo) {'''
+          new_start = '''      const enemyBlueprint = ENEMIES[level];
+      if (!enemyBlueprint) return;
+      selectedBattleLevel = level;
+      updateBattleButtons();
+      updateBattlePreview();
+      if (typeof window !== "undefined" && window.scrollTo) {'''
+          if old_start not in index:
+              raise SystemExit('startBattle anchor not found')
+          index = index.replace(old_start, new_start, 1)
+
+          old_next = '''        const nextLevel = level + 1;
+        let unlockText = "";
+        if (ENEMIES[nextLevel]) {'''
+          new_next = '''        const nextLevel = level + 1;
+        let unlockText = "";
+        if (ENEMIES[nextLevel]) {
+          selectedBattleLevel = nextLevel;'''
+          if old_next not in index:
+              raise SystemExit('finishBattle next-level anchor not found')
+          index = index.replace(old_next, new_next, 1)
+
+          listener_anchor = '''    if (battleNextBtn) {
+      battleNextBtn.addEventListener("click", () => {
+        if (battleInProgress) return;
+        const targetLevel = Number(battleNextBtn.dataset.targetLevel || "0");
+        if (!targetLevel) return;
+        startBattle(targetLevel);
+      });
+    }
+    document.addEventListener("keydown", event => {'''
+          listener_replacement = '''    if (battleNextBtn) {
+      battleNextBtn.addEventListener("click", () => {
+        if (battleInProgress) return;
+        const targetLevel = Number(battleNextBtn.dataset.targetLevel || "0");
+        if (!targetLevel) return;
+        startBattle(targetLevel);
+      });
+    }
+    if (battleStartBtn) {
+      battleStartBtn.addEventListener("click", () => {
+        if (battleInProgress || battleStartBtn.disabled) return;
+        startBattle(selectedBattleLevel);
+      });
+    }
+    document.addEventListener("keydown", event => {'''
+          if listener_anchor not in index:
+              raise SystemExit('battle start listener anchor not found')
+          index = index.replace(listener_anchor, listener_replacement, 1)
+
+          css += r'''
+
+/* ARENA MOCKUP REDESIGN 2026 */
+#battleView .battle-overview {
+  grid-template-columns: minmax(230px,.76fr) minmax(430px,1.42fr) minmax(230px,.76fr);
+  gap: .78rem;
+}
+
+#battleView .battle-center {
+  justify-content: flex-start;
+  gap: .62rem;
+  padding: .78rem;
+  overflow: visible;
+  background:
+    radial-gradient(520px 220px at 50% 10%, rgba(37,99,235,.11), transparent 72%),
+    linear-gradient(160deg, rgba(8,19,36,.78), rgba(5,14,28,.94));
+}
+
+#battleView .battle-center-head {
+  text-align: center;
+  padding: .05rem .2rem 0;
+}
+
+#battleView .battle-center-titleline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .52rem;
+  color: #f6c54f;
+}
+
+#battleView .battle-center-titleline h2 {
+  margin: 0;
+  color: #f8cd63;
+  font-size: 1.28rem;
+  font-weight: 920;
+  letter-spacing: -.025em;
+  text-shadow: 0 3px 18px rgba(245,158,11,.18);
+}
+
+#battleView .battle-title-rule {
+  width: clamp(28px,8vw,86px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(251,191,36,.62));
+}
+
+#battleView .battle-title-rule:last-child {
+  transform: scaleX(-1);
+}
+
+#battleView .battle-title-icon {
+  width: 20px;
+  height: 20px;
+  color: #eabf54;
+  filter: drop-shadow(0 3px 7px rgba(245,158,11,.18));
+}
+
+#battleView .battle-center-head p {
+  margin: .22rem 0 0;
+  color: #879ab2;
+  font-size: .72rem;
+  line-height: 1.4;
+}
+
+#battleView .battle-stage-preview {
+  position: relative;
+  min-height: 185px;
+  overflow: hidden;
+  border: 1px solid rgba(96,165,250,.12);
+  border-radius: .92rem;
+  background-color: #061121;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 58%;
+  box-shadow:
+    inset 0 -55px 72px rgba(2,6,23,.52),
+    inset 0 1px 0 rgba(255,255,255,.03),
+    0 14px 30px rgba(2,6,23,.18);
+  isolation: isolate;
+}
+
+#battleView .battle-stage-preview[data-battle-theme="forest"] {
+  background-image:
+    radial-gradient(circle at 16% 66%, rgba(245,158,11,.20), transparent 15%),
+    radial-gradient(circle at 84% 66%, rgba(245,158,11,.20), transparent 15%),
+    linear-gradient(180deg, rgba(3,12,24,.06), rgba(2,6,23,.32)),
+    url("assets/battle-bg-forest.svg");
+}
+
+#battleView .battle-stage-preview[data-battle-theme="mountain"] {
+  background-image:
+    radial-gradient(circle at 16% 66%, rgba(245,158,11,.18), transparent 15%),
+    radial-gradient(circle at 84% 66%, rgba(245,158,11,.18), transparent 15%),
+    linear-gradient(180deg, rgba(3,12,24,.06), rgba(2,6,23,.36)),
+    url("assets/battle-bg-mountain.svg");
+}
+
+#battleView .battle-stage-preview[data-battle-theme="celestial"] {
+  background-image:
+    radial-gradient(circle at 16% 66%, rgba(245,158,11,.17), transparent 15%),
+    radial-gradient(circle at 84% 66%, rgba(245,158,11,.17), transparent 15%),
+    linear-gradient(180deg, rgba(3,12,24,.02), rgba(2,6,23,.32)),
+    url("assets/battle-bg-celestial.svg");
+}
+
+#battleView .battle-stage-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 50% 88%, rgba(251,191,36,.22) 0 3%, rgba(251,191,36,.06) 22%, transparent 43%),
+    linear-gradient(90deg, rgba(2,6,23,.34), transparent 25% 75%, rgba(2,6,23,.34));
+}
+
+#battleView .battle-stage-preview::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 8%;
+  height: 31%;
+  border: 1px solid rgba(251,191,36,.26);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 11px rgba(251,191,36,.025),
+    inset 0 0 32px rgba(245,158,11,.07);
+  transform: scaleY(.46);
+  opacity: .84;
+}
+
+#battleView .battle-stage-haze {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, rgba(96,165,250,.09), transparent 42%);
+  pointer-events: none;
+}
+
+#battleView .battle-stage-preview .battle-crest-label {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 52%;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%,-50%);
+  border: 1px solid rgba(251,191,36,.52);
+  border-radius: 50%;
+  background: rgba(17,24,39,.86);
+  color: #fde68a;
+  font-size: 1.05rem;
+  font-weight: 950;
+  box-shadow: 0 0 30px rgba(245,158,11,.12), inset 0 0 22px rgba(245,158,11,.05);
+}
+
+#battleView .battle-center-actions {
+  display: flex;
+  flex-direction: column;
+  gap: .48rem;
+  min-width: 0;
+}
+
+#battleView .battle-buttons {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: .42rem !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+#battleView .battle-btn {
+  width: 100%;
+  min-width: 0 !important;
+  min-height: 88px !important;
+  padding: .48rem .5rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: .28rem;
+  border: 1px solid rgba(148,163,184,.13) !important;
+  border-radius: .78rem !important;
+  background: linear-gradient(155deg, rgba(15,28,49,.78), rgba(7,17,32,.88)) !important;
+  color: #d9e5f4 !important;
+  text-align: left !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, opacity .18s ease;
+}
+
+#battleView .battle-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(251,191,36,.30) !important;
+  background: linear-gradient(155deg, rgba(23,37,59,.88), rgba(9,20,36,.94)) !important;
+}
+
+#battleView .battle-btn.selected {
+  border-color: rgba(251,191,36,.92) !important;
+  background:
+    radial-gradient(180px 80px at 25% 0%, rgba(245,158,11,.12), transparent 70%),
+    linear-gradient(155deg, rgba(17,35,58,.96), rgba(7,19,35,.98)) !important;
+  box-shadow:
+    0 0 0 1px rgba(251,191,36,.18),
+    0 8px 22px rgba(245,158,11,.10),
+    inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+#battleView .battle-btn:disabled,
+#battleView .battle-btn.locked {
+  opacity: .55 !important;
+  cursor: not-allowed;
+}
+
+#battleView .battle-btn.cleared:not(.selected) {
+  border-color: rgba(74,222,128,.16) !important;
+}
+
+#battleView .battle-btn-top {
+  display: grid;
+  grid-template-columns: 42px minmax(0,1fr) 18px;
+  align-items: center;
+  gap: .42rem;
+  width: 100%;
+}
+
+#battleView .battle-btn-art {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,.13);
+  border-radius: .6rem;
+  background: rgba(2,6,23,.45);
+}
+
+#battleView .battle-btn.selected .battle-btn-art {
+  border-color: rgba(251,191,36,.28);
+  background: rgba(38,27,8,.26);
+}
+
+#battleView .battle-btn-art img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 8px rgba(2,6,23,.55));
+}
+
+#battleView .battle-btn-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .06rem;
+}
+
+#battleView .battle-btn-rank {
+  color: #91a6c0;
+  font-size: .62rem;
+  font-weight: 760;
+}
+
+#battleView .battle-btn-name {
+  min-width: 0;
+  overflow: hidden;
+  color: #eef5fc;
+  font-size: .74rem;
+  font-weight: 880;
+  line-height: 1.14;
+  text-overflow: ellipsis;
+}
+
+#battleView .battle-btn-status {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: #70859f;
+}
+
+#battleView .battle-btn.cleared .battle-btn-status {
+  color: #86efac;
+}
+
+#battleView .battle-btn-status svg {
+  width: 16px;
+  height: 16px;
+}
+
+#battleView .battle-btn-reward,
+#battleView .battle-btn-requirement {
+  padding-left: 2px;
+  font-size: .61rem;
+  line-height: 1.16;
+}
+
+#battleView .battle-btn-reward {
+  color: #9aabc0;
+}
+
+#battleView .battle-btn.selected .battle-btn-reward {
+  color: #d7b85d;
+}
+
+#battleView .battle-btn-requirement {
+  color: #6e839c;
+}
+
+#battleView .battle-btn:not(.locked):not(.cleared) .battle-btn-requirement {
+  color: #7fa5cf;
+}
+
+#battleView .battle-btn.cleared .battle-btn-requirement {
+  color: #78b98e;
+}
+
+#battleView .battle-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,.10);
+  border-radius: .72rem;
+  background: rgba(9,20,37,.62);
+}
+
+#battleView .battle-meta-strip > span {
+  min-width: 0;
+  padding: .42rem .35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .28rem;
+  color: #8195ad;
+  font-size: .58rem;
+  text-align: center;
+}
+
+#battleView .battle-meta-strip > span + span {
+  border-left: 1px solid rgba(148,163,184,.09);
+}
+
+#battleView .battle-meta-strip svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  color: #8fa6c1;
+}
+
+#battleView .battle-meta-strip strong {
+  color: #9fb7d1;
+  font-weight: 800;
+}
+
+#battleView .battle-start-btn {
+  width: min(390px,100%);
+  min-height: 52px;
+  margin: .08rem auto 0;
+  padding: .68rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border: 1px solid rgba(251,191,36,.86);
+  border-radius: 999px;
+  background:
+    radial-gradient(170px 60px at 50% 0%, rgba(251,191,36,.12), transparent 72%),
+    linear-gradient(180deg, rgba(36,38,37,.92), rgba(18,26,36,.96));
+  color: #f8ce63;
+  font-size: .82rem;
+  font-weight: 920;
+  box-shadow: 0 0 24px rgba(245,158,11,.11), inset 0 1px 0 rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+
+#battleView .battle-start-btn svg {
+  width: 21px;
+  height: 21px;
+}
+
+#battleView .battle-start-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 0 30px rgba(245,158,11,.18), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+#battleView .battle-start-btn:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+
+#battleView .battle-start-btn:focus-visible {
+  outline: 2px solid rgba(251,191,36,.92);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1120px) {
+  #battleView .battle-overview {
+    grid-template-columns: minmax(205px,.82fr) minmax(380px,1.34fr) minmax(205px,.82fr);
+  }
+}
+
+@media (max-width: 980px) {
+  #battleView .battle-overview {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+  #battleView .battle-center {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  #battleView .battle-center {
+    padding: .66rem;
+  }
+  #battleView .battle-stage-preview {
+    min-height: 170px;
+  }
+  #battleView .battle-buttons {
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+  }
+  #battleView .battle-btn {
+    min-height: 82px !important;
+    padding: .42rem !important;
+  }
+  #battleView .battle-btn-top {
+    grid-template-columns: 36px minmax(0,1fr) 16px;
+    gap: .32rem;
+  }
+  #battleView .battle-btn-art {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 460px) {
+  #battleView .battle-center-titleline h2 {
+    font-size: 1.12rem;
+  }
+  #battleView .battle-stage-preview {
+    min-height: 150px;
+  }
+  #battleView .battle-meta-strip {
+    grid-template-columns: 1fr;
+  }
+  #battleView .battle-meta-strip > span + span {
+    border-left: 0;
+    border-top: 1px solid rgba(148,163,184,.09);
+  }
+}
+
+@media (max-width: 390px) {
+  #battleView .battle-buttons {
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  }
+}
+'''
+
+          old_mobile = '''  const availableBattle = page.locator('#battleButtons .battle-btn:not(:disabled)').first();
+  assert.ok(await availableBattle.count(), 'At least one battle must be startable on mobile');
+  await availableBattle.click();
+  await page.waitForTimeout(120);
+  assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting a battle should reveal the battle simulation');'''
+          new_mobile = '''  const availableBattle = page.locator('#battleButtons .battle-btn:not(:disabled)').first();
+  assert.ok(await availableBattle.count(), 'At least one battle must be selectable on mobile');
+  await availableBattle.click();
+  assert.equal(await page.locator('#battleSimulation').isVisible(), false, 'Selecting a battle card should not start combat before the CTA');
+  assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Exactly one battle card should be selected');
+  assert.ok(await page.locator('#battleStartBtn').isVisible(), 'Arena start CTA should stay visible on mobile');
+  assert.equal(await page.locator('#battleStartBtn').isDisabled(), false, 'Arena start CTA should be enabled for the selected battle');
+  await page.locator('#battleStartBtn').click();
+  await page.waitForTimeout(120);
+  assert.ok(await page.locator('#battleSimulation').isVisible(), 'Starting through the arena CTA should reveal the battle simulation');'''
+          if old_mobile not in smoke:
+              raise SystemExit('browser smoke mobile battle anchor not found')
+          smoke = smoke.replace(old_mobile, new_mobile, 1)
+
+          old_desktop = '''  const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
+  assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');'''
+          new_desktop = '''  const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+  assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
+  assert.equal(await page.locator('#battleStagePreview').count(), 1, 'Arena preview stage should exist');
+  assert.equal(await page.locator('#battleStartBtn').count(), 1, 'Arena should expose a dedicated start CTA');
+  assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Arena should preselect exactly one available battle');
+  assert.equal(await page.locator('.battle-btn[data-enemy="1"]').isDisabled(), false, 'Battle 1 should be available immediately');'''
+          if old_desktop not in smoke:
+              raise SystemExit('browser smoke desktop battle anchor not found')
+          smoke = smoke.replace(old_desktop, new_desktop, 1)
+
+          index_path.write_text(index)
+          css_path.write_text(css)
+          smoke_path.write_text(smoke)
+          PY
+
+          node --check 2026/qa/browser-smoke.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/index.html 2026/modern-battle.css 2026/qa/browser-smoke.mjs
+          git commit -m "feat: redesign battle arena selection"
+          git rm .github/workflows/oneoff-arena-redesign.yml
+          git commit -m "chore: remove arena redesign helper"
+          git push origin HEAD:tk2-2026
