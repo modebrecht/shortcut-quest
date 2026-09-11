@@ -3297,3 +3297,45 @@
   #battleView .battle-side.hero .battle-portrait-icon img { transform: scale(.86) !important; }
   #battleView .battle-side.enemy .battle-portrait-icon img { transform: scale(.92) !important; }
 }
+
+/* SINGLE ARENA MOBILE OVERFLOW GUARD */
+#battleView .battle-overview {
+  overflow: hidden !important;
+}
+#battleView .battle-side,
+#battleView .battle-side-head,
+#battleView .battle-statline,
+#battleView .battle-portrait,
+#battleView .battle-portrait-icon {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 460px) {
+  #battleView .battle-side,
+  #battleView .battle-side.hero,
+  #battleView .battle-side.enemy {
+    width: 41% !important;
+    height: 248px !important;
+  }
+  #battleView .battle-side-head {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  #battleView .battle-side-head > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  #battleView .battle-side-tier,
+  #battleView .battle-trait {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  #battleView .battle-statline {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+}
