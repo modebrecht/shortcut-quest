@@ -1,0 +1,31 @@
+name: One-off premium three-panel arena
+
+on:
+  push:
+    branches:
+      - tk2-2026
+    paths:
+      - scripts/oneoff-three-panel-arena.py
+      - .github/workflows/oneoff-three-panel-arena.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 0
+      - name: Apply premium three-panel arena
+        run: python scripts/oneoff-three-panel-arena.py
+      - name: Commit runtime and clean helpers
+        run: |
+          rm -f scripts/oneoff-three-panel-arena.py .github/workflows/oneoff-three-panel-arena.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: restore premium three-panel arena showcase"
+          git push origin HEAD:tk2-2026
