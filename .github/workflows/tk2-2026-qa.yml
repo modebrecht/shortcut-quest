@@ -101,6 +101,7 @@ jobs:
           grep -q 'MAX_SECTION_SUBMISSIONS = 3' 2026/index.html
           grep -q 'SHORTCUT_QUEST_2026_REPLAY_POLICY' 2026/index.html
           grep -q 'SINGLE ARENA COMPOSITION FIX' 2026/modern-battle.css
+          grep -q 'SINGLE ARENA MOBILE OVERFLOW GUARD' 2026/modern-battle.css
           ! grep -Fq 'new MutationObserver(() => queueMicrotask(() =>' 2026/skill-hotkeys.js
           ! grep -q 'memoryGame:' 2026/sections-data.js
 
