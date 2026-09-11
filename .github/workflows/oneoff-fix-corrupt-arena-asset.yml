@@ -1,0 +1,90 @@
+name: One-off fix corrupt arena asset
+on:
+  push:
+    branches: [tk2-2026]
+    paths: ['.github/workflows/oneoff-fix-corrupt-arena-asset.yml']
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace corrupt grey arena asset with CSS dungeon and add pixel QA
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          dungeon = """radial-gradient(ellipse at 50% 6%, rgba(72,128,177,.24) 0%, rgba(25,58,87,.10) 34%, transparent 58%), radial-gradient(circle at 8% 68%, rgba(255,210,112,.94) 0 2px, rgba(245,143,28,.44) 3px 8px, rgba(245,143,28,.09) 9px 38px, transparent 72px), radial-gradient(circle at 92% 68%, rgba(255,210,112,.94) 0 2px, rgba(245,143,28,.44) 3px 8px, rgba(245,143,28,.09) 9px 38px, transparent 72px), linear-gradient(90deg, rgba(1,5,11,.58) 0 6%, transparent 15% 85%, rgba(1,5,11,.58) 94% 100%), repeating-linear-gradient(0deg, rgba(142,163,181,.055) 0 1px, transparent 1px 52px), repeating-linear-gradient(90deg, rgba(125,145,165,.035) 0 1px, transparent 1px 120px), linear-gradient(180deg, #102a43 0%, #0b2035 36%, #081725 67%, #070d14 100%)"""
+
+          css = Path('2026/modern-battle.css')
+          text = css.read_text(encoding='utf-8')
+          old_stage = "background-image: linear-gradient(180deg, rgba(2,8,18,.05) 0%, rgba(2,8,18,.02) 48%, rgba(2,6,15,.24) 100%), linear-gradient(90deg, rgba(2,6,15,.28), transparent 18%, transparent 82%, rgba(2,6,15,.28)), url('assets/arena-premium.jpg') !important;"
+          old_arena = "background-image: linear-gradient(180deg, rgba(2,8,18,.04), rgba(2,6,15,.24)), linear-gradient(90deg, rgba(2,6,15,.20), transparent 20%, transparent 80%, rgba(2,6,15,.20)), url('assets/arena-premium.jpg') !important;"
+          if old_stage not in text or old_arena not in text:
+              raise SystemExit('Expected corrupt arena image declarations not found')
+          new_bg = f"background-image: {dungeon} !important;"
+          text = text.replace(old_stage, new_bg, 1).replace(old_arena, new_bg, 1)
+          css.write_text(text, encoding='utf-8')
+
+          devfix = Path('2026/arena-dev-fix.js')
+          text = devfix.read_text(encoding='utf-8')
+          old = "\"linear-gradient(180deg, rgba(2,8,18,.05) 0%, rgba(2,8,18,.02) 48%, rgba(2,6,15,.24) 100%), linear-gradient(90deg, rgba(2,6,15,.28), transparent 18%, transparent 82%, rgba(2,6,15,.28)), url('assets/arena-premium.jpg?v=20260911-arena-final')\""
+          if old not in text:
+              raise SystemExit('Expected arena-dev-fix image declaration not found')
+          text = text.replace(old, repr(dungeon).replace("'", '"', 1).rsplit("'", 1)[0] + '"', 1)
+          # normalize the generated JS string explicitly
+          start = "stage.style.setProperty(\n        'background-image',\n        "
+          pos = text.find(start)
+          if pos < 0:
+              raise SystemExit('arena-dev-fix background setProperty not found')
+          value_start = pos + len(start)
+          value_end = text.find(",\n        'important'", value_start)
+          text = text[:value_start] + '"' + dungeon.replace('"','\\"') + '"' + text[value_end:]
+          devfix.write_text(text, encoding='utf-8')
+
+          qa = Path('2026/qa/dev-overlay-browser.mjs')
+          q = qa.read_text(encoding='utf-8')
+          q = q.replace("import { chromium } from 'playwright';", "import { chromium } from 'playwright';\nimport { PNG } from 'pngjs';")
+          q = q.replace("assert.match(desktopState.stageBackground, /arena-premium\\.jpg/i, 'DEV arena must keep the premium artwork');", "assert.doesNotMatch(desktopState.stageBackground, /arena-premium\\.jpg/i, 'DEV arena must not use the corrupt grey arena bitmap');\n  assert.match(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must render the CSS dungeon backdrop');")
+          marker = "assert.equal(desktopState.overflow, false, 'DEV arena must not overflow on desktop');"
+          pixel = r'''
+  const arenaPng = PNG.sync.read(await desktop.locator('#battleStagePreview').screenshot());
+  let greyish = 0;
+  let sampled = 0;
+  for (let y = 0; y < arenaPng.height; y += 4) {
+    for (let x = 0; x < arenaPng.width; x += 4) {
+      const i = (arenaPng.width * y + x) * 4;
+      const r = arenaPng.data[i], g = arenaPng.data[i + 1], b = arenaPng.data[i + 2];
+      const max = Math.max(r,g,b), min = Math.min(r,g,b), avg = (r+g+b)/3;
+      if (max - min <= 8 && avg >= 90 && avg <= 175) greyish++;
+      sampled++;
+    }
+  }
+  const greyShare = greyish / sampled;
+  assert.ok(greyShare < 0.20, `DEV arena is still dominated by neutral grey pixels (${(greyShare*100).toFixed(1)}%)`);
+'''
+          if marker not in q:
+              raise SystemExit('DEV overlay assertion marker not found')
+          q = q.replace(marker, marker + '\n' + pixel, 1)
+          qa.write_text(q, encoding='utf-8')
+
+          wf = Path('.github/workflows/tk2-2026-qa.yml')
+          w = wf.read_text(encoding='utf-8')
+          w = w.replace('npm install --no-save playwright', 'npm install --no-save playwright pngjs')
+          if 'node --check 2026/qa/dev-overlay-browser.mjs' not in w:
+              w = w.replace('node --check 2026/qa/browser-smoke.mjs', 'node --check 2026/qa/browser-smoke.mjs\n          node --check 2026/qa/dev-overlay-browser.mjs')
+          wf.write_text(w, encoding='utf-8')
+          PY
+
+          rm -f 2026/assets/arena-premium.jpg
+          node --check 2026/arena-dev-fix.js
+          node --check 2026/qa/dev-overlay-browser.mjs
+          ! grep -R "arena-premium.jpg" 2026/modern-battle.css 2026/arena-dev-fix.js 2026/qa/dev-overlay-browser.mjs
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm -f .github/workflows/oneoff-arena-visual-debug.yml .github/workflows/oneoff-fix-corrupt-arena-asset.yml
+          git add 2026/modern-battle.css 2026/arena-dev-fix.js 2026/qa/dev-overlay-browser.mjs .github/workflows/tk2-2026-qa.yml
+          git add -u 2026/assets/arena-premium.jpg
+          git commit -m 'fix: replace corrupt grey arena asset'
+          git push
