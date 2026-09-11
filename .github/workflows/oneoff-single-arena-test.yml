@@ -1,6 +1,7 @@
 name: One-off single arena smoke update
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - tk2-2026
@@ -18,77 +19,11 @@ jobs:
         with:
           ref: tk2-2026
           fetch-depth: 1
-      - name: Replace legacy three-panel geometry assertions
-        shell: python
-        run: |
-          from pathlib import Path
-          p = Path('2026/qa/browser-smoke.mjs')
-          s = p.read_text(encoding='utf-8')
-          start = s.index('  const threePanelLayout = await page.evaluate(() => {')
-          end = s.index('  const previewArenaBackground = await page.locator', start)
-          new = '''  const singleArenaLayout = await page.evaluate(() => {
-            const stageEl = document.querySelector('#battleStagePreview');
-            const cardEl = document.querySelector('#battleView .battle-card');
-            const centerEl = document.querySelector('#battleView .battle-center');
-            const heroEl = document.querySelector('#battleView .battle-side.hero');
-            const enemyEl = document.querySelector('#battleView .battle-side.enemy');
-            const heroPortraitEl = document.querySelector('#battleView .battle-side.hero .battle-portrait');
-            const enemyPortraitEl = document.querySelector('#battleView .battle-side.enemy .battle-portrait');
-            if (!stageEl || !cardEl || !centerEl || !heroEl || !enemyEl || !heroPortraitEl || !enemyPortraitEl) return null;
-            const stage = stageEl.getBoundingClientRect();
-            const card = cardEl.getBoundingClientRect();
-            const center = centerEl.getBoundingClientRect();
-            const heroPortrait = heroPortraitEl.getBoundingClientRect();
-            const enemyPortrait = enemyPortraitEl.getBoundingClientRect();
-            const centerInside = rect => {
-              const x = rect.left + rect.width / 2;
-              const y = rect.top + rect.height / 2;
-              return x >= stage.left && x <= stage.right && y >= stage.top && y <= stage.bottom;
-            };
-            return {
-              stageWidthRatio: stage.width / card.width,
-              stageCenterWidthRatio: stage.width / center.width,
-              stageHeight: stage.height,
-              heroPosition: getComputedStyle(heroEl).position,
-              enemyPosition: getComputedStyle(enemyEl).position,
-              heroPortraitInsideStage: centerInside(heroPortrait),
-              enemyPortraitInsideStage: centerInside(enemyPortrait),
-              heroPortraitWidth: heroPortrait.width,
-              enemyPortraitWidth: enemyPortrait.width,
-              heroPanelBackground: getComputedStyle(heroEl).backgroundColor,
-              enemyPanelBackground: getComputedStyle(enemyEl).backgroundColor,
-              heroBorderWidth: getComputedStyle(heroEl).borderLeftWidth,
-              enemyBorderWidth: getComputedStyle(enemyEl).borderLeftWidth
-            };
-          });
-          assert.ok(singleArenaLayout, 'Single-arena geometry should be measurable');
-          assert.ok(singleArenaLayout.stageWidthRatio > 0.90, 'One arena stage should span nearly the full battle card');
-          assert.ok(singleArenaLayout.stageCenterWidthRatio > 0.96, 'Arena artwork should fill the full center module width');
-          assert.ok(singleArenaLayout.stageHeight >= 480, 'Desktop premium arena should be a substantial showpiece');
-          assert.equal(singleArenaLayout.heroPosition, 'absolute', 'Hero should be overlaid directly inside the arena scene');
-          assert.equal(singleArenaLayout.enemyPosition, 'absolute', 'Enemy should be overlaid directly inside the arena scene');
-          assert.equal(singleArenaLayout.heroPortraitInsideStage, true, 'Hero portrait should sit inside the arena artwork');
-          assert.equal(singleArenaLayout.enemyPortraitInsideStage, true, 'Enemy portrait should sit inside the arena artwork');
-          assert.ok(singleArenaLayout.heroPortraitWidth >= 230, 'Knight should have strong visual presence inside the arena');
-          assert.ok(singleArenaLayout.enemyPortraitWidth >= 210, 'Enemy should have strong visual presence inside the arena');
-          assert.equal(singleArenaLayout.heroBorderWidth, '0px', 'Hero must no longer read as a separate side panel');
-          assert.equal(singleArenaLayout.enemyBorderWidth, '0px', 'Enemy must no longer read as a separate side panel');
-          const arenaAsset = await page.evaluate(() => new Promise(resolve => {
-            const img = new Image();
-            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-            img.onerror = () => resolve(null);
-            img.src = 'assets/arena-premium.jpg';
-          }));
-          assert.ok(arenaAsset && arenaAsset.width >= 700 && arenaAsset.height >= 300, 'Premium arena image asset must load at useful resolution');
-'''
-          s = s[:start] + new + s[end:]
-          s = s.replace("  assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must use the dark stone arena instead of the forest background');",
-                        "  assert.match(previewArenaBackground, /arena-premium\\.jpg/i, 'Arena preview must use the premium generated arena asset');\n  assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must never use the forest background');", 1)
-          s = s.replace("  assert.equal(/battle-bg-forest/i.test(activeArenaBackground), false, 'Active combat must not switch back to the forest background');",
-                        "  assert.match(activeArenaBackground, /arena-premium\\.jpg/i, 'Active combat must use the same premium arena asset');\n  assert.equal(/battle-bg-forest/i.test(activeArenaBackground), false, 'Active combat must not switch back to the forest background');", 1)
-          p.write_text(s, encoding='utf-8')
+      - name: Patch browser smoke
+        run: python .tmp/patch-single-arena-test.py
       - name: Clean helper and commit
         run: |
+          rm -f .tmp/patch-single-arena-test.py
           rm -f .github/workflows/oneoff-single-arena-test.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
