@@ -1,0 +1,96 @@
+name: One-off arena overlay fix
+on:
+  push:
+    branches: [tk2-2026]
+    paths: ['.github/workflows/oneoff-arena-overlay-fix.yml']
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix DEV arena overlay collisions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css = Path('2026/modern-battle.css')
+          text = css.read_text(encoding='utf-8')
+          marker = '/* DEV OVERLAY SAFETY — image arena must stay visually unobstructed */'
+          block = r'''
+
+/* DEV OVERLAY SAFETY — image arena must stay visually unobstructed */
+#battleView .battle-stage-preview .battle-stage-haze {
+  display: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+#battleView .battle-stage-preview .battle-stage-haze::before,
+#battleView .battle-stage-preview .battle-stage-haze::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+#battleView .battle-side .battle-portrait,
+#battleView .battle-side .battle-portrait.hero,
+#battleView .battle-side .battle-portrait.enemy,
+#battleView .battle-side .battle-portrait-icon {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+'''
+          if marker not in text:
+              css.write_text(text + block, encoding='utf-8')
+
+          motion = Path('2026/battle-motion.js')
+          text = motion.read_text(encoding='utf-8')
+          motion_marker = '/* IMAGE ARENA DEV SAFETY */'
+          insert = r'''
+
+    /* IMAGE ARENA DEV SAFETY */
+    #battleView .battle-stage-preview .battle-stage-haze {
+      display: none !important;
+      background: transparent !important;
+      background-image: none !important;
+      opacity: 0 !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      animation: none !important;
+    }
+    #battleView .battle-stage-preview .battle-stage-haze::before,
+    #battleView .battle-stage-preview .battle-stage-haze::after {
+      content: none !important;
+      display: none !important;
+      background: none !important;
+    }
+    #battleView .battle-side .battle-portrait,
+    #battleView .battle-side .battle-portrait.hero,
+    #battleView .battle-side .battle-portrait.enemy,
+    #battleView .battle-side .battle-portrait-icon {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+'''
+          if motion_marker not in text:
+              needle = '  `;\n\n  function installStyles()'
+              if needle not in text:
+                  raise SystemExit('battle-motion style terminator not found')
+              text = text.replace(needle, insert + '\n  `;\n\n  function installStyles()', 1)
+              motion.write_text(text, encoding='utf-8')
+          PY
+          node --check 2026/battle-motion.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add 2026/modern-battle.css 2026/battle-motion.js
+          git commit -m 'fix: remove arena overlay collisions'
+          git push
