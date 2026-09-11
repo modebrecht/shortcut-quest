@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install approved arena artwork
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           mkdir -p 2026/assets
           base64 -d 2026/assets/arena-approved.webp.b64 > 2026/assets/arena-approved.webp
           test "$(stat -c%s 2026/assets/arena-approved.webp)" -eq 105758
@@ -52,14 +52,14 @@ jobs:
 
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git rm -f 2026/assets/arena-approved.webp.b64
-          git rm -f 2026/ARENA_APPROVED_IMAGE.md 2>/dev/null || true
-          git rm -f 2026/assets/arena-approved-note.txt 2>/dev/null || true
-          git rm -f 2026/assets/arena-approved-valid-marker.txt 2>/dev/null || true
-          git rm -f 2026/assets/arena-premium.jpg 2>/dev/null || true
-          git rm -rf .arena-upload 2>/dev/null || true
-          git rm -f .github/workflows/oneoff-install-approved-arena.yml
+          git rm -f --ignore-unmatch 2026/assets/arena-approved.webp.b64
+          git rm -f --ignore-unmatch 2026/ARENA_APPROVED_IMAGE.md
+          git rm -f --ignore-unmatch 2026/assets/arena-approved-note.txt
+          git rm -f --ignore-unmatch 2026/assets/arena-approved-valid-marker.txt
+          git rm -f --ignore-unmatch 2026/assets/arena-premium.jpg
+          git rm -rf --ignore-unmatch .arena-upload
+          git rm -f --ignore-unmatch .github/workflows/oneoff-install-approved-arena.yml
           git add 2026/assets/arena-approved.webp 2026/arena-dev-fix.js 2026/qa/dev-overlay-browser.mjs
+          git status --short
           git commit -m 'fix: use approved arena artwork'
           git push
-# execute after valid payload branch ref
