@@ -22,7 +22,9 @@ jobs:
         run: |
           node --check 2026/sections-data.js
           node --check 2026/skill-hotkeys.js
+          node --check 2026/arena-dev-fix.js
           node --check 2026/qa/browser-smoke.mjs
+          node --check 2026/qa/dev-overlay-browser.mjs
           node --check 2026/qa/economy-audit.mjs
           node --check 2026/qa/economy-browser.mjs
           node --check 2026/qa/replay-policy-browser.mjs
@@ -72,6 +74,7 @@ jobs:
           test -f 2026/index.html
           test -f 2026/sections-data.js
           test -f 2026/skill-hotkeys.js
+          test -f 2026/arena-dev-fix.js
           test -f 2026/modern-ui.css
           test -f 2026/modern-exercises.css
           test -f 2026/modern-game.css
@@ -80,6 +83,7 @@ jobs:
           test -f 2026/apexcharts.min.js
           test -f 2026/favicon.svg
           test -f 2026/qa/browser-smoke.mjs
+          test -f 2026/qa/dev-overlay-browser.mjs
           test -f 2026/qa/economy-audit.mjs
           test -f 2026/qa/economy-browser.mjs
           test -f 2026/qa/replay-policy-browser.mjs
@@ -102,6 +106,7 @@ jobs:
           grep -q 'SHORTCUT_QUEST_2026_REPLAY_POLICY' 2026/index.html
           grep -q 'SINGLE ARENA COMPOSITION FIX' 2026/modern-battle.css
           grep -q 'SINGLE ARENA MOBILE OVERFLOW GUARD' 2026/modern-battle.css
+          grep -q 'a8ArenaDevFixStyles' 2026/arena-dev-fix.js
           ! grep -Fq 'new MutationObserver(() => queueMicrotask(() =>' 2026/skill-hotkeys.js
           ! grep -q 'memoryGame:' 2026/sections-data.js
 
@@ -140,6 +145,9 @@ jobs:
 
       - name: Browser E2E smoke
         run: node 2026/qa/browser-smoke.mjs
+
+      - name: DEV overlay arena gate
+        run: node 2026/qa/dev-overlay-browser.mjs
 
       - name: Economy browser gate
         run: node 2026/qa/economy-browser.mjs
