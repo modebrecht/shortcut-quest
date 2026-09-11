@@ -2,8 +2,29 @@
   'use strict';
 
   const STYLE_ID = 'a8ArenaDevFixStyles';
+  const ARENA_BACKGROUND = "radial-gradient(ellipse at 50% 6%, rgba(72,128,177,.24) 0%, rgba(25,58,87,.10) 34%, transparent 58%), radial-gradient(circle at 8% 68%, rgba(255,210,112,.94) 0 2px, rgba(245,143,28,.44) 3px 8px, rgba(245,143,28,.09) 9px 38px, transparent 72px), radial-gradient(circle at 92% 68%, rgba(255,210,112,.94) 0 2px, rgba(245,143,28,.44) 3px 8px, rgba(245,143,28,.09) 9px 38px, transparent 72px), linear-gradient(90deg, rgba(1,5,11,.58) 0 6%, transparent 15% 85%, rgba(1,5,11,.58) 94% 100%), repeating-linear-gradient(0deg, rgba(142,163,181,.055) 0 1px, transparent 1px 52px), repeating-linear-gradient(90deg, rgba(125,145,165,.035) 0 1px, transparent 1px 120px), linear-gradient(180deg, #102a43 0%, #0b2035 36%, #081725 67%, #070d14 100%)";
+
   const css = `
     /* Final arena layer: loaded after battle-motion.js in DEV. */
+    #battleView .battle-stage-preview,
+    #battleView .battle-arena {
+      background-color: #07101a !important;
+      background-image: ${ARENA_BACKGROUND} !important;
+      background-size: auto !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      filter: none !important;
+    }
+
+    #battleView .battle-stage-preview::before,
+    #battleView .battle-stage-preview::after,
+    #battleView .battle-arena::before,
+    #battleView .battle-arena::after {
+      content: none !important;
+      display: none !important;
+      background: none !important;
+    }
+
     #battleView .battle-stage-preview .battle-stage-haze {
       display: none !important;
       opacity: 0 !important;
@@ -65,17 +86,14 @@
   function enforceArena() {
     installStyles();
 
-    const stage = document.getElementById('battleStagePreview');
-    if (stage) {
-      stage.style.setProperty(
-        'background-image',
-        "linear-gradient(180deg, rgba(2,8,18,.05) 0%, rgba(2,8,18,.02) 48%, rgba(2,6,15,.24) 100%), linear-gradient(90deg, rgba(2,6,15,.28), transparent 18%, transparent 82%, rgba(2,6,15,.28)), url('assets/arena-premium.jpg?v=20260911-arena-final')",
-        'important'
-      );
-      stage.style.setProperty('background-size', 'cover', 'important');
-      stage.style.setProperty('background-position', 'center 55%', 'important');
+    document.querySelectorAll('#battleView .battle-stage-preview, #battleView .battle-arena').forEach(stage => {
+      stage.style.setProperty('background-color', '#07101a', 'important');
+      stage.style.setProperty('background-image', ARENA_BACKGROUND, 'important');
+      stage.style.setProperty('background-size', 'auto', 'important');
+      stage.style.setProperty('background-position', 'center', 'important');
       stage.style.setProperty('background-repeat', 'no-repeat', 'important');
-    }
+      stage.style.setProperty('filter', 'none', 'important');
+    });
 
     const haze = document.querySelector('#battleView .battle-stage-haze');
     if (haze) haze.style.setProperty('display', 'none', 'important');
