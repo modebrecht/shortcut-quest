@@ -18,7 +18,7 @@ jobs:
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
           sleep 1
-          cat > /tmp/debug.mjs <<'NODE'
+          cat > debug-arena.mjs <<'NODE'
           import { chromium } from 'playwright';
           const browser = await chromium.launch({headless:true});
           const page = await browser.newPage({viewport:{width:1790,height:900}});
@@ -41,13 +41,18 @@ jobs:
               return {tag:el.tagName,id:el.id,cls:el.className,bg:s.background,bgc:s.backgroundColor,bgi:s.backgroundImage,opacity:s.opacity,filter:s.filter,backdrop:s.backdropFilter,z:s.zIndex,pos:s.position,rect:[Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height)]};
             };
             const stacks = {};
-            for (const [name,x,y] of pts) stacks[name]=document.elementsFromPoint(x,y).slice(0,10).map(styles);
+            for (const [name,x,y] of pts) stacks[name]=document.elementsFromPoint(x,y).slice(0,12).map(styles);
             const named = ['#battleStagePreview','.battle-stage-haze','.battle-side.hero','.battle-side.enemy','.battle-side.enemy .battle-portrait','.battle-side.enemy .battle-portrait-icon','#battleEnemyPreviewIcon'];
-            const selected={}; for (const q of named){const el=document.querySelector('#battleView '+q.replace(/^#battleStagePreview$/,'#battleStagePreview'))||document.querySelector(q); if(el) selected[q]=styles(el)}
+            const selected={};
+            for (const q of named){
+              const el=document.querySelector(q.startsWith('#battleStagePreview') ? q : '#battleView '+q) || document.querySelector(q);
+              if(el) selected[q]=styles(el);
+            }
             return {stage:styles(stage),stacks,selected};
           });
+          console.log('ARENA_DEBUG_START');
           console.log(JSON.stringify(out,null,2));
-          await page.screenshot({path:'/tmp/arena-debug.png',fullPage:false});
+          console.log('ARENA_DEBUG_END');
           await browser.close();
           NODE
-          node /tmp/debug.mjs
+          node debug-arena.mjs
