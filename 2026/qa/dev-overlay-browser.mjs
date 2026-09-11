@@ -31,9 +31,16 @@ try {
     const card = document.querySelector('#battleView .battle-card');
     const css = el => el ? getComputedStyle(el) : null;
     const rect = el => el ? el.getBoundingClientRect() : null;
+    const before = stage ? getComputedStyle(stage, '::before') : null;
+    const after = stage ? getComputedStyle(stage, '::after') : null;
     return {
       stageBackground: css(stage)?.backgroundImage || '',
+      stageBackgroundColor: css(stage)?.backgroundColor || '',
       stageWidth: rect(stage)?.width || 0,
+      beforeContent: before?.content || null,
+      beforeDisplay: before?.display || null,
+      afterContent: after?.content || null,
+      afterDisplay: after?.display || null,
       hazeDisplay: css(haze)?.display || null,
       hazeOpacity: css(haze)?.opacity || null,
       heroPortraitBackground: css(heroPortrait)?.backgroundImage || null,
@@ -45,8 +52,13 @@ try {
     };
   });
 
-  assert.match(desktopState.stageBackground, /arena-premium\.jpg/i, 'DEV arena must keep the premium artwork');
+  assert.doesNotMatch(desktopState.stageBackground, /arena-premium\.jpg/i, 'DEV arena must not use the corrupt grey bitmap');
+  assert.doesNotMatch(desktopState.stageBackground, /url\(/i, 'DEV arena backdrop must be self-contained CSS, not a bitmap');
+  assert.match(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must render the CSS dungeon backdrop');
+  assert.notEqual(desktopState.stageBackgroundColor, 'rgb(128, 128, 128)', 'DEV arena background must not be neutral grey');
   assert.ok(desktopState.stageWidth > 900, 'Desktop arena must remain a large showpiece');
+  assert.ok(desktopState.beforeContent === 'none' || desktopState.beforeDisplay === 'none', 'Stage ::before must not cover the dungeon backdrop');
+  assert.ok(desktopState.afterContent === 'none' || desktopState.afterDisplay === 'none', 'Stage ::after must not cover the dungeon backdrop');
   assert.equal(desktopState.hazeDisplay, 'none', 'DEV motion stack must not place haze over the arena artwork');
   assert.equal(desktopState.heroPortraitBackground, 'none', 'Hero portrait wrapper must stay transparent after DEV motion scripts');
   assert.equal(desktopState.enemyPortraitBackground, 'none', 'Enemy portrait wrapper must stay transparent after DEV motion scripts');
@@ -57,15 +69,25 @@ try {
   await desktop.close();
 
   const mobile = await openDevOverlayPage(browser, { width: 390, height: 844 });
-  const mobileOverflow = await mobile.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
-  const mobileHaze = await mobile.locator('#battleView .battle-stage-haze').evaluate(el => getComputedStyle(el).display);
-  const mobileEnemyBg = await mobile.locator('#battleView .battle-side.enemy .battle-portrait').evaluate(el => getComputedStyle(el).backgroundImage);
-  assert.equal(mobileOverflow, false, 'DEV arena must not overflow at 390px');
-  assert.equal(mobileHaze, 'none', 'DEV haze must stay disabled on mobile');
-  assert.equal(mobileEnemyBg, 'none', 'Enemy portrait wrapper must stay transparent on mobile');
+  const mobileState = await mobile.evaluate(() => {
+    const stage = document.getElementById('battleStagePreview');
+    const card = document.querySelector('#battleView .battle-card');
+    const haze = document.querySelector('#battleView .battle-stage-haze');
+    const enemyPortrait = document.querySelector('#battleView .battle-side.enemy .battle-portrait');
+    return {
+      overflow: card ? card.scrollWidth > card.clientWidth + 2 : true,
+      stageBackground: stage ? getComputedStyle(stage).backgroundImage : '',
+      haze: haze ? getComputedStyle(haze).display : null,
+      enemyBackground: enemyPortrait ? getComputedStyle(enemyPortrait).backgroundImage : null
+    };
+  });
+  assert.equal(mobileState.overflow, false, 'DEV arena must not overflow at 390px');
+  assert.doesNotMatch(mobileState.stageBackground, /arena-premium\.jpg|url\(/i, 'Mobile DEV arena must not use the corrupt bitmap');
+  assert.equal(mobileState.haze, 'none', 'DEV haze must stay disabled on mobile');
+  assert.equal(mobileState.enemyBackground, 'none', 'Enemy portrait wrapper must stay transparent on mobile');
   await mobile.close();
 
-  console.log('OK: DEV overlay arena remains unobstructed and transparent on desktop + 390px mobile.');
+  console.log('OK: DEV arena uses the CSS dungeon backdrop with no corrupt bitmap, no covering pseudo layers and transparent fighter wrappers.');
 } finally {
   await browser.close();
 }
