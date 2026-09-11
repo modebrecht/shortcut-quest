@@ -20,18 +20,14 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
-
           arena = Path('2026/arena-dev-fix.js')
           text = arena.read_text(encoding='utf-8')
           prefix = "  const ARENA_BACKGROUND = "
           start = text.find(prefix)
-          if start < 0:
-              raise SystemExit('ARENA_BACKGROUND declaration not found')
+          if start < 0: raise SystemExit('ARENA_BACKGROUND declaration not found')
           end = text.find(';\n', start)
-          if end < 0:
-              raise SystemExit('ARENA_BACKGROUND declaration end not found')
-          replacement = "  const ARENA_BACKGROUND = \"url('assets/arena-approved.webp?v=20260912-approved')\";\n"
-          text = text[:start] + replacement + text[end + 2:]
+          if end < 0: raise SystemExit('ARENA_BACKGROUND declaration end not found')
+          text = text[:start] + "  const ARENA_BACKGROUND = \"url('assets/arena-approved.webp?v=20260912-approved')\";\n" + text[end + 2:]
           text = text.replace('background-size: auto !important;', 'background-size: cover !important;')
           text = text.replace('background-position: center !important;', 'background-position: center center !important;')
           text = text.replace("stage.style.setProperty('background-size', 'auto', 'important');", "stage.style.setProperty('background-size', 'cover', 'important');")
@@ -40,23 +36,12 @@ jobs:
 
           qa = Path('2026/qa/dev-overlay-browser.mjs')
           q = qa.read_text(encoding='utf-8')
-          q = q.replace(
-              "assert.doesNotMatch(desktopState.stageBackground, /arena-premium\\.jpg/i, 'DEV arena must not use the corrupt grey bitmap');",
-              "assert.match(desktopState.stageBackground, /arena-approved\\.webp/i, 'DEV arena must use the approved arena artwork');")
-          q = q.replace(
-              "assert.doesNotMatch(desktopState.stageBackground, /url\\(/i, 'DEV arena backdrop must be self-contained CSS, not a bitmap');",
-              "assert.match(desktopState.stageBackground, /url\\(/i, 'DEV arena must render the approved bitmap artwork');")
-          q = q.replace(
-              "assert.match(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must render the CSS dungeon backdrop');",
-              "assert.doesNotMatch(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must not replace the approved artwork with a CSS approximation');")
-          q = q.replace(
-              "assert.doesNotMatch(mobileState.stageBackground, /arena-premium\\.jpg|url\\(/i, 'Mobile DEV arena must not use the corrupt bitmap');",
-              "assert.match(mobileState.stageBackground, /arena-approved\\.webp/i, 'Mobile DEV arena must use the approved arena artwork');")
-          q = q.replace(
-              "console.log('OK: DEV arena uses the CSS dungeon backdrop with no corrupt bitmap, no covering pseudo layers and transparent fighter wrappers.');",
-              "console.log('OK: DEV arena uses the approved artwork with no covering pseudo layers and transparent fighter wrappers.');")
-          if 'arena-approved\\.webp' not in q:
-              raise SystemExit('QA was not updated to approved artwork')
+          q = q.replace("assert.doesNotMatch(desktopState.stageBackground, /arena-premium\\.jpg/i, 'DEV arena must not use the corrupt grey bitmap');", "assert.match(desktopState.stageBackground, /arena-approved\\.webp/i, 'DEV arena must use the approved arena artwork');")
+          q = q.replace("assert.doesNotMatch(desktopState.stageBackground, /url\\(/i, 'DEV arena backdrop must be self-contained CSS, not a bitmap');", "assert.match(desktopState.stageBackground, /url\\(/i, 'DEV arena must render the approved bitmap artwork');")
+          q = q.replace("assert.match(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must render the CSS dungeon backdrop');", "assert.doesNotMatch(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must not replace the approved artwork with a CSS approximation');")
+          q = q.replace("assert.doesNotMatch(mobileState.stageBackground, /arena-premium\\.jpg|url\\(/i, 'Mobile DEV arena must not use the corrupt bitmap');", "assert.match(mobileState.stageBackground, /arena-approved\\.webp/i, 'Mobile DEV arena must use the approved arena artwork');")
+          q = q.replace("console.log('OK: DEV arena uses the CSS dungeon backdrop with no corrupt bitmap, no covering pseudo layers and transparent fighter wrappers.');", "console.log('OK: DEV arena uses the approved artwork with no covering pseudo layers and transparent fighter wrappers.');")
+          if 'arena-approved\\.webp' not in q: raise SystemExit('QA was not updated to approved artwork')
           qa.write_text(q, encoding='utf-8')
           PY
 
@@ -77,3 +62,4 @@ jobs:
           git add 2026/assets/arena-approved.webp 2026/arena-dev-fix.js 2026/qa/dev-overlay-browser.mjs
           git commit -m 'fix: use approved arena artwork'
           git push
+# retrigger 2026-09-12
