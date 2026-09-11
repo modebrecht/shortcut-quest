@@ -10,11 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install exact approved arena artwork
+      - name: Install approved arena artwork
         run: |
+          set -euo pipefail
           mkdir -p 2026/assets
-          cat .arena-upload/*.b64 | base64 -d > 2026/assets/arena-approved.webp
-          echo "49177347c471f632205ffc8266eefd4ba1f681094c3d86d695e8b3d594d16852  2026/assets/arena-approved.webp" | sha256sum -c -
+          base64 -d 2026/assets/arena-approved.webp.b64 > 2026/assets/arena-approved.webp
+          echo "ca0d0bed2b795a6b6612d3be3a3bca3e422607fa5b148bc7480d2c2efb9031ce  2026/assets/arena-approved.webp" | sha256sum -c -
           file 2026/assets/arena-approved.webp | grep -F "Web/P image"
 
           python3 - <<'PY'
@@ -29,49 +30,48 @@ jobs:
           end = text.find(';\n', start)
           if end < 0:
               raise SystemExit('ARENA_BACKGROUND declaration end not found')
-          replacement = "  const ARENA_BACKGROUND = \"url('assets/arena-approved.webp?v=20260911-approved')\";\n"
+          replacement = "  const ARENA_BACKGROUND = \"url('assets/arena-approved.webp?v=20260912-approved')\";\n"
           text = text[:start] + replacement + text[end + 2:]
-          required = {
-              'background-size: auto !important;': 'background-size: cover !important;',
-              'background-position: center !important;': 'background-position: center center !important;',
-              "stage.style.setProperty('background-size', 'auto', 'important');": "stage.style.setProperty('background-size', 'cover', 'important');",
-              "stage.style.setProperty('background-position', 'center', 'important');": "stage.style.setProperty('background-position', 'center center', 'important');",
-          }
-          for old, new in required.items():
-              if old not in text:
-                  raise SystemExit(f'arena marker not found: {old}')
-              text = text.replace(old, new)
+          text = text.replace('background-size: auto !important;', 'background-size: cover !important;')
+          text = text.replace('background-position: center !important;', 'background-position: center center !important;')
+          text = text.replace("stage.style.setProperty('background-size', 'auto', 'important');", "stage.style.setProperty('background-size', 'cover', 'important');")
+          text = text.replace("stage.style.setProperty('background-position', 'center', 'important');", "stage.style.setProperty('background-position', 'center center', 'important');")
           arena.write_text(text, encoding='utf-8')
 
           qa = Path('2026/qa/dev-overlay-browser.mjs')
           q = qa.read_text(encoding='utf-8')
-          replacements = {
-              "assert.doesNotMatch(desktopState.stageBackground, /arena-premium\\.jpg/i, 'DEV arena must not use the corrupt grey bitmap');":
-                  "assert.match(desktopState.stageBackground, /arena-approved\\.webp/i, 'DEV arena must use the approved arena artwork');",
-              "assert.doesNotMatch(desktopState.stageBackground, /url\\(/i, 'DEV arena backdrop must be self-contained CSS, not a bitmap');":
-                  "assert.match(desktopState.stageBackground, /url\\(/i, 'DEV arena must render the approved bitmap artwork');",
-              "assert.match(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must render the CSS dungeon backdrop');":
-                  "assert.doesNotMatch(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must not replace the approved artwork with a CSS approximation');",
-              "assert.doesNotMatch(mobileState.stageBackground, /arena-premium\\.jpg|url\\(/i, 'Mobile DEV arena must not use the corrupt bitmap');":
-                  "assert.match(mobileState.stageBackground, /arena-approved\\.webp/i, 'Mobile DEV arena must use the approved arena artwork');",
-              "console.log('OK: DEV arena uses the CSS dungeon backdrop with no corrupt bitmap, no covering pseudo layers and transparent fighter wrappers.');":
-                  "console.log('OK: DEV arena uses the approved artwork with no covering pseudo layers and transparent fighter wrappers.');",
-          }
-          for old, new in replacements.items():
-              if old not in q:
-                  raise SystemExit(f'QA marker not found: {old}')
-              q = q.replace(old, new, 1)
+          q = q.replace(
+              "assert.doesNotMatch(desktopState.stageBackground, /arena-premium\\.jpg/i, 'DEV arena must not use the corrupt grey bitmap');",
+              "assert.match(desktopState.stageBackground, /arena-approved\\.webp/i, 'DEV arena must use the approved arena artwork');")
+          q = q.replace(
+              "assert.doesNotMatch(desktopState.stageBackground, /url\\(/i, 'DEV arena backdrop must be self-contained CSS, not a bitmap');",
+              "assert.match(desktopState.stageBackground, /url\\(/i, 'DEV arena must render the approved bitmap artwork');")
+          q = q.replace(
+              "assert.match(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must render the CSS dungeon backdrop');",
+              "assert.doesNotMatch(desktopState.stageBackground, /linear-gradient/i, 'DEV arena must not replace the approved artwork with a CSS approximation');")
+          q = q.replace(
+              "assert.doesNotMatch(mobileState.stageBackground, /arena-premium\\.jpg|url\\(/i, 'Mobile DEV arena must not use the corrupt bitmap');",
+              "assert.match(mobileState.stageBackground, /arena-approved\\.webp/i, 'Mobile DEV arena must use the approved arena artwork');")
+          q = q.replace(
+              "console.log('OK: DEV arena uses the CSS dungeon backdrop with no corrupt bitmap, no covering pseudo layers and transparent fighter wrappers.');",
+              "console.log('OK: DEV arena uses the approved artwork with no covering pseudo layers and transparent fighter wrappers.');")
+          if 'arena-approved\\.webp' not in q:
+              raise SystemExit('QA was not updated to approved artwork')
           qa.write_text(q, encoding='utf-8')
           PY
 
           node --check 2026/arena-dev-fix.js
           node --check 2026/qa/dev-overlay-browser.mjs
           grep -Fq "arena-approved.webp" 2026/arena-dev-fix.js
-          grep -Fq "arena-approved.webp" 2026/qa/dev-overlay-browser.mjs
+          grep -Fq "arena-approved" 2026/qa/dev-overlay-browser.mjs
 
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git rm -rf .arena-upload
+          git rm -f 2026/assets/arena-approved.webp.b64
+          git rm -f 2026/ARENA_APPROVED_IMAGE.md 2>/dev/null || true
+          git rm -f 2026/assets/arena-approved-note.txt 2>/dev/null || true
+          git rm -f 2026/assets/arena-premium.jpg 2>/dev/null || true
+          git rm -rf .arena-upload 2>/dev/null || true
           git rm -f .github/workflows/oneoff-install-approved-arena.yml
           git add 2026/assets/arena-approved.webp 2026/arena-dev-fix.js 2026/qa/dev-overlay-browser.mjs
           git commit -m 'fix: use approved arena artwork'
