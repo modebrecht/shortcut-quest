@@ -1,0 +1,1 @@
+Temporary marker: exact approved arena artwork will be installed as 2026/assets/arena-approved.webp. Do not use CSS fallback as final arena background.
