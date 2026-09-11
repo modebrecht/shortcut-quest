@@ -9,7 +9,12 @@ async function openDevOverlayPage(browser, viewport) {
   await page.addScriptTag({ url: new URL('premium-motion.js', BASE_URL).href });
   await page.addScriptTag({ url: new URL('battle-motion.js', BASE_URL).href });
   await page.addScriptTag({ url: new URL('arena-dev-fix.js', BASE_URL).href });
-  await page.locator('.nav-toggle[data-view="battle"]').click();
+  await page.evaluate(() => {
+    const battleNav = document.querySelector('.nav-toggle[data-view="battle"]');
+    if (!(battleNav instanceof HTMLElement)) throw new Error('Battle nav missing');
+    battleNav.click();
+  });
+  await page.waitForFunction(() => document.getElementById('battleView')?.classList.contains('active'));
   await page.waitForTimeout(250);
   return page;
 }
