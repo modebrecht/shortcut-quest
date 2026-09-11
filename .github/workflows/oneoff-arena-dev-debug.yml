@@ -1,0 +1,53 @@
+name: One-off arena DEV debug
+on:
+  push:
+    branches: [tk2-2026]
+    paths: ['.github/workflows/oneoff-arena-dev-debug.yml']
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Inspect computed arena layers with DEV scripts
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          sleep 1
+          cat > /tmp/debug.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const page = await browser.newPage({viewport:{width:1790,height:900}});
+          await page.goto('http://127.0.0.1:4173/2026/', {waitUntil:'networkidle'});
+          await page.addScriptTag({url:'http://127.0.0.1:4173/2026/premium-motion.js'});
+          await page.addScriptTag({url:'http://127.0.0.1:4173/2026/battle-motion.js'});
+          await page.locator('.nav-toggle[data-view="battle"]').click();
+          await page.waitForTimeout(600);
+          const out = await page.evaluate(() => {
+            const stage = document.querySelector('#battleStagePreview');
+            const sr = stage.getBoundingClientRect();
+            const pts = [
+              ['center', sr.left+sr.width*.5, sr.top+sr.height*.5],
+              ['upperCenter', sr.left+sr.width*.5, sr.top+sr.height*.18],
+              ['lowerCenter', sr.left+sr.width*.5, sr.top+sr.height*.75],
+              ['enemy', sr.left+sr.width*.84, sr.top+sr.height*.52],
+            ];
+            const styles = el => {
+              const s=getComputedStyle(el), r=el.getBoundingClientRect();
+              return {tag:el.tagName,id:el.id,cls:el.className,bg:s.background,bgc:s.backgroundColor,bgi:s.backgroundImage,opacity:s.opacity,filter:s.filter,backdrop:s.backdropFilter,z:s.zIndex,pos:s.position,rect:[Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height)]};
+            };
+            const stacks = {};
+            for (const [name,x,y] of pts) stacks[name]=document.elementsFromPoint(x,y).slice(0,10).map(styles);
+            const named = ['#battleStagePreview','.battle-stage-haze','.battle-side.hero','.battle-side.enemy','.battle-side.enemy .battle-portrait','.battle-side.enemy .battle-portrait-icon','#battleEnemyPreviewIcon'];
+            const selected={}; for (const q of named){const el=document.querySelector('#battleView '+q.replace(/^#battleStagePreview$/,'#battleStagePreview'))||document.querySelector(q); if(el) selected[q]=styles(el)}
+            return {stage:styles(stage),stacks,selected};
+          });
+          console.log(JSON.stringify(out,null,2));
+          await page.screenshot({path:'/tmp/arena-debug.png',fullPage:false});
+          await browser.close();
+          NODE
+          node /tmp/debug.mjs
