@@ -1,0 +1,1 @@
+This branch must use the approved arena artwork provided in the chat. Binary asset insertion follows in the same pass.
