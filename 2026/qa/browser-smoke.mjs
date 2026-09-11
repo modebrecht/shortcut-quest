@@ -197,38 +197,61 @@ try {
   const battleCardOverflow = await page.locator('#battleView .battle-card').evaluate(el => el.scrollWidth > el.clientWidth + 2);
   assert.equal(battleCardOverflow, false, 'Battle card must not overflow horizontally on desktop');
   assert.equal(await page.locator('#battleStagePreview').count(), 1, 'Arena preview stage should exist');
-  const threePanelLayout = await page.evaluate(() => {
-    const stage = document.querySelector('#battleStagePreview')?.getBoundingClientRect();
-    const card = document.querySelector('#battleView .battle-card')?.getBoundingClientRect();
-    const center = document.querySelector('#battleView .battle-center')?.getBoundingClientRect();
-    const hero = document.querySelector('#battleView .battle-side.hero')?.getBoundingClientRect();
-    const enemy = document.querySelector('#battleView .battle-side.enemy')?.getBoundingClientRect();
-    const heroPortrait = document.querySelector('#battleView .battle-side.hero .battle-portrait')?.getBoundingClientRect();
-    if (!stage || !card || !center || !hero || !enemy || !heroPortrait) return null;
+  const singleArenaLayout = await page.evaluate(() => {
+    const stageEl = document.querySelector('#battleStagePreview');
+    const cardEl = document.querySelector('#battleView .battle-card');
+    const centerEl = document.querySelector('#battleView .battle-center');
+    const heroEl = document.querySelector('#battleView .battle-side.hero');
+    const enemyEl = document.querySelector('#battleView .battle-side.enemy');
+    const heroPortraitEl = document.querySelector('#battleView .battle-side.hero .battle-portrait');
+    const enemyPortraitEl = document.querySelector('#battleView .battle-side.enemy .battle-portrait');
+    if (!stageEl || !cardEl || !centerEl || !heroEl || !enemyEl || !heroPortraitEl || !enemyPortraitEl) return null;
+    const stage = stageEl.getBoundingClientRect();
+    const card = cardEl.getBoundingClientRect();
+    const center = centerEl.getBoundingClientRect();
+    const heroPortrait = heroPortraitEl.getBoundingClientRect();
+    const enemyPortrait = enemyPortraitEl.getBoundingClientRect();
+    const centerInside = rect => {
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      return x >= stage.left && x <= stage.right && y >= stage.top && y <= stage.bottom;
+    };
     return {
-      stageWidthRatio: stage.width / center.width,
-      centerWidthRatio: center.width / card.width,
+      stageWidthRatio: stage.width / card.width,
+      stageCenterWidthRatio: stage.width / center.width,
       stageHeight: stage.height,
-      heroPosition: getComputedStyle(document.querySelector('#battleView .battle-side.hero')).position,
-      enemyPosition: getComputedStyle(document.querySelector('#battleView .battle-side.enemy')).position,
-      heroLeftOfStage: hero.right <= stage.left + 4,
-      enemyRightOfStage: enemy.left >= stage.right - 4,
+      heroPosition: getComputedStyle(heroEl).position,
+      enemyPosition: getComputedStyle(enemyEl).position,
+      heroPortraitInsideStage: centerInside(heroPortrait),
+      enemyPortraitInsideStage: centerInside(enemyPortrait),
       heroPortraitWidth: heroPortrait.width,
-      heroPortraitHeight: heroPortrait.height
+      enemyPortraitWidth: enemyPortrait.width,
+      heroBorderWidth: getComputedStyle(heroEl).borderLeftWidth,
+      enemyBorderWidth: getComputedStyle(enemyEl).borderLeftWidth
     };
   });
-  assert.ok(threePanelLayout, 'Three-panel arena geometry should be measurable');
-  assert.ok(threePanelLayout.centerWidthRatio > 0.40, 'Center arena should remain the dominant panel');
-  assert.ok(threePanelLayout.stageWidthRatio > 0.90, 'Dungeon showcase should fill the center panel');
-  assert.ok(threePanelLayout.stageHeight >= 300, 'Desktop dungeon showcase should be substantial');
-  assert.equal(threePanelLayout.heroPosition, 'relative', 'Hero should occupy its own panel rather than overlay the arena');
-  assert.equal(threePanelLayout.enemyPosition, 'relative', 'Enemy should occupy its own panel rather than overlay the arena');
-  assert.equal(threePanelLayout.heroLeftOfStage, true, 'Hero panel should sit to the left of the arena showcase');
-  assert.equal(threePanelLayout.enemyRightOfStage, true, 'Enemy panel should sit to the right of the arena showcase');
-  assert.ok(threePanelLayout.heroPortraitWidth >= 200, 'Knight portrait should be noticeably larger on desktop');
-  assert.ok(threePanelLayout.heroPortraitHeight >= 235, 'Knight portrait should have stronger visual presence');
+  assert.ok(singleArenaLayout, 'Single-arena geometry should be measurable');
+  assert.ok(singleArenaLayout.stageWidthRatio > 0.90, 'One arena stage should span nearly the full battle card');
+  assert.ok(singleArenaLayout.stageCenterWidthRatio > 0.96, 'Arena artwork should fill the full center module width');
+  assert.ok(singleArenaLayout.stageHeight >= 480, 'Desktop premium arena should be a substantial showpiece');
+  assert.equal(singleArenaLayout.heroPosition, 'absolute', 'Hero should be overlaid directly inside the arena scene');
+  assert.equal(singleArenaLayout.enemyPosition, 'absolute', 'Enemy should be overlaid directly inside the arena scene');
+  assert.equal(singleArenaLayout.heroPortraitInsideStage, true, 'Hero portrait should sit inside the arena artwork');
+  assert.equal(singleArenaLayout.enemyPortraitInsideStage, true, 'Enemy portrait should sit inside the arena artwork');
+  assert.ok(singleArenaLayout.heroPortraitWidth >= 230, 'Knight should have strong visual presence inside the arena');
+  assert.ok(singleArenaLayout.enemyPortraitWidth >= 210, 'Enemy should have strong visual presence inside the arena');
+  assert.equal(singleArenaLayout.heroBorderWidth, '0px', 'Hero must no longer read as a separate side panel');
+  assert.equal(singleArenaLayout.enemyBorderWidth, '0px', 'Enemy must no longer read as a separate side panel');
+  const arenaAsset = await page.evaluate(() => new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => resolve(null);
+    img.src = 'assets/arena-premium.jpg';
+  }));
+  assert.ok(arenaAsset && arenaAsset.width >= 700 && arenaAsset.height >= 300, 'Premium arena image asset must load at useful resolution');
   const previewArenaBackground = await page.locator('#battleStagePreview').evaluate(el => getComputedStyle(el).backgroundImage);
-  assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must use the dark stone arena instead of the forest background');
+  assert.match(previewArenaBackground, /arena-premium\.jpg/i, 'Arena preview must use the premium generated arena asset');
+  assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must never use the forest background');
   assert.equal(await page.locator('#battleStartBtn').count(), 1, 'Arena should expose a dedicated start CTA');
   assert.equal(await page.locator('#battleButtons .battle-btn.selected').count(), 1, 'Arena should preselect exactly one available battle');
   assert.equal(await page.locator('#battleButtons .battle-btn.battle-featured').count(), 3, 'Arena should visually feature exactly three battle cards');
@@ -433,6 +456,7 @@ try {
   const arenaBox = await page.locator('#battleArena').boundingBox();
   assert.ok(arenaBox && arenaBox.width <= 390, 'Active battle arena must fit inside the mobile viewport');
   const activeArenaBackground = await page.locator('#battleArena').evaluate(el => getComputedStyle(el).backgroundImage);
+  assert.match(activeArenaBackground, /arena-premium\.jpg/i, 'Active combat must use the same premium arena asset');
   assert.equal(/battle-bg-forest/i.test(activeArenaBackground), false, 'Active combat must not switch back to the forest background');
   const groundedFighters = await page.evaluate(() => {
     const arena = document.querySelector('#battleArena')?.getBoundingClientRect();
