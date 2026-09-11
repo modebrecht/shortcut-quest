@@ -1,0 +1,198 @@
+
+/* PREMIUM SINGLE-ARENA IMAGE BACKDROP — FINAL 2026-09-11
+   One visual stage: hero + enemy live in the generated dungeon arena.
+   Existing DOM is preserved for battle logic; side cards are presentation overlays only. */
+#battleView .battle-card {
+  padding: .72rem;
+  background: radial-gradient(900px 380px at 50% -10%, rgba(37,99,235,.08), transparent 68%), linear-gradient(150deg, rgba(11,22,39,.98), rgba(4,10,20,.99));
+}
+#battleView .battle-overview {
+  display: block !important;
+  position: relative !important;
+  isolation: isolate;
+  width: 100%;
+  min-height: 0 !important;
+  margin: 0;
+  overflow: visible;
+}
+#battleView .battle-center {
+  position: relative !important;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  padding: .45rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: .55rem !important;
+}
+#battleView .battle-center-titleline { position: relative; z-index: 12; margin-bottom: 0; }
+#battleView .battle-center-titleline h2 { color: #f4c95d; text-shadow: 0 3px 18px rgba(245,158,11,.18); }
+#battleView .battle-center > .battle-crest > p,
+#battleView .battle-center > p { position: relative; z-index: 12; }
+#battleView .battle-stage-preview {
+  position: relative !important;
+  isolation: isolate;
+  min-height: clamp(500px, 43vw, 650px) !important;
+  margin-top: .15rem;
+  overflow: hidden !important;
+  border: 1px solid rgba(221,166,62,.34) !important;
+  border-radius: 1.25rem !important;
+  background-image: linear-gradient(180deg, rgba(2,8,18,.05) 0%, rgba(2,8,18,.02) 48%, rgba(2,6,15,.24) 100%), linear-gradient(90deg, rgba(2,6,15,.28), transparent 18%, transparent 82%, rgba(2,6,15,.28)), url('assets/arena-premium.jpg') !important;
+  background-size: cover !important;
+  background-position: center 55% !important;
+  background-repeat: no-repeat !important;
+  box-shadow: inset 0 0 90px rgba(2,6,23,.24), inset 0 -70px 90px rgba(2,6,23,.20), 0 24px 58px rgba(2,6,23,.38) !important;
+}
+#battleView .battle-stage-preview::before,
+#battleView .battle-stage-preview::after { content: none !important; display: none !important; }
+#battleView .battle-stage-preview .battle-stage-haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 1 !important;
+  background: radial-gradient(ellipse at 50% 82%, rgba(251,191,36,.08), transparent 34%), radial-gradient(ellipse at 50% 20%, rgba(96,165,250,.08), transparent 45%) !important;
+  filter: none !important;
+}
+#battleView .battle-side {
+  position: absolute !important;
+  top: clamp(120px, 10vw, 154px) !important;
+  z-index: 8 !important;
+  width: clamp(230px, 22vw, 310px) !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+#battleView .battle-side.hero { left: clamp(20px, 3.2vw, 54px) !important; }
+#battleView .battle-side.enemy { right: clamp(20px, 3.2vw, 54px) !important; left: auto !important; }
+#battleView .battle-side-head {
+  width: fit-content;
+  max-width: 100%;
+  padding: .55rem .7rem !important;
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: .86rem;
+  background: linear-gradient(180deg, rgba(5,12,24,.84), rgba(3,9,19,.72)) !important;
+  box-shadow: 0 12px 30px rgba(2,6,23,.32), inset 0 1px 0 rgba(255,255,255,.03);
+  backdrop-filter: blur(8px);
+}
+#battleView .battle-side.enemy .battle-side-head { margin-left: auto; text-align: right; }
+#battleView .battle-side-label { color: #8ea2bb !important; }
+#battleView .battle-side-head h3 { margin-top: .05rem; color: #fff !important; font-size: clamp(.95rem, 1.25vw, 1.12rem) !important; }
+#battleView .battle-side-tier,
+#battleView .battle-trait { border-color: rgba(148,163,184,.20) !important; background: rgba(3,9,19,.62) !important; }
+#battleView .battle-portrait,
+#battleView .battle-portrait.hero,
+#battleView .battle-portrait.enemy {
+  width: clamp(230px, 21vw, 300px) !important;
+  height: clamp(300px, 27vw, 375px) !important;
+  margin: .1rem auto -.05rem !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#battleView .battle-portrait.hero { width: clamp(250px, 23vw, 325px) !important; height: clamp(320px, 29vw, 400px) !important; }
+#battleView .battle-portrait-icon,
+#battleView .battle-portrait-icon img { width: 100% !important; height: 100% !important; }
+#battleView .battle-portrait-icon img {
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  filter: drop-shadow(0 24px 20px rgba(2,6,23,.72)) !important;
+}
+#battleView .battle-portrait::after {
+  left: 50% !important;
+  bottom: 2% !important;
+  width: 72% !important;
+  height: 10% !important;
+  opacity: .9 !important;
+  background: radial-gradient(ellipse, rgba(0,0,0,.68), transparent 70%) !important;
+}
+#battleView .battle-statline {
+  width: fit-content;
+  max-width: 100%;
+  margin: -.1rem auto 0 !important;
+  padding: .3rem .36rem;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: .78rem;
+  background: rgba(3,9,19,.74);
+  box-shadow: 0 10px 24px rgba(2,6,23,.28);
+  backdrop-filter: blur(8px);
+}
+#battleView .battle-side.hero .battle-statline { margin-left: 0 !important; }
+#battleView .battle-side.enemy .battle-statline { margin-left: auto !important; margin-right: 0 !important; }
+#battleView .battle-stat-badge { background: rgba(4,12,24,.72) !important; }
+#battleView .battle-side .battle-gear { display: none !important; }
+#battleView .battle-stage-preview .battle-crest-label {
+  position: absolute !important;
+  left: 50% !important;
+  top: 48% !important;
+  z-index: 9 !important;
+  width: 82px !important;
+  height: 82px !important;
+  transform: translate(-50%,-50%);
+  border-color: rgba(251,191,36,.72) !important;
+  background: radial-gradient(circle at 50% 35%, rgba(95,69,18,.54), rgba(5,11,20,.86) 68%) !important;
+  box-shadow: 0 0 40px rgba(245,158,11,.20), inset 0 0 25px rgba(245,158,11,.08) !important;
+  backdrop-filter: blur(5px);
+}
+#battleView .battle-buttons,
+#battleView .battle-meta-strip,
+#battleView .battle-start-btn { position: relative; z-index: 14; }
+#battleView .battle-buttons { margin-top: .05rem !important; }
+#battleView .battle-btn.battle-featured { background: linear-gradient(180deg, rgba(12,27,46,.96), rgba(5,14,27,.98)) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.025); }
+#battleView .battle-btn.battle-featured.active,
+#battleView .battle-btn.battle-featured.selected,
+#battleView .battle-btn.battle-featured[aria-pressed='true'] { border-color: rgba(251,191,36,.72) !important; box-shadow: 0 0 28px rgba(245,158,11,.12), inset 0 1px 0 rgba(255,255,255,.04) !important; }
+#battleView .battle-arena {
+  background-image: linear-gradient(180deg, rgba(2,8,18,.04), rgba(2,6,15,.24)), linear-gradient(90deg, rgba(2,6,15,.20), transparent 20%, transparent 80%, rgba(2,6,15,.20)), url('assets/arena-premium.jpg') !important;
+  background-size: cover !important;
+  background-position: center 55% !important;
+  background-repeat: no-repeat !important;
+  filter: saturate(1.04) brightness(.96) !important;
+}
+#battleView .battle-arena::before,
+#battleView .battle-arena::after { content: none !important; display: none !important; }
+@media (max-width: 980px) {
+  #battleView .battle-stage-preview { min-height: 470px !important; }
+  #battleView .battle-side { top: 118px !important; width: 27% !important; }
+  #battleView .battle-portrait,
+  #battleView .battle-portrait.enemy { width: min(205px, 22vw) !important; height: 285px !important; }
+  #battleView .battle-portrait.hero { width: min(225px, 24vw) !important; height: 305px !important; }
+}
+@media (max-width: 720px) {
+  #battleView .battle-card { padding: .48rem; }
+  #battleView .battle-center { padding: .25rem !important; }
+  #battleView .battle-center-titleline h2 { font-size: 1.2rem !important; }
+  #battleView .battle-crest p { font-size: .68rem !important; margin-top: .25rem !important; }
+  #battleView .battle-stage-preview { min-height: 360px !important; border-radius: .95rem !important; background-position: center 55% !important; }
+  #battleView .battle-side { top: 86px !important; width: 43% !important; }
+  #battleView .battle-side.hero { left: 7px !important; }
+  #battleView .battle-side.enemy { right: 7px !important; }
+  #battleView .battle-side-head { padding: .34rem .42rem !important; border-radius: .62rem; }
+  #battleView .battle-side-label { display: none; }
+  #battleView .battle-side-head h3 { font-size: .74rem !important; }
+  #battleView .battle-side-tier,
+  #battleView .battle-trait { font-size: .52rem !important; padding: .14rem .28rem !important; }
+  #battleView .battle-portrait,
+  #battleView .battle-portrait.enemy { width: min(145px, 35vw) !important; height: 205px !important; }
+  #battleView .battle-portrait.hero { width: min(158px, 38vw) !important; height: 220px !important; }
+  #battleView .battle-statline { padding: .18rem .22rem; gap: .15rem !important; }
+  #battleView .battle-stat-badge { font-size: .52rem !important; padding: .18rem .26rem !important; }
+  #battleView .battle-stage-preview .battle-crest-label { width: 58px !important; height: 58px !important; font-size: .82rem !important; }
+}
+@media (max-width: 460px) {
+  #battleView .battle-stage-preview { min-height: 330px !important; }
+  #battleView .battle-side { top: 80px !important; width: 45% !important; }
+  #battleView .battle-side-head .battle-trait { display: none !important; }
+  #battleView .battle-portrait,
+  #battleView .battle-portrait.enemy { width: 120px !important; height: 180px !important; }
+  #battleView .battle-portrait.hero { width: 132px !important; height: 192px !important; }
+  #battleView .battle-stage-preview .battle-crest-label { top: 47% !important; }
+}
