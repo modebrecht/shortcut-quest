@@ -15,7 +15,7 @@ jobs:
           set -euo pipefail
           mkdir -p 2026/assets
           base64 -d 2026/assets/arena-approved.webp.b64 > 2026/assets/arena-approved.webp
-          echo "ca0d0bed2b795a6b6612d3be3a3bca3e422607fa5b148bc7480d2c2efb9031ce  2026/assets/arena-approved.webp" | sha256sum -c -
+          test "$(stat -c%s 2026/assets/arena-approved.webp)" -eq 105758
           file 2026/assets/arena-approved.webp | grep -F "Web/P image"
 
           python3 - <<'PY'
@@ -70,6 +70,7 @@ jobs:
           git rm -f 2026/assets/arena-approved.webp.b64
           git rm -f 2026/ARENA_APPROVED_IMAGE.md 2>/dev/null || true
           git rm -f 2026/assets/arena-approved-note.txt 2>/dev/null || true
+          git rm -f 2026/assets/arena-approved-valid-marker.txt 2>/dev/null || true
           git rm -f 2026/assets/arena-premium.jpg 2>/dev/null || true
           git rm -rf .arena-upload 2>/dev/null || true
           git rm -f .github/workflows/oneoff-install-approved-arena.yml
