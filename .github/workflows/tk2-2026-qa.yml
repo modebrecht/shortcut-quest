@@ -26,6 +26,7 @@ jobs:
           node --check 2026/qa/browser-smoke.mjs
           node --check 2026/qa/browser-smoke-svg-runner.mjs
           node --check 2026/qa/dev-overlay-browser.mjs
+          node --check 2026/qa/battle-engine-v2-browser.mjs
           node --check 2026/qa/economy-audit.mjs
           node --check 2026/qa/economy-browser.mjs
           node --check 2026/qa/replay-policy-browser.mjs
@@ -87,6 +88,7 @@ jobs:
           test -f 2026/qa/browser-smoke.mjs
           test -f 2026/qa/browser-smoke-svg-runner.mjs
           test -f 2026/qa/dev-overlay-browser.mjs
+          test -f 2026/qa/battle-engine-v2-browser.mjs
           test -f 2026/qa/economy-audit.mjs
           test -f 2026/qa/economy-browser.mjs
           test -f 2026/qa/replay-policy-browser.mjs
@@ -107,6 +109,10 @@ jobs:
           grep -q 'nodeNeedsUpgrade' 2026/skill-hotkeys.js
           grep -q 'MAX_SECTION_SUBMISSIONS = 3' 2026/index.html
           grep -q 'SHORTCUT_QUEST_2026_REPLAY_POLICY' 2026/index.html
+          grep -Fq 'const BATTLE_ENGINE_V2_STATE = {' 2026/index.html
+          grep -Fq 'function resolveBattleTurn(hero, enemy, heroTurn)' 2026/index.html
+          grep -Fq 'function presentBattleTurn(turn)' 2026/index.html
+          grep -Fq 'BATTLE_ENGINE_V2_STATE.phase === "fighting"' 2026/index.html
           grep -q 'SINGLE ARENA COMPOSITION FIX' 2026/modern-battle.css
           grep -q 'SINGLE ARENA MOBILE OVERFLOW GUARD' 2026/modern-battle.css
           grep -q 'a8ArenaDevFixStyles' 2026/arena-dev-fix.js
@@ -152,6 +158,9 @@ jobs:
 
       - name: DEV overlay arena gate
         run: node 2026/qa/dev-overlay-browser.mjs
+
+      - name: Battle V2 lifecycle gate
+        run: node 2026/qa/battle-engine-v2-browser.mjs
 
       - name: Economy browser gate
         run: node 2026/qa/economy-browser.mjs
