@@ -1,0 +1,49 @@
+name: Battle V2 Branch QA
+
+on:
+  push:
+    branches: [battle-v2-actual]
+    paths:
+      - '.github/workflows/battle-v2-branch-qa.yml'
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: battle-v2-actual
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Static checks
+        run: |
+          node --check 2026/a8-dev-polish.js
+          node --check 2026/battle-motion.js
+          node --check 2026/arena-dev-fix.js
+          node --check 2026/qa/dev-overlay-browser.mjs
+          node --check 2026/qa/battle-engine-v2-browser.mjs
+          grep -Fq 'const BATTLE_ENGINE_V2_STATE = {' 2026/index.html
+          grep -Fq 'function resolveBattleTurn(hero, enemy, heroTurn)' 2026/index.html
+          grep -Fq 'function presentBattleTurn(turn)' 2026/index.html
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Serve app
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/tk2-battle-v2.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/2026/ >/dev/null; then exit 0; fi
+            sleep 0.5
+          done
+          cat /tmp/tk2-battle-v2.log
+          exit 1
+      - name: Existing active battle regression
+        run: node 2026/qa/dev-overlay-browser.mjs
+      - name: Battle V2 lifecycle regression
+        run: node 2026/qa/battle-engine-v2-browser.mjs
+      - name: Show server log on failure
+        if: failure()
+        run: cat /tmp/tk2-battle-v2.log || true
