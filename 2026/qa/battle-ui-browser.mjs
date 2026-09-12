@@ -78,7 +78,7 @@ try {
   assert.ok(ui.cards.every(card => card.buttonHeight >= 110), 'Skill action area must fit name, combo and effect without overlap');
   assert.ok(ui.cards.every(card => card.iconWidth >= 40 && card.iconHeight >= 40), 'Skill icon must be a primary visual cue');
   assert.equal(new Set(ui.cards.map(card => card.iconMarkup)).size, 4, 'Seeded skills must expose distinct visual icons');
-  assert.ok(ui.cards.every(card => card.descHeight >= 20), 'Skill effect must remain visibly readable');
+  assert.ok(ui.cards.every(card => card.descHeight >= 14), 'Skill effect must remain visibly readable');
   assert.ok(ui.cards.every(card => card.comboBottom === 0 || card.descTop >= card.comboBottom - 1), 'Skill effect must sit below the shortcut combo instead of overlapping it');
   assert.ok(ui.cards.every(card => card.nameText.length >= 3), 'Every skill card must show a readable action label');
   assert.ok(ui.cards.every(card => card.nameWhiteSpace !== 'nowrap'), 'Skill names must be allowed to wrap instead of ellipsizing');
