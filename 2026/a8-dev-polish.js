@@ -113,11 +113,18 @@
 
     const items = getOwnedItems();
     const equipment = getEquipmentState();
+    const usedItemKeys = new Set(
+      Object.values(equipment).filter(Boolean).map(key => String(key))
+    );
 
     document.querySelectorAll('#inventoryView [data-equip-slot]').forEach(slot => {
       const slotKey = slot.dataset.equipSlot || '';
       const equipped = Boolean(equipment[slotKey]);
-      const compatibleOwned = !equipped && items.some(item => itemFitsSlot(item, slotKey));
+      const compatibleOwned = !equipped && items.some(item => {
+        const itemKey = String(item && (item.key || item.name) || '');
+        if (!itemKey || usedItemKeys.has(itemKey)) return false;
+        return itemFitsSlot(item, slotKey);
+      });
 
       slot.classList.toggle('a8-slot-ready', compatibleOwned);
       if (compatibleOwned) {
