@@ -89,6 +89,16 @@
       50% { opacity:.9; transform: scale(1.035); }
     }
 
+    /* Once the fight starts, the large selection/preview arena gets out of the way.
+       Showing two arenas at once made the Battle view read as broken. */
+    #battleView .battle-card.a8-battle-active .battle-overview {
+      display: none !important;
+    }
+
+    #battleView .battle-card.a8-battle-active .battle-sim {
+      margin: 0 !important;
+    }
+
     /* ARENA: both characters share one believable floor line. */
     #battleView .battle-arena {
       position: relative;
@@ -105,20 +115,23 @@
       z-index: 2;
     }
 
+    /* Keep a real character-sized wrapper. Previously the sprites were forced to
+       350px wide but capped to a 176px-tall wrapper, squashing the knight and leaving
+       the weapon layers floating far above his hands. */
     #battleView .battle-arena .fighter.knight {
-      left: 18%;
+      left: 21%;
       right: auto;
       bottom: 5.5%;
-      width: 122px;
-      height: 176px;
+      width: 190px;
+      height: 250px;
     }
 
     #battleView .battle-arena .fighter.enemy {
       left: auto;
-      right: 18%;
+      right: 21%;
       bottom: 5.5%;
-      width: 150px;
-      height: 176px;
+      width: 190px;
+      height: 235px;
     }
 
     #battleView .battle-arena .fighter::before {
@@ -132,7 +145,7 @@
       left: 50% !important;
       top: auto !important;
       bottom: 0 !important;
-      width: 138px !important;
+      width: 150px !important;
       height: 24px !important;
       transform: translate(-50%, 48%) !important;
       border: 0 !important;
@@ -149,9 +162,9 @@
       top: auto !important;
       bottom: 0 !important;
       left: 50% !important;
-      width: clamp(238px, 26vw, 350px) !important;
+      width: auto !important;
       max-width: none !important;
-      max-height: 94% !important;
+      max-height: none !important;
       object-fit: contain;
       transform: translateX(-50%) !important;
       transform-origin: 50% 92% !important;
@@ -159,6 +172,14 @@
       will-change: transform;
       filter: drop-shadow(0 18px 27px rgba(2,6,23,.68)) !important;
       transition: opacity .3s ease, filter .25s ease !important;
+    }
+
+    #battleView .battle-arena .fighter.knight .fighter-sprite {
+      height: 245px !important;
+    }
+
+    #battleView .battle-arena .fighter.enemy .fighter-sprite {
+      height: 225px !important;
     }
 
     #battleView .battle-arena .fighter.knight:not(.defeated) .fighter-sprite {
@@ -191,19 +212,34 @@
       100% { transform: translateX(-50%) translateY(18px) scale(.08); opacity:0; filter:none; }
     }
 
-    /* Equipped weapon art stays attached to the newly grounded knight. */
-    #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-left {
-      left: -16px !important;
-      bottom: 72px !important;
-      z-index: 3;
-    }
-    #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-right {
-      right: -20px !important;
-      bottom: 72px !important;
+    /* The knight SVG is 120x170. At 245px tall its hanging hands land roughly
+       70px above the wrapper floor. Anchor each sword by its hilt at that point. */
+    #battleView .battle-arena .fighter.knight .battle-weapon-slot {
+      width: 66px !important;
+      height: 78px !important;
+      top: auto !important;
+      bottom: 7px !important;
       z-index: 3;
     }
 
-    /* The existing attack motion moves the wrappers horizontally; grounded left/right anchors remain stable. */
+    #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-left {
+      left: 24px !important;
+      right: auto !important;
+    }
+    #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-right {
+      left: auto !important;
+      right: 22px !important;
+    }
+
+    #battleView .battle-arena .fighter.knight .battle-weapon-slot img,
+    #battleView .battle-arena .fighter.knight .battle-weapon-slot svg {
+      width: 118% !important;
+      height: 118% !important;
+      object-fit: contain !important;
+      object-position: center top !important;
+    }
+
+    /* Existing attack motion moves the wrappers horizontally; grounded left/right anchors remain stable. */
     #battleView .battle-arena .fighter.attacking-left,
     #battleView .battle-arena .fighter.attacking-right,
     #battleView .battle-arena .fighter.hit {
@@ -212,33 +248,48 @@
 
     @media (max-width: 720px) {
       #battleView .battle-arena .fighter.knight {
-        left: 16%;
+        left: 17%;
         bottom: 4.5%;
-        width: 108px;
-        height: 155px;
+        width: 150px;
+        height: 205px;
       }
       #battleView .battle-arena .fighter.enemy {
-        right: 16%;
+        right: 17%;
         bottom: 4.5%;
-        width: 126px;
-        height: 155px;
+        width: 150px;
+        height: 195px;
       }
-      #battleView .battle-arena .fighter-sprite {
-        width: clamp(205px, 52vw, 270px) !important;
-        max-height: 92% !important;
+      #battleView .battle-arena .fighter.knight .fighter-sprite {
+        height: 200px !important;
+      }
+      #battleView .battle-arena .fighter.enemy .fighter-sprite {
+        height: 185px !important;
       }
       #battleView .battle-arena .fighter::after {
-        width: 112px !important;
+        width: 122px !important;
         height: 20px !important;
+      }
+      #battleView .battle-arena .fighter.knight .battle-weapon-slot {
+        width: 56px !important;
+        height: 68px !important;
+        bottom: 5px !important;
+      }
+      #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-left {
+        left: 17px !important;
+      }
+      #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-right {
+        right: 15px !important;
       }
     }
 
     @media (max-width: 460px) {
-      #battleView .battle-arena .fighter.knight { left: 14%; bottom: 4%; width: 96px; height: 142px; }
-      #battleView .battle-arena .fighter.enemy { right: 14%; bottom: 4%; width: 112px; height: 142px; }
-      #battleView .battle-arena .fighter-sprite { width: 218px !important; max-height: 90% !important; }
-      #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-left { left:-13px !important; bottom:61px !important; }
-      #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-right { right:-16px !important; bottom:61px !important; }
+      #battleView .battle-arena .fighter.knight { left: 15%; bottom: 4%; width: 128px; height: 182px; }
+      #battleView .battle-arena .fighter.enemy { right: 15%; bottom: 4%; width: 128px; height: 172px; }
+      #battleView .battle-arena .fighter.knight .fighter-sprite { height: 176px !important; }
+      #battleView .battle-arena .fighter.enemy .fighter-sprite { height: 164px !important; }
+      #battleView .battle-arena .fighter.knight .battle-weapon-slot { width: 48px !important; height: 60px !important; bottom: 4px !important; }
+      #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-left { left:14px !important; }
+      #battleView .battle-arena .fighter.knight .battle-weapon-slot.weapon-right { right:12px !important; }
     }
 
     /* Animation setting from premium-motion.js must also silence this layer. */
@@ -294,10 +345,26 @@
     observer.observe(root, { attributes: true, attributeFilter: ['class'] });
   }
 
+  function syncBattleMode() {
+    const simulation = document.getElementById('battleSimulation');
+    const card = simulation && simulation.closest('.battle-card');
+    if (!simulation || !card) return;
+    card.classList.toggle('a8-battle-active', !simulation.classList.contains('hidden'));
+  }
+
+  function installBattleModeSync() {
+    const simulation = document.getElementById('battleSimulation');
+    if (!simulation) return;
+    syncBattleMode();
+    const observer = new MutationObserver(syncBattleMode);
+    observer.observe(simulation, { attributes: true, attributeFilter: ['class'] });
+  }
+
   function init() {
     installStyles();
     installPreviewMotion();
     installMotionSettingSync();
+    installBattleModeSync();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
