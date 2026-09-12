@@ -23,11 +23,13 @@ jobs:
           node --check 2026/sections-data.js
           node --check 2026/skill-hotkeys.js
           node --check 2026/arena-dev-fix.js
+          node --check 2026/battle-motion.js
           node --check 2026/qa/browser-smoke.mjs
           node --check 2026/qa/browser-smoke-svg-runner.mjs
           node --check 2026/qa/dev-overlay-browser.mjs
           node --check 2026/qa/battle-engine-v2-browser.mjs
           node --check 2026/qa/battle-ui-browser.mjs
+          node --check 2026/qa/battle-premium-hd-browser.mjs
           node --check 2026/qa/economy-audit.mjs
           node --check 2026/qa/economy-browser.mjs
           node --check 2026/qa/replay-policy-browser.mjs
@@ -91,6 +93,7 @@ jobs:
           test -f 2026/qa/dev-overlay-browser.mjs
           test -f 2026/qa/battle-engine-v2-browser.mjs
           test -f 2026/qa/battle-ui-browser.mjs
+          test -f 2026/qa/battle-premium-hd-browser.mjs
           test -f 2026/qa/economy-audit.mjs
           test -f 2026/qa/economy-browser.mjs
           test -f 2026/qa/replay-policy-browser.mjs
@@ -115,11 +118,13 @@ jobs:
           grep -Fq 'function resolveBattleTurn(hero, enemy, heroTurn)' 2026/index.html
           grep -Fq 'function presentBattleTurn(turn)' 2026/index.html
           grep -Fq 'BATTLE_ENGINE_V2_STATE.phase === "fighting"' 2026/index.html
+          grep -Fq 'SHORTCUT_QUEST_ENEMY_ITEMS' 2026/index.html
           grep -q 'SINGLE ARENA COMPOSITION FIX' 2026/modern-battle.css
           grep -q 'SINGLE ARENA MOBILE OVERFLOW GUARD' 2026/modern-battle.css
           grep -q 'BATTLE UI SKILL BAR PREMIUM PASS 2026' 2026/modern-battle.css
           grep -q 'a8ArenaDevFixStyles' 2026/arena-dev-fix.js
           grep -q 'arena-scene.svg' 2026/arena-dev-fix.js
+          grep -q 'A8 PREMIUM HD BATTLE MOTION 2026' 2026/battle-motion.js
           ! grep -Fq 'new MutationObserver(() => queueMicrotask(() =>' 2026/skill-hotkeys.js
           ! grep -q 'memoryGame:' 2026/sections-data.js
 
@@ -167,6 +172,9 @@ jobs:
 
       - name: Battle UI skill bar gate
         run: node 2026/qa/battle-ui-browser.mjs
+
+      - name: Premium HD battle + enemy item gate
+        run: node 2026/qa/battle-premium-hd-browser.mjs
 
       - name: Economy browser gate
         run: node 2026/qa/economy-browser.mjs
