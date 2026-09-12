@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
 const BASE_URL = process.env.TK2_BASE_URL || 'http://127.0.0.1:4173/2026/';
-const APPROVED_ARENA_RE = /arena-approved\.webp/i;
+const SVG_ARENA_RE = /arena-scene\.svg/i;
 
 async function openDevOverlayPage(browser, viewport) {
   const page = await browser.newPage({ viewport });
@@ -16,18 +16,21 @@ async function openDevOverlayPage(browser, viewport) {
     battleNav.click();
   });
   await page.waitForFunction(() => document.getElementById('battleView')?.classList.contains('active'));
+  await page.waitForFunction(() => document.getElementById('battleStagePreview')?.classList.contains('arena-svg-composed'));
   await page.waitForTimeout(300);
   return page;
 }
 
 async function assertArenaAsset(page) {
-  const assetUrl = new URL('assets/arena-approved.webp?v=20260912-approved', BASE_URL).href;
+  const assetUrl = new URL('assets/arena-scene.svg?v=20260912-svg-arena', BASE_URL).href;
   const response = await page.request.get(assetUrl);
-  assert.equal(response.ok(), true, `Approved arena asset must load: ${response.status()}`);
+  assert.equal(response.ok(), true, `SVG arena asset must load: ${response.status()}`);
   const contentType = response.headers()['content-type'] || '';
-  assert.match(contentType, /image\/webp/i, 'Approved arena asset must be served as WebP');
-  const bytes = await response.body();
-  assert.ok(bytes.byteLength > 150_000, 'Approved arena asset must not be a tiny/corrupt placeholder');
+  assert.match(contentType, /image\/svg\+xml|text\/xml|application\/xml/i, 'Arena asset must be served as SVG/XML');
+  const text = await response.text();
+  assert.ok(text.length > 6_000, 'SVG arena must be a real illustrated scene, not a tiny placeholder');
+  assert.match(text, /Shortcut Quest battle arena/i, 'SVG arena should contain its accessible title');
+  assert.match(text, /<animate\b/i, 'SVG arena should include subtle native scene motion');
 }
 
 const browser = await chromium.launch({ headless: true });
@@ -38,9 +41,14 @@ try {
   const desktopState = await desktop.evaluate(() => {
     const stage = document.getElementById('battleStagePreview');
     const haze = document.querySelector('#battleView .battle-stage-haze');
+    const heroSide = document.querySelector('#battleView .battle-side.hero');
+    const enemySide = document.querySelector('#battleView .battle-side.enemy');
     const heroPortrait = document.querySelector('#battleView .battle-side.hero .battle-portrait');
     const enemyPortrait = document.querySelector('#battleView .battle-side.enemy .battle-portrait');
+    const heroIcon = document.querySelector('#battleView .battle-side.hero .battle-portrait-icon');
+    const enemyIconWrap = document.querySelector('#battleView .battle-side.enemy .battle-portrait-icon');
     const enemyIcon = document.getElementById('battleEnemyPreviewIcon');
+    const startButton = document.getElementById('battleStartBtn');
     const card = document.querySelector('#battleView .battle-card');
     const css = el => el ? getComputedStyle(el) : null;
     const rect = el => el ? el.getBoundingClientRect() : null;
@@ -51,31 +59,47 @@ try {
       stageBackgroundSize: css(stage)?.backgroundSize || '',
       stageBackgroundPosition: css(stage)?.backgroundPosition || '',
       stageWidth: rect(stage)?.width || 0,
+      stageHeight: rect(stage)?.height || 0,
       beforeContent: before?.content || null,
       beforeDisplay: before?.display || null,
       afterContent: after?.content || null,
       afterDisplay: after?.display || null,
       hazeDisplay: css(haze)?.display || null,
+      heroParentIsStage: heroSide?.parentElement === stage,
+      enemyParentIsStage: enemySide?.parentElement === stage,
+      startParentIsStage: startButton?.parentElement === stage,
       heroPortraitBackground: css(heroPortrait)?.backgroundImage || null,
       heroPortraitColor: css(heroPortrait)?.backgroundColor || null,
       enemyPortraitBackground: css(enemyPortrait)?.backgroundImage || null,
       enemyPortraitColor: css(enemyPortrait)?.backgroundColor || null,
       enemyIconBackground: css(enemyIcon)?.backgroundColor || null,
+      heroAnimation: css(heroIcon)?.animationName || '',
+      enemyAnimation: css(enemyIconWrap)?.animationName || '',
+      startWidth: rect(startButton)?.width || 0,
+      startHeight: rect(startButton)?.height || 0,
       overflow: card ? card.scrollWidth > card.clientWidth + 2 : true
     };
   });
 
-  assert.match(desktopState.stageBackground, APPROVED_ARENA_RE, 'DEV arena must use the approved uploaded arena artwork');
-  assert.equal(desktopState.stageBackgroundSize, 'cover', 'Approved arena must cover the stage without stretching');
+  assert.match(desktopState.stageBackground, SVG_ARENA_RE, 'DEV arena must use the vector arena scene');
+  assert.equal(desktopState.stageBackgroundSize, 'cover', 'SVG arena must cover the stage without stretching');
   assert.ok(desktopState.stageWidth > 900, 'Desktop arena must remain a large showpiece');
-  assert.ok(desktopState.beforeContent === 'none' || desktopState.beforeDisplay === 'none', 'Stage ::before must not cover the artwork');
-  assert.ok(desktopState.afterContent === 'none' || desktopState.afterDisplay === 'none', 'Stage ::after must not cover the artwork');
-  assert.equal(desktopState.hazeDisplay, 'none', 'DEV motion stack must not place haze over the arena artwork');
-  assert.equal(desktopState.heroPortraitBackground, 'none', 'Hero portrait wrapper must stay transparent after DEV motion scripts');
-  assert.equal(desktopState.enemyPortraitBackground, 'none', 'Enemy portrait wrapper must stay transparent after DEV motion scripts');
+  assert.ok(desktopState.stageHeight >= 500, 'Desktop arena must have enough vertical room for full-body fighters');
+  assert.ok(desktopState.beforeContent === 'none' || desktopState.beforeDisplay === 'none', 'Stage ::before must not cover the SVG');
+  assert.ok(desktopState.afterContent === 'none' || desktopState.afterDisplay === 'none', 'Stage ::after must not cover the SVG');
+  assert.equal(desktopState.hazeDisplay, 'none', 'DEV motion stack must not place haze over the arena');
+  assert.equal(desktopState.heroParentIsStage, true, 'Hero must be composed directly inside the arena stage');
+  assert.equal(desktopState.enemyParentIsStage, true, 'Enemy must be composed directly inside the arena stage');
+  assert.equal(desktopState.startParentIsStage, true, 'Fight button must live directly inside the arena stage');
+  assert.equal(desktopState.heroPortraitBackground, 'none', 'Hero portrait wrapper must stay transparent');
+  assert.equal(desktopState.enemyPortraitBackground, 'none', 'Enemy portrait wrapper must stay transparent');
   assert.equal(desktopState.heroPortraitColor, 'rgba(0, 0, 0, 0)', 'Hero portrait background color must be transparent');
   assert.equal(desktopState.enemyPortraitColor, 'rgba(0, 0, 0, 0)', 'Enemy portrait background color must be transparent');
   assert.equal(desktopState.enemyIconBackground, 'rgba(0, 0, 0, 0)', 'Enemy image element must not receive a dark background');
+  assert.match(desktopState.heroAnimation, /a8KnightIdle/i, 'Knight needs an idle animation');
+  assert.match(desktopState.enemyAnimation, /a8EnemyIdle/i, 'Enemy needs a distinct idle animation');
+  assert.ok(desktopState.startWidth >= 300, 'Fight button should be visually prominent on desktop');
+  assert.ok(desktopState.startHeight >= 56, 'Fight button should be comfortably large');
   assert.equal(desktopState.overflow, false, 'DEV arena must not overflow on desktop');
   await desktop.close();
 
@@ -84,23 +108,33 @@ try {
     const stage = document.getElementById('battleStagePreview');
     const card = document.querySelector('#battleView .battle-card');
     const haze = document.querySelector('#battleView .battle-stage-haze');
-    const enemyPortrait = document.querySelector('#battleView .battle-side.enemy .battle-portrait');
+    const hero = document.querySelector('#battleView .battle-side.hero');
+    const enemy = document.querySelector('#battleView .battle-side.enemy');
+    const startButton = document.getElementById('battleStartBtn');
     return {
       overflow: card ? card.scrollWidth > card.clientWidth + 2 : true,
       stageBackground: stage ? getComputedStyle(stage).backgroundImage : '',
       stageBackgroundSize: stage ? getComputedStyle(stage).backgroundSize : '',
+      stageHeight: stage ? stage.getBoundingClientRect().height : 0,
       haze: haze ? getComputedStyle(haze).display : null,
-      enemyBackground: enemyPortrait ? getComputedStyle(enemyPortrait).backgroundImage : null
+      heroInStage: hero?.parentElement === stage,
+      enemyInStage: enemy?.parentElement === stage,
+      startInStage: startButton?.parentElement === stage,
+      startWidth: startButton?.getBoundingClientRect().width || 0
     };
   });
   assert.equal(mobileState.overflow, false, 'DEV arena must not overflow at 390px');
-  assert.match(mobileState.stageBackground, APPROVED_ARENA_RE, 'Mobile DEV arena must use the approved artwork');
-  assert.equal(mobileState.stageBackgroundSize, 'cover', 'Mobile approved arena must use cover');
+  assert.match(mobileState.stageBackground, SVG_ARENA_RE, 'Mobile DEV arena must use the vector scene');
+  assert.equal(mobileState.stageBackgroundSize, 'cover', 'Mobile SVG arena must use cover');
+  assert.ok(mobileState.stageHeight >= 480, 'Mobile arena must preserve fighter room');
   assert.equal(mobileState.haze, 'none', 'DEV haze must stay disabled on mobile');
-  assert.equal(mobileState.enemyBackground, 'none', 'Enemy portrait wrapper must stay transparent on mobile');
+  assert.equal(mobileState.heroInStage, true, 'Mobile hero must remain inside the arena');
+  assert.equal(mobileState.enemyInStage, true, 'Mobile enemy must remain inside the arena');
+  assert.equal(mobileState.startInStage, true, 'Mobile fight button must remain inside the arena');
+  assert.ok(mobileState.startWidth >= 240, 'Mobile fight button must remain prominent');
   await mobile.close();
 
-  console.log('OK: DEV arena uses the approved uploaded artwork, with no covering layers and transparent fighter wrappers.');
+  console.log('OK: DEV uses the animated SVG arena with both fighters and the fight button composed inside the scene.');
 } finally {
   await browser.close();
 }
