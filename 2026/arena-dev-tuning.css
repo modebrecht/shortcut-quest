@@ -6,11 +6,11 @@
   left: 18px !important;
 }
 
-/* Knight idle pose: both forearms and fists hang vertically beside the hips.
-   Keep the weapon x-position on those fists, flip blade-down, and lower the
-   complete weapon layer from the old shoulder/forearm position onto the hands. */
+/* Knight idle pose: both arms hang straight down. The sword assets are flipped
+   blade-down, then anchored low enough that the grip/guard sits at the actual
+   gauntlets rather than across the waist. */
 #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-  top: calc(64% + 102px) !important;
+  top: calc(64% + 160px) !important;
   bottom: auto !important;
   width: clamp(78px, 9vw, 98px) !important;
   height: clamp(92px, 10vw, 112px) !important;
@@ -44,7 +44,7 @@
   }
 
   #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-    top: calc(65% + 74px) !important;
+    top: calc(65% + 116px) !important;
     width: clamp(64px, 18vw, 82px) !important;
     height: clamp(76px, 20vw, 96px) !important;
   }
