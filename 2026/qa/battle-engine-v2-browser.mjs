@@ -89,11 +89,18 @@ try {
   assert.equal(balance.version, 1, 'Balance overlay must expose version 1');
   assert.equal(balance.installed, true, 'Balance overlay must patch the live Battle V2 runtime');
   assert.equal(balance.multiplier, 0.45, 'Hero autohit multiplier must be battle-only 45%');
-  assert.equal(balance.cooldown, 4, 'Normal skill cooldown must be 4 turns');
+  assert.equal(balance.cooldown, 4, 'Normal skill cooldown must be configured to 4 turns');
   assert.equal(balance.cap, 4, 'Shortcut coin cap must be exactly 4 per battle');
   for (const [key, power] of EXPECTED_SKILLS) {
     assert.equal(balance.powers[key], power, `${key} tier-1 baseline must be ${power}`);
   }
+
+  const directCooldownProbe = await page.evaluate(() => {
+    const hero = { skillCooldowns: Object.create(null) };
+    setHeroSkillCooldown(hero, 'qa_probe', 5);
+    return getHeroSkillCooldown(hero, 'qa_probe');
+  });
+  assert.equal(directCooldownProbe, 4, 'Legacy/default 5-turn cooldown must now start at exactly 4');
 
   const equipment = await page.evaluate(() => {
     const now = Date.now();
@@ -106,12 +113,7 @@ try {
     state.battleClears = battleClears;
     state.battleUnlocked = 9;
     state.coins = 50;
-    state.skills = SKILL_POOL.map(skill => ({
-      ...skill,
-      tier: 1,
-      totalCopies: 1,
-      overcapBonusPercent: 0
-    }));
+    state.skills = SKILL_POOL.map(skill => ({ ...skill, tier: 1, totalCopies: 1, overcapBonusPercent: 0 }));
     state.items = [{
       id: `qa-balance-blade-${now}`,
       key: 'qa_balance_blade',
@@ -158,7 +160,7 @@ try {
   assert.equal(preview.arenaSvg, true, 'Pre-battle premium arena composition must remain active');
   assert.match(preview.background, /arena-scene\.svg/i, 'Pre-battle must still use premium arena-scene.svg');
 
-  // Make variance/crit deterministic so the Battle-only autohit multiplier can be measured exactly.
+  // Deterministic variance/crit makes the Battle-only autohit multiplier measurable.
   await page.evaluate(() => { Math.random = () => 0.5; });
 
   const completed = [];
@@ -182,7 +184,6 @@ try {
     }, before.runId);
 
     const started = await page.evaluate(() => ({
-      runId: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.runId,
       phase: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.phase,
       datasetPhase: document.getElementById('battleView')?.dataset.battlePhase || '',
       shortcutCoins: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle,
@@ -212,12 +213,15 @@ try {
     assert.ok(scene.sharedGroundDelta <= 2, `Fight ${fightIndex + 1}: fighters must share one groundline (delta ${scene.sharedGroundDelta})`);
 
     if (fightIndex === 0) {
-      // Keep the diagnostic fight alive while shortcuts are fired rapidly.
+      // Keep the diagnostic fight alive and stop enemy hits from racing the effect assertions.
       await page.evaluate(() => {
-        currentBattleContext.hero.hp = 1000;
+        currentBattleContext.hero.hp = 800;
         currentBattleContext.hero.maxHp = 1000;
         currentBattleContext.enemy.hp = 1000;
         currentBattleContext.enemy.maxHp = 1000;
+        currentBattleContext.enemy.atk = 0;
+        currentBattleContext.enemy.variance = 0;
+        currentBattleContext.enemy.crit = 0;
       });
 
       const damageProbe = await page.evaluate(() => {
@@ -253,6 +257,15 @@ try {
 
       let successful = 0;
       for (const skillKey of EXPECTED_SKILLS.keys()) {
+        if (skillKey === 'lichtbrunnen') {
+          await page.evaluate(() => { currentBattleContext.hero.hp = Math.min(currentBattleContext.hero.hp, 800); });
+        }
+        const effectBefore = await page.evaluate(() => ({
+          heroHp: currentBattleContext.hero.hp,
+          heroAtk: currentBattleContext.hero.atk,
+          shieldBonus: currentBattleContext.hero.shieldWallBonus || 0,
+          enemyHp: currentBattleContext.enemy.hp
+        }));
         const combo = await currentCombo(page, skillKey);
         assert.ok(combo, `${skillKey} must have an assigned shortcut`);
         await pressCombo(page, combo.sequence);
@@ -263,27 +276,31 @@ try {
           coins: state.coins,
           shortcutCoins: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle,
           cooldown: getHeroSkillCooldown(currentBattleContext.hero, key),
+          heroHp: currentBattleContext.hero.hp,
+          heroAtk: currentBattleContext.hero.atk,
+          shieldBonus: currentBattleContext.hero.shieldWallBonus || 0,
+          enemyHp: currentBattleContext.enemy.hp,
           strongVisual: document.getElementById('battleArena')?.classList.contains('a8-skill-impact-strong') || false,
           rewardLog: Array.from(document.querySelectorAll('#battleLog > *, .battle-log > *')).some(node => /Shortcut-Bonus/.test(node.textContent || ''))
         }), skillKey);
+
         assert.equal(afterSkill.coins, skillSnapshot.coinStart + successful, `${skillKey}: valid shortcut must grant exactly +1 coin`);
         assert.equal(afterSkill.shortcutCoins, successful, `${skillKey}: shortcut counter must advance exactly once`);
-        assert.equal(afterSkill.cooldown, 4, `${skillKey}: successful activation must start at 4-turn cooldown`);
+        assert.ok(afterSkill.cooldown === 4 || afterSkill.cooldown === 3, `${skillKey}: cooldown must start at 4 and may already have ticked once during the live turn loop (got ${afterSkill.cooldown})`);
         assert.equal(afterSkill.strongVisual, true, `${skillKey}: shortcut skill must use stronger visual emphasis`);
         assert.equal(afterSkill.rewardLog, true, `${skillKey}: +1 shortcut reward must be visibly surfaced`);
 
+        if (skillKey === 'sturm_hieb') assert.ok(afterSkill.enemyHp <= effectBefore.enemyHp - 12, 'Sturm-Hieb must apply at least 12 instant damage');
+        if (skillKey === 'schutzwall') assert.equal(afterSkill.shieldBonus, 7, 'Schutzwall must apply +7 DEF baseline');
+        if (skillKey === 'kampfrausch') assert.ok(afterSkill.heroAtk >= effectBefore.heroAtk + 4, 'Kampfrausch must apply +4 ATK baseline');
+        if (skillKey === 'lichtbrunnen') assert.ok(afterSkill.heroHp >= effectBefore.heroHp + 18, 'Lichtbrunnen must heal at least 18 HP');
+
         if (successful === 1) {
           const blockedCombo = await currentCombo(page, skillKey);
-          const blockedBefore = await page.evaluate(() => ({
-            coins: state.coins,
-            activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle
-          }));
+          const blockedBefore = await page.evaluate(() => ({ coins: state.coins, activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle }));
           await pressCombo(page, blockedCombo.sequence);
           await page.waitForTimeout(70);
-          const blockedAfter = await page.evaluate(() => ({
-            coins: state.coins,
-            activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle
-          }));
+          const blockedAfter = await page.evaluate(() => ({ coins: state.coins, activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle }));
           assert.deepEqual(blockedAfter, blockedBefore, 'Cooldown-blocked shortcut must not grant a coin or count as a valid activation');
         }
       }
@@ -301,37 +318,31 @@ try {
       }));
       await pressCombo(page, capCombo.sequence);
       await page.waitForFunction(count => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle === count + 1, beforeCapAttempt.activations);
-      const afterCapAttempt = await page.evaluate(() => ({
-        coins: state.coins,
-        bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle
-      }));
+      const afterCapAttempt = await page.evaluate(() => ({ coins: state.coins, bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle }));
       assert.equal(afterCapAttempt.bonus, 4, 'Fifth valid shortcut must not exceed the 4-coin cap');
       assert.equal(afterCapAttempt.coins, beforeCapAttempt.coins, 'Fifth valid shortcut must not farm another coin');
 
-      // Let the real Battle V2 loop deliver the finishing blow and terminal transition.
       await page.evaluate(() => { currentBattleContext.enemy.hp = 1; });
     } else if (fightIndex === 1) {
-      // Prove that the bonus is fresh in the next battle and can award again.
+      // Prove that the per-battle shortcut bonus resets and awards again.
       await page.evaluate(() => {
         currentBattleContext.hero.hp = 1000;
         currentBattleContext.hero.maxHp = 1000;
         currentBattleContext.enemy.hp = 1000;
         currentBattleContext.enemy.maxHp = 1000;
+        currentBattleContext.enemy.atk = 0;
       });
       const coinStart = before.coins;
       const combo = await currentCombo(page, 'schutzwall');
       await pressCombo(page, combo.sequence);
       await page.waitForFunction(() => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle === 1);
-      const resetProof = await page.evaluate(() => ({
-        coins: state.coins,
-        bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle
-      }));
+      const resetProof = await page.evaluate(() => ({ coins: state.coins, bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle }));
       assert.equal(resetProof.bonus, 1, 'Second battle must start a fresh shortcut bonus counter');
       assert.equal(resetProof.coins, coinStart + 1, 'Second battle first valid shortcut must again grant exactly +1 coin');
       await page.evaluate(() => { currentBattleContext.enemy.hp = 1; });
     }
 
-    // Historical freeze guard: every fight must progress beyond the opening exchange or finish legitimately.
+    // Historical freeze guard: battle must progress beyond the opening exchange or finish legitimately.
     await page.waitForFunction(() => {
       const engine = window.SHORTCUT_QUEST_BATTLE_ENGINE_V2;
       return engine && (engine.turn >= 3 || engine.phase !== 'fighting');
