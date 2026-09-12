@@ -1,4 +1,32 @@
-/* A8 arena micro-tuning: hero HUD, weapon grip alignment, and inventory loadout visuals. */
+/* A8 arena micro-tuning: hero HUD, weapon grip alignment, inventory loadout visuals,
+   and the original per-rank SVG battle backdrops. */
+
+/* Restore the original themed SVG battle scenes. arena-dev-fix.js deliberately
+   provides arena-scene.svg as a safe fallback, but these more-specific selectors
+   win for every real battle theme in both preview and active combat. */
+#battleView .battle-stage-preview[data-battle-theme="forest"],
+#battleView .battle-arena[data-battle-theme="forest"] {
+  background-image: url("assets/battle-bg-forest.svg") !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+#battleView .battle-stage-preview[data-battle-theme="mountain"],
+#battleView .battle-arena[data-battle-theme="mountain"] {
+  background-image: url("assets/battle-bg-mountain.svg") !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+#battleView .battle-stage-preview[data-battle-theme="celestial"],
+#battleView .battle-arena[data-battle-theme="celestial"] {
+  background-image: url("assets/battle-bg-celestial.svg") !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+}
 
 #battleView .battle-stage-preview .battle-side.hero .battle-statline {
   top: 82px !important;
