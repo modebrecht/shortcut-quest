@@ -101,6 +101,50 @@ try {
   assert.ok(desktopState.startWidth >= 300, 'Fight button should be visually prominent on desktop');
   assert.ok(desktopState.startHeight >= 56, 'Fight button should be comfortably large');
   assert.equal(desktopState.overflow, false, 'DEV arena must not overflow on desktop');
+
+  // Regression: actually start the fight. This protects the real battle scene,
+  // not only the pre-battle showcase.
+  await desktop.locator('#battleStartBtn').click();
+  await desktop.waitForFunction(() => !document.getElementById('battleSimulation')?.classList.contains('hidden'));
+  await desktop.waitForTimeout(180);
+  const activeBattleState = await desktop.evaluate(() => {
+    const card = document.querySelector('#battleView .battle-card');
+    const overview = document.querySelector('#battleView .battle-overview');
+    const sim = document.getElementById('battleSimulation');
+    const arena = document.getElementById('battleArena');
+    const knight = document.getElementById('battleKnight');
+    const enemy = document.getElementById('battleEnemy');
+    const knightSprite = document.getElementById('battleKnightSprite');
+    const enemySprite = document.getElementById('battleEnemySprite');
+    const rect = el => el ? el.getBoundingClientRect() : null;
+    const kr = rect(knightSprite);
+    const er = rect(enemySprite);
+    const kw = rect(knight);
+    const ew = rect(enemy);
+    return {
+      activeClass: Boolean(card?.classList.contains('a8-battle-active')),
+      simVisible: Boolean(sim && !sim.classList.contains('hidden') && rect(sim)?.height > 0),
+      overviewDisplay: overview ? getComputedStyle(overview).display : null,
+      arenaWidth: rect(arena)?.width || 0,
+      arenaHeight: rect(arena)?.height || 0,
+      knightWidth: kr?.width || 0,
+      knightHeight: kr?.height || 0,
+      enemyWidth: er?.width || 0,
+      enemyHeight: er?.height || 0,
+      knightGround: kw?.bottom || 0,
+      enemyGround: ew?.bottom || 0,
+      overflow: card ? card.scrollWidth > card.clientWidth + 2 : true
+    };
+  });
+  assert.equal(activeBattleState.activeClass, true, 'Starting combat must switch the card into active-battle mode');
+  assert.equal(activeBattleState.simVisible, true, 'Active battle simulation must be visible after Start');
+  assert.equal(activeBattleState.overviewDisplay, 'none', 'Pre-battle arena must hide while the real fight is active');
+  assert.ok(activeBattleState.arenaWidth > 900 && activeBattleState.arenaHeight >= 400, 'Active desktop arena must remain a large scene');
+  assert.ok(activeBattleState.knightHeight >= 220, 'Active knight must render at character scale, not as a squashed miniature');
+  assert.ok(activeBattleState.knightWidth < activeBattleState.knightHeight, 'Active knight must preserve its upright aspect ratio');
+  assert.ok(activeBattleState.enemyHeight >= 200, 'Active enemy must remain visually substantial');
+  assert.ok(Math.abs(activeBattleState.knightGround - activeBattleState.enemyGround) <= 2, 'Active fighters must share one floor line');
+  assert.equal(activeBattleState.overflow, false, 'Active desktop battle must not overflow');
   await desktop.close();
 
   const mobile = await openDevOverlayPage(browser, { width: 390, height: 844 });
@@ -134,7 +178,7 @@ try {
   assert.ok(mobileState.startWidth >= 240, 'Mobile fight button must remain prominent');
   await mobile.close();
 
-  console.log('OK: DEV uses the animated SVG arena with both fighters and the fight button composed inside the scene.');
+  console.log('OK: DEV SVG arena and the real active battle both stay grounded, readable, and overflow-safe.');
 } finally {
   await browser.close();
 }
