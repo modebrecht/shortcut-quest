@@ -1,0 +1,38 @@
+name: Apply Battle UI Skill Pass
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/apply-battle-ui-skill-pass.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+
+      - name: Apply Battle UI skill pass
+        run: python3 .github/battle-ui-skill-pass.py
+
+      - name: Static contract
+        run: |
+          grep -Fq 'BATTLE UI SKILL BAR PREMIUM PASS 2026' 2026/modern-battle.css
+          grep -Fq 'grid-template-columns: repeat(4, minmax(0, 1fr))' 2026/modern-battle.css
+          grep -Fq 'Battle UI skill bar gate' .github/workflows/tk2-2026-qa.yml
+          node --check 2026/qa/battle-ui-browser.mjs
+
+      - name: Commit Battle UI pass
+        run: |
+          git config user.name 'modebrecht'
+          git config user.email '137332207+modebrecht@users.noreply.github.com'
+          git add 2026/modern-battle.css .github/workflows/tk2-2026-qa.yml
+          git commit -m 'style: redesign A8 battle skill UI'
+          git push origin HEAD:tk2-2026
