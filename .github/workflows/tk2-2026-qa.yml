@@ -27,6 +27,7 @@ jobs:
           node --check 2026/qa/browser-smoke-svg-runner.mjs
           node --check 2026/qa/dev-overlay-browser.mjs
           node --check 2026/qa/battle-engine-v2-browser.mjs
+          node --check 2026/qa/battle-ui-browser.mjs
           node --check 2026/qa/economy-audit.mjs
           node --check 2026/qa/economy-browser.mjs
           node --check 2026/qa/replay-policy-browser.mjs
@@ -89,6 +90,7 @@ jobs:
           test -f 2026/qa/browser-smoke-svg-runner.mjs
           test -f 2026/qa/dev-overlay-browser.mjs
           test -f 2026/qa/battle-engine-v2-browser.mjs
+          test -f 2026/qa/battle-ui-browser.mjs
           test -f 2026/qa/economy-audit.mjs
           test -f 2026/qa/economy-browser.mjs
           test -f 2026/qa/replay-policy-browser.mjs
@@ -115,6 +117,7 @@ jobs:
           grep -Fq 'BATTLE_ENGINE_V2_STATE.phase === "fighting"' 2026/index.html
           grep -q 'SINGLE ARENA COMPOSITION FIX' 2026/modern-battle.css
           grep -q 'SINGLE ARENA MOBILE OVERFLOW GUARD' 2026/modern-battle.css
+          grep -q 'BATTLE UI SKILL BAR PREMIUM PASS 2026' 2026/modern-battle.css
           grep -q 'a8ArenaDevFixStyles' 2026/arena-dev-fix.js
           grep -q 'arena-scene.svg' 2026/arena-dev-fix.js
           ! grep -Fq 'new MutationObserver(() => queueMicrotask(() =>' 2026/skill-hotkeys.js
@@ -161,6 +164,9 @@ jobs:
 
       - name: Battle V2 lifecycle gate
         run: node 2026/qa/battle-engine-v2-browser.mjs
+
+      - name: Battle UI skill bar gate
+        run: node 2026/qa/battle-ui-browser.mjs
 
       - name: Economy browser gate
         run: node 2026/qa/economy-browser.mjs
