@@ -42,6 +42,8 @@ try {
         return {
           width: rect(card)?.width || 0,
           height: rect(card)?.height || 0,
+          scrollHeight: card.scrollHeight,
+          clientHeight: card.clientHeight,
           buttonHeight: rect(button)?.height || 0,
           iconWidth: rect(icon)?.width || 0,
           iconHeight: rect(icon)?.height || 0,
@@ -57,6 +59,7 @@ try {
     };
   });
 
+  console.log('Battle UI metrics:', JSON.stringify(ui));
   assert.equal(ui.cards.length, 4, 'Expected four seeded battle skill cards');
   assert.equal(ui.display, 'grid', 'Desktop skill bar must use a stable grid');
   assert.ok(ui.cards.every(card => card.width >= 210), 'Desktop skill cards must remain comfortably readable');
