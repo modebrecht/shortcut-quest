@@ -21,7 +21,6 @@
     heal: 'lichtbrunnen'
   });
 
-  let shortcutInputActive = false;
   let shortcutCoinsThisBattle = 0;
   let shortcutActivationsThisBattle = 0;
   let autoImpactTimer = 0;
@@ -82,7 +81,7 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* Battle balance: passive autohit stays readable but deliberately lighter. */
+      /* Passive autohit stays readable but deliberately lighter than shortcut skills. */
       #battleView .battle-arena.a8-auto-hit-light .fighter.knight.attacking-left {
         animation:a8BalanceHeroAuto .48s cubic-bezier(.2,.72,.22,1) both !important;
       }
@@ -110,7 +109,7 @@
         100%{filter:brightness(1);transform:none}
       }
 
-      /* Shortcut skills retain their existing bespoke effects and gain one short premium accent. */
+      /* Existing bespoke skill effects get one extra premium accent. */
       #battleView .battle-arena.a8-skill-impact-strong {
         animation:a8BalanceSkillArenaPulse .48s ease-out both;
       }
@@ -268,37 +267,26 @@
     const originalActivateBattleSkill = activateBattleSkill;
     activateBattleSkill = function balancedActivateBattleSkill(entry) {
       const beforeUseCount = Number(battleSkillUseCount || 0);
+      const isShortcutCombo = Boolean(entry && entry.mode === 'combo');
       const result = originalActivateBattleSkill.apply(this, arguments);
       const afterUseCount = Number(battleSkillUseCount || 0);
       const activated = afterUseCount > beforeUseCount;
 
       if (activated) {
         markSkillImpact(entry);
-        if (shortcutInputActive) {
+        if (isShortcutCombo) {
           shortcutActivationsThisBattle += 1;
-          // The original victory reward already awards one coin per skill use. Real
-          // shortcut activations are paid immediately instead, so remove exactly that
-          // one deferred count to prevent a duplicate reward (including after the cap).
+          // Combo cards cannot activate by click in the current Battle UI: a successful
+          // combo entry reaches this function only through the real shortcut handler.
+          // Core victory rewards already add one coin per counted skill use, so remove
+          // this one deferred count and pay the shortcut coin immediately instead.
+          // This also prevents valid uses after the cap from becoming delayed coin farms.
           battleSkillUseCount = Math.max(beforeUseCount, afterUseCount - 1);
           awardShortcutCoin(entry);
         }
       }
       return result;
     };
-
-    document.addEventListener('keydown', event => {
-      let active = false;
-      try {
-        active = Boolean(
-          !event.repeat &&
-          battleInProgress &&
-          currentBattleContext &&
-          (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey)
-        );
-      } catch (_) {}
-      shortcutInputActive = active;
-      queueMicrotask(() => { shortcutInputActive = false; });
-    }, true);
 
     applyTemplateBaselines();
     syncCooldownCopy();
