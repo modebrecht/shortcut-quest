@@ -10,6 +10,7 @@ async function openDevOverlayPage(browser, viewport) {
   await page.addScriptTag({ url: new URL('premium-motion.js', BASE_URL).href });
   await page.addScriptTag({ url: new URL('battle-motion.js', BASE_URL).href });
   await page.addScriptTag({ url: new URL('arena-dev-fix.js', BASE_URL).href });
+  await page.addScriptTag({ url: new URL('a8-dev-polish.js', BASE_URL).href });
   await page.evaluate(() => {
     const battleNav = document.querySelector('.nav-toggle[data-view="battle"]');
     if (!(battleNav instanceof HTMLElement)) throw new Error('Battle nav missing');
@@ -147,6 +148,25 @@ try {
   // A large drift still fails, while legitimate combat motion remains allowed.
   assert.ok(Math.abs(activeBattleState.knightGround - activeBattleState.enemyGround) <= 24, 'Active fighters must stay on the same visual floor band');
   assert.equal(activeBattleState.overflow, false, 'Active desktop battle must not overflow');
+
+  // The full DEV overlay stack must not starve the combat loop after the first hit.
+  // Two log lines mean only "battle started" + the knight's first strike; require
+  // the enemy turn (or a cleanly finished battle) within a normal combat interval.
+  await desktop.waitForFunction(() => {
+    const logCount = document.querySelectorAll('#battleLog > *, .battle-log > *').length;
+    const result = document.getElementById('battleResult')?.textContent?.trim() || '';
+    return logCount >= 3 || /Sieg|Niederlage|gewonnen|verloren/i.test(result);
+  }, null, { timeout: 4000 });
+  const continuityState = await desktop.evaluate(() => ({
+    logCount: document.querySelectorAll('#battleLog > *, .battle-log > *').length,
+    result: document.getElementById('battleResult')?.textContent?.trim() || '',
+    heroHp: document.getElementById('battleHeroHpValue')?.textContent?.trim() || document.getElementById('heroHpValue')?.textContent?.trim() || '',
+    enemyHp: document.getElementById('battleEnemyHpValue')?.textContent?.trim() || document.getElementById('enemyHpValue')?.textContent?.trim() || ''
+  }));
+  assert.ok(
+    continuityState.logCount >= 3 || /Sieg|Niederlage|gewonnen|verloren/i.test(continuityState.result),
+    'Battle must continue beyond the knight\'s first hit or finish cleanly'
+  );
   await desktop.close();
 
   const mobile = await openDevOverlayPage(browser, { width: 390, height: 844 });
@@ -180,7 +200,7 @@ try {
   assert.ok(mobileState.startWidth >= 240, 'Mobile fight button must remain prominent');
   await mobile.close();
 
-  console.log('OK: DEV SVG arena and the real active battle both stay grounded, readable, and overflow-safe.');
+  console.log('OK: DEV SVG arena and the real active battle both stay grounded, readable, multi-turn, and overflow-safe.');
 } finally {
   await browser.close();
 }
