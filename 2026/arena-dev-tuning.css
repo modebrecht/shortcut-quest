@@ -9,7 +9,7 @@
 /* Knight idle pose: both arms hang straight down. The sword assets are flipped
    blade-down and positioned so the brown grip sits inside each gauntlet. */
 #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-  top: calc(64% + 110px) !important;
+  top: calc(64% + 132px) !important;
   bottom: auto !important;
   width: clamp(78px, 9vw, 98px) !important;
   height: clamp(92px, 10vw, 112px) !important;
@@ -36,9 +36,9 @@
 }
 
 /* Auto-equip already fills the equipment model. The 3x3 loadout redesign was
-   collapsing/deferring the artwork inside the large slot tiles, which made a
-   correctly equipped slot look empty. Keep the tile layout, but give every
-   equipped item a real, stable visual box. */
+   collapsing the artwork inside the large slot tiles, which made a correctly
+   equipped slot look empty. Keep the tile layout, but give every equipped item
+   a stable visual box. */
 #inventoryView .equipment-slot.equipped .slot-icon {
   display: flex !important;
   align-items: center !important;
@@ -85,7 +85,7 @@
   }
 
   #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-    top: calc(65% + 78px) !important;
+    top: calc(65% + 94px) !important;
     width: clamp(64px, 18vw, 82px) !important;
     height: clamp(76px, 20vw, 96px) !important;
   }
