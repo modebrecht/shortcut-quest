@@ -1,0 +1,41 @@
+/* A8 arena micro-tuning: hero HUD and weapon grip alignment. */
+
+#battleView .battle-stage-preview .battle-side.hero .battle-statline {
+  top: 82px !important;
+  bottom: auto !important;
+  left: 18px !important;
+}
+
+/* The knight idle model keeps both arms hanging down. The sword SVGs have the
+   grip at the bottom of their canvas, so flip them around the grip: hilts stay
+   at the hands while the blades point down and slightly outward. */
+#battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
+  width: clamp(78px, 9vw, 98px) !important;
+  height: clamp(78px, 9vw, 98px) !important;
+  transform-origin: 50% 82% !important;
+}
+
+#battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon.weapon-left {
+  left: 18% !important;
+  bottom: -25% !important;
+  transform: rotate(200deg) scale(1.06) !important;
+}
+
+#battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon.weapon-right {
+  right: 18% !important;
+  bottom: -25% !important;
+  transform: rotate(160deg) scale(1.06) !important;
+}
+
+@media (max-width: 720px) {
+  #battleView .battle-stage-preview .battle-side.hero .battle-statline {
+    top: 76px !important;
+    bottom: auto !important;
+    left: 10px !important;
+  }
+
+  #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
+    width: clamp(66px, 18vw, 84px) !important;
+    height: clamp(66px, 18vw, 84px) !important;
+  }
+}
