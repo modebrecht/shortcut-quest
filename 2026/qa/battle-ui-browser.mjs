@@ -18,7 +18,11 @@ try {
   });
   await page.reload({ waitUntil: 'networkidle' });
   await page.locator('.nav-toggle[data-view="battle"]').click();
-  await page.waitForTimeout(300);
+  await page.waitForFunction(() => document.getElementById('battleView')?.classList.contains('active'));
+
+  // Skill controls are intentionally only shown during the real fight.
+  await page.locator('#battleStartBtn').click();
+  await page.waitForFunction(() => !document.getElementById('battleSimulation')?.classList.contains('hidden'));
 
   const bar = page.locator('#battleSkillBar');
   await assert.doesNotReject(() => bar.waitFor({ state: 'visible', timeout: 3000 }));
