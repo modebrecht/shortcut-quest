@@ -1,0 +1,189 @@
+from pathlib import Path
+
+path = Path("2026/index.html")
+text = path.read_text(encoding="utf-8")
+
+loop_start = text.index("    async function runBattleLoop(hero, enemy) {")
+loop_end = text.index("    function finishBattle(", loop_start)
+new_loop = r'''    const BATTLE_ENGINE_V2_STATE = {
+      version: 2,
+      phase: "idle",
+      runId: 0,
+      turn: 0,
+      maxTurns: 120,
+      lastActor: null,
+      lastOutcome: null,
+      lastError: null,
+      startedAt: 0
+    };
+    const battlePresentationWarnings = new Set();
+
+    if (typeof window !== "undefined") {
+      window.SHORTCUT_QUEST_BATTLE_ENGINE_V2 = BATTLE_ENGINE_V2_STATE;
+    }
+
+    function setBattleEnginePhase(phase, details = {}) {
+      BATTLE_ENGINE_V2_STATE.phase = phase;
+      Object.assign(BATTLE_ENGINE_V2_STATE, details);
+      if (battleView) battleView.dataset.battlePhase = phase;
+    }
+
+    function safeBattlePresentation(label, effect) {
+      try {
+        return effect();
+      } catch (error) {
+        if (!battlePresentationWarnings.has(label)) {
+          battlePresentationWarnings.add(label);
+          console.warn(`[Battle V2] Presentation hook failed: ${label}`, error);
+        }
+        return undefined;
+      }
+    }
+
+    function waitBattleEngine(ms) {
+      return new Promise(resolve => window.setTimeout(resolve, ms));
+    }
+
+    function resolveBattleTurn(hero, enemy, heroTurn) {
+      const attacker = heroTurn ? hero : enemy;
+      const defender = heroTurn ? enemy : hero;
+      const attackerEl = heroTurn ? battleKnight : battleEnemy;
+      const defenderEl = heroTurn ? battleEnemy : battleKnight;
+      const { amount, crit } = calculateDamage(attacker, defender);
+      applyDamage(defender, amount);
+      if (defender === hero && hero.shieldWallCharges > 0) {
+        consumeShieldWallCharge(hero);
+      }
+      return {
+        attacker,
+        defender,
+        attackerEl,
+        defenderEl,
+        amount,
+        crit,
+        heroTurn,
+        attackerName: heroTurn ? "Ritter" : enemy.name,
+        defenderName: heroTurn ? enemy.name : "Ritter"
+      };
+    }
+
+    function presentBattleTurn(turn) {
+      const critNote = turn.crit ? " (Kritisch!)" : "";
+      safeBattlePresentation("active-side", () => setActiveBattleSide(turn.heroTurn));
+      safeBattlePresentation("attack-motion", () => playAttack(turn.attackerEl, turn.defenderEl));
+      safeBattlePresentation("hit-pulse", () => pulseBattleSide(!turn.heroTurn));
+      safeBattlePresentation("damage-number", () => spawnDamageNumber(
+        turn.defenderEl,
+        turn.amount,
+        turn.heroTurn ? "enemy" : "hero",
+        turn.crit
+      ));
+      safeBattlePresentation("battle-log", () => pushBattleLog(
+        `${turn.attackerName} trifft ${turn.defenderName} für ${turn.amount} Schaden${critNote}.`,
+        turn.heroTurn ? "hero" : "enemy"
+      ));
+    }
+
+    async function runBattleLoop(hero, enemy, runId = BATTLE_ENGINE_V2_STATE.runId) {
+      let heroTurn = true;
+      BATTLE_ENGINE_V2_STATE.turn = 0;
+      BATTLE_ENGINE_V2_STATE.lastActor = null;
+      BATTLE_ENGINE_V2_STATE.lastError = null;
+
+      while (hero.hp > 0 && enemy.hp > 0) {
+        if (runId !== BATTLE_ENGINE_V2_STATE.runId) {
+          throw new Error("Battle run was superseded by a newer session.");
+        }
+        BATTLE_ENGINE_V2_STATE.turn += 1;
+        if (BATTLE_ENGINE_V2_STATE.turn > BATTLE_ENGINE_V2_STATE.maxTurns) {
+          throw new Error(`Battle safety stop after ${BATTLE_ENGINE_V2_STATE.maxTurns} turns.`);
+        }
+
+        const turn = resolveBattleTurn(hero, enemy, heroTurn);
+        BATTLE_ENGINE_V2_STATE.lastActor = heroTurn ? "hero" : "enemy";
+        presentBattleTurn(turn);
+        safeBattlePresentation("hp-ui", () => updateHpUi(hero, enemy));
+
+        await waitBattleEngine(680);
+
+        if (heroTurn) {
+          tickHeroSkillCooldowns(hero);
+          tickHeroBuffs(hero);
+        }
+        if (turn.defender.hp <= 0) break;
+
+        heroTurn = !heroTurn;
+        await waitBattleEngine(220);
+      }
+
+      safeBattlePresentation("clear-side-state", () => clearBattleSideState());
+      return enemy.hp <= 0 && hero.hp > 0;
+    }
+
+'''
+text = text[:loop_start] + new_loop + text[loop_end:]
+
+start_start = text.index("    async function startBattle(level) {")
+start_end = text.index("    function prepareBattleSimulation(", start_start)
+new_start = r'''    async function startBattle(level) {
+      if (battleInProgress || BATTLE_ENGINE_V2_STATE.phase === "fighting") return;
+      if (level > state.battleUnlocked) return;
+      const enemyBlueprint = ENEMIES[level];
+      if (!enemyBlueprint) return;
+      selectedBattleLevel = level;
+      updateBattleButtons();
+      updateBattlePreview();
+      if (typeof window !== "undefined" && window.scrollTo) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      const hero = createHeroState();
+      const enemy = createEnemyState(enemyBlueprint);
+      const runId = BATTLE_ENGINE_V2_STATE.runId + 1;
+      BATTLE_ENGINE_V2_STATE.runId = runId;
+      BATTLE_ENGINE_V2_STATE.startedAt = Date.now();
+      BATTLE_ENGINE_V2_STATE.lastOutcome = null;
+      BATTLE_ENGINE_V2_STATE.lastError = null;
+      setBattleEnginePhase("fighting", { turn: 0, lastActor: null });
+      battleInProgress = true;
+      prepareBattleSimulation(hero, enemy, level);
+      setupBattleSkills(hero, enemy);
+      updateHpUi(hero, enemy);
+      resetBattleLog("Kampf gegen " + enemy.name + " (Rang " + level + ") gestartet.");
+      let heroWon = false;
+      try {
+        heroWon = await runBattleLoop(hero, enemy, runId);
+      } catch (error) {
+        BATTLE_ENGINE_V2_STATE.lastError = String(error && error.message ? error.message : error);
+        console.error("[Battle V2] Battle loop failed safely", error);
+        safeBattlePresentation("engine-error-log", () => pushBattleLog(
+          "Der Kampf wurde sicher beendet. Bitte erneut starten.",
+          "enemy"
+        ));
+        if (hero.hp > 0 && enemy.hp > 0) hero.hp = 0;
+        safeBattlePresentation("engine-error-hp", () => updateHpUi(hero, enemy));
+        heroWon = false;
+      } finally {
+        battleInProgress = false;
+      }
+      const outcome = heroWon ? "victory" : "defeat";
+      BATTLE_ENGINE_V2_STATE.lastOutcome = outcome;
+      setBattleEnginePhase(outcome);
+      finishBattle(hero, enemy, level, heroWon);
+    }
+
+'''
+text = text[:start_start] + new_start + text[start_end:]
+
+required = [
+    "const BATTLE_ENGINE_V2_STATE = {",
+    "function resolveBattleTurn(hero, enemy, heroTurn)",
+    "function presentBattleTurn(turn)",
+    "async function runBattleLoop(hero, enemy, runId = BATTLE_ENGINE_V2_STATE.runId)",
+    'if (battleInProgress || BATTLE_ENGINE_V2_STATE.phase === "fighting") return;',
+    "window.SHORTCUT_QUEST_BATTLE_ENGINE_V2 = BATTLE_ENGINE_V2_STATE;"
+]
+for marker in required:
+    if marker not in text:
+        raise SystemExit(f"missing Battle V2 marker: {marker}")
+
+path.write_text(text, encoding="utf-8")
