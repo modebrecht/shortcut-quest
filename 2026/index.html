@@ -8684,10 +8684,16 @@ let frenzyAuraEl = null;
       if (battleEnemyAtkStat) battleEnemyAtkStat.textContent = enemy ? String(enemy.atk) : "-";
       if (battleEnemyDefStat) battleEnemyDefStat.textContent = enemy ? String(enemy.def) : "-";
       if (battleEnemyHpStat) battleEnemyHpStat.textContent = enemy ? String(enemy.hp) : "-";
-      if (battleEnemyTrait) battleEnemyTrait.textContent = describeEnemyTrait(enemy);
+      if (battleEnemyTrait) {
+        const itemSuffix = enemy && enemy.item ? ` · ${enemy.item.name}` : "";
+        battleEnemyTrait.textContent = describeEnemyTrait(enemy) + itemSuffix;
+      }
       if (battleMetaPower) battleMetaPower.textContent = `ATK ${heroAtk} · DEF ${heroDef}`;
       if (battleStagePreview) battleStagePreview.setAttribute("data-battle-theme", getBattleTheme(previewLevel));
       updateEnemyPreviewArt(enemy);
+      if (typeof window !== "undefined" && window.A8_PREMIUM_BATTLE && typeof window.A8_PREMIUM_BATTLE.setPreviewEnemy === "function") {
+        window.A8_PREMIUM_BATTLE.setPreviewEnemy(enemy);
+      }
     }
     function pushBattleLog(message, variant = "system") {
       if (!battleLog) return;
@@ -9064,21 +9070,27 @@ let frenzyAuraEl = null;
     const ENEMY_DATA = [
       { name: "Kobold", icon: "kobold", hp: 60, atk: 6, def: 0, variance: 1, crit: 0.05, variant: "goblin" },
       { name: "Grüner Goblin", icon: "gruener-goblin", hp: 80, atk: 8, def: 1, variance: 1, crit: 0.06, variant: "goblin" },
-      { name: "Hobgoblin", icon: "hobgoblin", hp: 110, atk: 10, def: 2, variance: 1, crit: 0.07, variant: "goblin" },
+      { name: "Hobgoblin", icon: "hobgoblin", hp: 110, atk: 10, def: 2, variance: 1, crit: 0.07, variant: "goblin", item: { key: "rust_blade", name: "Rostklinge", icon: "sword", kind: "weapon" } },
       { name: "Waldgoblin", icon: "waldgoblin", hp: 140, atk: 12, def: 3, variance: 1, crit: 0.08, variant: "goblin" },
-      { name: "Höhlengoblin", icon: "hoehlengoblin", hp: 170, atk: 15, def: 5, variance: 1, crit: 0.09, variant: "goblin" },
-      { name: "Bergtroll", icon: "bergtroll", hp: 222, atk: 18, def: 7, variance: 2, crit: 0.11, variant: "goblin-army" },
-      { name: "Dunkelgoblin", icon: "dunkelgoblin", hp: 333, atk: 22, def: 10, variance: 2, crit: 0.12, variant: "goblin-army" },
-      { name: "Kriegsgoblin", icon: "kriegsgoblin", hp: 444, atk: 26, def: 12, variance: 3, crit: 0.13, variant: "goblin-army" },
-      { name: "Schattengoblin", icon: "schattengoblin", hp: 666, atk: 32, def: 14, variance: 3, crit: 0.14, variant: "goblin-army" },
-      { name: "Feuergoblin", icon: "feuergoblin", hp: 777, atk: 38, def: 17, variance: 6, crit: 0.16, variant: "goblin-army" },
-      { name: "Goblinkönig", icon: "goblinkoenig", hp: 999, atk: 42, def: 18, variance: 8, crit: 0.19, variant: "goblin-king" }
+      { name: "Höhlengoblin", icon: "hoehlengoblin", hp: 170, atk: 15, def: 5, variance: 1, crit: 0.09, variant: "goblin", item: { key: "cave_shield", name: "Steinschild", icon: "shield", kind: "shield" } },
+      { name: "Bergtroll", icon: "bergtroll", hp: 222, atk: 18, def: 7, variance: 2, crit: 0.11, variant: "goblin-army", item: { key: "heavy_club", name: "Trollkeule", icon: "sword", kind: "weapon", heavy: true } },
+      { name: "Dunkelgoblin", icon: "dunkelgoblin", hp: 333, atk: 22, def: 10, variance: 2, crit: 0.12, variant: "goblin-army", item: { key: "shadow_rune", name: "Schattenrune", icon: "talisman", kind: "focus" } },
+      { name: "Kriegsgoblin", icon: "kriegsgoblin", hp: 444, atk: 26, def: 12, variance: 3, crit: 0.13, variant: "goblin-army", item: { key: "war_blade", name: "Kriegsklinge", icon: "sword", kind: "weapon" } },
+      { name: "Schattengoblin", icon: "schattengoblin", hp: 666, atk: 32, def: 14, variance: 3, crit: 0.14, variant: "goblin-army", item: { key: "void_charm", name: "Leerenamulett", icon: "talisman", kind: "focus" } },
+      { name: "Feuergoblin", icon: "feuergoblin", hp: 777, atk: 38, def: 17, variance: 6, crit: 0.16, variant: "goblin-army", item: { key: "ember_blade", name: "Glutklinge", icon: "sword", kind: "weapon", element: "fire" } },
+      { name: "Goblinkönig", icon: "goblinkoenig", hp: 999, atk: 42, def: 18, variance: 8, crit: 0.19, variant: "goblin-king", item: { key: "royal_elixir", name: "Königselixier", icon: "heal", kind: "heal", heal: 140, threshold: 0.42, once: true } }
     ];
     const ENEMIES = {};
     ENEMY_DATA.forEach((enemy, index) => {
       const level = index + 1;
       ENEMIES[level] = { ...enemy, level };
     });
+    if (typeof window !== "undefined") {
+      window.SHORTCUT_QUEST_ENEMIES = ENEMIES;
+      window.SHORTCUT_QUEST_ENEMY_ITEMS = Object.freeze(
+        Object.fromEntries(Object.entries(ENEMIES).map(([level, enemy]) => [level, enemy.item ? { ...enemy.item } : null]))
+      );
+    }
     canRenderBattlePreview = true;
     updateBattlePreview();
     state.battleUnlocked = Math.min(ENEMY_DATA.length, Math.max(1, Math.floor(state.battleUnlocked || 1)));
@@ -10863,6 +10875,10 @@ let frenzyAuraEl = null;
       }
       updateBattleSimulationCards(heroState, enemyState, level);
       resetBattleArena();
+      safeBattlePresentation("premium-enemy-item", () => {
+        const premium = typeof window !== "undefined" ? window.A8_PREMIUM_BATTLE : null;
+        if (premium && typeof premium.setEnemy === "function") premium.setEnemy(enemyState);
+      });
     }
     function updateBattleSimulationCards(heroState, enemyState, level) {
       if (heroState) {
@@ -10885,7 +10901,7 @@ let frenzyAuraEl = null;
         const enemyVariance = Math.max(0, enemyState.variance || 0);
         if (modalEnemyVarBadge) modalEnemyVarBadge.textContent = `Var ±${enemyVariance}`;
         if (modalEnemyCritBadge) modalEnemyCritBadge.textContent = `Krit ${enemyCritPercent}%`;
-        if (modalEnemyMeta) modalEnemyMeta.textContent = "";
+        if (modalEnemyMeta) modalEnemyMeta.textContent = enemyState.item ? `Gegenstand: ${enemyState.item.name}` : "";
       }
     }
 
@@ -11022,7 +11038,8 @@ let frenzyAuraEl = null;
         variance: blueprint.variance || 1,
         crit: blueprint.crit || 0.1,
         variant: blueprint.variant || "goblin",
-        icon: blueprint.icon || getEnemyIconKey(blueprint)
+        icon: blueprint.icon || getEnemyIconKey(blueprint),
+        item: blueprint.item ? { ...blueprint.item, used: false, useCount: 0 } : null
       };
     }
 
@@ -11070,6 +11087,32 @@ let frenzyAuraEl = null;
       const defender = heroTurn ? enemy : hero;
       const attackerEl = heroTurn ? battleKnight : battleEnemy;
       const defenderEl = heroTurn ? battleEnemy : battleKnight;
+      let itemEvent = null;
+      const enemyItem = enemy && enemy.item ? enemy.item : null;
+
+      if (!heroTurn && enemyItem) {
+        if (enemyItem.kind === "heal" && !enemyItem.used) {
+          const threshold = Math.max(0.1, Math.min(0.9, Number(enemyItem.threshold || 0.4)));
+          if (enemy.hp > 0 && enemy.hp <= enemy.maxHp * threshold) {
+            const requested = Math.max(1, Math.round(Number(enemyItem.heal || 0)));
+            const healed = Math.min(requested, Math.max(0, enemy.maxHp - enemy.hp));
+            if (healed > 0) {
+              enemy.hp = Math.min(enemy.maxHp, enemy.hp + healed);
+              enemyItem.used = true;
+              enemyItem.useCount = (enemyItem.useCount || 0) + 1;
+              itemEvent = { type: "heal", item: enemyItem, amount: healed };
+            }
+          }
+        }
+        if (!itemEvent && enemyItem.kind !== "shield") {
+          enemyItem.useCount = (enemyItem.useCount || 0) + 1;
+          itemEvent = { type: enemyItem.kind === "weapon" ? "weapon" : "focus", item: enemyItem, amount: 0 };
+        }
+      } else if (heroTurn && enemyItem && enemyItem.kind === "shield") {
+        enemyItem.useCount = (enemyItem.useCount || 0) + 1;
+        itemEvent = { type: "block", item: enemyItem, amount: 0 };
+      }
+
       const { amount, crit } = calculateDamage(attacker, defender);
       applyDamage(defender, amount);
       if (defender === hero && hero.shieldWallCharges > 0) {
@@ -11083,6 +11126,8 @@ let frenzyAuraEl = null;
         amount,
         crit,
         heroTurn,
+        enemyItem,
+        itemEvent,
         attackerName: heroTurn ? "Ritter" : enemy.name,
         defenderName: heroTurn ? enemy.name : "Ritter"
       };
@@ -11091,16 +11136,36 @@ let frenzyAuraEl = null;
     function presentBattleTurn(turn) {
       const critNote = turn.crit ? " (Kritisch!)" : "";
       safeBattlePresentation("active-side", () => setActiveBattleSide(turn.heroTurn));
+      safeBattlePresentation("premium-battle-turn", () => {
+        const premium = typeof window !== "undefined" ? window.A8_PREMIUM_BATTLE : null;
+        if (premium && typeof premium.presentTurn === "function") premium.presentTurn(turn);
+      });
       safeBattlePresentation("attack-motion", () => playAttack(turn.attackerEl, turn.defenderEl));
       safeBattlePresentation("hit-pulse", () => pulseBattleSide(!turn.heroTurn));
+      if (turn.itemEvent && turn.itemEvent.type === "heal" && turn.itemEvent.amount > 0) {
+        safeBattlePresentation("enemy-item-heal-number", () => spawnDamageNumber(
+          battleEnemy,
+          turn.itemEvent.amount,
+          "enemy",
+          false,
+          "heal"
+        ));
+        safeBattlePresentation("enemy-item-heal-log", () => pushBattleLog(
+          `${turn.attackerName} benutzt ${turn.itemEvent.item.name} und heilt ${turn.itemEvent.amount} HP.`,
+          "enemy"
+        ));
+      }
       safeBattlePresentation("damage-number", () => spawnDamageNumber(
         turn.defenderEl,
         turn.amount,
         turn.heroTurn ? "enemy" : "hero",
         turn.crit
       ));
+      const itemNote = !turn.heroTurn && turn.itemEvent && turn.itemEvent.type !== "heal"
+        ? ` mit ${turn.itemEvent.item.name}`
+        : "";
       safeBattlePresentation("battle-log", () => pushBattleLog(
-        `${turn.attackerName} trifft ${turn.defenderName} für ${turn.amount} Schaden${critNote}.`,
+        `${turn.attackerName} trifft ${turn.defenderName}${itemNote} für ${turn.amount} Schaden${critNote}.`,
         turn.heroTurn ? "hero" : "enemy"
       ));
     }
@@ -11290,8 +11355,8 @@ let frenzyAuraEl = null;
       void defenderEl.offsetWidth;
       attackerEl.classList.add(attackClass);
       defenderEl.classList.add("hit");
-      setTimeout(() => attackerEl.classList.remove("attacking-left", "attacking-right"), 520);
-      setTimeout(() => defenderEl.classList.remove("hit"), 420);
+      setTimeout(() => attackerEl.classList.remove("attacking-left", "attacking-right"), 720);
+      setTimeout(() => defenderEl.classList.remove("hit"), 540);
     }
 
     function triggerStormSkillEffect(targetEl, onImpact) {
