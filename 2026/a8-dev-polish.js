@@ -2,6 +2,7 @@
   'use strict';
 
   const STYLE_ID = 'a8DevPolishStyles';
+  let syncFrame = 0;
 
   const css = `
     #inventoryView .equipment-slot.a8-slot-ready:not(.equipped) {
@@ -103,12 +104,24 @@
     return false;
   }
 
+  function setAttributeIfChanged(element, name, value) {
+    if (!element || element.getAttribute(name) === value) return;
+    element.setAttribute(name, value);
+  }
+
   function syncEquipGuidance() {
     const autoButton = document.getElementById('autoEquipBtn');
     if (autoButton) {
-      autoButton.textContent = 'Alles anziehen';
-      autoButton.setAttribute('aria-label', 'Alle passenden Gegenstände anziehen');
-      autoButton.title = 'Alle passenden Gegenstände anziehen';
+      /* Important: do not rewrite textContent on every observer pass. Replacing the
+         text node is a childList mutation and used to reschedule this observer forever,
+         starving the battle loop's timers after the first hit. */
+      if (autoButton.textContent.trim() !== 'Alles anziehen') {
+        autoButton.textContent = 'Alles anziehen';
+      }
+      setAttributeIfChanged(autoButton, 'aria-label', 'Alle passenden Gegenstände anziehen');
+      if (autoButton.title !== 'Alle passenden Gegenstände anziehen') {
+        autoButton.title = 'Alle passenden Gegenstände anziehen';
+      }
     }
 
     const items = getOwnedItems();
@@ -126,20 +139,27 @@
         return itemFitsSlot(item, slotKey);
       });
 
-      slot.classList.toggle('a8-slot-ready', compatibleOwned);
+      if (slot.classList.contains('a8-slot-ready') !== compatibleOwned) {
+        slot.classList.toggle('a8-slot-ready', compatibleOwned);
+      }
       if (compatibleOwned) {
-        slot.dataset.readyToEquip = 'true';
-        slot.setAttribute('aria-label', `${slotKey}: Gegenstand zum Anziehen verfügbar`);
+        if (slot.dataset.readyToEquip !== 'true') slot.dataset.readyToEquip = 'true';
+        setAttributeIfChanged(slot, 'aria-label', `${slotKey}: Gegenstand zum Anziehen verfügbar`);
       } else {
-        delete slot.dataset.readyToEquip;
-        slot.removeAttribute('aria-label');
+        if ('readyToEquip' in slot.dataset) delete slot.dataset.readyToEquip;
+        if (slot.hasAttribute('aria-label')) slot.removeAttribute('aria-label');
       }
     });
   }
 
   function scheduleSync() {
-    requestAnimationFrame(syncEquipGuidance);
-    setTimeout(syncEquipGuidance, 80);
+    /* Coalesce MutationObserver bursts into one frame. A delayed second write is not
+       needed: inventory re-renders are themselves observed. */
+    if (syncFrame) return;
+    syncFrame = requestAnimationFrame(() => {
+      syncFrame = 0;
+      syncEquipGuidance();
+    });
   }
 
   function init() {
