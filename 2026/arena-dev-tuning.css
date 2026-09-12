@@ -6,11 +6,11 @@
   left: 18px !important;
 }
 
-/* Knight idle pose: both forearms and fists hang almost vertically beside the
-   hips. Anchor each weapon at that hand line. The weapon art is stored blade-up,
-   so flip the art itself 180deg; the wrapper only adds a tiny outward splay. */
+/* Knight idle pose: both forearms and fists hang vertically beside the hips.
+   Keep the weapon x-position on those fists, flip blade-down, and lower the
+   complete weapon layer from the old shoulder/forearm position onto the hands. */
 #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-  top: 64% !important;
+  top: calc(64% + 102px) !important;
   bottom: auto !important;
   width: clamp(78px, 9vw, 98px) !important;
   height: clamp(92px, 10vw, 112px) !important;
@@ -44,7 +44,7 @@
   }
 
   #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-    top: 65% !important;
+    top: calc(65% + 74px) !important;
     width: clamp(64px, 18vw, 82px) !important;
     height: clamp(76px, 20vw, 96px) !important;
   }
