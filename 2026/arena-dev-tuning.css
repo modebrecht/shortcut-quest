@@ -1,4 +1,4 @@
-/* A8 arena micro-tuning: hero HUD and weapon grip alignment. */
+/* A8 arena micro-tuning: hero HUD, weapon grip alignment, and inventory loadout visuals. */
 
 #battleView .battle-stage-preview .battle-side.hero .battle-statline {
   top: 82px !important;
@@ -9,7 +9,7 @@
 /* Knight idle pose: both arms hang straight down. The sword assets are flipped
    blade-down and positioned so the brown grip sits inside each gauntlet. */
 #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-  top: calc(64% + 132px) !important;
+  top: calc(64% + 110px) !important;
   bottom: auto !important;
   width: clamp(78px, 9vw, 98px) !important;
   height: clamp(92px, 10vw, 112px) !important;
@@ -35,6 +35,48 @@
   transform: rotate(-9deg) scale(1.02) !important;
 }
 
+/* Auto-equip already fills the equipment model. The 3x3 loadout redesign was
+   collapsing/deferring the artwork inside the large slot tiles, which made a
+   correctly equipped slot look empty. Keep the tile layout, but give every
+   equipped item a real, stable visual box. */
+#inventoryView .equipment-slot.equipped .slot-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+#inventoryView .equipment-slot.equipped .slot-icon > img,
+#inventoryView .equipment-slot.equipped .slot-icon > svg {
+  display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
+  width: clamp(58px, 58%, 112px) !important;
+  height: clamp(58px, 58%, 112px) !important;
+  min-width: 58px !important;
+  min-height: 58px !important;
+  max-width: 82% !important;
+  max-height: 82% !important;
+  margin: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Weapon art is naturally narrow. Let swords use more of the tile height so
+   Feuerklinge/Stahlklinge no longer read as an empty black card. */
+#inventoryView .equipment-slot[data-equip-slot="weapon"].equipped .slot-icon > img,
+#inventoryView .equipment-slot[data-equip-slot="offhand"].equipped .slot-icon > img {
+  width: clamp(64px, 64%, 122px) !important;
+  height: clamp(72px, 72%, 132px) !important;
+  max-width: 86% !important;
+  max-height: 88% !important;
+}
+
 @media (max-width: 720px) {
   #battleView .battle-stage-preview .battle-side.hero .battle-statline {
     top: 76px !important;
@@ -43,7 +85,7 @@
   }
 
   #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-    top: calc(65% + 94px) !important;
+    top: calc(65% + 78px) !important;
     width: clamp(64px, 18vw, 82px) !important;
     height: clamp(76px, 20vw, 96px) !important;
   }
@@ -54,5 +96,13 @@
 
   #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon.weapon-right {
     right: 13% !important;
+  }
+
+  #inventoryView .equipment-slot.equipped .slot-icon > img,
+  #inventoryView .equipment-slot.equipped .slot-icon > svg {
+    width: clamp(46px, 58%, 78px) !important;
+    height: clamp(46px, 58%, 78px) !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
   }
 }
