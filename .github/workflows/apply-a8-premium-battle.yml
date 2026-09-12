@@ -1,0 +1,40 @@
+name: Apply A8 Premium Battle Pass
+
+on:
+  push:
+    branches: [tk2-2026]
+    paths:
+      - '.github/workflows/apply-a8-premium-battle.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+
+      - name: Apply premium battle pass
+        run: python3 .github/a8-premium-battle-pass.py
+
+      - name: Verify patch contract
+        run: |
+          node --check 2026/battle-motion.js
+          node --check 2026/qa/battle-premium-hd-browser.mjs
+          grep -Fq 'A8 PREMIUM HD BATTLE MOTION 2026' 2026/battle-motion.js
+          grep -Fq 'SHORTCUT_QUEST_ENEMY_ITEMS' 2026/index.html
+          grep -Fq 'Steinschild' 2026/index.html
+          grep -Fq 'Premium HD battle + enemy item gate' .github/workflows/tk2-2026-qa.yml
+
+      - name: Commit premium battle pass
+        run: |
+          git config user.name 'modebrecht'
+          git config user.email '137332207+modebrecht@users.noreply.github.com'
+          git add 2026/index.html 2026/battle-motion.js 2026/qa/battle-premium-hd-browser.mjs .github/workflows/tk2-2026-qa.yml
+          git commit -m 'feat: rework battle animations and enemy item use'
+          git push origin HEAD:tk2-2026
