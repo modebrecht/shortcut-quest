@@ -1,0 +1,61 @@
+name: Apply A8 Groundline
+
+on:
+  push:
+    branches:
+      - tk2-2026
+    paths:
+      - .github/workflows/apply-a8-groundline.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tk2-2026
+          fetch-depth: 1
+      - name: Apply shared active-battle groundline
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('2026/battle-continuity.js')
+          t = p.read_text(encoding='utf-8')
+
+          old = """    #battleView .battle-card.a8-battle-active .battle-arena,\n    #battleView #battleArena {\n      height:clamp(420px,40vw,520px) !important;\n      min-height:420px !important;\n    }\n"""
+          new = """    #battleView .battle-card.a8-battle-active .battle-arena,\n    #battleView #battleArena {\n      height:clamp(420px,40vw,520px) !important;\n      min-height:420px !important;\n      /* One shared visual floor for both fighters and both contact shadows.\n         Keeping this as a percentage makes the baseline scale with every SVG arena size. */\n      --a8-battle-ground-y:94.5%;\n      --a8-battle-ground-bottom:calc(100% - var(--a8-battle-ground-y));\n    }\n"""
+          if old not in t:
+              raise SystemExit('arena marker missing')
+          t = t.replace(old, new, 1)
+
+          if t.count('bottom:5.5% !important;') != 2:
+              raise SystemExit('expected exactly two fighter bottom markers')
+          t = t.replace('bottom:5.5% !important;', 'bottom:var(--a8-battle-ground-bottom) !important;')
+
+          old_shadow = """    #battleView .battle-arena .fighter::after {\n      width:184px !important;\n      height:28px !important;\n    }\n"""
+          new_shadow = """    #battleView .battle-arena .fighter::after {\n      display:block !important;\n      top:auto !important;\n      bottom:0 !important;\n      width:184px !important;\n      height:28px !important;\n      transform:translate(-50%,35%) !important;\n    }\n    #battleView .battle-arena .fighter-sprite {\n      top:auto !important;\n      bottom:0 !important;\n    }\n"""
+          if old_shadow not in t:
+              raise SystemExit('shadow marker missing')
+          t = t.replace(old_shadow, new_shadow, 1)
+
+          old_debug = "window.A8_BATTLE_CONTINUITY = Object.freeze({ version:5, previewArena:true, activeThemedBackgrounds:true, backdropLayer:true });"
+          new_debug = "window.A8_BATTLE_CONTINUITY = Object.freeze({ version:6, previewArena:true, activeThemedBackgrounds:true, backdropLayer:true, sharedGroundLine:true });"
+          if old_debug not in t:
+              raise SystemExit('debug marker missing')
+          t = t.replace(old_debug, new_debug, 1)
+
+          p.write_text(t, encoding='utf-8')
+          PY
+          node --check 2026/battle-continuity.js
+          grep -Fq -- '--a8-battle-ground-y:94.5%' 2026/battle-continuity.js
+          grep -Fq 'sharedGroundLine:true' 2026/battle-continuity.js
+      - name: Commit groundline fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 2026/battle-continuity.js
+          git commit -m "fix: anchor active battle fighters to one groundline"
+          git push origin HEAD:tk2-2026
