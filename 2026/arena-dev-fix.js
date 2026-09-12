@@ -3,6 +3,7 @@
 
   const STYLE_ID = 'a8ArenaDevFixStyles';
   const ARENA_BACKGROUND = "url('assets/arena-scene.svg?v=20260912-svg-arena')";
+  const FALLBACK_SWORD = '<img src="assets/sword_steel.svg" alt="" aria-hidden="true">';
 
   const css = `
     /* A8 final vector arena composition. Loaded after battle-motion.js in DEV. */
@@ -35,6 +36,7 @@
     }
 
     #battleView .battle-stage-preview {
+      --arena-ground-y: 112px;
       position: relative !important;
       width: 100% !important;
       height: clamp(500px, 48vw, 620px) !important;
@@ -86,10 +88,7 @@
       padding: 0 !important;
       border: 0 !important;
       border-radius: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
+      display: block !important;
       pointer-events: none !important;
       background: transparent !important;
       background-color: transparent !important;
@@ -141,9 +140,13 @@
     #battleView .battle-stage-preview .battle-portrait,
     #battleView .battle-stage-preview .battle-portrait.hero,
     #battleView .battle-stage-preview .battle-portrait.enemy {
+      position: absolute !important;
+      left: 50% !important;
+      bottom: var(--arena-ground-y) !important;
       width: min(330px, 72%) !important;
-      height: 70% !important;
-      margin: 0 0 76px !important;
+      height: 56% !important;
+      margin: 0 !important;
+      transform: translateX(-50%) !important;
       display: grid !important;
       place-items: end center !important;
       overflow: visible !important;
@@ -155,12 +158,38 @@
       box-shadow: none !important;
     }
 
+    #battleView .battle-stage-preview .battle-portrait::after {
+      content: '' !important;
+      display: block !important;
+      position: absolute !important;
+      left: 50% !important;
+      bottom: -8px !important;
+      z-index: 0 !important;
+      width: 58% !important;
+      height: 22px !important;
+      transform: translateX(-50%) !important;
+      border-radius: 50% !important;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,.52) 0%, rgba(0,0,0,.25) 52%, rgba(0,0,0,0) 78%) !important;
+      filter: blur(5px) !important;
+      pointer-events: none !important;
+    }
+
+    #battleView .battle-stage-preview .battle-side.hero .battle-portrait {
+      width: min(310px, 68%) !important;
+    }
+
+    #battleView .battle-stage-preview .battle-side.enemy .battle-portrait {
+      width: min(340px, 74%) !important;
+    }
+
     #battleView .battle-stage-preview .battle-portrait-icon {
+      position: relative !important;
+      z-index: 2 !important;
       width: 100% !important;
       height: 100% !important;
       display: grid !important;
       place-items: end center !important;
-      transform-origin: 50% 92% !important;
+      transform-origin: 50% 100% !important;
       background: transparent !important;
       background-color: transparent !important;
       background-image: none !important;
@@ -177,8 +206,10 @@
       animation: a8EnemyIdle 2.15s ease-in-out infinite !important;
     }
 
-    #battleView .battle-stage-preview .battle-portrait-icon img,
+    #battleView .battle-stage-preview .battle-portrait-icon > img,
     #battleView #battleEnemyPreviewIcon {
+      position: relative !important;
+      z-index: 2 !important;
       width: 100% !important;
       height: 100% !important;
       max-height: 100% !important;
@@ -187,23 +218,45 @@
       background: transparent !important;
       background-color: transparent !important;
       box-shadow: none !important;
-      filter: drop-shadow(0 20px 18px rgba(0,0,0,.58)) !important;
+      filter: drop-shadow(0 14px 16px rgba(0,0,0,.52)) !important;
     }
 
-    #battleView .battle-stage-preview .battle-side.hero .battle-portrait-icon::after,
-    #battleView .battle-stage-preview .battle-side.enemy .battle-portrait-icon::after {
-      content: '' !important;
-      display: block !important;
+    #battleView .battle-stage-preview .a8-arena-weapon {
       position: absolute !important;
-      left: 50% !important;
-      bottom: 4px !important;
-      width: 58% !important;
-      height: 20px !important;
-      transform: translateX(-50%) !important;
-      border-radius: 50% !important;
-      background: rgba(0,0,0,.34) !important;
-      filter: blur(8px) !important;
-      z-index: -1 !important;
+      z-index: 5 !important;
+      width: clamp(62px, 8vw, 86px) !important;
+      height: clamp(62px, 8vw, 86px) !important;
+      display: grid !important;
+      place-items: center !important;
+      pointer-events: none !important;
+      transform-origin: 50% 82% !important;
+      filter: drop-shadow(0 6px 5px rgba(0,0,0,.45)) !important;
+    }
+
+    #battleView .battle-stage-preview .a8-arena-weapon > img,
+    #battleView .battle-stage-preview .a8-arena-weapon > svg {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      object-fit: contain !important;
+      overflow: visible !important;
+    }
+
+    #battleView .battle-stage-preview .a8-arena-weapon.weapon-left {
+      left: 14% !important;
+      bottom: 18% !important;
+      transform: rotate(-28deg) scale(1.06) !important;
+    }
+
+    #battleView .battle-stage-preview .a8-arena-weapon.weapon-right {
+      right: 14% !important;
+      bottom: 18% !important;
+      transform: rotate(28deg) scale(1.06) !important;
+    }
+
+    #battleView .battle-stage-preview .a8-arena-weapon[data-fallback="true"] > img {
+      filter: saturate(.92) brightness(1.06) !important;
     }
 
     #battleView .battle-stage-preview .battle-statline {
@@ -332,15 +385,13 @@
     #battleView #battleLog { display: none !important; }
 
     @keyframes a8KnightIdle {
-      0%, 100% { transform: translateY(0) rotate(-.15deg) scale(1); }
-      45% { transform: translateY(-8px) rotate(.2deg) scale(1.012); }
-      68% { transform: translateY(-3px) rotate(-.1deg) scale(1.006); }
+      0%, 100% { transform: translateY(0) rotate(-.1deg) scale(1); }
+      48% { transform: translateY(-4px) rotate(.12deg) scale(1.008); }
     }
 
     @keyframes a8EnemyIdle {
-      0%, 100% { transform: translateY(0) rotate(.2deg) scale(1); }
-      35% { transform: translateY(-6px) rotate(-.35deg) scale(1.018); }
-      70% { transform: translateY(-2px) rotate(.3deg) scale(.995); }
+      0%, 100% { transform: translateY(0) rotate(.12deg) scale(1); }
+      50% { transform: translateY(-3px) rotate(-.18deg) scale(1.01); }
     }
 
     @keyframes a8VsPulse {
@@ -351,6 +402,7 @@
     @media (max-width: 720px) {
       #battleView .battle-card { padding: .45rem !important; }
       #battleView .battle-stage-preview {
+        --arena-ground-y: 118px;
         height: 500px !important;
         min-height: 500px !important;
         border-radius: 1rem !important;
@@ -368,9 +420,16 @@
       #battleView .battle-stage-preview .battle-side.enemy .battle-side-head { right: 10px !important; }
       #battleView .battle-stage-preview .battle-portrait {
         width: 94% !important;
-        height: 66% !important;
-        margin-bottom: 92px !important;
+        height: 58% !important;
       }
+      #battleView .battle-stage-preview .battle-side.hero .battle-portrait { width: 88% !important; }
+      #battleView .battle-stage-preview .battle-side.enemy .battle-portrait { width: 96% !important; }
+      #battleView .battle-stage-preview .a8-arena-weapon {
+        width: 58px !important;
+        height: 58px !important;
+      }
+      #battleView .battle-stage-preview .a8-arena-weapon.weapon-left { left: 8% !important; }
+      #battleView .battle-stage-preview .a8-arena-weapon.weapon-right { right: 8% !important; }
       #battleView .battle-stage-preview .battle-statline {
         bottom: 92px !important;
         gap: .14rem !important;
@@ -415,6 +474,34 @@
     }
   }
 
+  function syncArenaHeroWeapons() {
+    const heroIcon = document.querySelector('#battleView .battle-stage-preview .battle-side.hero .battle-portrait-icon');
+    if (!heroIcon) return;
+
+    const slots = [
+      { source: document.getElementById('battleWeaponSlot1'), className: 'weapon-left' },
+      { source: document.getElementById('battleWeaponSlot2'), className: 'weapon-right' }
+    ];
+
+    slots.forEach(({ source, className }) => {
+      const equippedHtml = source && source.dataset.empty !== 'true' ? source.innerHTML.trim() : '';
+      const html = equippedHtml || FALLBACK_SWORD;
+      const signature = `${source?.dataset.empty === 'false' ? 'equipped' : 'fallback'}:${html}`;
+      let layer = heroIcon.querySelector(`.a8-arena-weapon.${className}`);
+      if (!layer) {
+        layer = document.createElement('span');
+        layer.className = `a8-arena-weapon ${className}`;
+        layer.setAttribute('aria-hidden', 'true');
+        heroIcon.appendChild(layer);
+      }
+      if (layer.dataset.signature !== signature) {
+        layer.innerHTML = html;
+        layer.dataset.signature = signature;
+      }
+      layer.dataset.fallback = equippedHtml ? 'false' : 'true';
+    });
+  }
+
   function composeArena() {
     const stage = document.getElementById('battleStagePreview');
     if (!stage) return;
@@ -432,6 +519,7 @@
     if (startButton && startButton.parentElement !== stage) stage.appendChild(startButton);
 
     stage.classList.add('arena-svg-composed');
+    syncArenaHeroWeapons();
   }
 
   function enforceArena() {
