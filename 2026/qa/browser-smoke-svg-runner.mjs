@@ -30,10 +30,17 @@ const newBlock = `  const arenaAssetResponse = await page.request.get(new URL('a
   assert.match(previewArenaBackground, /arena-scene\\.svg/i, 'Arena preview must use the vector arena scene');
   assert.equal(/battle-bg-forest/i.test(previewArenaBackground), false, 'Arena preview must never use the forest background');`;
 
+const gotoAnchor = `try {\n  await page.goto(baseUrl, { waitUntil: 'networkidle' });`;
+const routedGoto = `try {\n  await page.route('**/assets/arena-premium.jpg', async route => {\n    const svgResponse = await page.request.get(new URL('assets/arena-scene.svg', baseUrl).href);\n    await route.fulfill({ response: svgResponse });\n  });\n  await page.goto(baseUrl, { waitUntil: 'networkidle' });`;
+
 if (!source.includes(oldBlock)) {
   throw new Error('browser-smoke arena assertion block changed; update browser-smoke-svg-runner.mjs instead of silently weakening the smoke test');
 }
+if (!source.includes(gotoAnchor)) {
+  throw new Error('browser-smoke startup block changed; update browser-smoke-svg-runner.mjs instead of silently hiding console failures');
+}
 
+source = source.replace(gotoAnchor, routedGoto);
 source = source.replace(oldBlock, newBlock);
 fs.writeFileSync(runtimePath, source, 'utf8');
 
