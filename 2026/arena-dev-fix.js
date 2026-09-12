@@ -2,7 +2,7 @@
   'use strict';
 
   const STYLE_ID = 'a8ArenaDevFixStyles';
-  const ARENA_BACKGROUND = "radial-gradient(ellipse at 50% 6%, rgba(72,128,177,.24) 0%, rgba(25,58,87,.10) 34%, transparent 58%), radial-gradient(circle at 8% 68%, rgba(255,210,112,.94) 0 2px, rgba(245,143,28,.44) 3px 8px, rgba(245,143,28,.09) 9px 38px, transparent 72px), radial-gradient(circle at 92% 68%, rgba(255,210,112,.94) 0 2px, rgba(245,143,28,.44) 3px 8px, rgba(245,143,28,.09) 9px 38px, transparent 72px), linear-gradient(90deg, rgba(1,5,11,.58) 0 6%, transparent 15% 85%, rgba(1,5,11,.58) 94% 100%), repeating-linear-gradient(0deg, rgba(142,163,181,.055) 0 1px, transparent 1px 52px), repeating-linear-gradient(90deg, rgba(125,145,165,.035) 0 1px, transparent 1px 120px), linear-gradient(180deg, #102a43 0%, #0b2035 36%, #081725 67%, #070d14 100%)";
+  const ARENA_BACKGROUND = "url('assets/arena-approved.webp?v=20260912-approved')";
 
   const css = `
     /* Final arena layer: loaded after battle-motion.js in DEV. */
@@ -10,8 +10,8 @@
     #battleView .battle-arena {
       background-color: #07101a !important;
       background-image: ${ARENA_BACKGROUND} !important;
-      background-size: auto !important;
-      background-position: center !important;
+      background-size: cover !important;
+      background-position: center center !important;
       background-repeat: no-repeat !important;
       filter: none !important;
     }
@@ -34,6 +34,7 @@
       backdrop-filter: none !important;
       animation: none !important;
     }
+
     #battleView .battle-stage-preview .battle-stage-haze::before,
     #battleView .battle-stage-preview .battle-stage-haze::after {
       content: none !important;
@@ -89,8 +90,8 @@
     document.querySelectorAll('#battleView .battle-stage-preview, #battleView .battle-arena').forEach(stage => {
       stage.style.setProperty('background-color', '#07101a', 'important');
       stage.style.setProperty('background-image', ARENA_BACKGROUND, 'important');
-      stage.style.setProperty('background-size', 'auto', 'important');
-      stage.style.setProperty('background-position', 'center', 'important');
+      stage.style.setProperty('background-size', 'cover', 'important');
+      stage.style.setProperty('background-position', 'center center', 'important');
       stage.style.setProperty('background-repeat', 'no-repeat', 'important');
       stage.style.setProperty('filter', 'none', 'important');
     });
@@ -107,10 +108,14 @@
   }
 
   function init() {
+    const preload = new Image();
+    preload.src = 'assets/arena-approved.webp?v=20260912-approved';
     enforceArena();
+
     document.addEventListener('click', event => {
       if (event.target.closest('[data-view="battle"], .battle-btn, #battleStartBtn')) {
         requestAnimationFrame(enforceArena);
+        setTimeout(enforceArena, 80);
       }
     });
   }
