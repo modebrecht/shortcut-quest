@@ -46,35 +46,35 @@ try {
   }
 
   await page.locator('.nav-toggle[data-view="inventory"]').click();
-  await page.waitForFunction(() => window.A8_GEAR_VISUALS?.version === 2);
-  await page.waitForFunction(() => document.querySelectorAll('#heroAvatar .a8-knight-gear-piece').length === 5);
+  await page.waitForFunction(() => window.A8_GEAR_VISUALS?.version === 3);
 
   const inventory = await page.evaluate(() => {
-    const pieces = Array.from(document.querySelectorAll('#heroAvatar .a8-knight-gear-piece'));
     const slot = key => document.querySelector(`#inventoryView [data-equip-slot="${key}"]`);
     const weaponArt = slot('weapon')?.querySelector('.slot-icon > img, .slot-icon > svg');
     return {
-      pieceSlots: pieces.map(piece => piece.dataset.slot).sort(),
-      helmetPieces: document.querySelectorAll('#heroAvatar .a8-knight-gear-piece[data-slot="helm"]').length,
-      ringPieces: document.querySelectorAll('#heroAvatar .a8-knight-gear-piece[data-slot^="ring"]').length,
+      bodyPieces: document.querySelectorAll('#heroAvatar .a8-knight-gear-piece').length,
       framedSlots: document.querySelectorAll('#inventoryView .equipment-slot.a8-tier-frame').length,
       weaponTier: slot('weapon')?.dataset.a8GearTier || '',
       offhandTier: slot('offhand')?.dataset.a8GearTier || '',
       helmTier: slot('helm')?.dataset.a8GearTier || '',
+      gloveTier: slot('gloves')?.dataset.a8GearTier || '',
       weaponFilter: weaponArt ? getComputedStyle(weaponArt).filter : 'none',
-      gearVersion: window.A8_GEAR_VISUALS?.version || 0
+      weaponFrameColor: getComputedStyle(slot('weapon')).borderColor,
+      gearVersion: window.A8_GEAR_VISUALS?.version || 0,
+      overlaySuppressed: window.A8_GEAR_VISUAL_DEBUG?.bodyOverlaySuppressed || false
     };
   });
 
-  assert.deepEqual(inventory.pieceSlots, ['boots', 'gloves', 'necklace', 'offhand', 'weapon']);
-  assert.equal(inventory.helmetPieces, 0, 'Helmet remains equipped but must not cover the knight head');
-  assert.equal(inventory.ringPieces, 0, 'Rings remain UI-only to avoid visual clutter');
+  assert.equal(inventory.bodyPieces, 0, 'Inventory knight must not receive pasted-on item icons');
   assert.equal(inventory.framedSlots, 8, 'Every equipped slot gets its tier frame');
   assert.equal(inventory.weaponTier, '5');
   assert.equal(inventory.offhandTier, '4');
   assert.equal(inventory.helmTier, '5');
-  assert.notEqual(inventory.weaponFilter, 'none', 'Tier 5 weapon must receive the red-hot weapon material');
-  assert.equal(inventory.gearVersion, 2);
+  assert.equal(inventory.gloveTier, '3');
+  assert.notEqual(inventory.weaponFilter, 'none', 'Tier 5 weapon art must receive the red-hot material');
+  assert.match(inventory.weaponFrameColor, /248, 113, 113|rgb\(248 113 113\)/, 'Tier 5 frame must be red');
+  assert.equal(inventory.gearVersion, 3);
+  assert.equal(inventory.overlaySuppressed, true);
 
   await page.locator('.nav-toggle[data-view="battle"]').click();
   await page.waitForFunction(() => document.getElementById('battleView')?.classList.contains('active'));
@@ -88,8 +88,7 @@ try {
     const leftArt = leftWeapon?.querySelector('img,svg');
     return {
       enemyItem: document.querySelector('.a8-preview-enemy-item')?.getAttribute('title') || '',
-      bodySlots: Array.from(document.querySelectorAll('#battleView .battle-stage-preview .a8-knight-gear-piece')).map(el => el.dataset.slot).sort(),
-      helmetPieces: document.querySelectorAll('#battleView .battle-stage-preview .a8-knight-gear-piece[data-slot="helm"]').length,
+      pastedPieces: document.querySelectorAll('#battleView .battle-stage-preview .a8-knight-gear-piece').length,
       leftTier: leftWeapon?.dataset.a8GearTier || '',
       rightTier: rightWeapon?.dataset.a8GearTier || '',
       leftFilter: leftArt ? getComputedStyle(leftArt).filter : 'none',
@@ -99,8 +98,7 @@ try {
   });
 
   assert.equal(preview.enemyItem, 'Steinschild');
-  assert.deepEqual(preview.bodySlots, ['boots', 'gloves', 'necklace']);
-  assert.equal(preview.helmetPieces, 0);
+  assert.equal(preview.pastedPieces, 0, 'Battle preview must not paste equipment icons onto the knight');
   assert.equal(preview.leftTier, '5');
   assert.equal(preview.rightTier, '4');
   assert.notEqual(preview.leftFilter, 'none');
@@ -121,8 +119,7 @@ try {
     gearVersion: window.A8_GEAR_VISUALS?.version || 0,
     enemyItemUses: window.A8_PREMIUM_BATTLE_DEBUG?.enemyItemUses || 0,
     impacts: window.A8_PREMIUM_BATTLE_DEBUG?.impacts || 0,
-    bodySlots: Array.from(document.querySelectorAll('#battleKnight .a8-knight-gear-piece')).map(el => el.dataset.slot).sort(),
-    helmetPieces: document.querySelectorAll('#battleKnight .a8-knight-gear-piece[data-slot="helm"]').length,
+    pastedPieces: document.querySelectorAll('#battleKnight .a8-knight-gear-piece').length,
     weaponTier: document.getElementById('battleWeaponSlot1')?.dataset.a8GearTier || '',
     offhandTier: document.getElementById('battleWeaponSlot2')?.dataset.a8GearTier || '',
     overflow: document.getElementById('battleArena')?.scrollWidth > document.getElementById('battleArena')?.clientWidth + 2
@@ -130,16 +127,15 @@ try {
 
   assert.equal(active.battleVersion, 2);
   assert.equal(active.knightVersion, 1);
-  assert.equal(active.gearVersion, 2);
+  assert.equal(active.gearVersion, 3);
   assert.ok(active.enemyItemUses >= 1);
   assert.ok(active.impacts >= 1);
-  assert.deepEqual(active.bodySlots, ['boots', 'gloves', 'necklace']);
-  assert.equal(active.helmetPieces, 0);
+  assert.equal(active.pastedPieces, 0, 'Active battle knight must not receive pasted-on gear icons');
   assert.equal(active.weaponTier, '5');
   assert.equal(active.offhandTier, '4');
   assert.equal(active.overflow, false);
 
-  console.log('OK: full helmet-free knight loadout, tier frames/materials, premium combat and enemy items are active.');
+  console.log('OK: clean knight silhouette, tier-colored equipment frames, tiered weapon material, premium combat and enemy items are active.');
 } finally {
   await browser.close();
 }
