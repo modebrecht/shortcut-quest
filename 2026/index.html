@@ -10791,7 +10791,7 @@ let frenzyAuraEl = null;
       }
     });
     async function startBattle(level) {
-      if (battleInProgress) return;
+      if (battleInProgress || BATTLE_ENGINE_V2_STATE.phase === "fighting") return;
       if (level > state.battleUnlocked) return;
       const enemyBlueprint = ENEMIES[level];
       if (!enemyBlueprint) return;
@@ -10803,6 +10803,12 @@ let frenzyAuraEl = null;
       }
       const hero = createHeroState();
       const enemy = createEnemyState(enemyBlueprint);
+      const runId = BATTLE_ENGINE_V2_STATE.runId + 1;
+      BATTLE_ENGINE_V2_STATE.runId = runId;
+      BATTLE_ENGINE_V2_STATE.startedAt = Date.now();
+      BATTLE_ENGINE_V2_STATE.lastOutcome = null;
+      BATTLE_ENGINE_V2_STATE.lastError = null;
+      setBattleEnginePhase("fighting", { turn: 0, lastActor: null });
       battleInProgress = true;
       prepareBattleSimulation(hero, enemy, level);
       setupBattleSkills(hero, enemy);
@@ -10810,10 +10816,23 @@ let frenzyAuraEl = null;
       resetBattleLog("Kampf gegen " + enemy.name + " (Rang " + level + ") gestartet.");
       let heroWon = false;
       try {
-        heroWon = await runBattleLoop(hero, enemy);
+        heroWon = await runBattleLoop(hero, enemy, runId);
+      } catch (error) {
+        BATTLE_ENGINE_V2_STATE.lastError = String(error && error.message ? error.message : error);
+        console.error("[Battle V2] Battle loop failed safely", error);
+        safeBattlePresentation("engine-error-log", () => pushBattleLog(
+          "Der Kampf wurde sicher beendet. Bitte erneut starten.",
+          "enemy"
+        ));
+        if (hero.hp > 0 && enemy.hp > 0) hero.hp = 0;
+        safeBattlePresentation("engine-error-hp", () => updateHpUi(hero, enemy));
+        heroWon = false;
       } finally {
         battleInProgress = false;
       }
+      const outcome = heroWon ? "victory" : "defeat";
+      BATTLE_ENGINE_V2_STATE.lastOutcome = outcome;
+      setBattleEnginePhase(outcome);
       finishBattle(hero, enemy, level, heroWon);
     }
 
@@ -11004,38 +11023,119 @@ let frenzyAuraEl = null;
       };
     }
 
-    async function runBattleLoop(hero, enemy) {
-      let attacker = hero;
-      let defender = enemy;
-      let attackerEl = battleKnight;
-      let defenderEl = battleEnemy;
-      while (hero.hp > 0 && enemy.hp > 0) {
-        setActiveBattleSide(attacker === hero);
-        const { amount, crit } = calculateDamage(attacker, defender);
-        playAttack(attackerEl, defenderEl);
-        applyDamage(defender, amount);
-        pulseBattleSide(defender === hero);
-        spawnDamageNumber(defenderEl, amount, defender === hero ? "hero" : "enemy", crit);
-        if (defender === hero && hero.shieldWallCharges > 0) {
-          consumeShieldWallCharge(hero);
+    const BATTLE_ENGINE_V2_STATE = {
+      version: 2,
+      phase: "idle",
+      runId: 0,
+      turn: 0,
+      maxTurns: 120,
+      lastActor: null,
+      lastOutcome: null,
+      lastError: null,
+      startedAt: 0
+    };
+    const battlePresentationWarnings = new Set();
+
+    if (typeof window !== "undefined") {
+      window.SHORTCUT_QUEST_BATTLE_ENGINE_V2 = BATTLE_ENGINE_V2_STATE;
+    }
+
+    function setBattleEnginePhase(phase, details = {}) {
+      BATTLE_ENGINE_V2_STATE.phase = phase;
+      Object.assign(BATTLE_ENGINE_V2_STATE, details);
+      if (battleView) battleView.dataset.battlePhase = phase;
+    }
+
+    function safeBattlePresentation(label, effect) {
+      try {
+        return effect();
+      } catch (error) {
+        if (!battlePresentationWarnings.has(label)) {
+          battlePresentationWarnings.add(label);
+          console.warn(`[Battle V2] Presentation hook failed: ${label}`, error);
         }
-        const attackerName = attacker === hero ? "Ritter" : enemy.name;
-        const defenderName = defender === hero ? "Ritter" : enemy.name;
-        const critNote = crit ? " (Kritisch!)" : "";
-        pushBattleLog(`${attackerName} trifft ${defenderName} für ${amount} Schaden${critNote}.`, attacker === hero ? "hero" : "enemy");
-        updateHpUi(hero, enemy);
-        await delay(680);
-        if (attacker === hero) {
+        return undefined;
+      }
+    }
+
+    function waitBattleEngine(ms) {
+      return new Promise(resolve => window.setTimeout(resolve, ms));
+    }
+
+    function resolveBattleTurn(hero, enemy, heroTurn) {
+      const attacker = heroTurn ? hero : enemy;
+      const defender = heroTurn ? enemy : hero;
+      const attackerEl = heroTurn ? battleKnight : battleEnemy;
+      const defenderEl = heroTurn ? battleEnemy : battleKnight;
+      const { amount, crit } = calculateDamage(attacker, defender);
+      applyDamage(defender, amount);
+      if (defender === hero && hero.shieldWallCharges > 0) {
+        consumeShieldWallCharge(hero);
+      }
+      return {
+        attacker,
+        defender,
+        attackerEl,
+        defenderEl,
+        amount,
+        crit,
+        heroTurn,
+        attackerName: heroTurn ? "Ritter" : enemy.name,
+        defenderName: heroTurn ? enemy.name : "Ritter"
+      };
+    }
+
+    function presentBattleTurn(turn) {
+      const critNote = turn.crit ? " (Kritisch!)" : "";
+      safeBattlePresentation("active-side", () => setActiveBattleSide(turn.heroTurn));
+      safeBattlePresentation("attack-motion", () => playAttack(turn.attackerEl, turn.defenderEl));
+      safeBattlePresentation("hit-pulse", () => pulseBattleSide(!turn.heroTurn));
+      safeBattlePresentation("damage-number", () => spawnDamageNumber(
+        turn.defenderEl,
+        turn.amount,
+        turn.heroTurn ? "enemy" : "hero",
+        turn.crit
+      ));
+      safeBattlePresentation("battle-log", () => pushBattleLog(
+        `${turn.attackerName} trifft ${turn.defenderName} für ${turn.amount} Schaden${critNote}.`,
+        turn.heroTurn ? "hero" : "enemy"
+      ));
+    }
+
+    async function runBattleLoop(hero, enemy, runId = BATTLE_ENGINE_V2_STATE.runId) {
+      let heroTurn = true;
+      BATTLE_ENGINE_V2_STATE.turn = 0;
+      BATTLE_ENGINE_V2_STATE.lastActor = null;
+      BATTLE_ENGINE_V2_STATE.lastError = null;
+
+      while (hero.hp > 0 && enemy.hp > 0) {
+        if (runId !== BATTLE_ENGINE_V2_STATE.runId) {
+          throw new Error("Battle run was superseded by a newer session.");
+        }
+        BATTLE_ENGINE_V2_STATE.turn += 1;
+        if (BATTLE_ENGINE_V2_STATE.turn > BATTLE_ENGINE_V2_STATE.maxTurns) {
+          throw new Error(`Battle safety stop after ${BATTLE_ENGINE_V2_STATE.maxTurns} turns.`);
+        }
+
+        const turn = resolveBattleTurn(hero, enemy, heroTurn);
+        BATTLE_ENGINE_V2_STATE.lastActor = heroTurn ? "hero" : "enemy";
+        presentBattleTurn(turn);
+        safeBattlePresentation("hp-ui", () => updateHpUi(hero, enemy));
+
+        await waitBattleEngine(680);
+
+        if (heroTurn) {
           tickHeroSkillCooldowns(hero);
           tickHeroBuffs(hero);
         }
-        if (defender.hp <= 0) break;
-        [attacker, defender] = attacker === hero ? [enemy, hero] : [hero, enemy];
-        [attackerEl, defenderEl] = attackerEl === battleKnight ? [battleEnemy, battleKnight] : [battleKnight, battleEnemy];
-        await delay(220);
+        if (turn.defender.hp <= 0) break;
+
+        heroTurn = !heroTurn;
+        await waitBattleEngine(220);
       }
-      clearBattleSideState();
-      return enemy.hp <= 0;
+
+      safeBattlePresentation("clear-side-state", () => clearBattleSideState());
+      return enemy.hp <= 0 && hero.hp > 0;
     }
 
     function finishBattle(hero, enemy, level, heroWon) {
