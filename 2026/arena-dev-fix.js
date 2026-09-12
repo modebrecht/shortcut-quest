@@ -252,13 +252,13 @@
 
     #battleView .battle-stage-preview .a8-arena-weapon.weapon-left {
       left: 18% !important;
-      bottom: -13% !important;
+      bottom: -25% !important;
       transform: rotate(-28deg) scale(1.06) !important;
     }
 
     #battleView .battle-stage-preview .a8-arena-weapon.weapon-right {
       right: 18% !important;
-      bottom: -13% !important;
+      bottom: -25% !important;
       transform: rotate(28deg) scale(1.06) !important;
     }
 
@@ -439,8 +439,8 @@
         width: 64px !important;
         height: 64px !important;
       }
-      #battleView .battle-stage-preview .a8-arena-weapon.weapon-left { left: 14% !important; bottom: -9% !important; }
-      #battleView .battle-stage-preview .a8-arena-weapon.weapon-right { right: 14% !important; bottom: -9% !important; }
+      #battleView .battle-stage-preview .a8-arena-weapon.weapon-left { left: 14% !important; bottom: -20% !important; }
+      #battleView .battle-stage-preview .a8-arena-weapon.weapon-right { right: 14% !important; bottom: -20% !important; }
       #battleView .battle-stage-preview .battle-statline {
         bottom: 92px !important;
         gap: .14rem !important;
