@@ -160,7 +160,6 @@ try {
   assert.equal(preview.arenaSvg, true, 'Pre-battle premium arena composition must remain active');
   assert.match(preview.background, /arena-scene\.svg/i, 'Pre-battle must still use premium arena-scene.svg');
 
-  // Deterministic variance/crit makes the Battle-only autohit multiplier measurable.
   await page.evaluate(() => { Math.random = () => 0.5; });
 
   const completed = [];
@@ -213,7 +212,6 @@ try {
     assert.ok(scene.sharedGroundDelta <= 2, `Fight ${fightIndex + 1}: fighters must share one groundline (delta ${scene.sharedGroundDelta})`);
 
     if (fightIndex === 0) {
-      // Keep the diagnostic fight alive and stop enemy hits from racing the effect assertions.
       await page.evaluate(() => {
         currentBattleContext.hero.hp = 800;
         currentBattleContext.hero.maxHp = 1000;
@@ -271,6 +269,9 @@ try {
         await pressCombo(page, combo.sequence);
         successful += 1;
         await page.waitForFunction(count => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle === count, successful);
+        if (skillKey === 'sturm_hieb') {
+          await page.waitForFunction(enemyHpBefore => currentBattleContext.enemy.hp <= enemyHpBefore - 12, effectBefore.enemyHp, { timeout: 2500 });
+        }
 
         const afterSkill = await page.evaluate(key => ({
           coins: state.coins,
@@ -290,7 +291,7 @@ try {
         assert.equal(afterSkill.strongVisual, true, `${skillKey}: shortcut skill must use stronger visual emphasis`);
         assert.equal(afterSkill.rewardLog, true, `${skillKey}: +1 shortcut reward must be visibly surfaced`);
 
-        if (skillKey === 'sturm_hieb') assert.ok(afterSkill.enemyHp <= effectBefore.enemyHp - 12, 'Sturm-Hieb must apply at least 12 instant damage');
+        if (skillKey === 'sturm_hieb') assert.ok(afterSkill.enemyHp <= effectBefore.enemyHp - 12, 'Sturm-Hieb must apply at least 12 instant damage after its lightning callback');
         if (skillKey === 'schutzwall') assert.equal(afterSkill.shieldBonus, 7, 'Schutzwall must apply +7 DEF baseline');
         if (skillKey === 'kampfrausch') assert.ok(afterSkill.heroAtk >= effectBefore.heroAtk + 4, 'Kampfrausch must apply +4 ATK baseline');
         if (skillKey === 'lichtbrunnen') assert.ok(afterSkill.heroHp >= effectBefore.heroHp + 18, 'Lichtbrunnen must heal at least 18 HP');
@@ -324,7 +325,6 @@ try {
 
       await page.evaluate(() => { currentBattleContext.enemy.hp = 1; });
     } else if (fightIndex === 1) {
-      // Prove that the per-battle shortcut bonus resets and awards again.
       await page.evaluate(() => {
         currentBattleContext.hero.hp = 1000;
         currentBattleContext.hero.maxHp = 1000;
@@ -342,7 +342,6 @@ try {
       await page.evaluate(() => { currentBattleContext.enemy.hp = 1; });
     }
 
-    // Historical freeze guard: battle must progress beyond the opening exchange or finish legitimately.
     await page.waitForFunction(() => {
       const engine = window.SHORTCUT_QUEST_BATTLE_ENGINE_V2;
       return engine && (engine.turn >= 3 || engine.phase !== 'fighting');
