@@ -29,48 +29,49 @@ jobs:
             sleep .5
           done
           exit 1
-      - name: Trace five seconds of combat
+      - name: Isolate continuity culprit
         run: |
           node <<'NODE'
           const { chromium } = require('playwright');
-          const assert = require('node:assert/strict');
           (async () => {
             const browser = await chromium.launch({ headless: true });
-            const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-            const errors = [];
-            page.on('pageerror', e => errors.push('PAGEERROR ' + String(e.stack || e)));
-            page.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE ' + m.text()); });
-            await page.goto('http://127.0.0.1:4173/2026/', { waitUntil: 'networkidle' });
-            await page.addStyleTag({ url: 'http://127.0.0.1:4173/2026/arena-dev-tuning.css' });
-            for (const script of ['premium-motion.js','battle-motion.js','arena-dev-fix.js','a8-dev-polish.js']) {
-              await page.addScriptTag({ url: 'http://127.0.0.1:4173/2026/' + script });
-            }
-            await page.locator('.nav-toggle[data-view="battle"]').click();
-            await page.waitForTimeout(350);
-            await page.locator('#battleStartBtn').click();
-            const snapshots = [];
-            for (let i = 0; i < 18; i += 1) {
-              await page.waitForTimeout(300);
-              snapshots.push(await page.evaluate(() => ({
-                t: performance.now(),
+            const scenarios = [
+              ['base', []],
+              ['premium', ['premium-motion.js']],
+              ['battle-motion', ['battle-motion.js']],
+              ['arena-fix', ['arena-dev-fix.js']],
+              ['premium+battle', ['premium-motion.js','battle-motion.js']],
+              ['battle+arena', ['battle-motion.js','arena-dev-fix.js']],
+              ['all-no-polish', ['premium-motion.js','battle-motion.js','arena-dev-fix.js']],
+              ['all', ['premium-motion.js','battle-motion.js','arena-dev-fix.js','a8-dev-polish.js']]
+            ];
+            for (const [name, scripts] of scenarios) {
+              const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+              const errors = [];
+              page.on('pageerror', e => errors.push('PAGEERROR ' + String(e.stack || e)));
+              page.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE ' + m.text()); });
+              await page.goto('http://127.0.0.1:4173/2026/', { waitUntil: 'networkidle' });
+              if (scripts.includes('arena-dev-fix.js')) {
+                await page.addStyleTag({ url: 'http://127.0.0.1:4173/2026/arena-dev-tuning.css' });
+              }
+              for (const script of scripts) await page.addScriptTag({ url: 'http://127.0.0.1:4173/2026/' + script });
+              await page.locator('.nav-toggle[data-view="battle"]').click();
+              await page.waitForTimeout(250);
+              await page.locator('#battleStartBtn').click();
+              const startPerf = await page.evaluate(() => performance.now());
+              await page.waitForTimeout(2600);
+              const state = await page.evaluate(() => ({
+                perf: performance.now(),
                 result: document.getElementById('battleResult')?.textContent?.trim() || '',
                 heroHp: document.getElementById('battleHeroHpValue')?.textContent?.trim() || document.getElementById('heroHpValue')?.textContent?.trim() || '',
                 enemyHp: document.getElementById('battleEnemyHpValue')?.textContent?.trim() || document.getElementById('enemyHpValue')?.textContent?.trim() || '',
                 log: Array.from(document.querySelectorAll('#battleLog > *, .battle-log > *')).map(el => el.textContent?.trim()).filter(Boolean),
                 knightClass: document.getElementById('battleKnight')?.className || '',
-                enemyClass: document.getElementById('battleEnemy')?.className || '',
-                simHidden: document.getElementById('battleSimulation')?.classList.contains('hidden') ?? true,
-                startText: document.getElementById('battleStartBtn')?.textContent?.trim() || '',
-                startDisabled: document.getElementById('battleStartBtn')?.disabled || false
-              })));
+                enemyClass: document.getElementById('battleEnemy')?.className || ''
+              }));
+              console.log('SCENARIO=' + JSON.stringify({name, scripts, elapsed: state.perf - startPerf, ...state, errors}));
+              await page.close();
             }
-            console.log('BATTLE_SNAPSHOTS=' + JSON.stringify(snapshots));
-            console.log('BROWSER_ERRORS=' + JSON.stringify(errors));
-            const allLog = snapshots.flatMap(s => s.log);
-            const uniqueLog = [...new Set(allLog)];
-            console.log('UNIQUE_LOG=' + JSON.stringify(uniqueLog));
-            assert.deepEqual(errors, [], 'battle emitted browser errors');
-            assert.ok(uniqueLog.length >= 3 || /Sieg|Niederlage|gewonnen|verloren/i.test(snapshots.at(-1)?.result || ''), 'battle must progress beyond one hit or finish cleanly');
             await browser.close();
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
