@@ -221,11 +221,18 @@
       filter: drop-shadow(0 14px 16px rgba(0,0,0,.52)) !important;
     }
 
+    /* Enemy PNGs carry transparent canvas below their feet. Correct the visible footline,
+       while the static portrait/shadow wrapper remains on the shared arena baseline. */
+    #battleView .battle-stage-preview .battle-side.enemy .battle-portrait-icon > img,
+    #battleView .battle-stage-preview #battleEnemyPreviewIcon {
+      transform: translateY(78px) !important;
+    }
+
     #battleView .battle-stage-preview .a8-arena-weapon {
       position: absolute !important;
       z-index: 5 !important;
-      width: clamp(62px, 8vw, 86px) !important;
-      height: clamp(62px, 8vw, 86px) !important;
+      width: clamp(78px, 9vw, 98px) !important;
+      height: clamp(78px, 9vw, 98px) !important;
       display: grid !important;
       place-items: center !important;
       pointer-events: none !important;
@@ -244,14 +251,14 @@
     }
 
     #battleView .battle-stage-preview .a8-arena-weapon.weapon-left {
-      left: 14% !important;
-      bottom: 18% !important;
+      left: 18% !important;
+      bottom: -13% !important;
       transform: rotate(-28deg) scale(1.06) !important;
     }
 
     #battleView .battle-stage-preview .a8-arena-weapon.weapon-right {
-      right: 14% !important;
-      bottom: 18% !important;
+      right: 18% !important;
+      bottom: -13% !important;
       transform: rotate(28deg) scale(1.06) !important;
     }
 
@@ -424,12 +431,16 @@
       }
       #battleView .battle-stage-preview .battle-side.hero .battle-portrait { width: 88% !important; }
       #battleView .battle-stage-preview .battle-side.enemy .battle-portrait { width: 96% !important; }
-      #battleView .battle-stage-preview .a8-arena-weapon {
-        width: 58px !important;
-        height: 58px !important;
+      #battleView .battle-stage-preview .battle-side.enemy .battle-portrait-icon > img,
+      #battleView .battle-stage-preview #battleEnemyPreviewIcon {
+        transform: translateY(62px) !important;
       }
-      #battleView .battle-stage-preview .a8-arena-weapon.weapon-left { left: 8% !important; }
-      #battleView .battle-stage-preview .a8-arena-weapon.weapon-right { right: 8% !important; }
+      #battleView .battle-stage-preview .a8-arena-weapon {
+        width: 64px !important;
+        height: 64px !important;
+      }
+      #battleView .battle-stage-preview .a8-arena-weapon.weapon-left { left: 14% !important; bottom: -9% !important; }
+      #battleView .battle-stage-preview .a8-arena-weapon.weapon-right { right: 14% !important; bottom: -9% !important; }
       #battleView .battle-stage-preview .battle-statline {
         bottom: 92px !important;
         gap: .14rem !important;
