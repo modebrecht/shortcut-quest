@@ -1,0 +1,76 @@
+name: Battle Continuity Diagnostic
+
+on:
+  push:
+    branches: [tmp-battle-continuity-debug]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+      - name: Serve app
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/a8-http.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/2026/ >/dev/null; then exit 0; fi
+            sleep .5
+          done
+          exit 1
+      - name: Trace five seconds of combat
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const assert = require('node:assert/strict');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+            const errors = [];
+            page.on('pageerror', e => errors.push('PAGEERROR ' + String(e.stack || e)));
+            page.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE ' + m.text()); });
+            await page.goto('http://127.0.0.1:4173/2026/', { waitUntil: 'networkidle' });
+            await page.addStyleTag({ url: 'http://127.0.0.1:4173/2026/arena-dev-tuning.css' });
+            for (const script of ['premium-motion.js','battle-motion.js','arena-dev-fix.js','a8-dev-polish.js']) {
+              await page.addScriptTag({ url: 'http://127.0.0.1:4173/2026/' + script });
+            }
+            await page.locator('.nav-toggle[data-view="battle"]').click();
+            await page.waitForTimeout(350);
+            await page.locator('#battleStartBtn').click();
+            const snapshots = [];
+            for (let i = 0; i < 18; i += 1) {
+              await page.waitForTimeout(300);
+              snapshots.push(await page.evaluate(() => ({
+                t: performance.now(),
+                result: document.getElementById('battleResult')?.textContent?.trim() || '',
+                heroHp: document.getElementById('battleHeroHpValue')?.textContent?.trim() || document.getElementById('heroHpValue')?.textContent?.trim() || '',
+                enemyHp: document.getElementById('battleEnemyHpValue')?.textContent?.trim() || document.getElementById('enemyHpValue')?.textContent?.trim() || '',
+                log: Array.from(document.querySelectorAll('#battleLog > *, .battle-log > *')).map(el => el.textContent?.trim()).filter(Boolean),
+                knightClass: document.getElementById('battleKnight')?.className || '',
+                enemyClass: document.getElementById('battleEnemy')?.className || '',
+                simHidden: document.getElementById('battleSimulation')?.classList.contains('hidden') ?? true,
+                startText: document.getElementById('battleStartBtn')?.textContent?.trim() || '',
+                startDisabled: document.getElementById('battleStartBtn')?.disabled || false
+              })));
+            }
+            console.log('BATTLE_SNAPSHOTS=' + JSON.stringify(snapshots));
+            console.log('BROWSER_ERRORS=' + JSON.stringify(errors));
+            const allLog = snapshots.flatMap(s => s.log);
+            const uniqueLog = [...new Set(allLog)];
+            console.log('UNIQUE_LOG=' + JSON.stringify(uniqueLog));
+            assert.deepEqual(errors, [], 'battle emitted browser errors');
+            assert.ok(uniqueLog.length >= 3 || /Sieg|Niederlage|gewonnen|verloren/i.test(snapshots.at(-1)?.result || ''), 'battle must progress beyond one hit or finish cleanly');
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
