@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
 const BASE_URL = process.env.TK2_BASE_URL || 'http://127.0.0.1:4173/2026/';
-const LEVELS = [9, 5, 1];
-const BACKGROUNDS = ['celestial', 'mountain', 'forest'];
+const FIGHTS = [
+  { level: 9, background: 'celestial' },
+  { level: 5, background: 'mountain' },
+  { level: 1, background: 'forest' }
+];
 const EXPECTED_SKILLS = new Map([
   ['sturm_hieb', 12],
   ['schutzwall', 7],
@@ -25,7 +28,7 @@ async function pressCombo(page, sequence) {
   assert.ok(Array.isArray(sequence) && sequence.length >= 2, `Expected a real shortcut combo, got ${JSON.stringify(sequence)}`);
   const keys = sequence.map(playwrightKey);
   for (const key of keys) await page.keyboard.down(key);
-  await page.waitForTimeout(35);
+  await page.waitForTimeout(30);
   for (const key of [...keys].reverse()) await page.keyboard.up(key);
 }
 
@@ -34,6 +37,25 @@ async function currentCombo(page, skillKey) {
     const entry = battleSkillStates.find(candidate => candidate?.skill?.key === key);
     return entry ? { sequence: entry.comboSequence?.slice() || [], display: entry.hotkeyDisplay || '' } : null;
   }, skillKey);
+}
+
+async function finishCurrentBattle(page) {
+  await page.waitForFunction(() => {
+    const engine = window.SHORTCUT_QUEST_BATTLE_ENGINE_V2;
+    return engine && (engine.phase === 'victory' || engine.phase === 'defeat');
+  }, null, { timeout: 45000 });
+  return page.evaluate(() => ({
+    version: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.version,
+    phase: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.phase,
+    runId: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.runId,
+    turn: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.turn,
+    lastActor: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.lastActor,
+    lastOutcome: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.lastOutcome,
+    lastError: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.lastError,
+    datasetPhase: document.getElementById('battleView')?.dataset.battlePhase || '',
+    resultText: document.getElementById('battleResult')?.textContent?.trim() || '',
+    logCount: document.querySelectorAll('#battleLog > *, .battle-log > *').length
+  }));
 }
 
 const browser = await chromium.launch({ headless: true });
@@ -69,7 +91,9 @@ try {
   assert.equal(balance.multiplier, 0.45, 'Hero autohit multiplier must be battle-only 45%');
   assert.equal(balance.cooldown, 4, 'Normal skill cooldown must be 4 turns');
   assert.equal(balance.cap, 4, 'Shortcut coin cap must be exactly 4 per battle');
-  for (const [key, power] of EXPECTED_SKILLS) assert.equal(balance.powers[key], power, `${key} tier-1 baseline must be ${power}`);
+  for (const [key, power] of EXPECTED_SKILLS) {
+    assert.equal(balance.powers[key], power, `${key} tier-1 baseline must be ${power}`);
+  }
 
   const equipment = await page.evaluate(() => {
     const now = Date.now();
@@ -116,10 +140,12 @@ try {
     const equippedAtk = state.atk;
     saveState();
     updateUI();
-    return { unequippedAtk, equippedAtk, equippedKey: state.equipment?.weapon || '' };
+    renderBattleButtons();
+    return { unequippedAtk, equippedAtk, equippedKey: state.equipment?.weapon || '', battleUnlocked: state.battleUnlocked };
   });
   assert.equal(equipment.equippedKey, 'qa_balance_blade', 'QA weapon must be equipped through the real inventory flow');
   assert.ok(equipment.equippedAtk > equipment.unequippedAtk, 'Equipment must still increase combat ATK');
+  assert.equal(equipment.battleUnlocked, 9, 'QA setup must expose the three themed battle ranges');
 
   await page.locator('.nav-toggle[data-view="battle"]').click();
   await page.waitForFunction(() => document.getElementById('battleView')?.classList.contains('active'));
@@ -132,23 +158,22 @@ try {
   assert.equal(preview.arenaSvg, true, 'Pre-battle premium arena composition must remain active');
   assert.match(preview.background, /arena-scene\.svg/i, 'Pre-battle must still use premium arena-scene.svg');
 
-  // Make variance/crit deterministic so the autohit regression can be measured exactly.
-  await page.evaluate(() => { window.__A8_QA_RANDOM__ = Math.random; Math.random = () => 0.5; });
+  // Make variance/crit deterministic so the Battle-only autohit multiplier can be measured exactly.
+  await page.evaluate(() => { Math.random = () => 0.5; });
 
   const completed = [];
-  let firstBattleCoinStart = null;
-
-  for (let fight = 0; fight < LEVELS.length; fight += 1) {
-    const level = LEVELS[fight];
-    const expectedBackground = BACKGROUNDS[fight];
-    await page.locator(`#battleButtons .battle-btn[data-enemy="${level}"]`).click();
+  for (let fightIndex = 0; fightIndex < FIGHTS.length; fightIndex += 1) {
+    const { level, background } = FIGHTS[fightIndex];
+    const battleButton = page.locator(`#battleButtons .battle-btn[data-enemy="${level}"]`);
+    assert.equal(await battleButton.isEnabled(), true, `Fight ${fightIndex + 1}: rank ${level} must be enabled in the QA setup`);
+    await battleButton.click();
 
     const before = await page.evaluate(() => ({
       runId: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.runId,
       phase: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.phase,
       coins: state.coins
     }));
-    assert.notEqual(before.phase, 'fighting', `Fight ${fight + 1}: previous fight must not still be running`);
+    assert.notEqual(before.phase, 'fighting', `Fight ${fightIndex + 1}: previous fight must not still be running`);
 
     await page.locator('#battleStartBtn').click();
     await page.waitForFunction(previousRunId => {
@@ -165,14 +190,14 @@ try {
       heroAtk: currentBattleContext?.hero?.atk || 0,
       stateAtk: state.atk
     }));
-    assert.equal(started.phase, 'fighting', `Fight ${fight + 1}: state must enter fighting`);
-    assert.equal(started.datasetPhase, 'fighting', `Fight ${fight + 1}: DOM diagnostics must mirror fighting state`);
-    assert.equal(started.shortcutCoins, 0, `Fight ${fight + 1}: shortcut coin counter must reset at battle start`);
-    assert.equal(started.shortcutActivations, 0, `Fight ${fight + 1}: shortcut activation counter must reset at battle start`);
-    assert.equal(started.heroAtk, started.stateAtk, `Fight ${fight + 1}: equipped combat ATK must reach the battle hero`);
+    assert.equal(started.phase, 'fighting', `Fight ${fightIndex + 1}: state must enter fighting`);
+    assert.equal(started.datasetPhase, 'fighting', `Fight ${fightIndex + 1}: DOM diagnostics must mirror fighting state`);
+    assert.equal(started.shortcutCoins, 0, `Fight ${fightIndex + 1}: shortcut coin counter must reset at battle start`);
+    assert.equal(started.shortcutActivations, 0, `Fight ${fightIndex + 1}: shortcut activation counter must reset at battle start`);
+    assert.equal(started.heroAtk, started.stateAtk, `Fight ${fightIndex + 1}: equipped combat ATK must reach the battle hero`);
 
     await page.waitForFunction(() => Boolean(document.querySelector('#battleArena .a8-themed-battle-backdrop')));
-    const scene = await page.locator('#battleArena').evaluate((arena, expected) => {
+    const scene = await page.locator('#battleArena').evaluate(arena => {
       const backdrop = arena.querySelector('.a8-themed-battle-backdrop');
       const hero = arena.querySelector('.fighter.knight');
       const enemy = arena.querySelector('.fighter.enemy');
@@ -180,15 +205,20 @@ try {
       const er = enemy?.getBoundingClientRect();
       return {
         background: backdrop ? getComputedStyle(backdrop).backgroundImage : '',
-        sharedGroundDelta: Math.abs((hr?.bottom || 0) - (er?.bottom || 0)),
-        expected
+        sharedGroundDelta: Math.abs((hr?.bottom || 0) - (er?.bottom || 0))
       };
-    }, expectedBackground);
-    assert.match(scene.background, new RegExp(`battle-bg-${expectedBackground}\\.svg`, 'i'), `Fight ${fight + 1}: active battle must keep ${expectedBackground} SVG theme`);
-    assert.ok(scene.sharedGroundDelta <= 2, `Fight ${fight + 1}: fighters must share one groundline (delta ${scene.sharedGroundDelta})`);
+    });
+    assert.match(scene.background, new RegExp(`battle-bg-${background}\\.svg`, 'i'), `Fight ${fightIndex + 1}: active battle must keep ${background} SVG theme`);
+    assert.ok(scene.sharedGroundDelta <= 2, `Fight ${fightIndex + 1}: fighters must share one groundline (delta ${scene.sharedGroundDelta})`);
 
-    if (fight === 0) {
-      firstBattleCoinStart = before.coins;
+    if (fightIndex === 0) {
+      // Keep the diagnostic fight alive while shortcuts are fired rapidly.
+      await page.evaluate(() => {
+        currentBattleContext.hero.hp = 1000;
+        currentBattleContext.hero.maxHp = 1000;
+        currentBattleContext.enemy.hp = 1000;
+        currentBattleContext.enemy.maxHp = 1000;
+      });
 
       const damageProbe = await page.evaluate(() => {
         const hero = currentBattleContext.hero;
@@ -202,7 +232,7 @@ try {
         Object.assign(hero, saved);
         return { heroAuto, enemyAuto };
       });
-      assert.equal(damageProbe.heroAuto, 9, '20 raw hero autohit damage must become 9 at the 45% battle multiplier');
+      assert.equal(damageProbe.heroAuto, 9, '20 raw hero autohit damage must become 9 at the 45% Battle multiplier');
       assert.equal(damageProbe.enemyAuto, 20, 'Enemy damage must remain unnerfed');
 
       const skillSnapshot = await page.evaluate(() => ({
@@ -228,6 +258,7 @@ try {
         await pressCombo(page, combo.sequence);
         successful += 1;
         await page.waitForFunction(count => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle === count, successful);
+
         const afterSkill = await page.evaluate(key => ({
           coins: state.coins,
           shortcutCoins: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle,
@@ -236,10 +267,10 @@ try {
           rewardLog: Array.from(document.querySelectorAll('#battleLog > *, .battle-log > *')).some(node => /Shortcut-Bonus/.test(node.textContent || ''))
         }), skillKey);
         assert.equal(afterSkill.coins, skillSnapshot.coinStart + successful, `${skillKey}: valid shortcut must grant exactly +1 coin`);
-        assert.equal(afterSkill.shortcutCoins, successful, `${skillKey}: battle shortcut bonus counter must advance exactly once`);
+        assert.equal(afterSkill.shortcutCoins, successful, `${skillKey}: shortcut counter must advance exactly once`);
         assert.equal(afterSkill.cooldown, 4, `${skillKey}: successful activation must start at 4-turn cooldown`);
-        assert.equal(afterSkill.strongVisual, true, `${skillKey}: skill activation must use stronger visual emphasis`);
-        assert.equal(afterSkill.rewardLog, true, `${skillKey}: +1 shortcut reward must be visibly/logically surfaced`);
+        assert.equal(afterSkill.strongVisual, true, `${skillKey}: shortcut skill must use stronger visual emphasis`);
+        assert.equal(afterSkill.rewardLog, true, `${skillKey}: +1 shortcut reward must be visibly surfaced`);
 
         if (successful === 1) {
           const blockedCombo = await currentCombo(page, skillKey);
@@ -248,7 +279,7 @@ try {
             activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle
           }));
           await pressCombo(page, blockedCombo.sequence);
-          await page.waitForTimeout(80);
+          await page.waitForTimeout(70);
           const blockedAfter = await page.evaluate(() => ({
             coins: state.coins,
             activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle
@@ -261,75 +292,65 @@ try {
       assert.equal(await page.evaluate(() => state.coins), skillSnapshot.coinStart + 4, 'Four valid shortcuts must grant exactly four immediate coins');
 
       const repeatKey = 'sturm_hieb';
-      await page.waitForFunction(key => getHeroSkillCooldown(currentBattleContext.hero, key) === 0 || window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.phase !== 'fighting', repeatKey, { timeout: 14000 });
-      const stillFighting = await page.evaluate(() => window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.phase === 'fighting');
-      if (stillFighting) {
-        const capCombo = await currentCombo(page, repeatKey);
-        const beforeCapAttempt = await page.evaluate(() => ({ coins: state.coins, bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle, activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle }));
-        await pressCombo(page, capCombo.sequence);
-        await page.waitForFunction(count => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle === count + 1, beforeCapAttempt.activations);
-        const afterCapAttempt = await page.evaluate(() => ({ coins: state.coins, bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle }));
-        assert.equal(afterCapAttempt.bonus, 4, 'Fifth valid shortcut must not exceed the 4-coin cap');
-        assert.equal(afterCapAttempt.coins, beforeCapAttempt.coins, 'Fifth valid shortcut must not farm another coin');
-      }
+      await page.waitForFunction(key => getHeroSkillCooldown(currentBattleContext.hero, key) === 0, repeatKey, { timeout: 12000 });
+      const capCombo = await currentCombo(page, repeatKey);
+      const beforeCapAttempt = await page.evaluate(() => ({
+        coins: state.coins,
+        bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle,
+        activations: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle
+      }));
+      await pressCombo(page, capCombo.sequence);
+      await page.waitForFunction(count => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutActivationsThisBattle === count + 1, beforeCapAttempt.activations);
+      const afterCapAttempt = await page.evaluate(() => ({
+        coins: state.coins,
+        bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle
+      }));
+      assert.equal(afterCapAttempt.bonus, 4, 'Fifth valid shortcut must not exceed the 4-coin cap');
+      assert.equal(afterCapAttempt.coins, beforeCapAttempt.coins, 'Fifth valid shortcut must not farm another coin');
 
-      // Finish through the real engine without waiting for a long rank-9 attrition fight.
+      // Let the real Battle V2 loop deliver the finishing blow and terminal transition.
+      await page.evaluate(() => { currentBattleContext.enemy.hp = 1; });
+    } else if (fightIndex === 1) {
+      // Prove that the bonus is fresh in the next battle and can award again.
       await page.evaluate(() => {
-        if (currentBattleContext?.enemy) currentBattleContext.enemy.hp = Math.min(currentBattleContext.enemy.hp, 1);
+        currentBattleContext.hero.hp = 1000;
+        currentBattleContext.hero.maxHp = 1000;
+        currentBattleContext.enemy.hp = 1000;
+        currentBattleContext.enemy.maxHp = 1000;
       });
-    } else if (fight === 1) {
-      const secondBattleCoinStart = before.coins;
-      const skillKey = 'schutzwall';
-      const combo = await currentCombo(page, skillKey);
+      const coinStart = before.coins;
+      const combo = await currentCombo(page, 'schutzwall');
       await pressCombo(page, combo.sequence);
       await page.waitForFunction(() => window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle === 1);
-      const resetProof = await page.evaluate(() => ({ coins: state.coins, bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle }));
+      const resetProof = await page.evaluate(() => ({
+        coins: state.coins,
+        bonus: window.SHORTCUT_QUEST_BATTLE_BALANCE.shortcutCoinsThisBattle
+      }));
       assert.equal(resetProof.bonus, 1, 'Second battle must start a fresh shortcut bonus counter');
-      assert.equal(resetProof.coins, secondBattleCoinStart + 1, 'Second battle first valid shortcut must again grant exactly +1 coin');
-      await page.evaluate(() => {
-        if (currentBattleContext?.enemy) currentBattleContext.enemy.hp = Math.min(currentBattleContext.enemy.hp, 1);
-      });
+      assert.equal(resetProof.coins, coinStart + 1, 'Second battle first valid shortcut must again grant exactly +1 coin');
+      await page.evaluate(() => { currentBattleContext.enemy.hp = 1; });
     }
 
-    // Regression for the historical first-hit freeze: a normal fight must either reach
-    // at least the enemy response / third turn or finish legitimately before that.
+    // Historical freeze guard: every fight must progress beyond the opening exchange or finish legitimately.
     await page.waitForFunction(() => {
       const engine = window.SHORTCUT_QUEST_BATTLE_ENGINE_V2;
       return engine && (engine.turn >= 3 || engine.phase !== 'fighting');
     }, null, { timeout: 7000 });
 
-    await page.waitForFunction(() => {
-      const engine = window.SHORTCUT_QUEST_BATTLE_ENGINE_V2;
-      return engine && (engine.phase === 'victory' || engine.phase === 'defeat');
-    }, null, { timeout: 45000 });
-
-    const result = await page.evaluate(() => ({
-      version: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.version,
-      phase: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.phase,
-      runId: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.runId,
-      turn: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.turn,
-      lastActor: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.lastActor,
-      lastOutcome: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.lastOutcome,
-      lastError: window.SHORTCUT_QUEST_BATTLE_ENGINE_V2.lastError,
-      datasetPhase: document.getElementById('battleView')?.dataset.battlePhase || '',
-      resultText: document.getElementById('battleResult')?.textContent?.trim() || '',
-      logCount: document.querySelectorAll('#battleLog > *, .battle-log > *').length,
-      coins: state.coins
-    }));
-
+    const result = await finishCurrentBattle(page);
     assert.equal(result.version, 2);
-    assert.equal(result.runId, before.runId + 1, `Fight ${fight + 1}: exactly one battle session must start`);
-    assert.ok(result.turn >= 2, `Fight ${fight + 1}: battle must advance beyond the opening strike`);
-    assert.ok(['hero', 'enemy'].includes(result.lastActor), `Fight ${fight + 1}: a real actor must complete a turn`);
-    assert.ok(['victory', 'defeat'].includes(result.phase), `Fight ${fight + 1}: battle must finish in a terminal state`);
-    assert.equal(result.lastOutcome, result.phase, `Fight ${fight + 1}: outcome and phase must agree`);
-    assert.equal(result.datasetPhase, result.phase, `Fight ${fight + 1}: DOM diagnostics must mirror terminal state`);
-    assert.equal(result.lastError, null, `Fight ${fight + 1}: engine must not fail internally`);
-    assert.match(result.resultText, /Sieg|Niederlage/i, `Fight ${fight + 1}: student must receive a clear result`);
-    assert.ok(result.logCount >= 3, `Fight ${fight + 1}: combat log must contain multiple events`);
+    assert.equal(result.runId, before.runId + 1, `Fight ${fightIndex + 1}: exactly one battle session must start`);
+    assert.ok(result.turn >= 2, `Fight ${fightIndex + 1}: battle must advance beyond the opening strike`);
+    assert.ok(['hero', 'enemy'].includes(result.lastActor), `Fight ${fightIndex + 1}: a real actor must complete a turn`);
+    assert.ok(['victory', 'defeat'].includes(result.phase), `Fight ${fightIndex + 1}: battle must finish in a terminal state`);
+    assert.equal(result.lastOutcome, result.phase, `Fight ${fightIndex + 1}: outcome and phase must agree`);
+    assert.equal(result.datasetPhase, result.phase, `Fight ${fightIndex + 1}: DOM diagnostics must mirror terminal state`);
+    assert.equal(result.lastError, null, `Fight ${fightIndex + 1}: engine must not fail internally`);
+    assert.match(result.resultText, /Sieg|Niederlage/i, `Fight ${fightIndex + 1}: student must receive a clear result`);
+    assert.ok(result.logCount >= 3, `Fight ${fightIndex + 1}: combat log must contain multiple events`);
     completed.push(result);
 
-    if (fight < LEVELS.length - 1) {
+    if (fightIndex < FIGHTS.length - 1) {
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.getElementById('battleSimulation')?.classList.contains('hidden'));
       await page.waitForFunction(() => {
@@ -340,8 +361,6 @@ try {
   }
 
   assert.deepEqual(completed.map(result => result.runId), [1, 2, 3], 'Three sequential fights must use distinct sessions');
-  assert.ok(completed.some(result => ['victory', 'defeat'].includes(result.phase)), 'Battles must still reach normal terminal outcomes');
-  assert.ok(firstBattleCoinStart !== null, 'First battle coin baseline must be recorded');
   assert.equal(pageErrors.length, 0, `Battle V2 produced page errors:\n${pageErrors.join('\n')}`);
   console.log(`OK: Battle balance + V2 completed 3 sequential fights (${completed.map(x => `${x.phase}/${x.turn}t`).join(', ')}).`);
 } finally {
