@@ -7,10 +7,9 @@
 }
 
 /* Knight idle pose: both arms hang straight down. The sword assets are flipped
-   blade-down, then anchored low enough that the grip/guard sits at the actual
-   gauntlets rather than across the waist. */
+   blade-down and positioned so the brown grip sits inside each gauntlet. */
 #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-  top: calc(64% + 160px) !important;
+  top: calc(64% + 132px) !important;
   bottom: auto !important;
   width: clamp(78px, 9vw, 98px) !important;
   height: clamp(92px, 10vw, 112px) !important;
@@ -44,7 +43,7 @@
   }
 
   #battleView .battle-stage-preview .battle-side.hero .a8-arena-weapon {
-    top: calc(65% + 116px) !important;
+    top: calc(65% + 94px) !important;
     width: clamp(64px, 18vw, 82px) !important;
     height: clamp(76px, 20vw, 96px) !important;
   }
