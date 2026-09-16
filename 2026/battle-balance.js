@@ -168,32 +168,6 @@
     });
   }
 
-  function sanitizeConsumedEnemyHealItemTurn(turn) {
-    try {
-      const enemyItem = typeof currentBattleContext !== 'undefined'
-        ? currentBattleContext && currentBattleContext.enemy && currentBattleContext.enemy.item
-        : null;
-      if (!enemyItem || enemyItem.kind !== 'heal' || !enemyItem.used) return turn;
-
-      // A heal item is consumable. Core Battle V2 correctly blocks a second heal with
-      // `!enemyItem.used`, but its generic non-shield fallback would otherwise keep
-      // incrementing useCount and presenting the consumed potion as a focus item.
-      enemyItem.useCount = 1;
-      const eventItem = turn && turn.itemEvent && turn.itemEvent.item;
-      const isConsumedHealFallback = Boolean(
-        turn &&
-        turn.itemEvent &&
-        turn.itemEvent.type !== 'heal' &&
-        eventItem &&
-        eventItem.key === enemyItem.key
-      );
-      if (isConsumedHealFallback) {
-        return Object.assign({}, turn, { itemEvent: null });
-      }
-    } catch (_) {}
-    return turn;
-  }
-
   function resetBattleShortcutBonus() {
     shortcutCoinsThisBattle = 0;
     shortcutActivationsThisBattle = 0;
@@ -230,6 +204,7 @@
     if (window.__A8_BATTLE_BALANCE_PATCHED__) return true;
 
     if (typeof calculateDamage !== 'function' ||
+        typeof resolveBattleTurn !== 'function' ||
         typeof getSkillBaseEffect !== 'function' ||
         typeof setHeroSkillCooldown !== 'function' ||
         typeof activateBattleSkill !== 'function' ||
@@ -267,12 +242,29 @@
       return result;
     };
 
+    const originalResolveBattleTurn = resolveBattleTurn;
+    resolveBattleTurn = function balancedResolveBattleTurn(hero, enemy, heroTurn) {
+      const enemyItem = !heroTurn && enemy && enemy.item ? enemy.item : null;
+      if (!enemyItem || enemyItem.kind !== 'heal' || !enemyItem.used) {
+        return originalResolveBattleTurn.apply(this, arguments);
+      }
+
+      // Consumed heal items are inert. Hide the item only while the core resolver
+      // computes this enemy turn so the generic non-shield fallback cannot see it.
+      enemy.item = null;
+      try {
+        return originalResolveBattleTurn.apply(this, arguments);
+      } finally {
+        enemy.item = enemyItem;
+        enemyItem.useCount = 1;
+      }
+    };
+
     if (typeof presentBattleTurn === 'function') {
       const originalPresentBattleTurn = presentBattleTurn;
       presentBattleTurn = function balancedPresentBattleTurn(turn) {
-        const normalizedTurn = sanitizeConsumedEnemyHealItemTurn(turn);
-        markAutoHitVisual(normalizedTurn);
-        return originalPresentBattleTurn.call(this, normalizedTurn);
+        markAutoHitVisual(turn);
+        return originalPresentBattleTurn.call(this, turn);
       };
     }
 
@@ -332,6 +324,7 @@
     heroAutoAttackMultiplier: HERO_AUTO_ATTACK_MULTIPLIER,
     cooldownTurns: SKILL_COOLDOWN_TURNS,
     shortcutCoinCap: SHORTCUT_COIN_CAP,
+    consumedHealResolutionGuard: true,
     skillBaselines: Object.freeze({
       damage: 12,
       defense: 7,

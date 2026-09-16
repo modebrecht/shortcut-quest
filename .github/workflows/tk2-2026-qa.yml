@@ -30,6 +30,8 @@ jobs:
           node --check 2026/qa/battle-engine-v2-browser.mjs
           node --check 2026/qa/battle-ui-browser.mjs
           node --check 2026/qa/battle-premium-hd-browser.mjs
+          node --check 2026/qa/battle-roster-contract-browser.mjs
+          node --check 2026/qa/equipment-battle-contract-browser.mjs
           node --check 2026/qa/economy-audit.mjs
           node --check 2026/qa/economy-browser.mjs
           node --check 2026/qa/replay-policy-browser.mjs
@@ -94,6 +96,8 @@ jobs:
           test -f 2026/qa/battle-engine-v2-browser.mjs
           test -f 2026/qa/battle-ui-browser.mjs
           test -f 2026/qa/battle-premium-hd-browser.mjs
+          test -f 2026/qa/battle-roster-contract-browser.mjs
+          test -f 2026/qa/equipment-battle-contract-browser.mjs
           test -f 2026/qa/economy-audit.mjs
           test -f 2026/qa/economy-browser.mjs
           test -f 2026/qa/replay-policy-browser.mjs
@@ -135,7 +139,7 @@ jobs:
   browser-smoke:
     needs: static-qa
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -175,6 +179,12 @@ jobs:
 
       - name: Premium HD battle + enemy item gate
         run: node 2026/qa/battle-premium-hd-browser.mjs
+
+      - name: Battle roster + reward contract gate
+        run: node 2026/qa/battle-roster-contract-browser.mjs
+
+      - name: Equipment + battle contract gate
+        run: node 2026/qa/equipment-battle-contract-browser.mjs
 
       - name: Economy browser gate
         run: node 2026/qa/economy-browser.mjs
