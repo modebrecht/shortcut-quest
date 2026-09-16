@@ -168,6 +168,32 @@
     });
   }
 
+  function sanitizeConsumedEnemyHealItemTurn(turn) {
+    try {
+      const enemyItem = typeof currentBattleContext !== 'undefined'
+        ? currentBattleContext && currentBattleContext.enemy && currentBattleContext.enemy.item
+        : null;
+      if (!enemyItem || enemyItem.kind !== 'heal' || !enemyItem.used) return turn;
+
+      // A heal item is consumable. Core Battle V2 correctly blocks a second heal with
+      // `!enemyItem.used`, but its generic non-shield fallback would otherwise keep
+      // incrementing useCount and presenting the consumed potion as a focus item.
+      enemyItem.useCount = 1;
+      const eventItem = turn && turn.itemEvent && turn.itemEvent.item;
+      const isConsumedHealFallback = Boolean(
+        turn &&
+        turn.itemEvent &&
+        turn.itemEvent.type !== 'heal' &&
+        eventItem &&
+        eventItem.key === enemyItem.key
+      );
+      if (isConsumedHealFallback) {
+        return Object.assign({}, turn, { itemEvent: null });
+      }
+    } catch (_) {}
+    return turn;
+  }
+
   function resetBattleShortcutBonus() {
     shortcutCoinsThisBattle = 0;
     shortcutActivationsThisBattle = 0;
@@ -244,8 +270,9 @@
     if (typeof presentBattleTurn === 'function') {
       const originalPresentBattleTurn = presentBattleTurn;
       presentBattleTurn = function balancedPresentBattleTurn(turn) {
-        markAutoHitVisual(turn);
-        return originalPresentBattleTurn.apply(this, arguments);
+        const normalizedTurn = sanitizeConsumedEnemyHealItemTurn(turn);
+        markAutoHitVisual(normalizedTurn);
+        return originalPresentBattleTurn.call(this, normalizedTurn);
       };
     }
 
